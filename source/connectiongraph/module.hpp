@@ -41,9 +41,17 @@ public:
     {
         // Get phase
         float f = inputs[0].value;
-        uint32_t samplesPerPeriod = uint32_t((float)fs / f);
-        float phase = (float(time % samplesPerPeriod) / float(samplesPerPeriod)) * 2.0f - 1.0f;
-        outputs[0].value = phase;
+        uint32_t samplesPerPeriod = 0;
+        if(f){
+            samplesPerPeriod = uint32_t((float)fs / f);
+        }
+        if(samplesPerPeriod > 0){
+            float phase = (float(time % samplesPerPeriod) / float(samplesPerPeriod)) * 2.0f - 1.0f;
+            outputs[0].value = phase;
+        }
+        else{
+            outputs[0].value = 0;
+        }
     }
 };
 

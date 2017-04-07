@@ -1,6 +1,8 @@
 #ifndef EXSYNTHVOICE_H_INCLUDED
 #define EXSYNTHVOICE_H_INCLUDED
 
+#include <iostream>
+
 #include "PhasePhckr.h"
 #include "Components/CamelEnvelope.h"
 #include "connectiongraph/connectiongraph.hpp"
@@ -63,29 +65,32 @@ namespace PhasePhckr {
 
     class ExConnectionGraphVoice : public SynthVoiceI {
       public:
-        ExConnectionGraphVoice():connectionGraph(48000),t(0){
-
-          inBusHandle = connectionGraph.addModule(new InputBusModule());
+        ExConnectionGraphVoice():
+          connectionGraph(48000),
+          t(0)
+        {
+          inBus = connectionGraph.addModule(new InputBusModule());
           int phase = connectionGraph.addModule("PHASE");
           int square = connectionGraph.addModule("SQUARE");
           int mul = connectionGraph.addModule("MUL");
-          outBusHandle = connectionGraph.addModule(new OutputBusModule());
+          outBus = connectionGraph.addModule(new OutputBusModule());
 
-          connectionGraph.connect(inBusHandle, 3, phase);
+          connectionGraph.connect(inBus, 3, phase, 0);
           connectionGraph.connect(phase, square);
-          connectionGraph.connect(square, mul, 0);
-          connectionGraph.connect(inBusHandle, 6, mul, 0);
-          connectionGraph.connect(mul, outBusHandle);
+          connectionGraph.connect(square, 0, mul, 0);
+          connectionGraph.connect(inBus, 6, mul, 1);
+          connectionGraph.connect(mul, outBus);
         }
 
         virtual void reset(){}
 
         virtual void update(float * buffer, int numSamples, float sampleRate){
-          Module* bus = connectionGraph.getModule(inBusHandle);
-          ((InputBusModule*)bus)->updateVoice(mpe.getState());
+          InputBusModule* inbusPtr = (InputBusModule*)connectionGraph.getModule(inBus);
           for (int i = 0; i < numSamples; ++i) {
-            connectionGraph.process(outBusHandle, t+i);
-            buffer[i] += connectionGraph.getOutput(outBusHandle, 0);
+            mpe.update();
+            inbusPtr->updateVoice(mpe.getState());
+            connectionGraph.process(outBus, t+i);
+            buffer[i] += connectionGraph.getOutput(outBus, 0);
           }
           t += numSamples;
         }
@@ -93,10 +98,10 @@ namespace PhasePhckr {
       private:
         ConnectionGraph connectionGraph;
         unsigned long t;
-        int inBusHandle;
-        int outBusHandle;
+        int inBus;
+        int outBus;
     };
-    
+
 
 }
 

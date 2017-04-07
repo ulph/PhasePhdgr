@@ -22,7 +22,7 @@ void MPEVoice::on(int note, float velocity) {
     calculatePitchHz();
 }
 
-void MPEVoice::off(float velocity) {
+void MPEVoice::off(int note, float velocity) {
     st.gate = false;
     st.samplesSinceGateOff = 0; 
     st.liftZ = velocity;

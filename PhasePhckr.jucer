@@ -11,29 +11,15 @@
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.1"
               companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions">
   <MAINGROUP id="hSD0uH" name="PhasePhckr">
-    <GROUP id="{93233619-DB93-3F70-EDD3-F682E8353D22}" name="Source">
-      <GROUP id="{D6A6273B-BBD7-1340-8E1E-B0C259086C26}" name="SynthVoices">
-        <FILE id="MNcz4y" name="ExSynthVoice.cpp" compile="1" resource="0"
-              file="Source/SynthVoices/ExSynthVoice.cpp"/>
-        <FILE id="QFRcfJ" name="ExSynthVoice.h" compile="0" resource="0" file="Source/SynthVoices/ExSynthVoice.h"/>
-      </GROUP>
-      <GROUP id="{82CA2776-3640-623F-17A3-F13FC9B2ADCD}" name="JUCE">
-        <FILE id="FGUMiP" name="PhasePhckrPluginEditor.cpp" compile="1" resource="0"
-              file="Source/JUCE/PhasePhckrPluginEditor.cpp"/>
-        <FILE id="Di5BOl" name="PhasePhckrPluginEditor.h" compile="0" resource="0"
-              file="Source/JUCE/PhasePhckrPluginEditor.h"/>
-        <FILE id="K0rWZ6" name="PhasePhckrPluginProcessor.cpp" compile="1"
-              resource="0" file="Source/JUCE/PhasePhckrPluginProcessor.cpp"/>
-        <FILE id="t0O72Y" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
-              file="Source/JUCE/PhasePhckrPluginProcessor.h"/>
-      </GROUP>
-      <GROUP id="{A33A86CD-162A-C7C4-3CD6-57AC6EEA662D}" name="Components">
-        <FILE id="BjRfNi" name="CamelEnvelope.cpp" compile="1" resource="0"
-              file="Source/Components/CamelEnvelope.cpp"/>
-        <FILE id="WAzKHs" name="CamelEnvelope.h" compile="0" resource="0" file="Source/Components/CamelEnvelope.h"/>
-      </GROUP>
-      <FILE id="JY2sdk" name="PhasePhckr.cpp" compile="1" resource="0" file="Source/PhasePhckr.cpp"/>
-      <FILE id="bWSTAR" name="PhasePhckr.h" compile="0" resource="0" file="Source/PhasePhckr.h"/>
+    <GROUP id="{82CA2776-3640-623F-17A3-F13FC9B2ADCD}" name="JUCE">
+      <FILE id="FGUMiP" name="PhasePhckrPluginEditor.cpp" compile="1" resource="0"
+            file="Source/JUCE/PhasePhckrPluginEditor.cpp"/>
+      <FILE id="Di5BOl" name="PhasePhckrPluginEditor.h" compile="0" resource="0"
+            file="Source/JUCE/PhasePhckrPluginEditor.h"/>
+      <FILE id="K0rWZ6" name="PhasePhckrPluginProcessor.cpp" compile="1"
+            resource="0" file="Source/JUCE/PhasePhckrPluginProcessor.cpp"/>
+      <FILE id="t0O72Y" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
+            file="Source/JUCE/PhasePhckrPluginProcessor.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

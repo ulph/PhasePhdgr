@@ -42,7 +42,7 @@ namespace PhasePhckr {
     public:
         MPEVoice();
         void on(int note, float velocity);
-        void off(float velocity);
+        void off(int note, float velocity);
         void glide(float glide);
         void slide(float slide);
         void press(float press);
@@ -104,7 +104,7 @@ namespace PhasePhckr {
 
         void handleNoteOnOff(int channel, int note, float velocity, bool on){
             SynthVoiceI *v = (*voices)[channel];
-            on ? v->mpe.on(note, velocity) : v->mpe.off(velocity);
+            on ? v->mpe.on(note, velocity) : v->mpe.off(note, velocity);
         }
 
         void handleX(int channel, float position){

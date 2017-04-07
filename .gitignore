@@ -1,2 +1,7 @@
 JuceLibraryCode/*
 Builds/*
+/build
+\#*
+.\#*
+/.vscode
+CMakeLists.txt.user

@@ -6,11 +6,22 @@
 #include <string.h>
 
 #include "PhasePhckr.h"
+#include <iostream>
+
+#define CHECKF(v, msg) \
+if(isinf(v) || isnan(v)){ \
+    std::cerr << #v" " << v << " " << msg << std::endl; \
+}
 
 namespace PhasePhckr {
 
     static float NoteToHz(float note) {
-        return 440.f * powf(2.f, (note - 69.f) / 12.f);
+        if(note > 127.f){
+            return 0;
+        }
+        float hz = 440.f * powf(2.f, (note - 69.f) / 12.f);
+        CHECKF(hz, note);
+        return hz;
     }
 
     const long double PI = 3.141592653589793238L;
@@ -61,8 +72,7 @@ namespace PhasePhckr {
     class SynthVoiceI {
     public:
         MPEVoice mpe;
-        virtual void reset() = 0;        // TODO, map up all the rest as we 
-
+        virtual void reset() = 0;
         virtual void update(float * buffer, int numSamples, float sampleRate) = 0;
     };
 

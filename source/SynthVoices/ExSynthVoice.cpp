@@ -39,7 +39,7 @@ void ExSynthVoice::update(float * buffer, int numSamples, float sampleRate){
         float oscMixB = 0.2;
         float oscMixF = voice.slideY + 0.2*envV;
 
-        angle += voice.pitchHz / sampleRate * 2.0 * PI;;
+        angle += voice.pitchHz / sampleRate * 2.0 * PI;
         float angleBoost = (1+10*gain);
         float angleFm = PI * atanf(angle * angleBoost) / atanf(PI * angleBoost);
         float sample = (float)(gain * ((1 - oscMixF) * sin(angleFm) + 0.5*(oscMixB+oscMixF) * sin(2 * angleFm) + sin(angle)));

@@ -1,8 +1,6 @@
 #ifndef EXSYNTHVOICE_H_INCLUDED
 #define EXSYNTHVOICE_H_INCLUDED
 
-#include <iostream>
-
 #include "PhasePhckr.h"
 #include "Components/CamelEnvelope.h"
 #include "connectiongraph/connectiongraph.hpp"
@@ -43,7 +41,7 @@ namespace PhasePhckr {
           outputs[3].value = state.pitchHz;
           outputs[4].value = state.glideX;
           outputs[5].value = state.slideY;
-          outputs[6].value = state.pressZ;
+          outputs[6].value = state.pressZ;               
         }
 
         virtual void process(uint32_t fs){};
@@ -71,13 +69,13 @@ namespace PhasePhckr {
         {
           inBus = connectionGraph.addModule(new InputBusModule());
           int phase = connectionGraph.addModule("PHASE");
-          int square = connectionGraph.addModule("SQUARE");
+          int osc = connectionGraph.addModule("SQUARE");
           int mul = connectionGraph.addModule("MUL");
           outBus = connectionGraph.addModule(new OutputBusModule());
 
           connectionGraph.connect(inBus, 3, phase, 0);
-          connectionGraph.connect(phase, square);
-          connectionGraph.connect(square, 0, mul, 0);
+          connectionGraph.connect(phase, osc);
+          connectionGraph.connect(osc , 0, mul, 0);
           connectionGraph.connect(inBus, 6, mul, 1);
           connectionGraph.connect(mul, outBus);
         }
@@ -87,8 +85,10 @@ namespace PhasePhckr {
         virtual void update(float * buffer, int numSamples, float sampleRate){
           InputBusModule* inbusPtr = (InputBusModule*)connectionGraph.getModule(inBus);
           for (int i = 0; i < numSamples; ++i) {
+            MPEVoiceState v;
             mpe.update();
-            inbusPtr->updateVoice(mpe.getState());
+            v = mpe.getState();
+            inbusPtr->updateVoice(v);
             connectionGraph.process(outBus, t+i);
             buffer[i] += connectionGraph.getOutput(outBus, 0);
           }

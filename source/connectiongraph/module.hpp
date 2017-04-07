@@ -1,6 +1,8 @@
 #ifndef MODULE_HPP
 #define MODULE_HPP
 
+#include <math.h>
+
 struct Pad
 {
     float value;
@@ -20,7 +22,12 @@ public:
     virtual void process(uint32_t fs) = 0;
     uint32_t getTime() { return time; }
     void setTime(uint32_t t) { time = t; }
-    float getOutput(int outputPad) { return outputs[outputPad].value; }
+    float getOutput(int outputPad) { 
+        if(outputPad >= 0 && outputPad < outputs.size()){
+            return outputs[outputPad].value; 
+        }
+        return 0;
+        }
     void setInput(int inputPad, float value) {
         if(inputPad >= 0 && inputPad < inputs.size()) {
             inputs[inputPad].value = value;
@@ -41,17 +48,26 @@ public:
     {
         // Get phase
         float f = inputs[0].value;
-        uint32_t samplesPerPeriod = 0;
-        if(f){
-            samplesPerPeriod = uint32_t((float)fs / f);
+        float p = outputs[0].value;
+        if(fs){
+            p += 2 * f / (float)fs;
         }
-        if(samplesPerPeriod > 0){
-            float phase = (float(time % samplesPerPeriod) / float(samplesPerPeriod)) * 2.0f - 1.0f;
-            outputs[0].value = phase;
-        }
-        else{
-            outputs[0].value = 0;
-        }
+        while(p > 1){p-=2;}
+        while(p < -1){p+=2;}
+        outputs[0].value = p;        
+    }
+};
+
+class Sine : public Module
+{
+public:
+    Sine() {
+        inputs.push_back(Pad("phase", 0.0f));
+        outputs.push_back(Pad("sine"));
+    }
+    void process(uint32_t fs)
+    {
+        outputs[0].value = sin(M_PI * inputs[0].value);
     }
 };
 
@@ -59,9 +75,9 @@ class Square : public Module
 {
 public:
     Square() {
-        inputs.push_back(Pad("phase"));
+        inputs.push_back(Pad("phase", 0.0f));
         inputs.push_back(Pad("dutycycle", 1.0f));
-        outputs.push_back(Pad("square", 0.0f));
+        outputs.push_back(Pad("square"));
     }
     void process(uint32_t fs)
     {

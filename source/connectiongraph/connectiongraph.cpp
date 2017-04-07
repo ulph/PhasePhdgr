@@ -49,6 +49,7 @@ int ConnectionGraph::addModule(const char *type)
     else if(!strcmp(type, "CLAMP"))  m = new Clamp();
     else if(!strcmp(type, "QUANT8"))  m = new Quant8();
     else if(!strcmp(type, "NOISE"))  m = new Noise();
+    else if(!strcmp(type, "SINE"))   m = new Sine();
     
     if(m) {
         id = (int)modules.size();

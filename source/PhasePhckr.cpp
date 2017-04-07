@@ -7,7 +7,8 @@ namespace PhasePhckr{
 
 /* MPEVoice */
 
-MPEVoice::MPEVoice() : slewFactor(0.995f) {
+MPEVoice::MPEVoice() : slewFactor(0.995f), rootNote(0) {
+    reset();
 }
 
 void MPEVoice::calculatePitchHz() {
@@ -40,16 +41,15 @@ void MPEVoice::press(float press) {
 }
 
 void MPEVoice::update() {
-    st.glideX = slewFactor * st.glideX + (1-slewFactor) * tg.glideX;
-    st.slideY = slewFactor * st.slideY + (1-slewFactor) * tg.slideY;
-    st.pressZ = slewFactor * st.pressZ + (1-slewFactor) * tg.pressZ;
+    st.glideX = slewFactor * st.glideX + (1.0f-slewFactor) * tg.glideX;
+    st.slideY = slewFactor * st.slideY + (1.0f-slewFactor) * tg.slideY;
+    st.pressZ = slewFactor * st.pressZ + (1.0f-slewFactor) * tg.pressZ;
     calculatePitchHz();
 }
 
 void MPEVoice::reset(){
     memset(&st, 0, sizeof(st));
     memset(&tg, 0, sizeof(tg));
-    memset(&cfg, 0, sizeof(cfg));
 }
 
 const MPEVoiceState & MPEVoice::getState() {

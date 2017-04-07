@@ -68,7 +68,7 @@
       </MODULEPATHS>
     </VS2015>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vst3Folder="" extraLinkerFlags=""
-                externalLibraries="phasephckr">
+                externalLibraries="phasephckr&#10;connectiongraph">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"
                        libraryPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/lib"

@@ -16,17 +16,14 @@ void MPEVoice::calculatePitchHz() {
 }
 
 void MPEVoice::on(int note, float velocity) {
-    st.gate = true;
-    st.samplesSinceGateOn = 0;
-    st.samplesSinceGateOff = 0;
+    st.gate = 1.f;
     rootNote = note;
     st.strikeZ = velocity;
     calculatePitchHz();
 }
 
 void MPEVoice::off(int note, float velocity) {
-    st.gate = false;
-    st.samplesSinceGateOff = 0; 
+    st.gate = 0.f;
     st.liftZ = velocity;
 }
 
@@ -43,8 +40,6 @@ void MPEVoice::press(float press) {
 }
 
 void MPEVoice::update() {
-    st.samplesSinceGateOn++;
-    st.samplesSinceGateOff++;
     st.glideX = slewFactor * st.glideX + (1-slewFactor) * tg.glideX;
     st.slideY = slewFactor * st.slideY + (1-slewFactor) * tg.slideY;
     st.pressZ = slewFactor * st.pressZ + (1-slewFactor) * tg.pressZ;
@@ -113,7 +108,7 @@ void VoiceBus::handleZ(int channel, float position){
 
 Synth::Synth() {
     for(int i=0; i<16; ++i){
-        SynthVoiceI* v = new ExSynthVoice();
+        SynthVoiceI* v = new ExConnectionGraphVoice();
         v->reset();
         voices.push_back(v);
     }

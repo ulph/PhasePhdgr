@@ -40,7 +40,7 @@ namespace PhasePhckr {
         Synth();
         VoiceBus voiceBus;
         AutomationBus automationBus;
-        virtual void update(float * buffer, int numSamples, float sampleRate) = 0;
+        virtual void update(float * buffer, int numSamples, float sampleRate);
     
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation

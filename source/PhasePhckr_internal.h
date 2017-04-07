@@ -22,9 +22,7 @@ namespace PhasePhckr {
         float slideY; // horizontal up/down, 0 to 1
         float glideX; // pitch bend, -1 to 1
         float pitchHz; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
-        long samplesSinceGateOn; // for statey stuff (envelopes etc)
-        long samplesSinceGateOff; // for statey stuff (release envelopes etc)
-        bool gate; // open or closed, for statey stuff
+        float gate; // open or closed, for statey stuff
     };
 
 
@@ -63,7 +61,8 @@ namespace PhasePhckr {
     class SynthVoiceI {
     public:
         MPEVoice mpe;
-        virtual void reset() = 0;
+        virtual void reset() = 0;        // TODO, map up all the rest as we 
+
         virtual void update(float * buffer, int numSamples, float sampleRate) = 0;
     };
 

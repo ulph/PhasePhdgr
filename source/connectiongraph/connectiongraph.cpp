@@ -39,8 +39,8 @@ Module* ConnectionGraph::getModule(int id)
 
 int ConnectionGraph::addModule(const char *type)
 {
-    Module *m = nullptr;
     int id = -1;
+    Module *m = nullptr;
     
     if(     !strcmp(type, "PHASE"))  m = new Phase();
     else if(!strcmp(type, "SQUARE")) m = new Square();
@@ -55,6 +55,19 @@ int ConnectionGraph::addModule(const char *type)
         modules.push_back(m);
     } else {
         std::cerr << "Error: Module '" << type << "' not found" << std::endl;
+    }
+    
+    return id;
+}
+
+int ConnectionGraph::addModule(Module *m){
+    int id = -1;
+    
+    if(m) {
+        id = (int)modules.size();
+        modules.push_back(m);
+    } else {
+        std::cerr << "Error: Module invalid" << std::endl;
     }
     
     return id;

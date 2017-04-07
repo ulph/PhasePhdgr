@@ -11,10 +11,11 @@ class ConnectionGraph
 protected:
     std::vector<Module*> modules;
     std::vector<Cable*> cables;
-    Module* getModule(int id);
     uint32_t fs;
 public:
+    Module* getModule(int id);
     ConnectionGraph(uint32_t fs);
+    int addModule(Module * module);
     int addModule(const char *type);
     void connect(int fromModule, int fromPad, int toModule, int toPad);
     void connect(int fromModule, int toModule, int toPad) { connect(fromModule, 0, toModule, toPad); }

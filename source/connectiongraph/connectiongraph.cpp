@@ -53,6 +53,9 @@ int ConnectionGraph::addModule(const char *type)
     else if(!strcmp(type, "ATAN"))   m = new AtanSaturator();
     else if(!strcmp(type, "CONST"))  m = new Constant();
     else if(!strcmp(type, "ENV"))    m = new CamelEnvelope();
+    else if(!strcmp(type, "LAG"))    m = new Lag();
+    else if(!strcmp(type, "RECT"))   m = new Rectifier();
+    else if(!strcmp(type, "FOLD"))   m = new FoldBack();
     
     if(m) {
         id = (int)modules.size();

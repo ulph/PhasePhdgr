@@ -136,7 +136,6 @@ public:
     }
 };
 
-
 class Mul : public Module
 {
 public:
@@ -161,6 +160,58 @@ public:
         outputs[0] = inputs[0];
         if(outputs[0].value < -1.0f) outputs[0].value = -1.0f;
         else if(outputs[0].value > 1.0f) outputs[0].value = 1.0f;
+    }
+};
+
+class Lag : public Module
+{
+public:
+    Lag() {
+        inputs.push_back(Pad("input"));
+        inputs.push_back(Pad("amount"));
+        outputs.push_back(Pad("output"));
+    }
+    void process(uint32_t fs) {
+        outputs[0].value = outputs[0].value * inputs[1].value + inputs[0].value * ( 1 - inputs[1].value );
+    }
+};
+
+class Rectifier : public Module
+{
+public:
+    Rectifier() {
+        inputs.push_back(Pad("input"));
+        outputs.push_back(Pad("output"));
+    }
+    void process(uint32_t fs) {
+        float v = inputs[0].value;
+        outputs[0].value = v >= 0 ? v : -v;
+    }
+};
+
+class FoldBack : public Module
+{
+public:
+    FoldBack() {
+        inputs.push_back(Pad("input"));
+        inputs.push_back(Pad("threshhold", 1.f));
+        outputs.push_back(Pad("output"));
+    }
+    void process(uint32_t fs) {
+        float v = inputs[0].value;
+        float t = fabs(inputs[1].value);
+        float d = fabs(inputs[0].value) - inputs[1].value;
+        if(d > 0){
+            if(v >= 0){
+                outputs[0].value = v-2*d;
+            }
+            else{
+                outputs[0].value = v+2*d;
+            }
+        }
+        else{
+            outputs[0].value = inputs[0].value;
+        }
     }
 };
 

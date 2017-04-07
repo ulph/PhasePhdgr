@@ -1,7 +1,8 @@
 #include "PhasePhckr.h"
 #include <string.h>
+#include "SynthVoices/ExSynthVoice.h"
 
-using namespace PhasePhckr;
+namespace PhasePhckr{
 
 /* MPEVoice */
 
@@ -88,4 +89,16 @@ int ComponentI::findPortNumber(const std::vector<const char *> &portNames, const
         i++;
     }
     return ret;
+}
+
+
+Synth::Synth() {
+    for(int i=0; i<16; ++i){
+        SynthVoiceI* v = new ExSynthVoice();
+        v->reset();
+        voices.push_back(v);
+    }
+    voiceBus = VoiceBus(&voices);
+}
+
 }

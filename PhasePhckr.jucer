@@ -11,16 +11,14 @@
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.1"
               companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions">
   <MAINGROUP id="hSD0uH" name="PhasePhckr">
-    <GROUP id="{82CA2776-3640-623F-17A3-F13FC9B2ADCD}" name="JUCE">
-      <FILE id="FGUMiP" name="PhasePhckrPluginEditor.cpp" compile="1" resource="0"
-            file="Source/JUCE/PhasePhckrPluginEditor.cpp"/>
-      <FILE id="Di5BOl" name="PhasePhckrPluginEditor.h" compile="0" resource="0"
-            file="Source/JUCE/PhasePhckrPluginEditor.h"/>
-      <FILE id="K0rWZ6" name="PhasePhckrPluginProcessor.cpp" compile="1"
-            resource="0" file="Source/JUCE/PhasePhckrPluginProcessor.cpp"/>
-      <FILE id="t0O72Y" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
-            file="Source/JUCE/PhasePhckrPluginProcessor.h"/>
-    </GROUP>
+    <FILE id="Tj3NUJ" name="PhasePhckrPluginEditor.cpp" compile="1" resource="0"
+          file="JUCE/PhasePhckrPluginEditor.cpp"/>
+    <FILE id="sAf1gc" name="PhasePhckrPluginEditor.h" compile="0" resource="0"
+          file="JUCE/PhasePhckrPluginEditor.h"/>
+    <FILE id="UoKnho" name="PhasePhckrPluginProcessor.cpp" compile="1"
+          resource="0" file="JUCE/PhasePhckrPluginProcessor.cpp"/>
+    <FILE id="Ydu0o1" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
+          file="JUCE/PhasePhckrPluginProcessor.h"/>
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -69,11 +67,15 @@
         <MODULEPATH id="juce_audio_plugin_client" path="../../sdk/JUCE/modules"/>
       </MODULEPATHS>
     </VS2015>
-    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vst3Folder="">
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vst3Folder="" extraLinkerFlags=""
+                externalLibraries="phasephckr">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"
+                       libraryPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/lib"
+                       headerPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/include"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"
-                       binaryPath="~/.vst"/>
+                       binaryPath="~/.vst" libraryPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/lib"
+                       headerPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

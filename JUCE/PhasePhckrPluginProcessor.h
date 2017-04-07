@@ -12,7 +12,7 @@
 #define PLUGINPROCESSOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "../SynthVoices/ExSynthVoice.h" // for now
+#include "PhasePhckr.h" // for now
 
 //==============================================================================
 /**

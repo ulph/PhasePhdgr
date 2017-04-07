@@ -126,6 +126,21 @@ namespace PhasePhckr {
         // handles the automation (global VST) parameters
     };
 
+    class Synth {
+    public:
+        Synth();
+        VoiceBus voiceBus;
+        AutomationBus automationBus;
+        virtual void update(float * buffer, int numSamples, float sampleRate) {
+            for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
+            for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
+        }
+    private:
+        std::vector<SynthVoiceI*> voices; // per note sound generation
+        std::vector<SynthVoiceI*> effects; // effects applied to mix of voices (in series)
+        // settings like voice stacking, per voice detuning and etc etc goes here
+    };
+
 }
 
 #endif  // PHASEPHCKR_H_INCLUDED

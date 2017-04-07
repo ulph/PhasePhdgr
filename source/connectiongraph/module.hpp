@@ -2,6 +2,7 @@
 #define MODULE_HPP
 
 #include <math.h>
+#include <iostream>
 
 struct Pad
 {
@@ -89,7 +90,7 @@ class Constant : public Module
 {
 public:
     Constant() {
-        inputs.push_back(Pad("constant"));
+        inputs.push_back(Pad("constant", 1.0f));
         outputs.push_back(Pad("constant"));
     }
     void process(uint32_t fs)
@@ -186,6 +187,20 @@ public:
     void process(uint32_t fs) {
         float v = inputs[0].value;
         outputs[0].value = v >= 0 ? v : -v;
+    }
+};
+
+class CrossFade : public Module
+{
+public:
+    CrossFade() {
+        inputs.push_back(Pad("first"));
+        inputs.push_back(Pad("second"));
+        inputs.push_back(Pad("crossfade"));
+        outputs.push_back(Pad("output"));
+    }
+    void process(uint32_t fs) {
+        outputs[0].value = inputs[2].value*inputs[0].value + (1-inputs[2].value)*inputs[1].value;
     }
 };
 
@@ -291,15 +306,15 @@ class CamelEnvelope : public Module
         }
         gate = new_gate;
         
-        float time = (float)samplesCtr / (float) fs;
+        float envTime = (float)samplesCtr / (float) fs;
         if(gate){
-            if(time < onAttackSpeed){
+            if(envTime < onAttackSpeed){
                 // attack region
-                target_value = (sustainHeight + onBumpHeight) * (time / onAttackSpeed);
+                target_value = (sustainHeight + onBumpHeight) * (envTime / onAttackSpeed);
             }
-            else if(time < (onAttackSpeed + onDecaySpeed)){
+            else if(envTime < (onAttackSpeed + onDecaySpeed)){
                 // decay region
-                target_value = sustainHeight + onBumpHeight * (1 - ((time - onAttackSpeed) / onDecaySpeed));
+                target_value = sustainHeight + onBumpHeight * (1 - ((envTime - onAttackSpeed) / onDecaySpeed));
             }
             else{
                 // sustain region
@@ -307,13 +322,13 @@ class CamelEnvelope : public Module
             }
         }
         else{
-            if(time < offAttackSpeed){
+            if(envTime < offAttackSpeed){
                 // release attack region
-                target_value = sustainHeight + offBumpHeight * (time / offAttackSpeed);
+                target_value = sustainHeight + offBumpHeight * (envTime / offAttackSpeed);
             }
-            else if(time < (offAttackSpeed + offDecaySpeed)){
+            else if(envTime < (offAttackSpeed + offDecaySpeed)){
                 // release decay region
-                target_value = (sustainHeight + offBumpHeight) * (1 - ((time - offAttackSpeed) / offDecaySpeed));
+                target_value = (sustainHeight + offBumpHeight) * (1 - ((envTime - offAttackSpeed) / offDecaySpeed));
             }
             else{
                 // closed region

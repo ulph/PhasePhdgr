@@ -70,25 +70,31 @@ namespace PhasePhckr {
           outBus = connectionGraph.addModule(new OutputBusModule());
 
           int phase = connectionGraph.addModule("PHASE");
-          int osc1 = connectionGraph.addModule("SINE");
           int osc2 = connectionGraph.addModule("SINE");
           int osc3 = connectionGraph.addModule("SINE");
           int noise = connectionGraph.addModule("NOISE");
-          int atan1 = connectionGraph.addModule("ATAN");
           int atan2 = connectionGraph.addModule("ATAN");
-          int oscEnv = connectionGraph.addModule("ENV");
-          int noiseEnv = connectionGraph.addModule("ENV");
-          int osc12blendBias = connectionGraph.addModule("CONST");
-          int mul = connectionGraph.addModule("MUL");
+          int const2 = connectionGraph.addModule("CONST");
+          int mul2 = connectionGraph.addModule("MUL"); 
+          int mixEnv = connectionGraph.addModule("ENV");
+          int mixAmp = connectionGraph.addModule("MUL");
 
           connectionGraph.connect(inBus, 3, phase, 0);
-          connectionGraph.connect(phase, osc1);
-          connectionGraph.connect(osc1 , 0, mul, 0);
-          connectionGraph.connect(inBus, 6, mul, 1);
-          connectionGraph.connect(mul, outBus);
+          connectionGraph.connect(inBus, 0, mixEnv, 0);
+          connectionGraph.connect(inBus, 6, mixEnv, 4);
 
-          // TODO; replicate the ExSynthVoice architechture, all things should be in place now
+          connectionGraph.connect(phase, 0, osc3, 0);
 
+          connectionGraph.connect(phase, 0, atan2, 0);
+          connectionGraph.connect(const2, 0, mul2, 0);
+          connectionGraph.connect(atan2, 0, mul2, 1);
+          connectionGraph.connect(mul2, 0, osc2, 0);
+
+//          connectionGraph.connect(osc2, 0, mixAmp, 0);
+          connectionGraph.connect(osc3, 0, mixAmp, 0);
+          connectionGraph.connect(mixEnv, 0, mixAmp, 1);
+
+          connectionGraph.connect(mixAmp, 0, outBus, 0);
         }
 
         virtual void reset(){}

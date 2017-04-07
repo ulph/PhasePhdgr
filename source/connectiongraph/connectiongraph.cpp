@@ -56,6 +56,7 @@ int ConnectionGraph::addModule(const char *type)
     else if(!strcmp(type, "LAG"))    m = new Lag();
     else if(!strcmp(type, "RECT"))   m = new Rectifier();
     else if(!strcmp(type, "FOLD"))   m = new FoldBack();
+    else if(!strcmp(type, "XFADE"))  m = new CrossFade();
     
     if(m) {
         id = (int)modules.size();

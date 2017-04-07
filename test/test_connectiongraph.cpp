@@ -25,6 +25,9 @@ int main()
 
     int speaker = s.addModule("CLAMP");
     s.connect(q8, speaker, 0);
+
+    // int noise = s.addModule(("NOISE"));
+    // s.connect(noise, speaker);
     
     for(uint32_t t = 0; t < 5*fs; t++) {
         s.process(speaker, t);

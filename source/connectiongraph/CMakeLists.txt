@@ -4,5 +4,5 @@ set(SRC
     module.hpp
 )
 
-add_library(connectiondiagram ${SRC})
+add_library(connectiongraph ${SRC})
 

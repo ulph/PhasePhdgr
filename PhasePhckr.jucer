@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="oOaAxT" name="PhasePhckr" projectType="audioplug" version="0.0.1"
+              bundleIdentifier="com.yourcompany.PhasePhckr" includeBinaryInAppConfig="1"
+              buildVST="1" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" pluginName="PhasePhckr" pluginDesc="PhasePhckr"
+              pluginManufacturer="ulham solutions" pluginManufacturerCode="Manu"
+              pluginCode="Ooaa" pluginChannelConfigs="" pluginIsSynth="1" pluginWantsMidiIn="1"
+              pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0"
+              pluginAUExportPrefix="PhasePhckrAU" pluginRTASCategory="" aaxIdentifier="com.yourcompany.PhasePhckr"
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.1"
+              companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions">
+  <MAINGROUP id="hSD0uH" name="PhasePhckr">
+    <GROUP id="{93233619-DB93-3F70-EDD3-F682E8353D22}" name="Source">
+      <GROUP id="{D6A6273B-BBD7-1340-8E1E-B0C259086C26}" name="SynthVoices">
+        <FILE id="MNcz4y" name="ExSynthVoice.cpp" compile="1" resource="0"
+              file="Source/SynthVoices/ExSynthVoice.cpp"/>
+        <FILE id="QFRcfJ" name="ExSynthVoice.h" compile="0" resource="0" file="Source/SynthVoices/ExSynthVoice.h"/>
+      </GROUP>
+      <GROUP id="{82CA2776-3640-623F-17A3-F13FC9B2ADCD}" name="JUCE">
+        <FILE id="FGUMiP" name="PhasePhckrPluginEditor.cpp" compile="1" resource="0"
+              file="Source/JUCE/PhasePhckrPluginEditor.cpp"/>
+        <FILE id="Di5BOl" name="PhasePhckrPluginEditor.h" compile="0" resource="0"
+              file="Source/JUCE/PhasePhckrPluginEditor.h"/>
+        <FILE id="K0rWZ6" name="PhasePhckrPluginProcessor.cpp" compile="1"
+              resource="0" file="Source/JUCE/PhasePhckrPluginProcessor.cpp"/>
+        <FILE id="t0O72Y" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
+              file="Source/JUCE/PhasePhckrPluginProcessor.h"/>
+      </GROUP>
+      <GROUP id="{A33A86CD-162A-C7C4-3CD6-57AC6EEA662D}" name="Components">
+        <FILE id="BjRfNi" name="CamelEnvelope.cpp" compile="1" resource="0"
+              file="Source/Components/CamelEnvelope.cpp"/>
+        <FILE id="WAzKHs" name="CamelEnvelope.h" compile="0" resource="0" file="Source/Components/CamelEnvelope.h"/>
+      </GROUP>
+      <FILE id="JY2sdk" name="PhasePhckr.cpp" compile="1" resource="0" file="Source/PhasePhckr.cpp"/>
+      <FILE id="bWSTAR" name="PhasePhckr.h" compile="0" resource="0" file="Source/PhasePhckr.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../sdk/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2015 targetFolder="Builds/VisualStudio2015">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" optimisation="1" targetName="PhasePhckr"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="0" optimisation="3" targetName="PhasePhckr" binaryPath="D:\VST_dev"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../sdk/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2015>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vst3Folder="">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"
+                       binaryPath="~/.vst"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+    <LINUX/>
+  </LIVE_SETTINGS>
+</JUCERPROJECT>

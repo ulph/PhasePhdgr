@@ -27,7 +27,8 @@ int main()
     s.connect(q8, speaker, 0);
     
     for(uint32_t t = 0; t < 5*fs; t++) {
-        float output = s.getOutput(speaker, t);
+        s.process(speaker, t);
+        float output = s.getOutput(speaker, 0);
         fwrite(&output, sizeof(output), 1, stdout); 
     }
 }

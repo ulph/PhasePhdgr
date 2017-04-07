@@ -6,19 +6,20 @@ class Module
 protected:
     uint32_t time;
     std::vector<float> inputs;
-    float output;
+    std::vector<float> outputs;
 
 public:
     virtual void process(uint32_t fs) = 0;
     uint32_t getTime() { return time; }
     void setTime(uint32_t t) { time = t; }
-    float getOutput() { return output; }
+    float getOutput(int outputPad) { return outputs[outputPad]; }
     void setInput(int inputPad, float value) {
         if(inputPad >= 0 && inputPad < inputs.size()) {
             inputs[inputPad] = value;
         }
     }
     int getNumInputPads() { return (int)inputs.size(); }
+    int getNumOutputPads() { return (int)outputs.size(); }
 };
 
 class Phase : public Module
@@ -26,6 +27,7 @@ class Phase : public Module
 public:
     Phase() {
         inputs.push_back(440.0f);
+        outputs.push_back(0.0f);
     }
     void process(uint32_t fs)
     {
@@ -33,7 +35,7 @@ public:
         float f = inputs[0];
         uint32_t samplesPerPeriod = uint32_t((float)fs / f);
         float phase = (float(time % samplesPerPeriod) / float(samplesPerPeriod)) * 2.0f - 1.0f;
-        output = phase;
+        outputs[0] = phase;
     }
     constexpr static const char *desc =
         "PHASE - outpus current phase (-1 .. 1) (sawtooth)\n" \
@@ -47,6 +49,7 @@ public:
     Square() {
         inputs.push_back(0.0f);
         inputs.push_back(1.0f);
+        outputs.push_back(0.0f);
     }
     void process(uint32_t fs)
     {
@@ -58,10 +61,10 @@ public:
         if(duty < 0.0f) duty = -duty;
         
         // Make Square from phase
-        if(phase < -1.0f+duty) output = -1.0f;
-        else if(phase < 0.0f) output =  0.0f;
-        else if(phase < duty) output =  1.0f;
-        else output =  0.0f;
+        if(phase < -1.0f+duty) outputs[0] = -1.0f;
+        else if(phase < 0.0f) outputs[0] =  0.0f;
+        else if(phase < duty) outputs[0] =  1.0f;
+        else outputs[0] =  0.0f;
     }
     constexpr static const char *desc =
         "SQUARE - forms square wave from incoming phase\n" \
@@ -76,9 +79,10 @@ public:
     Add() {
         inputs.push_back(0.0f);
         inputs.push_back(0.0f);
+        outputs.push_back(0.0f);
     }
     void process(uint32_t fs) {
-        output = inputs[0] + inputs[1];
+        outputs[0] = inputs[0] + inputs[1];
     }
     constexpr static const char *desc =
         "ADD - adds two inputs\n" \
@@ -94,9 +98,10 @@ public:
     Mul() {
         inputs.push_back(0.0f);
         inputs.push_back(0.0f);
+        outputs.push_back(0.0f);
     }
     void process(uint32_t fs) {
-        output = inputs[0] * inputs[1];
+        outputs[0] = inputs[0] * inputs[1];
     }
     constexpr static const char *desc =
         "MUL - multiplies two inputs\n" \
@@ -108,11 +113,14 @@ public:
 class Clamp : public Module
 {
 public:
-    Clamp() { inputs.push_back(0.0f); }
+    Clamp() {
+        inputs.push_back(0.0f);
+        outputs.push_back(0.0f);
+    }
     void process(uint32_t fs) {
-        output = inputs[0];
-        if(output < -1.0f) output = -1.0f;
-        else if(output > 1.0f) output = 1.0f;
+        outputs[0] = inputs[0];
+        if(outputs[0] < -1.0f) outputs[0] = -1.0f;
+        else if(outputs[0] > 1.0f) outputs[0] = 1.0f;
     }
     constexpr static const char *desc =
         "CLAMP - clamps input between -1 and 1\n" \
@@ -123,7 +131,10 @@ public:
 class Quant8 : public Module
 {
 public:
-    Quant8() { inputs.push_back(0.0f); }
+    Quant8() {
+        inputs.push_back(0.0f);
+        outputs.push_back(0.0f);
+    }
     void process(uint32_t fs) {
         const float invStepSize = 128.0f;
         const float stepSize = 1.0f / invStepSize;
@@ -133,7 +144,7 @@ public:
         else if(tmp > invStepSize-1) tmp = invStepSize-1;
         tmp = tmp * stepSize;
         
-        output = tmp;
+        outputs[0] = tmp;
     }
     constexpr static const char *desc =
         "QUANT8 - 8-bit quantization\n" \

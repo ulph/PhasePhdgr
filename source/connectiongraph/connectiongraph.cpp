@@ -9,12 +9,14 @@ class Cable
 {
 protected:
     int fromModule;
+    int fromPad;
     int toModule;
     int toPad;
     
 public:
-    Cable(int _fromModule, int _toModule, int _toPad) : fromModule(_fromModule), toModule(_toModule), toPad(_toPad) {}
+    Cable(int _fromModule, int _fromPad, int _toModule, int _toPad) : fromModule(_fromModule), fromPad(_fromPad), toModule(_toModule), toPad(_toPad) {}
     int getFromModule() const { return fromModule; }
+    int getFromPad() const { return fromPad; }
     int getToModule() const { return toModule; }
     bool isConnected(int _toModule, int _toPad) const {
         return toModule == _toModule && toPad == _toPad;
@@ -63,9 +65,9 @@ int ConnectionGraph::addModule(const char *type)
     return id;
 }
 
-void ConnectionGraph::connect(int fromModule, int toModule, int toPad)
+void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toPad)
 {
-    cables.push_back(new Cable(fromModule, toModule, toPad));
+    cables.push_back(new Cable(fromModule, fromPad, toModule, toPad));
 }
 
 void ConnectionGraph::setInput(int module, int pad, float value)
@@ -80,7 +82,7 @@ void ConnectionGraph::setInput(int module, int pad, float value)
     }
 }
 
-float ConnectionGraph::getOutput(int module, float time)
+void ConnectionGraph::process(int module, float time)
 {
     Module *m = getModule(module);
     if(m->getTime() != time) {
@@ -91,8 +93,10 @@ float ConnectionGraph::getOutput(int module, float time)
             // Check if other modules are connected to this pad
             for(const Cable *c : cables) {
                 if(c->isConnected(module, pad)) {
+                    Module *m_dep = getModule(c->getFromModule());
                     // Found connected module
-                    m->setInput(pad, getOutput(c->getFromModule(), time)); 
+                    process(c->getFromModule(), time);
+                    m->setInput(pad, m_dep->getOutput(c->getFromPad())); 
                 }
             }
         }
@@ -100,7 +104,10 @@ float ConnectionGraph::getOutput(int module, float time)
         // Process the updated input
         m->process(fs);
     }
-    
-    return m->getOutput();
 }
 
+float ConnectionGraph::getOutput(int module, int pad)
+{
+    Module *m = getModule(module);
+    return m->getOutput(pad);
+}

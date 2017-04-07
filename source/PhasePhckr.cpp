@@ -1,4 +1,5 @@
 #include "PhasePhckr.h"
+#include "PhasePhckr_internal.h"
 #include <string.h>
 #include "SynthVoices/ExSynthVoice.h"
 
@@ -91,6 +92,24 @@ int ComponentI::findPortNumber(const std::vector<const char *> &portNames, const
     return ret;
 }
 
+void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on)
+{
+    SynthVoiceI *v = (*voices)[channel];
+    on ? v->mpe.on(note, velocity) : v->mpe.off(note, velocity);
+}
+
+void VoiceBus::handleX(int channel, float position){
+    (*voices)[channel]->mpe.glide(position);
+}
+
+void VoiceBus::handleY(int channel, float position){
+    (*voices)[channel]->mpe.slide(position);
+}
+
+void VoiceBus::handleZ(int channel, float position){
+    (*voices)[channel]->mpe.press(position);
+}
+
 
 Synth::Synth() {
     for(int i=0; i<16; ++i){
@@ -99,6 +118,12 @@ Synth::Synth() {
         voices.push_back(v);
     }
     voiceBus = VoiceBus(&voices);
+}
+
+void Synth::update(float * buffer, int numSamples, float sampleRate)
+{
+    for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
+    for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
 }
 
 }

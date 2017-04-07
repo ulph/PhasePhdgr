@@ -1,7 +1,7 @@
 #ifndef CAMELENVELOPE_H_INCLUDED
 #define CAMELENVELOPE_H_INCLUDED
 
-#include "../PhasePhckr.h"
+#include "PhasePhckr_internal.h"
 
 namespace PhasePhckr {
 namespace Components {

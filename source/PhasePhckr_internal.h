@@ -1,10 +1,11 @@
-#ifndef PHASEPHCKR_H_INCLUDED
-#define PHASEPHCKR_H_INCLUDED
+#pragma once
 
 #include <math.h>
 #include <vector>
 #include <random>
 #include <string.h>
+
+#include "PhasePhckr.h"
 
 namespace PhasePhckr {
 
@@ -79,7 +80,7 @@ namespace PhasePhckr {
         int numberOfOutputPorts();
         int getInputPortNumber(char * name);
         int getOutputPortNumber(char * name);
-        void setSampleRate(float newSampleRate){sampleRate = newSampleRate;}
+        void setSampleRate(float newSampleRate) {sampleRate = newSampleRate;}
 
     protected:
         float sampleRate;
@@ -87,60 +88,4 @@ namespace PhasePhckr {
         std::vector<const char *> inputPortNames;
         std::vector<const char *> outputPortNames;
     };
-
-
-    class VoiceBus {
-        private:
-        std::vector<SynthVoiceI*> *voices;
-
-        // TODO, make it work for normal polyphony as well
-        // and use internal round-robin instead of relying of channel ...
-
-        public:
-        VoiceBus() : voices(nullptr){};
-        VoiceBus(std::vector<SynthVoiceI*> * parent_voices) {
-            voices = parent_voices;
-        }
-
-        void handleNoteOnOff(int channel, int note, float velocity, bool on){
-            SynthVoiceI *v = (*voices)[channel];
-            on ? v->mpe.on(note, velocity) : v->mpe.off(note, velocity);
-        }
-
-        void handleX(int channel, float position){
-            (*voices)[channel]->mpe.glide(position);
-        }
-
-        void handleY(int channel, float position){
-            (*voices)[channel]->mpe.slide(position);
-        }
-
-        void handleZ(int channel, float position){
-            (*voices)[channel]->mpe.press(position);
-        }
-
-    };
-
-
-    class AutomationBus {
-        // handles the automation (global VST) parameters
-    };
-
-    class Synth {
-    public:
-        Synth();
-        VoiceBus voiceBus;
-        AutomationBus automationBus;
-        virtual void update(float * buffer, int numSamples, float sampleRate) {
-            for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
-            for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
-        }
-    private:
-        std::vector<SynthVoiceI*> voices; // per note sound generation
-        std::vector<SynthVoiceI*> effects; // effects applied to mix of voices (in series)
-        // settings like voice stacking, per voice detuning and etc etc goes here
-    };
-
 }
-
-#endif  // PHASEPHCKR_H_INCLUDED

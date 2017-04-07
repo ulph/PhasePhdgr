@@ -25,12 +25,6 @@ public:
 
 ConnectionGraph::ConnectionGraph(uint32_t fs) : fs(fs)
 {
-    std::cerr << Phase::desc
-              << Square::desc
-              << Add::desc
-              << Mul::desc
-              << Clamp::desc
-              << Quant8::desc;
 }
 
 Module* ConnectionGraph::getModule(int id)

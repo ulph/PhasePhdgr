@@ -71,6 +71,33 @@ public:
     }
 };
 
+class AtanSaturator : public Module
+{
+public:
+    AtanSaturator() {
+        inputs.push_back(Pad("in", 0.0f));
+        inputs.push_back(Pad("prescaler", 1.0f));
+        outputs.push_back(Pad("saturated"));
+    }
+    void process(uint32_t fs)
+    {
+        outputs[0].value = atanf(inputs[0].value * inputs[1].value) / atanf(inputs[1].value);
+    }
+};
+
+class Constant : public Module
+{
+public:
+    Constant() {
+        inputs.push_back(Pad("constant"));
+        outputs.push_back(Pad("constant"));
+    }
+    void process(uint32_t fs)
+    {
+        outputs[0].value = outputs[0].value;
+    }
+};
+
 class Square : public Module
 {
 public:
@@ -172,6 +199,89 @@ public:
                           (float)(1.0 / 0x40000000);
         val = val * 435898247 + 382842987;
     }
+};
+
+class CamelEnvelope : public Module
+{
+    public:
+    CamelEnvelope():
+        gate(0),
+        target_value(0),
+        slew(0.9f),
+        samplesCtr(0)
+    {
+        outputs.push_back(Pad("envelopeValue"));
+
+        inputs.push_back(Pad("gate"));
+        inputs.push_back(Pad("onBumpHeight", 1.0f));
+        inputs.push_back(Pad("onAttackSpeed", 0.01f));
+        inputs.push_back(Pad("onDecaySpeed", 0.05f));
+        inputs.push_back(Pad("sustainHeight", 0.5f));
+        inputs.push_back(Pad("offBumpHeight", 0.25f));
+        inputs.push_back(Pad("offAttackSpeed", 0.05f));
+        inputs.push_back(Pad("offDecaySpeed", 0.05f));
+    }
+    
+    void process(uint32_t fs) {
+        float new_gate = inputs[0].value;
+        float onBumpHeight = inputs[1].value;
+        float onAttackSpeed = inputs[2].value;
+        float onDecaySpeed = inputs[3].value;
+        float sustainHeight = inputs[4].value;
+        float offBumpHeight = inputs[5].value;
+        float offAttackSpeed = inputs[6].value;
+        float offDecaySpeed = inputs[7].value;
+
+        float target_value = 0;
+
+        // reset counter if falling or rising edge on gate
+        if( (gate >= 1.0 && new_gate < 1.0) || (gate < 1.0 && new_gate >= 1.0) ){
+            samplesCtr = 0;
+        }
+        gate = new_gate;
+        
+        float time = (float)samplesCtr / (float) fs;
+        if(gate){
+            if(time < onAttackSpeed){
+                // attack region
+                target_value = (sustainHeight + onBumpHeight) * (time / onAttackSpeed);
+            }
+            else if(time < (onAttackSpeed + onDecaySpeed)){
+                // decay region
+                target_value = sustainHeight + onBumpHeight * (1 - ((time - onAttackSpeed) / onDecaySpeed));
+            }
+            else{
+                // sustain region
+                target_value = sustainHeight;
+            }
+        }
+        else{
+            if(time < offAttackSpeed){
+                // release attack region
+                target_value = sustainHeight + offBumpHeight * (time / offAttackSpeed);
+            }
+            else if(time < (offAttackSpeed + offDecaySpeed)){
+                // release decay region
+                target_value = (sustainHeight + offBumpHeight) * (1 - ((time - offAttackSpeed) / offDecaySpeed));
+            }
+            else{
+                // closed region
+                target_value = 0;
+            }
+        }
+
+        samplesCtr++;
+
+        // limit and slew
+        target_value = target_value > 1.f ? 1.f : target_value < 0.f ? 0.f : target_value;
+        outputs[0].value = slew*outputs[0].value + (1-slew)*target_value;
+    }
+
+    private:
+        float gate;
+        float target_value;
+        float slew;
+        int samplesCtr;
 };
 
 #endif

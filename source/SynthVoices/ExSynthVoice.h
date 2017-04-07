@@ -48,7 +48,6 @@ namespace PhasePhckr {
 
     };
 
-
     class OutputBusModule : public Module {
       public:
         OutputBusModule(){
@@ -68,16 +67,28 @@ namespace PhasePhckr {
           t(0)
         {
           inBus = connectionGraph.addModule(new InputBusModule());
-          int phase = connectionGraph.addModule("PHASE");
-          int osc = connectionGraph.addModule("SQUARE");
-          int mul = connectionGraph.addModule("MUL");
           outBus = connectionGraph.addModule(new OutputBusModule());
 
+          int phase = connectionGraph.addModule("PHASE");
+          int osc1 = connectionGraph.addModule("SINE");
+          int osc2 = connectionGraph.addModule("SINE");
+          int osc3 = connectionGraph.addModule("SINE");
+          int noise = connectionGraph.addModule("NOISE");
+          int atan1 = connectionGraph.addModule("ATAN");
+          int atan2 = connectionGraph.addModule("ATAN");
+          int oscEnv = connectionGraph.addModule("ENV");
+          int noiseEnv = connectionGraph.addModule("ENV");
+          int osc12blendBias = connectionGraph.addModule("CONST");
+          int mul = connectionGraph.addModule("MUL");
+
           connectionGraph.connect(inBus, 3, phase, 0);
-          connectionGraph.connect(phase, osc);
-          connectionGraph.connect(osc , 0, mul, 0);
+          connectionGraph.connect(phase, osc1);
+          connectionGraph.connect(osc1 , 0, mul, 0);
           connectionGraph.connect(inBus, 6, mul, 1);
           connectionGraph.connect(mul, outBus);
+
+          // TODO; replicate the ExSynthVoice architechture, all things should be in place now
+
         }
 
         virtual void reset(){}
@@ -85,10 +96,8 @@ namespace PhasePhckr {
         virtual void update(float * buffer, int numSamples, float sampleRate){
           InputBusModule* inbusPtr = (InputBusModule*)connectionGraph.getModule(inBus);
           for (int i = 0; i < numSamples; ++i) {
-            MPEVoiceState v;
+            inbusPtr->updateVoice(mpe.getState());
             mpe.update();
-            v = mpe.getState();
-            inbusPtr->updateVoice(v);
             connectionGraph.process(outBus, t+i);
             buffer[i] += connectionGraph.getOutput(outBus, 0);
           }

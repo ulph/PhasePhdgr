@@ -47,9 +47,12 @@ int ConnectionGraph::addModule(const char *type)
     else if(!strcmp(type, "ADD"))    m = new Add();
     else if(!strcmp(type, "MUL"))    m = new Mul();
     else if(!strcmp(type, "CLAMP"))  m = new Clamp();
-    else if(!strcmp(type, "QUANT8"))  m = new Quant8();
+    else if(!strcmp(type, "QUANT8")) m = new Quant8();
     else if(!strcmp(type, "NOISE"))  m = new Noise();
     else if(!strcmp(type, "SINE"))   m = new Sine();
+    else if(!strcmp(type, "ATAN"))   m = new AtanSaturator();
+    else if(!strcmp(type, "CONST"))  m = new Constant();
+    else if(!strcmp(type, "ENV"))    m = new CamelEnvelope();
     
     if(m) {
         id = (int)modules.size();

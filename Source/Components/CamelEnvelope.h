@@ -16,8 +16,8 @@ private:
     float offAttackSpeed;
     float offDecaySpeed;
     float sustainHeight;
-    float sustainFallRiseSpeed;
     float gate;
+    float gate_last;
     bool trigger;
     int samplesCtr;
     float value;

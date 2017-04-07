@@ -32,11 +32,7 @@ void CamelEnvelope::put(int port, float value){
     float * target = nullptr;
     switch(port){
         case 0: 
-        target = &gate; 
-        if( (gate >= 1.0 && value < 1.0) || (gate < 1.0 && value >= 1.0) ){
-            samplesCtr = 0;
-        } 
-        break;
+        target = &gate; break;
         case 1: target = &onBumpHeight; break;
         case 2: target = &onAttackSpeed; break;
         case 3: target = &onDecaySpeed; break;
@@ -60,6 +56,12 @@ void CamelEnvelope::update(){
         value = 0.f;
         return;
     }
+
+    // reset counter if falling or rising edge on gate
+    if( (gate_last >= 1.0 && gate < 1.0) || (gate_last < 1.0 && gate >= 1.0) ){
+        samplesCtr = 0;
+    }
+    gate_last = gate;
 
     samplesCtr++;
     float time = (float)samplesCtr / sampleRate;

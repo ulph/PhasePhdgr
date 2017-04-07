@@ -21,7 +21,7 @@
           file="JUCE/PhasePhckrPluginProcessor.h"/>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="phasephckr&#10;connectiongraph">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"/>
@@ -43,12 +43,14 @@
         <MODULEPATH id="juce_audio_plugin_client" path="../../sdk/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2015 targetFolder="Builds/VisualStudio2015">
+    <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="phasephckr&#10;connectiongraph">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="PhasePhckr"/>
+                       isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="D:\dev\phasephckr\Builds\install\lib"
+                       headerPath="D:\dev\phasephckr\Builds\install\include" binaryPath="D:\VST_dev"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="PhasePhckr" binaryPath="D:\VST_dev"/>
+                       isDebug="0" optimisation="3" targetName="PhasePhckr" binaryPath="D:\VST_dev"
+                       libraryPath="D:\dev\phasephckr\Builds\install\lib" headerPath="D:\dev\phasephckr\Builds\install\include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../sdk/JUCE/modules"/>

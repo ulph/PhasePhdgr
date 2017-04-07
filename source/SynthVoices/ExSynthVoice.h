@@ -70,31 +70,27 @@ namespace PhasePhckr {
           outBus = connectionGraph.addModule(new OutputBusModule());
 
           int phase = connectionGraph.addModule("PHASE");
-          int osc2 = connectionGraph.addModule("SINE");
-          int osc3 = connectionGraph.addModule("SINE");
-          int noise = connectionGraph.addModule("NOISE");
-          int atan2 = connectionGraph.addModule("ATAN");
-          int const2 = connectionGraph.addModule("CONST");
-          int mul2 = connectionGraph.addModule("MUL"); 
+          int mul = connectionGraph.addModule("MUL"); 
           int mixEnv = connectionGraph.addModule("ENV");
-          int mixAmp = connectionGraph.addModule("MUL");
 
-          connectionGraph.connect(inBus, 3, phase, 0);
+          int atan = connectionGraph.addModule("ATAN");
+          int atanMul = connectionGraph.addModule("MUL");
+          int osc2 = connectionGraph.addModule("SINE");
+
           connectionGraph.connect(inBus, 0, mixEnv, 0);
           connectionGraph.connect(inBus, 6, mixEnv, 4);
+          connectionGraph.connect(inBus, 3, phase, 0);
 
-          connectionGraph.connect(phase, 0, osc3, 0);
+          connectionGraph.connect(phase, 0, atan, 0);
+          connectionGraph.connect(atan, 0, osc2, 0);
+          connectionGraph.connect(mixEnv, 0, atanMul, 0);
+          connectionGraph.getModule(atanMul)->setInput(1, 10); // cheating ...
+          connectionGraph.connect(atanMul, 0, atan, 1);
 
-          connectionGraph.connect(phase, 0, atan2, 0);
-          connectionGraph.connect(const2, 0, mul2, 0);
-          connectionGraph.connect(atan2, 0, mul2, 1);
-          connectionGraph.connect(mul2, 0, osc2, 0);
+          connectionGraph.connect(osc2, 0, mul, 0);
+          connectionGraph.connect(mixEnv, 0, mul, 1);
 
-//          connectionGraph.connect(osc2, 0, mixAmp, 0);
-          connectionGraph.connect(osc3, 0, mixAmp, 0);
-          connectionGraph.connect(mixEnv, 0, mixAmp, 1);
-
-          connectionGraph.connect(mixAmp, 0, outBus, 0);
+          connectionGraph.connect(mul, 0, outBus, 0);
         }
 
         virtual void reset(){}
@@ -105,7 +101,7 @@ namespace PhasePhckr {
             inbusPtr->updateVoice(mpe.getState());
             mpe.update();
             connectionGraph.process(outBus, t+i);
-            buffer[i] += connectionGraph.getOutput(outBus, 0);
+            buffer[i] += 0.5*connectionGraph.getOutput(outBus, 0);
           }
           t += numSamples;
         }

@@ -1,6 +1,7 @@
 #ifndef MODULE_HPP
 #define MODULE_HPP
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
 
@@ -82,7 +83,8 @@ public:
     }
     void process(uint32_t fs)
     {
-        outputs[0].value = atanf(inputs[0].value * inputs[1].value) / atanf(inputs[1].value);
+        float scale = fmax(inputs[1].value, 0.01);
+        outputs[0].value = atanf(inputs[0].value * scale) / atanf(scale);
     }
 };
 

@@ -34,12 +34,14 @@ public:
     void update();
     void reset();
     const MPEVoiceState & getState();
+    unsigned int getAge();
 private:
     MPEVoiceState tg; // target, so we can slew x,y,z
     MPEVoiceState st; // state
     MPEVoiceConfig cfg;
     float slewFactor;
     int rootNote;
+    unsigned int age;
     void calculatePitchHz();
 };
 

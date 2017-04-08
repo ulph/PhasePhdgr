@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <vector>
+#include <utility>
 #include <random>
 #include <string.h>
 
@@ -9,21 +10,26 @@ namespace PhasePhckr {
 
     class SynthVoiceI;
     class EffectI;
+    struct NoteData;
 
     class VoiceBus {
-        private:
-        std::vector<SynthVoiceI*> *voices;
-
-        public:
+    public:
         VoiceBus() : voices(nullptr){};
         VoiceBus(std::vector<SynthVoiceI*> * parent_voices) {
             voices = parent_voices;
         }
-
+        virtual VoiceBus::~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
         void handleY(int channel, float position);
         void handleZ(int channel, float position);
+        void handleNoteZ(int channel, int note, float position);
+        void update();
+    private:
+        std::vector<SynthVoiceI*> *voices;
+        std::vector<NoteData*> notes;
+        int getNoteDataIndex(int channel, int note);
+        int findYoungestInactiveNoteDataIndex(int channel);
     };
 
     class AutomationBus {
@@ -36,7 +42,6 @@ namespace PhasePhckr {
         VoiceBus voiceBus;
         AutomationBus automationBus;
         virtual void update(float * buffer, int numSamples, float sampleRate);
-    
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation
         std::vector<EffectI*> effects; // effects applied to mix of voices (in series)

@@ -140,7 +140,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         int ch = msg.getChannel();
         if(msg.isNoteOnOrOff()){
             synth.voiceBus.handleNoteOnOff(
-                msg.getChannel(), 
+                ch, 
                 msg.getNoteNumber(),
                 msg.getFloatVelocity(), 
                 msg.isNoteOn(true)
@@ -154,8 +154,9 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         }
         else if(msg.isAftertouch()){
             // we ignore what note ... TODO, fix it once doing single channel polyphony
-            synth.voiceBus.handleZ(
+            synth.voiceBus.handleNoteZ(
                 ch,
+                msg.getNoteNumber(),
                 (float)msg.getAfterTouchValue() / 127.f
             );
         }

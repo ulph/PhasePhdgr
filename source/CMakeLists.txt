@@ -10,6 +10,7 @@ set(SRC
     SynthVoice.cpp
     SynthVoice.hpp
     VoiceBus.cpp
+    VoiceBus.hpp
 )
 
 add_library(phasephckr ${SRC})

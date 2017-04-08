@@ -13,7 +13,7 @@ static float NoteToHz(float note) {
     return hz;
 }
 
-MPEVoice::MPEVoice() : slewFactor(0.995f), rootNote(0) {
+MPEVoice::MPEVoice() : slewFactor(0.995f), rootNote(0), age(0){
     reset();
 }
 
@@ -23,6 +23,7 @@ void MPEVoice::calculatePitchHz() {
 }
 
 void MPEVoice::on(int note, float velocity) {
+    age = 0;
     st.gate = 1.f;
     rootNote = note;
     st.strikeZ = velocity;
@@ -30,7 +31,8 @@ void MPEVoice::on(int note, float velocity) {
 }
 
 void MPEVoice::off(int note, float velocity) {
-    if (note == rootNote) {
+    if (note == rootNote && st.gate) {
+        age = 0;
         st.gate = 0.f;
         st.liftZ = velocity;
     }
@@ -53,11 +55,17 @@ void MPEVoice::update() {
     st.slideY = slewFactor * st.slideY + (1.0f - slewFactor) * tg.slideY;
     st.pressZ = slewFactor * st.pressZ + (1.0f - slewFactor) * tg.pressZ;
     calculatePitchHz();
+    age++;
 }
 
 void MPEVoice::reset() {
     memset(&st, 0, sizeof(st));
     memset(&tg, 0, sizeof(tg));
+    age = 0;
+}
+
+unsigned int MPEVoice::getAge() {
+    return age;
 }
 
 const MPEVoiceState & MPEVoice::getState() {

@@ -15,6 +15,7 @@ Synth::Synth() {
 
 void Synth::update(float * buffer, int numSamples, float sampleRate)
 {
+    voiceBus.update();
     for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
     for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
 }

@@ -60,14 +60,7 @@ public:
         rms(0),
         rmsSlew(0.999)
     {
-        // approximation of the patch in ExSynthVoice. no noise, less envelope tweaks etc.
-        //
-        // we lack a _lot_ of nuances as it's a royal pain to scale, add bias, invert etc
-        // need to figure out a good way to streamline that as number of modules and 
-        // connections grows painfully fast
-        //
-        // also, ports summation on input is really needed, 
-        // or number of modules needed explodes for anything but the most trivial
+        // example patch to toy with the requirements on routing
 
         inBus = connectionGraph.addModule(new InputBusModule());
         outBus = connectionGraph.addModule(new OutputBusModule());
@@ -88,11 +81,11 @@ public:
         connectionGraph.connect(osc1, 0, mixGain, 0);
 
         // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env)
-        int osc2arg = connectionGraph.addModule("ATAN");
+        int osc2arg = connectionGraph.addModule("SATAN");
         connectionGraph.connect(phase, 0, osc2arg, 0);
         int osc2argBoost = connectionGraph.addModule("MUL");
         connectionGraph.connect(env, 0, osc2argBoost, 0);
-        connectionGraph.getModule(osc2argBoost)->setFloatingValue(1, 10);
+        connectionGraph.getModule(osc2argBoost)->setFloatingValue(1, 20);
         connectionGraph.connect(osc2argBoost, 0, osc2arg, 1);
         int osc2 = connectionGraph.addModule("SINE");
         connectionGraph.connect(osc2arg, 0, osc2, 0);
@@ -104,8 +97,8 @@ public:
         connectionGraph.connect(osc3arg, 0, osc3, 0);
 
         int osc23 = connectionGraph.addModule("XFADE");
-        connectionGraph.connect(osc2, 0, osc23, 0);
-        connectionGraph.connect(osc3, 0, osc23, 1);
+        connectionGraph.connect(osc2, 0, osc23, 1);
+        connectionGraph.connect(osc3, 0, osc23, 0);
         connectionGraph.connect(inBus, 5, osc23, 2);
 
         connectionGraph.connect(osc23, 0, mixGain, 0);

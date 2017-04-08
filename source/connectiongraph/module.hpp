@@ -95,10 +95,10 @@ public:
     }
 };
 
-class AtanSaturator : public Module
+class SaturatorAtan : public Module
 {
 public:
-    AtanSaturator() {
+    SaturatorAtan() {
         inputs.push_back(Pad("in"));
         inputs.push_back(Pad("prescaler", 1.0f));
         outputs.push_back(Pad("saturated"));
@@ -135,19 +135,6 @@ public:
     }
 };
 
-class Add : public Module
-{
-public:
-    Add() {
-        inputs.push_back(Pad("in1"));
-        inputs.push_back(Pad("in2"));
-        outputs.push_back(Pad("sum"));
-    }
-    void process(uint32_t fs) {
-        outputs[0].value = inputs[0].value + inputs[1].value;
-    }
-};
-
 class Mul : public Module
 {
 public:
@@ -165,7 +152,7 @@ class AddMul : public Module {
 public:
     AddMul() {
         inputs.push_back(Pad("add"));
-        inputs.push_back(Pad("mul"));
+        inputs.push_back(Pad("mul", 1.0));
         outputs.push_back(Pad("out"));
     }
     virtual void setInput(int inputPad, float value) {
@@ -180,8 +167,8 @@ public:
         outputs[0].value = inputs[0].value * inputs[1].value;
     }
     virtual void postProcess() {
-        inputs[0].value = 0;
-        inputs[1].value = 1;
+        inputs[0].value = inputs[0].isFloating ? inputs[0].floatingValue : 0;
+        inputs[1].value = inputs[1].isFloating ? inputs[1].floatingValue : 1;
     }
 };
 

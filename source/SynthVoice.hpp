@@ -56,7 +56,9 @@ class ExConnectionGraphVoice : public SynthVoiceI {
 public:
     ExConnectionGraphVoice() :
         connectionGraph(48000),
-        t(0)
+        t(0),
+        rms(0),
+        rmsSlew(0.999)
     {
         // approximation of the patch in ExSynthVoice. no noise, less envelope tweaks etc.
         //
@@ -117,11 +119,20 @@ public:
 
     virtual void update(float * buffer, int numSamples, float sampleRate) {
         InputBusModule* inbusPtr = (InputBusModule*)connectionGraph.getModule(inBus);
+        const MPEVoiceState &v = mpe.getState();
+        if (v.gate == 0 & rms < 0.0000001) {
+            // TODO -- expose a port on outbus for this purpose instead?
+            mpe.update();
+            t += numSamples;
+            return;
+        }
         for (int i = 0; i < numSamples; ++i) {
             inbusPtr->updateVoice(mpe.getState());
             mpe.update();
             connectionGraph.process(outBus, t + i);
-            buffer[i] += 0.5*connectionGraph.getOutput(outBus, 0);
+            float sample = connectionGraph.getOutput(outBus, 0);
+            buffer[i] += 0.5*sample;
+            rms = rms*rmsSlew + (1 - rmsSlew)*(sample*sample); // without the root
         }
         t += numSamples;
     }
@@ -131,6 +142,8 @@ private:
     unsigned long t;
     int inBus;
     int outBus;
+    float rmsSlew;
+    float rms;
 };
 
 

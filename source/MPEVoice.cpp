@@ -30,8 +30,10 @@ void MPEVoice::on(int note, float velocity) {
 }
 
 void MPEVoice::off(int note, float velocity) {
-    st.gate = 0.f;
-    st.liftZ = velocity;
+    if (note == rootNote) {
+        st.gate = 0.f;
+        st.liftZ = velocity;
+    }
 }
 
 void MPEVoice::glide(float glide) {

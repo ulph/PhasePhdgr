@@ -44,19 +44,19 @@ int ConnectionGraph::addModule(const char *type)
     
     if(     !strcmp(type, "PHASE"))  m = new Phase();
     else if(!strcmp(type, "SQUARE")) m = new Square();
-    else if(!strcmp(type, "ADD"))    m = new Add();
-    else if(!strcmp(type, "MUL"))    m = new Mul();
+    else if(!strcmp(type, "ADD"))    m = new Add(); // redundant as (almost) all pads sum inputs
+    else if(!strcmp(type, "MUL"))    m = new Mul(); // redandant, MULT more powerful
     else if(!strcmp(type, "CLAMP"))  m = new Clamp();
     else if(!strcmp(type, "QUANT8")) m = new Quant8();
     else if(!strcmp(type, "NOISE"))  m = new Noise();
     else if(!strcmp(type, "SINE"))   m = new Sine();
-    else if(!strcmp(type, "ATAN"))   m = new AtanSaturator();
-    else if(!strcmp(type, "CONST"))  m = new Constant();
+    else if(!strcmp(type, "ATAN"))   m = new AtanSaturator(); // call it S(aturating)ATAN ? :)
     else if(!strcmp(type, "ENV"))    m = new CamelEnvelope();
     else if(!strcmp(type, "LAG"))    m = new Lag();
     else if(!strcmp(type, "RECT"))   m = new Rectifier();
     else if(!strcmp(type, "FOLD"))   m = new FoldBack();
     else if(!strcmp(type, "XFADE"))  m = new CrossFade();
+    else if(!strcmp(type, "MULT"))   m = new AddMul();
     
     if(m) {
         id = (int)modules.size();
@@ -98,7 +98,7 @@ void ConnectionGraph::setInput(int module, int pad, float value)
     }
 }
 
-void ConnectionGraph::process(int module, float time)
+void ConnectionGraph::process(int module, uint32_t time)
 {
     Module *m = getModule(module);
     if(m->getTime() != time) {
@@ -118,7 +118,7 @@ void ConnectionGraph::process(int module, float time)
         }
         
         // Process the updated input
-        m->process(fs);
+        m->doProcess(fs);
     }
 }
 

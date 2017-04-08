@@ -9,9 +9,14 @@
 struct Pad
 {
     float value;
+    float floatingValue;
+    bool isFloating;
     std::string name;
-    Pad(const char *name) : name(name), value(0.0f) {}
-    Pad(const char *name, float value) : name(name), value(value) {}
+    Pad(const char *name) : name(name), value(0.0f), floatingValue(0.0f), isFloating(true){}
+    Pad(const char *name, float floatingValue) : name(name), value(0.0f), floatingValue(floatingValue), isFloating(true) {}
+    void setFloatingValue(float value) {
+        floatingValue = value;
+    }
 };
 
 class Module
@@ -22,29 +27,45 @@ protected:
     std::vector<Pad> outputs;
 
 public:
+    virtual void doProcess(uint32_t fs) {
+        process(fs);
+        postProcess();
+    }
     virtual void process(uint32_t fs) = 0;
+    virtual void postProcess() {
+        for (auto & i : inputs) {
+            i.value = i.isFloating ? i.floatingValue : 0;
+            i.isFloating = true;
+        }
+    };
     uint32_t getTime() { return time; }
     void setTime(uint32_t t) { time = t; }
     float getOutput(int outputPad) { 
         if(outputPad >= 0 && outputPad < outputs.size()){
-            return outputs[outputPad].value; 
+            return outputs[outputPad].value;
         }
         return 0;
-        }
-    void setInput(int inputPad, float value) {
+    }
+    virtual void setInput(int inputPad, float value) {
         if(inputPad >= 0 && inputPad < inputs.size()) {
-            inputs[inputPad].value = value;
+            inputs[inputPad].value += value;
+            inputs[inputPad].isFloating = false;
         }
     }
     int getNumInputPads() { return (int)inputs.size(); }
     int getNumOutputPads() { return (int)outputs.size(); }
+    void setFloatingValue(int inputPad, float value) {
+        if (inputPad >= 0 && inputPad < inputs.size()) {
+            inputs[inputPad].floatingValue = value;
+        }
+    }
 };
 
 class Phase : public Module
 {
 public:
     Phase() {
-        inputs.push_back(Pad("freq", 440.0f));
+        inputs.push_back(Pad("freq"));
         outputs.push_back(Pad("phase"));
     }
     void process(uint32_t fs)
@@ -65,7 +86,7 @@ class Sine : public Module
 {
 public:
     Sine() {
-        inputs.push_back(Pad("phase", 0.0f));
+        inputs.push_back(Pad("phase"));
         outputs.push_back(Pad("sine"));
     }
     void process(uint32_t fs)
@@ -78,7 +99,7 @@ class AtanSaturator : public Module
 {
 public:
     AtanSaturator() {
-        inputs.push_back(Pad("in", 0.0f));
+        inputs.push_back(Pad("in"));
         inputs.push_back(Pad("prescaler", 1.0f));
         outputs.push_back(Pad("saturated"));
     }
@@ -89,24 +110,11 @@ public:
     }
 };
 
-class Constant : public Module
-{
-public:
-    Constant() {
-        inputs.push_back(Pad("constant", 1.0f));
-        outputs.push_back(Pad("constant"));
-    }
-    void process(uint32_t fs)
-    {
-        outputs[0].value = outputs[0].value;
-    }
-};
-
 class Square : public Module
 {
 public:
     Square() {
-        inputs.push_back(Pad("phase", 0.0f));
+        inputs.push_back(Pad("phase"));
         inputs.push_back(Pad("dutycycle", 1.0f));
         outputs.push_back(Pad("square"));
     }
@@ -150,6 +158,30 @@ public:
     }
     void process(uint32_t fs) {
         outputs[0].value = inputs[0].value * inputs[1].value;
+    }
+};
+
+class AddMul : public Module {
+public:
+    AddMul() {
+        inputs.push_back(Pad("add"));
+        inputs.push_back(Pad("mul"));
+        outputs.push_back(Pad("out"));
+    }
+    virtual void setInput(int inputPad, float value) {
+        if (inputPad == 0) {
+            inputs[0].value += value;
+        }
+        else if (inputPad == 1) {
+            inputs[1].value *= value;
+        }
+    }
+    void process(uint32_t) {
+        outputs[0].value = inputs[0].value * inputs[1].value;
+    }
+    virtual void postProcess() {
+        inputs[0].value = 0;
+        inputs[1].value = 1;
     }
 };
 
@@ -292,14 +324,14 @@ class CamelEnvelope : public Module
     }
     
     void process(uint32_t fs) {
-        float new_gate = inputs[0].value;
-        float onBumpHeight = inputs[1].value;
-        float onAttackSpeed = inputs[2].value;
-        float onDecaySpeed = inputs[3].value;
-        float sustainHeight = inputs[4].value;
-        float offBumpHeight = inputs[5].value;
+        float new_gate       = inputs[0].value;
+        float onBumpHeight   = inputs[1].value;
+        float onAttackSpeed  = inputs[2].value;
+        float onDecaySpeed   = inputs[3].value;
+        float sustainHeight  = inputs[4].value;
+        float offBumpHeight  = inputs[5].value;
         float offAttackSpeed = inputs[6].value;
-        float offDecaySpeed = inputs[7].value;
+        float offDecaySpeed  = inputs[7].value;
 
         float target_value = 0;
 

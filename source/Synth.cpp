@@ -1,4 +1,3 @@
-#include "Synth.hpp"
 #include "PhasePhckr.h"
 #include "SynthVoice.hpp"
 #include "Effect.hpp"

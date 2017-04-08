@@ -21,7 +21,7 @@ public:
     void connect(int fromModule, int toModule, int toPad) { connect(fromModule, 0, toModule, toPad); }
     void connect(int fromModule, int toModule) { connect(fromModule, 0, toModule, 0); }
     void setInput(int module, int pad, float value);
-    void process(int module, float time);
+    void process(int module, uint32_t time);
     float getOutput(int module, int pad);
 };
 

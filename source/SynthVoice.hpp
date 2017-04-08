@@ -71,49 +71,46 @@ public:
         outBus = connectionGraph.addModule(new OutputBusModule());
 
         int phase = connectionGraph.addModule("PHASE");
-        int mul = connectionGraph.addModule("MUL");
-        int mixEnv = connectionGraph.addModule("ENV");
+        int mixGain = connectionGraph.addModule("MUL");
+        int env = connectionGraph.addModule("ENV");
 
-        int atan = connectionGraph.addModule("ATAN");
-        int atanMul = connectionGraph.addModule("MUL");
-        int osc1 = connectionGraph.addModule("SINE");
-        int osc2 = connectionGraph.addModule("SINE");
-        int osc3mul = connectionGraph.addModule("MUL");
-        int osc3 = connectionGraph.addModule("SINE");
-        int osc23 = connectionGraph.addModule("XFADE");
-
-        connectionGraph.connect(inBus, 0, mixEnv, 0);
-        connectionGraph.connect(inBus, 1, mixEnv, 1);
-        connectionGraph.connect(inBus, 2, mixEnv, 5);
-        connectionGraph.connect(inBus, 6, mixEnv, 4);
+        connectionGraph.connect(inBus, 0, env, 0);
+        connectionGraph.connect(inBus, 1, env, 1);
+        connectionGraph.connect(inBus, 2, env, 5);
+        connectionGraph.connect(inBus, 6, env, 4);
         connectionGraph.connect(inBus, 3, phase, 0);
 
         // osc 1, f0 cohesion...
+        int osc1 = connectionGraph.addModule("SINE");
         connectionGraph.connect(phase, 0, osc1, 0);
+        connectionGraph.connect(osc1, 0, mixGain, 0);
 
         // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env)
-        connectionGraph.connect(phase, 0, atan, 0);
-        connectionGraph.connect(mixEnv, 0, atanMul, 0);
-        connectionGraph.getModule(atanMul)->setInput(1, 10); // cheating!
-        connectionGraph.connect(atanMul, 0, atan, 1);
-        connectionGraph.connect(atan, 0, osc2, 0);
+        int osc2arg = connectionGraph.addModule("ATAN");
+        connectionGraph.connect(phase, 0, osc2arg, 0);
+        int osc2argBoost = connectionGraph.addModule("MUL");
+        connectionGraph.connect(env, 0, osc2argBoost, 0);
+        connectionGraph.getModule(osc2argBoost)->setFloatingValue(1, 10);
+        connectionGraph.connect(osc2argBoost, 0, osc2arg, 1);
+        int osc2 = connectionGraph.addModule("SINE");
+        connectionGraph.connect(osc2arg, 0, osc2, 0);
 
-        connectionGraph.connect(atan, 0, osc3mul, 0);
-        connectionGraph.getModule(osc3mul)->setInput(1, 2); // cheating, again!
-        connectionGraph.connect(osc3mul, 0, osc3, 0);
+        int osc3arg = connectionGraph.addModule("MUL");
+        connectionGraph.connect(osc2arg, 0, osc3arg, 0);
+        connectionGraph.getModule(osc3arg)->setFloatingValue(1, 2);
+        int osc3 = connectionGraph.addModule("SINE");
+        connectionGraph.connect(osc3arg, 0, osc3, 0);
 
+        int osc23 = connectionGraph.addModule("XFADE");
         connectionGraph.connect(osc2, 0, osc23, 0);
         connectionGraph.connect(osc3, 0, osc23, 1);
         connectionGraph.connect(inBus, 5, osc23, 2);
 
-        // mix amplitude on Z (... env)
-        int mix = connectionGraph.addModule("ADD");
-        connectionGraph.connect(osc1, 0, mix, 0);
-        connectionGraph.connect(osc23, 0, mix, 1);
-        connectionGraph.connect(mix, 0, mul, 0);
-        connectionGraph.connect(mixEnv, 0, mul, 1);
+        connectionGraph.connect(osc23, 0, mixGain, 0);
 
-        connectionGraph.connect(mul, 0, outBus, 0);
+        // mix amplitude on Z (... env)
+        connectionGraph.connect(env, 0, mixGain, 1);
+        connectionGraph.connect(mixGain, 0, outBus, 0);
     }
 
     virtual void reset() {}

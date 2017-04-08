@@ -1,6 +1,7 @@
 #include "PhasePhckr.h"
 #include "SynthVoice.hpp"
 #include "VoiceBus.hpp"
+#include <string>
 
 namespace PhasePhckr {
 
@@ -30,15 +31,16 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
                 }
                 i++;
             }
-            if (oldestIdx != -1) {
-                n->voiceIndex = oldestIdx;
-            }
-            else {
+            if (oldestIdx == -1) {
                 return; // TODO -- steal a voice
             }
+            n->voiceIndex = oldestIdx;
         }
         SynthVoiceI *v = (*voices)[n->voiceIndex];
         v->mpe.on(note, velocity);
+        v->mpe.glide(channelData[channel].x);
+        v->mpe.slide(channelData[channel].y);
+        v->mpe.press(channelData[channel].z);
     }
     else {
         if (idx != -1) {
@@ -62,6 +64,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
 }
 
 void VoiceBus::handleX(int channel, float position) {
+    channelData[channel].x = position;
     for (const auto &n : notes) {
         if (n->channel == channel) {
             if (n->voiceIndex != -1) {
@@ -72,6 +75,7 @@ void VoiceBus::handleX(int channel, float position) {
 }
 
 void VoiceBus::handleY(int channel, float position) {
+    channelData[channel].y = position;
     for (const auto &n : notes) {
         if (n->channel == channel) {
             if (n->voiceIndex != -1) {
@@ -82,6 +86,7 @@ void VoiceBus::handleY(int channel, float position) {
 }
 
 void VoiceBus::handleZ(int channel, float position) {
+    channelData[channel].z = position;
     for (const auto &n : notes) {
         if (n->channel == channel) {
             if (n->voiceIndex != -1) {
@@ -116,7 +121,7 @@ int VoiceBus::findYoungestInactiveNoteDataIndex(int channel) {
     int idx = 0;
     int min = -1;
     for (const auto &n : notes) {
-        if (n->channel == channel && (int)n->age < min) {
+        if (n->channel == channel && n->voiceIndex == -1 && (int)n->age < min) {
             min = idx;
         }
         idx++;
@@ -128,6 +133,11 @@ void VoiceBus::update() {
     for (const auto &n : notes) {
         n->age++;
     }
+}
+
+VoiceBus::VoiceBus(std::vector<SynthVoiceI*> * parent_voices)
+{
+    voices = parent_voices;
 }
 
 VoiceBus::~VoiceBus() {

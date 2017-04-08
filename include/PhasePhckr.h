@@ -12,12 +12,16 @@ namespace PhasePhckr {
     class EffectI;
     struct NoteData;
 
+    struct ChannelData {
+        float x;
+        float y;
+        float z;
+    };
+
     class VoiceBus {
     public:
         VoiceBus() : voices(nullptr){};
-        VoiceBus(std::vector<SynthVoiceI*> * parent_voices) {
-            voices = parent_voices;
-        }
+        VoiceBus(std::vector<SynthVoiceI*> * parent_voices);
         virtual VoiceBus::~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
@@ -30,6 +34,7 @@ namespace PhasePhckr {
         std::vector<NoteData*> notes;
         int getNoteDataIndex(int channel, int note);
         int findYoungestInactiveNoteDataIndex(int channel);
+        ChannelData channelData[16];
     };
 
     class AutomationBus {

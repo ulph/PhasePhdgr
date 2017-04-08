@@ -1,5 +1,7 @@
 #pragma once
 
+#include "MPEVoice.hpp"
+
 namespace PhasePhckr {
 
 struct NoteData {

@@ -3,12 +3,14 @@ add_subdirectory(connectiongraph)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SRC
-    PhasePhckr.cpp
-    PhasePhckr_internal.h
-    SynthVoices/ExSynthVoice.h 
-    SynthVoices/ExSynthVoice.cpp
-    Components/CamelEnvelope.cpp
-    Components/CamelEnvelope.h
+    Effect.hpp
+    MPEVoice.hpp
+    MPEVoice.cpp
+    Synth.cpp
+    Synth.hpp
+    SynthVoice.cpp
+    SynthVoice.hpp
+    VoiceBus.cpp
 )
 
 add_library(phasephckr ${SRC})

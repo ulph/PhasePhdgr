@@ -8,13 +8,11 @@
 namespace PhasePhckr {
 
     class SynthVoiceI;
+    class EffectI;
 
     class VoiceBus {
         private:
         std::vector<SynthVoiceI*> *voices;
-
-        // TODO, make it work for normal polyphony as well
-        // and use internal round-robin instead of relying of channel ...
 
         public:
         VoiceBus() : voices(nullptr){};
@@ -28,12 +26,9 @@ namespace PhasePhckr {
         void handleZ(int channel, float position);
     };
 
-
     class AutomationBus {
         // handles the automation (global VST) parameters
     };
-
-
 
     class Synth {
     public:
@@ -44,7 +39,7 @@ namespace PhasePhckr {
     
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation
-        std::vector<SynthVoiceI*> effects; // effects applied to mix of voices (in series)
+        std::vector<EffectI*> effects; // effects applied to mix of voices (in series)
         // settings like voice stacking, per voice detuning and etc etc goes here
     };
 

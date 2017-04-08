@@ -4,6 +4,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <vector>
 
 struct Pad
 {
@@ -69,7 +70,7 @@ public:
     }
     void process(uint32_t fs)
     {
-        outputs[0].value = sin(M_PI * inputs[0].value);
+        outputs[0].value = (float)sin(M_PI * inputs[0].value);
     }
 };
 
@@ -83,7 +84,7 @@ public:
     }
     void process(uint32_t fs)
     {
-        float scale = fmax(inputs[1].value, 0.01);
+        float scale = (float)fmax(inputs[1].value, 0.01);
         outputs[0].value = atanf(inputs[0].value * scale) / atanf(scale);
     }
 };

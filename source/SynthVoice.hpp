@@ -120,8 +120,7 @@ public:
     virtual void update(float * buffer, int numSamples, float sampleRate) {
         InputBusModule* inbusPtr = (InputBusModule*)connectionGraph.getModule(inBus);
         const MPEVoiceState &v = mpe.getState();
-        if (v.gate == 0 & rms < 0.0000001) {
-            // TODO -- expose a port on outbus for this purpose instead?
+        if (v.gate == 0 && rms < 0.0000001) {
             mpe.update();
             t += numSamples;
             return;

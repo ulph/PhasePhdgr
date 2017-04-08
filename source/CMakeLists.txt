@@ -7,7 +7,6 @@ set(SRC
     MPEVoice.hpp
     MPEVoice.cpp
     Synth.cpp
-    Synth.hpp
     SynthVoice.cpp
     SynthVoice.hpp
     VoiceBus.cpp

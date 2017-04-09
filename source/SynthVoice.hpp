@@ -75,11 +75,6 @@ public:
         connectionGraph.connect(inBus, 6, env, 4);
         connectionGraph.connect(inBus, 3, phase, 0);
 
-        // osc 1, f0 cohesion...
-        int osc1 = connectionGraph.addModule("SINE");
-        connectionGraph.connect(phase, 0, osc1, 0);
-        connectionGraph.connect(osc1, 0, mixGain, 0);
-
         // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env)
         int inv = connectionGraph.addModule("CINV"); // inverses inside the bounds
         int osc2arg = connectionGraph.addModule("SATAN");
@@ -109,13 +104,15 @@ public:
         int osc4 = connectionGraph.addModule("SINE");
         int fold = connectionGraph.addModule("FOLD");
         int foldScale = connectionGraph.addModule("MUL");
-        connectionGraph.getModule(foldScale)->setFloatingValue(1, 5); // cheat?
+        int lag = connectionGraph.addModule("LAG"); // simplistic lowpass
+        connectionGraph.getModule(foldScale)->setFloatingValue(1, 2); // cheat?
 
         connectionGraph.connect(phase, 0, osc4, 0);
-        connectionGraph.connect(foldScale, 0, fold, 4);
+        connectionGraph.connect(foldScale, 0, fold, 2);
         connectionGraph.connect(env, 0, foldScale, 0);
         connectionGraph.connect(osc4, 0, fold, 0);
-        connectionGraph.connect(fold, 0, mixGain, 0);
+        connectionGraph.connect(fold, 0, lag, 0);
+        connectionGraph.connect(lag, 0, mixGain, 0);
 
         // TODO try out SPOW also
 

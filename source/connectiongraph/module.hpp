@@ -252,15 +252,13 @@ class FoldBack : public Module
 public:
     FoldBack() {
         inputs.push_back(Pad("input"));
-        inputs.push_back(Pad("threshhold", 1.f));
         inputs.push_back(Pad("amount", 0.5f));
         inputs.push_back(Pad("prescalar", 1.0f));
         outputs.push_back(Pad("output"));
     }
     bool iterate(float *v) {
-        float t = fabs(inputs[1].value);
-        float d = fabs(*v) - t;
-        float s = fabs(inputs[2].value);
+        float d = fabs(*v) - 1;
+        float s = fmax(0.1, fmin(1, fabs(inputs[1].value)));
         if (d > 0) {
             if (*v >= 0) {
                 *v = *v - (d + d*s);
@@ -275,7 +273,7 @@ public:
         }
     }
     void process(uint32_t fs) {
-        float g = inputs[3].value;
+        float g = inputs[2].value;
         float v = g*inputs[0].value;
         for (int i = 0; i < 20; ++i) {
             if(iterate(&v)) break;

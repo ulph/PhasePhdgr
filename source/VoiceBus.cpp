@@ -53,7 +53,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
                 if (new_idx != -1) {
                     n = notes[new_idx];
                     v->mpe.on(n->note, n->velocity);
-//                    v->mpe.press(n->notePressure); // TODO, max of note pressure and channel aftertouch?
+                    v->mpe.press(n->notePressure);
                     n->voiceIndex = idx;
                 }
             }

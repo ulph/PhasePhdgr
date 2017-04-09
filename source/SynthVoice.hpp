@@ -131,7 +131,10 @@ public:
     virtual void update(float * buffer, int numSamples, float sampleRate) {
         InputBusModule* inbusPtr = (InputBusModule*)connectionGraph.getModule(inBus);
         const MPEVoiceState &v = mpe.getState();
-        if (v.gate == 0 && rms < 0.0000001) {
+        if (v.gate) {
+            rms = 1;
+        }
+        else if (v.gate == 0 && rms < 0.0000001) {
             mpe.update();
             t += numSamples;
             return;

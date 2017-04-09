@@ -98,11 +98,12 @@ void VoiceBus::handleZ(int channel, float position) {
 
 void VoiceBus::handleNoteZ(int channel, int note, float position) {
     // yes, this will be design fight with handleZ if the user uses both
-    // additionally by design, ignored if voice not active
     int idx = getNoteDataIndex(channel, note);
-    if (idx != -1 && notes[idx]->voiceIndex != -1) {
+    if (idx != -1) {
         notes[idx]->notePressure = position;
-        (*voices)[notes[idx]->voiceIndex]->mpe.press(position);
+        if (notes[idx]->voiceIndex != -1) {
+            (*voices)[notes[idx]->voiceIndex]->mpe.press(position);
+        }
     }
 }
 

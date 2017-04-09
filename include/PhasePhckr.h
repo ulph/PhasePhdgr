@@ -47,6 +47,7 @@ namespace PhasePhckr {
         VoiceBus voiceBus;
         AutomationBus automationBus;
         virtual void update(float * buffer, int numSamples, float sampleRate);
+        virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation
         std::vector<EffectI*> effects; // effects applied to mix of voices (in series)

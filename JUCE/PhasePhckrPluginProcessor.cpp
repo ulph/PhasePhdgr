@@ -153,7 +153,6 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
             );
         }
         else if(msg.isAftertouch()){
-            // we ignore what note ... TODO, fix it once doing single channel polyphony
             synth.voiceBus.handleNoteZ(
                 ch,
                 msg.getNoteNumber(),

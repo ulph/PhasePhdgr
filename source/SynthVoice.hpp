@@ -81,18 +81,20 @@ public:
         connectionGraph.connect(osc1, 0, mixGain, 0);
 
         // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env)
+        int inv = connectionGraph.addModule("CINV"); // inverses inside the bounds
         int osc2arg = connectionGraph.addModule("SATAN");
         connectionGraph.connect(phase, 0, osc2arg, 0);
         int osc2argBoost = connectionGraph.addModule("MUL");
-        connectionGraph.connect(env, 0, osc2argBoost, 0);
-        connectionGraph.getModule(osc2argBoost)->setFloatingValue(1, 20);
+        connectionGraph.connect(env, 0, inv, 0); // flip it, for educational purposes
+        connectionGraph.connect(inv, 0, osc2argBoost, 0);
+        connectionGraph.getModule(osc2argBoost)->setFloatingValue(1, 20); // cheat?
         connectionGraph.connect(osc2argBoost, 0, osc2arg, 1);
         int osc2 = connectionGraph.addModule("SINE");
         connectionGraph.connect(osc2arg, 0, osc2, 0);
 
         int osc3arg = connectionGraph.addModule("MUL");
         connectionGraph.connect(osc2arg, 0, osc3arg, 0);
-        connectionGraph.getModule(osc3arg)->setFloatingValue(1, 2);
+        connectionGraph.getModule(osc3arg)->setFloatingValue(1, 2); // cheat?
         int osc3 = connectionGraph.addModule("SINE");
         connectionGraph.connect(osc3arg, 0, osc3, 0);
 
@@ -102,6 +104,20 @@ public:
         connectionGraph.connect(inBus, 5, osc23, 2);
 
         connectionGraph.connect(osc23, 0, mixGain, 0);
+
+        // osc4 - wavefolded sine, prescale on Z (... env)
+        int osc4 = connectionGraph.addModule("SINE");
+        int fold = connectionGraph.addModule("FOLD");
+        int foldScale = connectionGraph.addModule("MUL");
+        connectionGraph.getModule(foldScale)->setFloatingValue(1, 5); // cheat?
+
+        connectionGraph.connect(phase, 0, osc4, 0);
+        connectionGraph.connect(foldScale, 0, fold, 4);
+        connectionGraph.connect(env, 0, foldScale, 0);
+        connectionGraph.connect(osc4, 0, fold, 0);
+        connectionGraph.connect(fold, 0, mixGain, 0);
+
+        // TODO try out SPOW also
 
         // mix amplitude on Z (... env)
         connectionGraph.connect(env, 0, mixGain, 1);

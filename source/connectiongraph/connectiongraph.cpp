@@ -52,10 +52,11 @@ int ConnectionGraph::addModule(const char *type)
     else if(!strcmp(type, "SATAN"))  m = new SaturatorAtan();
     else if(!strcmp(type, "ENV"))    m = new CamelEnvelope();
     else if(!strcmp(type, "LAG"))    m = new Lag();
-    else if(!strcmp(type, "RECT"))   m = new Rectifier();
+    else if(!strcmp(type, "ABS"))    m = new Abs();
     else if(!strcmp(type, "FOLD"))   m = new FoldBack();
     else if(!strcmp(type, "XFADE"))  m = new CrossFade();
-    else if(!strcmp(type, "MULT"))   m = new AddMul();
+    else if(!strcmp(type, "SPOW"))   m = new SymPow();
+    else if(!strcmp(type, "CINV"))   m = new ClampInv();
     
     if(m) {
         id = (int)modules.size();

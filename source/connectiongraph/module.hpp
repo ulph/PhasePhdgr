@@ -148,27 +148,18 @@ public:
     }
 };
 
-class AddMul : public Module {
+class SymPow : public Module
+{
 public:
-    AddMul() {
-        inputs.push_back(Pad("add"));
-        inputs.push_back(Pad("mul", 1.0));
-        outputs.push_back(Pad("out"));
+    SymPow() {
+        inputs.push_back(Pad("base", 1.0));
+        inputs.push_back(Pad("exp", 1.0));
+        outputs.push_back(Pad("pow"));
     }
-    virtual void setInput(int inputPad, float value) {
-        if (inputPad == 0) {
-            inputs[0].value += value;
-        }
-        else if (inputPad == 1) {
-            inputs[1].value *= value;
-        }
-    }
-    void process(uint32_t) {
-        outputs[0].value = inputs[0].value * inputs[1].value;
-    }
-    virtual void postProcess() {
-        inputs[0].value = inputs[0].isFloating ? inputs[0].floatingValue : 0;
-        inputs[1].value = inputs[1].isFloating ? inputs[1].floatingValue : 1;
+    void process(uint32_t fs) {
+        float v = abs(inputs[0].value);
+        float sign = inputs[0].value >= 0 ? 1 : -1;
+        outputs[0].value = sign*powf(v, inputs[1].value);
     }
 };
 
@@ -199,16 +190,46 @@ public:
     }
 };
 
-class Rectifier : public Module
+class Abs : public Module
 {
 public:
-    Rectifier() {
+    Abs() {
         inputs.push_back(Pad("input"));
-        outputs.push_back(Pad("output"));
+        outputs.push_back(Pad("abs"));
     }
     void process(uint32_t fs) {
+        outputs[0].value = fabs(inputs[0].value);
+    }
+};
+
+class ClampInv : public Module
+{
+public:
+    ClampInv() {
+        inputs.push_back(Pad("in"));
+        inputs.push_back(Pad("low", 0.0f));
+        inputs.push_back(Pad("high", 1.0f));
+        outputs.push_back(Pad("out"));
+    }
+    void process(uint32_t fs) { 
         float v = inputs[0].value;
-        outputs[0].value = v >= 0 ? v : -v;
+        float lo = inputs[1].value;
+        float hi = inputs[2].value;
+        // clamp if outside bound
+        if (v < lo) {
+            outputs[0].value = lo;
+        }
+        else if (v > hi) {
+            outputs[0].value = hi;
+        }
+        // invert inside of bound
+        else if (hi >= lo) {
+            outputs[0].value = hi - (v-lo);
+        }
+        // handle nonsensical settings
+        else {
+            outputs[0].value = 0;
+        }
     }
 };
 
@@ -218,7 +239,7 @@ public:
     CrossFade() {
         inputs.push_back(Pad("first"));
         inputs.push_back(Pad("second"));
-        inputs.push_back(Pad("crossfade"));
+        inputs.push_back(Pad("crossfade", 0.5));
         outputs.push_back(Pad("output"));
     }
     void process(uint32_t fs) {
@@ -232,23 +253,35 @@ public:
     FoldBack() {
         inputs.push_back(Pad("input"));
         inputs.push_back(Pad("threshhold", 1.f));
+        inputs.push_back(Pad("amount", 0.5f));
+        inputs.push_back(Pad("iterations", 3.0f));
+        inputs.push_back(Pad("prescalar", 1.0f));
         outputs.push_back(Pad("output"));
     }
-    void process(uint32_t fs) {
-        float v = inputs[0].value;
+    float iterate(float v) {
         float t = fabs(inputs[1].value);
-        float d = fabs(inputs[0].value) - inputs[1].value;
-        if(d > 0){
-            if(v >= 0){
-                outputs[0].value = v-2*d;
+        float d = fabs(v) - t;
+        float s = fabs(inputs[2].value);
+        if (d > 0) {
+            if (v >= 0) {
+                return v - 2 * d * s;
             }
-            else{
-                outputs[0].value = v+2*d;
+            else {
+                return v + 2 * d * s;
             }
         }
-        else{
-            outputs[0].value = inputs[0].value;
+        else {
+            return v;
         }
+    }
+    void process(uint32_t fs) {
+        float g = inputs[4].value;
+        float v = g*inputs[0].value;
+        float i_max = inputs[3].value;
+        for (int i = 0; i < i_max; ++i) {
+            v = iterate(v);
+        }
+        outputs[0].value = v/g;
     }
 };
 

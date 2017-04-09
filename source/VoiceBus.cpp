@@ -48,7 +48,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
             if (n->voiceIndex != -1) {
                 SynthVoiceI *v = (*voices)[n->voiceIndex];
                 v->mpe.off(note, velocity);
-                // wake up the youngest but paused note (if any) on the same channel 
+                // wake up the youngest but paused note (if any) on the same channel -- TODO across channels
                 int new_idx = findYoungestInactiveNoteDataIndex(channel);
                 if (new_idx != -1) {
                     n = notes[new_idx];

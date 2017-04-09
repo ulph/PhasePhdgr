@@ -202,6 +202,20 @@ public:
     }
 };
 
+class ScaleShift : public Module
+{
+public:
+    ScaleShift() {
+        inputs.push_back(Pad("input"));
+        inputs.push_back(Pad("scale", 2.f));
+        inputs.push_back(Pad("shift", -1.f));
+        outputs.push_back(Pad("abs"));
+    }
+    void process(uint32_t fs) {
+        outputs[0].value = inputs[0].value * inputs[1].value + inputs[2].value;
+    }
+};
+
 class ClampInv : public Module
 {
 public:
@@ -273,8 +287,7 @@ public:
         }
     }
     void process(uint32_t fs) {
-        float g = inputs[2].value;
-        float v = g*inputs[0].value;
+        float v = inputs[2].value*inputs[0].value;
         for (int i = 0; i < 20; ++i) {
             if(iterate(&v)) break;
         }

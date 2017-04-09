@@ -57,6 +57,7 @@ int ConnectionGraph::addModule(const char *type)
     else if(!strcmp(type, "XFADE"))  m = new CrossFade();
     else if(!strcmp(type, "SPOW"))   m = new SymPow();
     else if(!strcmp(type, "CINV"))   m = new ClampInv();
+    else if(!strcmp(type, "SCLSHFT"))m = new ScaleShift();
     
     if(m) {
         id = (int)modules.size();

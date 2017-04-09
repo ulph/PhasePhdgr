@@ -100,19 +100,24 @@ public:
 
         connectionGraph.connect(osc23, 0, mixGain, 0);
 
-        // osc4 - wavefolded sine, prescale on Z (... env)
-        int osc4 = connectionGraph.addModule("SINE");
+        // wavefolded triangle, prescale on Z (... env)
+        int abs = connectionGraph.addModule("ABS");
+        connectionGraph.connect(phase, 0, abs, 0);
+        int scl = connectionGraph.addModule("SCLSHFT");
+        connectionGraph.connect(abs, 0, scl, 0);
         int fold = connectionGraph.addModule("FOLD");
-        int foldScale = connectionGraph.addModule("MUL");
+        int foldPreScale = connectionGraph.addModule("MUL");
+        connectionGraph.getModule(foldPreScale)->setFloatingValue(1, 4); // cheat?
+        connectionGraph.connect(foldPreScale, 0, fold, 2);
+        connectionGraph.connect(env, 0, foldPreScale, 0);
+        connectionGraph.connect(scl, 0, fold, 0);
         int lag = connectionGraph.addModule("LAG"); // simplistic lowpass
-        connectionGraph.getModule(foldScale)->setFloatingValue(1, 2); // cheat?
-
-        connectionGraph.connect(phase, 0, osc4, 0);
-        connectionGraph.connect(foldScale, 0, fold, 2);
-        connectionGraph.connect(env, 0, foldScale, 0);
-        connectionGraph.connect(osc4, 0, fold, 0);
         connectionGraph.connect(fold, 0, lag, 0);
-        connectionGraph.connect(lag, 0, mixGain, 0);
+        int foldPostScale = connectionGraph.addModule("MUL");
+        connectionGraph.getModule(foldPostScale)->setFloatingValue(1, 1); // cheat?
+        connectionGraph.connect(lag, 0, foldPostScale, 0);
+
+        connectionGraph.connect(foldPostScale, 0, mixGain, 0);
 
         // TODO try out SPOW also
 

@@ -1,23 +1,25 @@
 #include <cstdio>
 #include <cstdint>
 #include "connectiongraph.hpp"
+#include "module.hpp"
 
 int main()
 {
     uint32_t fs = 48000;
     ConnectionGraph s(fs);
     int osc1 = s.addModule("PHASE");
-    s.setInput(osc1, 0, 440.0f);
+    s.getModule(osc1)->setFloatingValue(0, 440);
     
     int osc2 = s.addModule("PHASE");
-    s.setInput(osc2, 0, 0.5f);
-    
+    s.getModule(osc2)->setFloatingValue(0, 0.5f);
+
     int square = s.addModule("SQUARE");
     s.connect(osc1, square, 0);
     s.connect(osc2, square, 1);
     
     int gain = s.addModule("MUL");
-    s.setInput(gain, 0, 0.25f);
+    s.getModule(gain)->setFloatingValue(0, 0.25f);
+
     s.connect(square, gain, 1);
     
     int q8 = s.addModule("QUANT8");

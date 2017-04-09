@@ -182,7 +182,7 @@ class Lag : public Module
 public:
     Lag() {
         inputs.push_back(Pad("input"));
-        inputs.push_back(Pad("amount"));
+        inputs.push_back(Pad("amount", 0.9));
         outputs.push_back(Pad("output"));
     }
     void process(uint32_t fs) {
@@ -254,34 +254,33 @@ public:
         inputs.push_back(Pad("input"));
         inputs.push_back(Pad("threshhold", 1.f));
         inputs.push_back(Pad("amount", 0.5f));
-        inputs.push_back(Pad("iterations", 3.0f));
         inputs.push_back(Pad("prescalar", 1.0f));
         outputs.push_back(Pad("output"));
     }
-    float iterate(float v) {
+    bool iterate(float *v) {
         float t = fabs(inputs[1].value);
-        float d = fabs(v) - t;
+        float d = fabs(*v) - t;
         float s = fabs(inputs[2].value);
         if (d > 0) {
-            if (v >= 0) {
-                return v - 2 * d * s;
+            if (*v >= 0) {
+                *v = *v - (d + d*s);
             }
             else {
-                return v + 2 * d * s;
+                *v = *v + (d + d*s);
             }
+            return false;
         }
         else {
-            return v;
+            return true;
         }
     }
     void process(uint32_t fs) {
-        float g = inputs[4].value;
+        float g = inputs[3].value;
         float v = g*inputs[0].value;
-        float i_max = inputs[3].value;
-        for (int i = 0; i < i_max; ++i) {
-            v = iterate(v);
+        for (int i = 0; i < 20; ++i) {
+            if(iterate(&v)) break;
         }
-        outputs[0].value = v/g;
+        outputs[0].value = v;
     }
 };
 

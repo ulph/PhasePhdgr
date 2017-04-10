@@ -4,7 +4,6 @@
 #include <cstring>
 #include "connectiongraph.hpp"
 #include "module.hpp"
-#include "inputoutputbus.hpp"
 
 class Cable
 {
@@ -26,8 +25,6 @@ public:
 
 ConnectionGraph::ConnectionGraph() : compiledForModule(-1)
 {
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("INPUT"), &(InputBus::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("OUTPUT"), &(OutputBus::factory)));
 }
 
 ConnectionGraph::~ConnectionGraph()

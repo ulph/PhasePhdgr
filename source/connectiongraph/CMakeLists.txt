@@ -2,7 +2,6 @@ set(SRC
     connectiongraph.cpp
     connectiongraph.hpp
     module.hpp
-    inputoutputbus.hpp
     instruction.hpp
 )
 

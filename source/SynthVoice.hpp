@@ -37,6 +37,13 @@ public:
         connectionGraph.connect(inBus, 6, env, 4);
         connectionGraph.connect(inBus, 3, phase, 0);
 
+        /*
+        // osc 1, straight sine
+        int osc1 = connectionGraph.addModule("SINE");
+        connectionGraph.connect(phase, 0, osc1, 0);
+        connectionGraph.connect(osc1, 0, mixGain, 0);
+        */
+
         // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env)
         int inv = connectionGraph.addModule("CINV"); // inverses inside the bounds
         int osc2arg = connectionGraph.addModule("SATAN");
@@ -101,6 +108,7 @@ public:
             return;
         }
         for (int i = 0; i < numSamples; ++i) {
+            mpe.update();
             const MPEVoiceState &state = mpe.getState();
             connectionGraph.setInput(inBus, 0, state.gate);
             connectionGraph.setInput(inBus, 1, state.strikeZ);
@@ -109,7 +117,6 @@ public:
             connectionGraph.setInput(inBus, 4, state.glideX);
             connectionGraph.setInput(inBus, 5, state.slideY);
             connectionGraph.setInput(inBus, 6, state.pressZ);
-            mpe.update();
             connectionGraph.process(outBus);
             float sample = connectionGraph.getOutput(outBus, 0);
             buffer[i] += 0.5*sample;

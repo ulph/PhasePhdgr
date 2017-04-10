@@ -82,14 +82,14 @@ public:
         int osc2argBoost = connectionGraph.addModule("MUL");
         connectionGraph.connect(env, 0, inv, 0); // flip it, for educational purposes
         connectionGraph.connect(inv, 0, osc2argBoost, 0);
-        connectionGraph.getModule(osc2argBoost)->setFloatingValue(1, 20); // cheat?
+        connectionGraph.getModule(osc2argBoost)->setInput(1, 20); // cheat?
         connectionGraph.connect(osc2argBoost, 0, osc2arg, 1);
         int osc2 = connectionGraph.addModule("SINE");
         connectionGraph.connect(osc2arg, 0, osc2, 0);
 
         int osc3arg = connectionGraph.addModule("MUL");
         connectionGraph.connect(osc2arg, 0, osc3arg, 0);
-        connectionGraph.getModule(osc3arg)->setFloatingValue(1, 2); // cheat?
+        connectionGraph.getModule(osc3arg)->setInput(1, 2); // cheat?
         int osc3 = connectionGraph.addModule("SINE");
         connectionGraph.connect(osc3arg, 0, osc3, 0);
 
@@ -107,14 +107,14 @@ public:
         connectionGraph.connect(abs, 0, scl, 0);
         int fold = connectionGraph.addModule("FOLD");
         int foldPreScale = connectionGraph.addModule("MUL");
-        connectionGraph.getModule(foldPreScale)->setFloatingValue(1, 4); // cheat?
+        connectionGraph.getModule(foldPreScale)->setInput(1, 4); // cheat?
         connectionGraph.connect(foldPreScale, 0, fold, 2);
         connectionGraph.connect(env, 0, foldPreScale, 0);
         connectionGraph.connect(scl, 0, fold, 0);
         int lag = connectionGraph.addModule("LAG"); // simplistic lowpass
         connectionGraph.connect(fold, 0, lag, 0);
         int foldPostScale = connectionGraph.addModule("MUL");
-        connectionGraph.getModule(foldPostScale)->setFloatingValue(1, 1); // cheat?
+        connectionGraph.getModule(foldPostScale)->setInput(1, 1); // cheat?
         connectionGraph.connect(lag, 0, foldPostScale, 0);
 
         connectionGraph.connect(foldPostScale, 0, mixGain, 0);

@@ -74,7 +74,8 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"
                        libraryPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/lib"
-                       headerPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/include"/>
+                       headerPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/include"
+                       binaryPath="~/.vst"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"
                        binaryPath="~/.vst" libraryPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/lib"
                        headerPath="/home/ulph/Dev/phasephckr/Builds/cmake/build/include"/>

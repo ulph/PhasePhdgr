@@ -51,6 +51,7 @@ void Synth::update(float * buffer, int numSamples, float sampleRate)
         scopeDrift += ((float)numSamples-i)/decimation;
         if(scopeDrift>=1){
             scopeDrift--;
+            scopeBuffer[scopeBufferWriteIndex] = buffer[numSamples-1];
             scopeBufferWriteIndex++;
             scopeBufferWriteIndex %= scopeBufferSize;
         }
@@ -59,7 +60,6 @@ void Synth::update(float * buffer, int numSamples, float sampleRate)
             scopeBufferWriteIndex--;
             scopeBufferWriteIndex %= scopeBufferSize;
         }
-
     }
     else{
         scopeBufferWriteIndex = 0;

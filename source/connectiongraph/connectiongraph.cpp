@@ -24,7 +24,7 @@ public:
     }
 };
 
-ConnectionGraph::ConnectionGraph(uint32_t fs) : fs(fs), compiledForModule(-1)
+ConnectionGraph::ConnectionGraph() : compiledForModule(-1)
 {
     moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("INPUT"), &(InputBus::factory)));
     moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("OUTPUT"), &(OutputBus::factory)));
@@ -164,7 +164,7 @@ void ConnectionGraph::compileModule(int module)
     program.push_back(Instruction(OP_PROCESS, module));
 }
 
-void ConnectionGraph::process(int module)
+void ConnectionGraph::process(int module, float fs)
 {
     // Recompile if needed
     if(module != compiledForModule) compileProgram(module);

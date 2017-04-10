@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     uint32_t fs = 48000;
-    ConnectionGraph s(fs);
+    ConnectionGraph s;
     int phase = s.addModule("PHASE");
     int mul = s.addModule("MUL");
     s.getModule(phase)->setInput(0, 1.0);
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
 
     for (uint32_t t = 0; t < 10*fs; t++) {
-        s.process(dut);
+        s.process(dut, fs);
         float output = s.getOutput(dut, 0);
         fwrite(&output, sizeof(output), 1, outfile);
     }

@@ -16,11 +16,11 @@ public:
 class ConnectionGraphVoice : public SynthVoiceI {
 
 public:
-    ConnectionGraphVoice() :
-        connectionGraph(48000),
-        t(0),
-        rms(0),
-        rmsSlew(0.999)
+    ConnectionGraphVoice() 
+        : connectionGraph()
+        , t(0)
+        , rms(0)
+        , rmsSlew(0.999)
     {
         // example patch to toy with the requirements on routing
 
@@ -117,7 +117,7 @@ public:
             connectionGraph.setInput(inBus, 4, state.glideX);
             connectionGraph.setInput(inBus, 5, state.slideY);
             connectionGraph.setInput(inBus, 6, state.pressZ);
-            connectionGraph.process(outBus);
+            connectionGraph.process(outBus, sampleRate);
             float sample = connectionGraph.getOutput(outBus, 0);
             buffer[i] += 0.5*sample;
             rms = rms*rmsSlew + (1 - rmsSlew)*(sample*sample); // without the root

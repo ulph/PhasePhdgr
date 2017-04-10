@@ -21,7 +21,7 @@ protected:
     void compileModule(int module);
 public:
     Module* getModule(int id);
-    ConnectionGraph(uint32_t fs);
+    ConnectionGraph();
     virtual ~ConnectionGraph();
     int addModule(const char *type);
     void registerModule(std::string name, Module* (*moduleFactory)());
@@ -31,7 +31,7 @@ public:
     void connect(int fromModule, int toModule) { connect(fromModule, 0, toModule, 0); }
     void setInput(int module, int pad, float value);
     float getOutput(int module, int pad);
-    void process(int module);
+    void process(int module, float fs);
 };
 
 #endif

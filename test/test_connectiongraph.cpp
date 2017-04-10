@@ -6,7 +6,7 @@
 int main()
 {
     uint32_t fs = 48000;
-    ConnectionGraph s(fs);
+    ConnectionGraph s;
     int osc1 = s.addModule("PHASE");
     s.setInput(osc1, 0, 440.0f);
     
@@ -32,7 +32,7 @@ int main()
     // s.connect(noise, speaker);
     
     for(uint32_t t = 0; t < 5*fs; t++) {
-        s.process(speaker);
+        s.process(speaker, fs);
         float output = s.getOutput(speaker, 0);
         fwrite(&output, sizeof(output), 1, stdout); 
     }

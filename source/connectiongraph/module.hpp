@@ -5,6 +5,7 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+#include <string>
 
 struct Pad
 {
@@ -281,15 +282,14 @@ public:
         inputs.push_back(Pad("prescalar", 1.0f));
         outputs.push_back(Pad("output"));
     }
-    bool iterate(float *v) {
+    bool iterate(float *v, float scale) {
         float d = fabs(*v) - 1;
-        float s = fmax(0.1, fmin(1, fabs(inputs[1].value)));
         if (d > 0) {
             if (*v >= 0) {
-                *v = *v - (d + d*s);
+                *v = *v - (d + d*scale);
             }
             else {
-                *v = *v + (d + d*s);
+                *v = *v + (d + d*scale);
             }
             return false;
         }
@@ -299,8 +299,9 @@ public:
     }
     void process(uint32_t fs) {
         float v = inputs[2].value*inputs[0].value;
+        float s = fmax(0.1, fmin(1, fabs(inputs[1].value)));
         for (int i = 0; i < 20; ++i) {
-            if(iterate(&v)) break;
+            if(iterate(&v, s)) break;
         }
         outputs[0].value = v;
     }

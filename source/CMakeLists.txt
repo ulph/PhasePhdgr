@@ -3,6 +3,7 @@ add_subdirectory(connectiongraph)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SRC
+    ${CMAKE_SOURCE_DIR}/include/PhasePhckr.h
     Effect.hpp
     MPEVoice.hpp
     MPEVoice.cpp

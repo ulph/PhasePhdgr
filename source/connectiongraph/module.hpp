@@ -79,6 +79,7 @@ public:
         while(p < -1){p+=2;}
         outputs[0].value = p;
     }
+    static Module* factory() { return new Phase(); }
 };
 
 class Sine : public Module
@@ -92,6 +93,7 @@ public:
     {
         outputs[0].value = (float)sin(M_PI * inputs[0].value);
     }
+    static Module* factory() { return new Sine(); }
 };
 
 class SaturatorAtan : public Module
@@ -107,6 +109,7 @@ public:
         float scale = (float)fmax(inputs[1].value, 0.01);
         outputs[0].value = atanf(inputs[0].value * scale) / atanf(scale);
     }
+    static Module* factory() { return new SaturatorAtan(); }
 };
 
 class Square : public Module
@@ -132,6 +135,7 @@ public:
         else if(phase < duty) outputs[0].value =  1.0f;
         else outputs[0].value =  0.0f;
     }
+    static Module* factory() { return new Square(); }
 };
 
 class Mul : public Module
@@ -145,6 +149,7 @@ public:
     void process(uint32_t fs) {
         outputs[0].value = inputs[0].value * inputs[1].value;
     }
+    static Module* factory() { return new Mul(); }
 };
 
 class SymPow : public Module
@@ -160,6 +165,7 @@ public:
         float sign = inputs[0].value >= 0 ? 1 : -1;
         outputs[0].value = sign*powf(v, inputs[1].value);
     }
+    static Module* factory() { return new SymPow(); }
 };
 
 class Clamp : public Module
@@ -174,6 +180,7 @@ public:
         if(outputs[0].value < -1.0f) outputs[0].value = -1.0f;
         else if(outputs[0].value > 1.0f) outputs[0].value = 1.0f;
     }
+    static Module* factory() { return new Clamp(); }
 };
 
 class Lag : public Module
@@ -187,6 +194,7 @@ public:
     void process(uint32_t fs) {
         outputs[0].value = outputs[0].value * inputs[1].value + inputs[0].value * ( 1 - inputs[1].value );
     }
+    static Module* factory() { return new Lag(); }
 };
 
 class Abs : public Module
@@ -199,6 +207,7 @@ public:
     void process(uint32_t fs) {
         outputs[0].value = fabs(inputs[0].value);
     }
+    static Module* factory() { return new Abs(); }
 };
 
 class ScaleShift : public Module
@@ -213,6 +222,7 @@ public:
     void process(uint32_t fs) {
         outputs[0].value = inputs[0].value * inputs[1].value + inputs[2].value;
     }
+    static Module* factory() { return new ScaleShift(); }
 };
 
 class ClampInv : public Module
@@ -244,6 +254,7 @@ public:
             outputs[0].value = 0;
         }
     }
+    static Module* factory() { return new ClampInv(); }
 };
 
 class CrossFade : public Module
@@ -258,6 +269,7 @@ public:
     void process(uint32_t fs) {
         outputs[0].value = inputs[2].value*inputs[0].value + (1-inputs[2].value)*inputs[1].value;
     }
+    static Module* factory() { return new CrossFade(); }
 };
 
 class FoldBack : public Module
@@ -292,6 +304,7 @@ public:
         }
         outputs[0].value = v;
     }
+    static Module* factory() { return new FoldBack(); }
 };
 
 class Quant8 : public Module
@@ -312,6 +325,7 @@ public:
         
         outputs[0].value = tmp;
     }
+    static Module* factory() { return new Quant8(); }
 };
 
 class Noise : public Module
@@ -329,6 +343,7 @@ public:
                           (float)(1.0 / 0x40000000);
         val = val * 435898247 + 382842987;
     }
+    static Module* factory() { return new Noise(); }
 };
 
 class CamelEnvelope : public Module
@@ -406,6 +421,7 @@ class CamelEnvelope : public Module
         target_value = target_value > 1.f ? 1.f : target_value < 0.f ? 0.f : target_value;
         outputs[0].value = slew*outputs[0].value + (1-slew)*target_value;
     }
+    static Module* factory() { return new CamelEnvelope(); }
 
     private:
         float gate;

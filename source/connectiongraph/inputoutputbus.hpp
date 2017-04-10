@@ -18,24 +18,13 @@ public:
         inputs.push_back(Pad("PressZ" )); outputs.push_back(Pad("PressZ" ));
     }
 
-    /*
-    void updateVoice(const MPEVoiceState &state) {
-        outputs[0].value = state.gate;
-        outputs[1].value = state.strikeZ;
-        outputs[2].value = state.liftZ;
-        outputs[3].value = state.pitchHz;
-        outputs[4].value = state.glideX;
-        outputs[5].value = state.slideY;
-        outputs[6].value = state.pressZ;
-    }
-    */
-
     virtual void process(uint32_t fs)
     {
         for(int i = 0; i < outputs.size(); i++) {
             outputs[i] = inputs[i];
         }
     }
+    static Module* factory() { return new InputBus(); }
 };
 
 class OutputBus : public Module {
@@ -49,6 +38,7 @@ public:
     {
         outputs[0].value = inputs[0].value;
     }
+    static Module* factory() { return new OutputBus(); }
 };
 
 #endif

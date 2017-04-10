@@ -26,6 +26,24 @@ public:
 
 ConnectionGraph::ConnectionGraph(uint32_t fs) : fs(fs), compiledForModule(-1)
 {
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("INPUT"), &(InputBus::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("OUTPUT"), &(OutputBus::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("PHASE"), &(Phase::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SQUARE"), &(Square::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("MUL"), &(Mul::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("CLAMP"), &(Clamp::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("QUANT8"), &(Quant8::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("NOISE"), &(Noise::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SINE"), &(Sine::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SATAN"), &(SaturatorAtan::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("ENV"), &(CamelEnvelope::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("LAG"), &(Lag::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("ABS"), &(Abs::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("FOLD"), &(FoldBack::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("XFADE"), &(CrossFade::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SPOW"), &(SymPow::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("CINV"), &(ClampInv::factory)));
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SCLSHFT"), &(ScaleShift::factory)));
 }
 
 ConnectionGraph::~ConnectionGraph()
@@ -54,26 +72,13 @@ int ConnectionGraph::addModule(const char *type)
     compiledForModule = -1;
     int id = -1;
     Module *m = nullptr;
-    
-    if(     !strcmp(type, "INPUT"))  m = new InputBus();
-    else if(!strcmp(type, "OUTPUT")) m = new OutputBus();
-    else if(!strcmp(type, "PHASE"))  m = new Phase();
-    else if(!strcmp(type, "SQUARE")) m = new Square();
-    else if(!strcmp(type, "MUL"))    m = new Mul();
-    else if(!strcmp(type, "CLAMP"))  m = new Clamp();
-    else if(!strcmp(type, "QUANT8")) m = new Quant8();
-    else if(!strcmp(type, "NOISE"))  m = new Noise();
-    else if(!strcmp(type, "SINE"))   m = new Sine();
-    else if(!strcmp(type, "SATAN"))  m = new SaturatorAtan();
-    else if(!strcmp(type, "ENV"))    m = new CamelEnvelope();
-    else if(!strcmp(type, "LAG"))    m = new Lag();
-    else if(!strcmp(type, "ABS"))    m = new Abs();
-    else if(!strcmp(type, "FOLD"))   m = new FoldBack();
-    else if(!strcmp(type, "XFADE"))  m = new CrossFade();
-    else if(!strcmp(type, "SPOW"))   m = new SymPow();
-    else if(!strcmp(type, "CINV"))   m = new ClampInv();
-    else if(!strcmp(type, "SCLSHFT"))m = new ScaleShift();
-    
+
+    for(auto mod : moduleRegister) {
+        if(mod.first.compare(type) == 0) {
+            m = mod.second();
+        }
+    }
+
     if(m) {
         id = (int)modules.size();
         modules.push_back(m);

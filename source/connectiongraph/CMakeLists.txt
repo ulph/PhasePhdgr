@@ -3,6 +3,7 @@ set(SRC
     connectiongraph.hpp
     module.hpp
     inputoutputbus.hpp
+    instruction.hpp
 )
 
 add_library(connectiongraph ${SRC})

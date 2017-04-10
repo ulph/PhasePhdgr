@@ -9,14 +9,9 @@
 struct Pad
 {
     float value;
-    float floatingValue;
-    bool isFloating;
     std::string name;
-    Pad(const char *name) : name(name), value(0.0f), floatingValue(0.0f), isFloating(true){}
-    Pad(const char *name, float floatingValue) : name(name), value(0.0f), floatingValue(floatingValue), isFloating(true) {}
-    void setFloatingValue(float value) {
-        floatingValue = value;
-    }
+    Pad(const char *name) : name(name), value(0.0f) {}
+    Pad(const char *name, float value) : name(name), value(value) {}
 };
 
 class Module
@@ -27,17 +22,7 @@ protected:
     std::vector<Pad> outputs;
 
 public:
-    virtual void doProcess(uint32_t fs) {
-        process(fs);
-        postProcess();
-    }
     virtual void process(uint32_t fs) = 0;
-    virtual void postProcess() {
-        for (auto & i : inputs) {
-            i.value = i.isFloating ? i.floatingValue : 0;
-            i.isFloating = true;
-        }
-    };
     uint32_t getTime() { return time; }
     void setTime(uint32_t t) { time = t; }
     float getOutput(int outputPad) { 
@@ -48,17 +33,11 @@ public:
     }
     virtual void setInput(int inputPad, float value) {
         if(inputPad >= 0 && inputPad < inputs.size()) {
-            inputs[inputPad].value += value;
-            inputs[inputPad].isFloating = false;
+            inputs[inputPad].value = value;
         }
     }
     int getNumInputPads() { return (int)inputs.size(); }
     int getNumOutputPads() { return (int)outputs.size(); }
-    void setFloatingValue(int inputPad, float value) {
-        if (inputPad >= 0 && inputPad < inputs.size()) {
-            inputs[inputPad].floatingValue = value;
-        }
-    }
     
     int getInputPadFromName(std::string padName) {
         for(int i = 0; i < inputs.size(); i++) {
@@ -100,7 +79,7 @@ public:
         }
         while(p > 1){p-=2;}
         while(p < -1){p+=2;}
-        outputs[0].value = p;        
+        outputs[0].value = p;
     }
 };
 

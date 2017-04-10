@@ -141,10 +141,10 @@ void ConnectionGraph::process(int module, uint32_t time)
                 }
             }
         }
-        
-        // Process the updated input
-        m->doProcess(fs);
     }
+    
+    // Process the updated input
+    m->process(fs);
 }
 
 float ConnectionGraph::getOutput(int module, int pad)

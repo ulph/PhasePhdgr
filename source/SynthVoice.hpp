@@ -1,8 +1,9 @@
 #pragma once
 
 #include "MPEVoice.hpp"
-#include "connectiongraph/module.hpp"
-#include "connectiongraph/connectiongraph.hpp"
+#include "module.hpp"
+#include "connectiongraph.hpp"
+#include "moduleregister.hpp"
 
 namespace PhasePhckr {
 
@@ -22,6 +23,7 @@ public:
         rms(0),
         rmsSlew(0.999)
     {
+        ModuleRegister::registerAllModules(connectionGraph);
         // example patch to toy with the requirements on routing
 
         inBus = connectionGraph.addModule("INPUT");

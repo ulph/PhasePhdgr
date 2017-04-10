@@ -2,7 +2,7 @@ add_subdirectory(connectiongraph)
 add_subdirectory(modules)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
+include_directories(connectiongraph modules)
 set(SRC
     ${CMAKE_SOURCE_DIR}/include/PhasePhckr.h
     Effect.hpp

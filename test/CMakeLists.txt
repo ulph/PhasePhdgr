@@ -14,8 +14,8 @@ set(TEST_MODULES_SRC
 
 include_directories(../source/connectiongraph)
 add_executable(test_modules ${TEST_MODULES_SRC})
-target_link_libraries(test_modules connectiongraph)
+target_link_libraries(test_modules connectiongraph modules)
 
 
 add_executable(test_synth test_synth.cpp)
-target_link_libraries(test_synth phasephckr connectiongraph)
+target_link_libraries(test_synth phasephckr connectiongraph modules)

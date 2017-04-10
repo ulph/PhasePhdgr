@@ -142,7 +142,8 @@ public:
         for (int i = 0; i < numSamples; ++i) {
             inbusPtr->updateVoice(mpe.getState());
             mpe.update();
-            connectionGraph.process(outBus, t + i);
+            //connectionGraph.process(outBus, t + i);
+            connectionGraph.run(outBus);
             float sample = connectionGraph.getOutput(outBus, 0);
             buffer[i] += 0.5*sample;
             rms = rms*rmsSlew + (1 - rmsSlew)*(sample*sample); // without the root

@@ -23,7 +23,7 @@ public:
     }
 };
 
-ConnectionGraph::ConnectionGraph(uint32_t fs) : fs(fs)
+ConnectionGraph::ConnectionGraph(uint32_t fs) : fs(fs), compiledForModule(-1)
 {
 }
 
@@ -50,6 +50,7 @@ Module* ConnectionGraph::getModule(int id)
 
 int ConnectionGraph::addModule(const char *type)
 {
+    compiledForModule = -1;
     int id = -1;
     Module *m = nullptr;
     
@@ -81,6 +82,7 @@ int ConnectionGraph::addModule(const char *type)
 }
 
 int ConnectionGraph::addModule(Module *m){
+    compiledForModule = -1;
     int id = -1;
     
     if(m) {
@@ -95,6 +97,7 @@ int ConnectionGraph::addModule(Module *m){
 
 void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule, std::string toPad)
 {
+    compiledForModule = -1;
     Module *mFrom = getModule(fromModule); 
     Module *mTo = getModule(toModule);
     
@@ -108,6 +111,7 @@ void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule,
 
 void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toPad)
 {
+    compiledForModule = -1;
     cables.push_back(new Cable(fromModule, fromPad, toModule, toPad));
 }
 
@@ -158,4 +162,62 @@ float ConnectionGraph::getOutput(int module, int pad)
 {
     Module *m = getModule(module);
     return m->getOutput(pad);
+}
+
+void ConnectionGraph::compile(int module)
+{
+    program.clear();
+    for(Module *m : modules) m->setTime(0);
+    
+    compileInternal(module);
+    compiledForModule = module;
+}
+
+void ConnectionGraph::compileInternal(int module)
+{
+    Module *m = getModule(module);
+    int time = 1;
+    if(m->getTime() != time) {
+        m->setTime(time);
+        
+        // Iterate over all input pads
+        for(int pad = 0; pad < m->getNumInputPads(); pad++) {
+            bool padIsConnected = false;
+            // Check if other modules are connected to this pad
+            for(const Cable *c : cables) {
+                if(c->isConnected(module, pad)) {
+                    if(!padIsConnected) {
+                        padIsConnected = true;
+                        program.push_back(Instruction(OP_RESET_INPUT, module, pad));
+                    }
+                    Module *m_dep = getModule(c->getFromModule());
+                    compileInternal(c->getFromModule());
+                    program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, c->getFromModule(), c->getFromPad(), module, pad));
+                }
+            }
+        }
+    }
+    
+    program.push_back(Instruction(OP_PROCESS, module));
+}
+
+void ConnectionGraph::run(int module)
+{
+    // Recompile if needed
+    if(module != compiledForModule) compile(module);
+    
+    // Run program
+    for(const Instruction &i : program) {
+        switch(i.opcode) {
+        case OP_PROCESS:
+            modules[i.param0]->process(fs);
+            break;
+        case OP_RESET_INPUT:
+            modules[i.param0]->setInput(i.param1, 0.0f);
+            break;
+        case OP_ADD_OUTPUT_TO_INPUT:
+            modules[i.param2]->addToInput(i.param3, modules[i.param0]->getOutput(i.param1));
+            break;
+        }
+    }
 }

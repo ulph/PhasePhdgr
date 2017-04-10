@@ -26,15 +26,13 @@ public:
     uint32_t getTime() { return time; }
     void setTime(uint32_t t) { time = t; }
     float getOutput(int outputPad) { 
-        if(outputPad >= 0 && outputPad < outputs.size()){
-            return outputs[outputPad].value;
-        }
-        return 0;
+        return outputs[outputPad].value;
     }
-    virtual void setInput(int inputPad, float value) {
-        if(inputPad >= 0 && inputPad < inputs.size()) {
-            inputs[inputPad].value = value;
-        }
+    void setInput(int inputPad, float value) {
+        inputs[inputPad].value = value;
+    }
+    void addToInput(int inputPad, float value) {
+        inputs[inputPad].value += value;
     }
     int getNumInputPads() { return (int)inputs.size(); }
     int getNumOutputPads() { return (int)outputs.size(); }

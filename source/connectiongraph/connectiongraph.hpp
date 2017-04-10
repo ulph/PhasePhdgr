@@ -7,12 +7,29 @@
 class Module;
 class Cable;
 
+enum Opcode { OP_PROCESS, OP_RESET_INPUT, OP_ADD_OUTPUT_TO_INPUT };
+
+struct Instruction {
+    int opcode;
+    int param0;
+    int param1;
+    int param2;
+    int param3;
+    
+    Instruction(int opcode, int param0, int param1, int param2, int param3) : opcode(opcode), param0(param0), param1(param1), param2(param2), param3(param3) {}
+    Instruction(int opcode, int param0, int param1) : opcode(opcode), param0(param0), param1(param1), param2(0), param3(0) {}
+    Instruction(int opcode, int param0) : opcode(opcode), param0(param0), param1(0), param2(0), param3(0) {}
+};
+
 class ConnectionGraph
 {
 protected:
     std::vector<Module*> modules;
     std::vector<Cable*> cables;
+    std::vector<Instruction> program;
     uint32_t fs;
+    int compiledForModule;
+    void compileInternal(int module);
 public:
     Module* getModule(int id);
     ConnectionGraph(uint32_t fs);
@@ -26,6 +43,8 @@ public:
     void setInput(int module, int pad, float value);
     void process(int module, uint32_t time);
     float getOutput(int module, int pad);
+    void compile(int module);
+    void run(int module);
 };
 
 #endif

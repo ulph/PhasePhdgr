@@ -22,7 +22,7 @@ namespace PhasePhckr {
     public:
         VoiceBus() : voices(nullptr){};
         VoiceBus(std::vector<SynthVoiceI*> * parent_voices);
-        virtual VoiceBus::~VoiceBus();
+        virtual ~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
         void handleY(int channel, float position);

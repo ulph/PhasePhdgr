@@ -11,7 +11,6 @@ struct MPEVoiceState {
       , pitchHz(0)
       , gate(0)
     {}
-
     float strikeZ; // velocity, 0 to 1
     float pressZ; // aftertouch, 0 to 1
     float liftZ; // release velocity, 0 to 1

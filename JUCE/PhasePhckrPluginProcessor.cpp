@@ -103,11 +103,8 @@ bool PhasePhckrAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
     ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
-        return false;
+    // We only support stereo output ...
+    if (layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) return false;
 
     // This checks if the input layout matches the output layoutsustainHeight
    #if ! JucePlugin_IsSynth
@@ -167,11 +164,23 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         }
         else if(msg.isController()){
             int cc = msg.getControllerNumber();
-            if(cc == 74 || cc == 1){
-                synth.voiceBus.handleY(
-                    ch,
-                    (float)msg.getControllerValue() / 127.f
-                );
+            float val = (float)msg.getControllerValue() / 127.f;
+            // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
+            switch (cc) {
+                case 74:
+                    synth.voiceBus.handleY(ch, val);
+                    break;
+                case 1:
+                    synth.voiceBus.handleModWheel(val);
+                    break;
+                case 2:
+                    synth.voiceBus.handleBreath(val);
+                    break;
+                case 11:
+                    synth.voiceBus.handleExpression(val);
+                    break;
+                default:
+                    break;
             }
         }
     }

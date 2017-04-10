@@ -107,6 +107,22 @@ void VoiceBus::handleNoteZ(int channel, int note, float position) {
     }
 }
 
+void VoiceBus::handleExpression(float value) {
+    globalDataTarget.exp = value;
+}
+
+void VoiceBus::handleBreath(float value) {
+    globalDataTarget.brt = value;
+}
+
+void VoiceBus::handleModWheel(float value) {
+    globalDataTarget.mod = value;
+}
+
+const GlobalData& VoiceBus::getGlobalData() {
+    return globalData;
+}
+
 int VoiceBus::getNoteDataIndex(int channel, int note) {
     int idx = 0;
     for (const auto &n : notes) {
@@ -145,6 +161,9 @@ void VoiceBus::update() {
     for (const auto &n : notes) {
         n->age++;
     }
+    globalData.exp = globalData.exp*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.exp;
+    globalData.brt = globalData.brt*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.brt;
+    globalData.mod = globalData.mod*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.mod;
 }
 
 VoiceBus::VoiceBus(std::vector<SynthVoiceI*> * parent_voices)

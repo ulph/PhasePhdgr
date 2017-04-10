@@ -11,6 +11,7 @@ Synth::Synth()
     : scopeBufferWriteIndex(0)
     , scopeBufferSize(sizeof(scopeBuffer)/sizeof(float))
     , scopeDrift(0.0f)
+    , effects(nullptr)
 {
     for (int i = 0; i<16; ++i) {
         SynthVoiceI* v = new ConnectionGraphVoice();
@@ -24,8 +25,8 @@ Synth::Synth()
 void Synth::update(float * buffer, int numSamples, float sampleRate)
 {
     voiceBus.update();
-    for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
-    for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
+    for (auto & v : voices) v->update(buffer, numSamples, sampleRate, voiceBus.getGlobalData());
+    if(effects) effects->update(buffer, numSamples, sampleRate, voiceBus.getGlobalData());
 
     // apply a silly gain stage to tame the overloads
     for(int i=0; i<numSamples; i++){

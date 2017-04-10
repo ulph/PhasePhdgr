@@ -14,17 +14,24 @@ namespace PhasePhckr {
     struct NoteData;
 
     struct ChannelData {
-      ChannelData()
-        :x(0), y(0), z(0) {}
-
+      ChannelData() : x(0), y(0), z(0) {}
         float x;
         float y;
         float z;
     };
 
+    struct GlobalData {
+        GlobalData() : exp(0), brt(0), mod(0) {}
+        float exp;
+        float brt;
+        float mod;
+    };
+
     class VoiceBus {
+        // TODO, this class needs to be split into 2 (or more) classes
+        // only the handleBLABLA stuff should be visible on api level
     public:
-        VoiceBus() : voices(nullptr){};
+        VoiceBus() : voices(nullptr), globalDataSlewFactor(0.995f){};
         VoiceBus(std::vector<SynthVoiceI*> * parent_voices);
         virtual ~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
@@ -32,14 +39,21 @@ namespace PhasePhckr {
         void handleY(int channel, float position);
         void handleZ(int channel, float position);
         void handleNoteZ(int channel, int note, float position);
+        void handleExpression(float value);
+        void handleBreath(float value);
+        void handleModWheel(float value);
         void update();
         float findScopeVoiceHz();
+        const GlobalData& getGlobalData();
     private:
         std::vector<SynthVoiceI*> *voices;
         std::vector<NoteData*> notes;
         int getNoteDataIndex(int channel, int note);
         int findYoungestInactiveNoteDataIndex(int channel);
         ChannelData channelData[16];
+        GlobalData globalData;
+        GlobalData globalDataTarget;
+        float globalDataSlewFactor;
     };
 
     class AutomationBus {
@@ -48,6 +62,7 @@ namespace PhasePhckr {
 
     class Synth {
     public:
+        // TODO, encapsulate the scope stuff into it's own class so we can have several
         Synth();
         VoiceBus voiceBus;
         AutomationBus automationBus;
@@ -55,7 +70,7 @@ namespace PhasePhckr {
         virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation
-        std::vector<EffectI*> effects; // effects applied to mix of voices (in series)
+        EffectI* effects; // effects applied to mix of voices (in series)
         // settings like voice stacking, per voice detuning and etc etc goes here
         float scopeBuffer[512];
         const unsigned int scopeBufferSize;

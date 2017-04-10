@@ -14,8 +14,9 @@ public:
 };
 
 class ExConnectionGraphVoice : public SynthVoiceI {
+
 public:
-    ExConnectionGraphVoice() :
+    ConnectionGraphVoice() :
         connectionGraph(48000),
         t(0),
         rms(0),

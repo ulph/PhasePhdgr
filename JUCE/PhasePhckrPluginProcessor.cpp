@@ -217,3 +217,7 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PhasePhckrAudioProcessor();
 }
+
+const PhasePhckr::Synth& PhasePhckrAudioProcessor::getSynth() const {
+    return synth;
+}

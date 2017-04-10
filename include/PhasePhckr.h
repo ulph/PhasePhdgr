@@ -5,6 +5,7 @@
 #include <utility>
 #include <random>
 #include <string.h>
+#include <atomic>
 
 namespace PhasePhckr {
 
@@ -32,6 +33,7 @@ namespace PhasePhckr {
         void handleZ(int channel, float position);
         void handleNoteZ(int channel, int note, float position);
         void update();
+        float findScopeVoiceHz();
     private:
         std::vector<SynthVoiceI*> *voices;
         std::vector<NoteData*> notes;
@@ -50,10 +52,14 @@ namespace PhasePhckr {
         VoiceBus voiceBus;
         AutomationBus automationBus;
         virtual void update(float * buffer, int numSamples, float sampleRate);
+        virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation
         std::vector<EffectI*> effects; // effects applied to mix of voices (in series)
         // settings like voice stacking, per voice detuning and etc etc goes here
+        float scopeBuffer[512];
+        const unsigned int scopeBufferSize;
+        unsigned int scopeBufferWriteIndex;
     };
 
 }

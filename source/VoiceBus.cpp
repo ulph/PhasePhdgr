@@ -130,6 +130,17 @@ int VoiceBus::findYoungestInactiveNoteDataIndex(int channel) {
     return min;
 }
 
+float VoiceBus::findScopeVoiceHz() {
+    float hz = 0;
+    unsigned int max = 0;
+    for (const auto &v : *voices) {
+        if(v->mpe.getState().gate && v->mpe.getAge() > max){
+            hz = v->mpe.getState().pitchHz;
+        }
+    }
+    return hz;
+}
+
 void VoiceBus::update() {
     for (const auto &n : notes) {
         n->age++;

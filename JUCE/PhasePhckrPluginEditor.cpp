@@ -29,10 +29,10 @@ void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colours::black);
     const PhasePhckr::Synth &synth = this->processor.getSynth();
-    size_t size = synth.getScopeBuffer(&scopeBuffer[0], 1024);
+    size_t size = synth.getScopeBuffer(&scopeBuffer[0], sizeof(scopeBuffer)/sizeof(float));
     float size_y = this->getHeight();
     float size_x = this->getWidth();
-    float yScale = size_y * 0.25;
+    float yScale = size_y / (2*1 + 0.25);
 
     g.setColour(Colours::brown);
     g.drawHorizontalLine(size_y*0.5, 0, size_x);

@@ -23,9 +23,12 @@ void Synth::update(float * buffer, int numSamples, float sampleRate)
     for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
     for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
 
-    float hz = voiceBus.findScopeVoiceHz(); /// for now
+    // find the "active" voice's hz
+    float hz = voiceBus.findScopeVoiceHz();
+
+    // fill scope buffer with a (poorly) resampled version matching a couple of cycles
     if(hz > 1){
-        float numPeriods = 4;
+        float numPeriods = 1;
         float samplesPerPeriod = sampleRate / hz;
         float decimation = numPeriods * samplesPerPeriod / (float)scopeBufferSize;
         for(float i=0; i<numSamples; i+=decimation){

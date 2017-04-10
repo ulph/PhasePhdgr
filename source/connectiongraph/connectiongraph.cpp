@@ -76,6 +76,7 @@ int ConnectionGraph::addModule(const char *type)
     for(auto mod : moduleRegister) {
         if(mod.first.compare(type) == 0) {
             m = mod.second();
+            break;
         }
     }
 

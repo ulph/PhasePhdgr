@@ -4,6 +4,9 @@
 
 namespace PhasePhckr {
 
+const float preSaturationReductionFactor = 0.75;
+const float postSaturationReductionFactor = 1.f/atanf(2.0f);
+
 Synth::Synth() 
     : scopeBufferWriteIndex(0), 
     scopeBufferSize(sizeof(scopeBuffer)/sizeof(float))
@@ -22,6 +25,11 @@ void Synth::update(float * buffer, int numSamples, float sampleRate)
     voiceBus.update();
     for (auto & v : voices) v->update(buffer, numSamples, sampleRate);
     for (auto & e : effects) e->update(buffer, numSamples, sampleRate);
+
+    // apply a silly gain stage to tame the overloads
+    for(int i=0; i<numSamples; i++){
+        buffer[i] = atanf(preSaturationReductionFactor*buffer[i]) * postSaturationReductionFactor;
+    }
 
     // find the "active" voice's hz
     float hz = voiceBus.findScopeVoiceHz();

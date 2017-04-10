@@ -93,6 +93,19 @@ int ConnectionGraph::addModule(Module *m){
     return id;
 }
 
+void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule, std::string toPad)
+{
+    Module *mFrom = getModule(fromModule); 
+    Module *mTo = getModule(toModule);
+    
+    if(mFrom && mTo) {
+        int fromPadNo = mFrom->getOutputPadFromName(fromPad);
+        int toPadNo = mTo->getInputPadFromName(toPad);
+        
+        cables.push_back(new Cable(fromModule, fromPadNo, toModule, toPadNo));
+    }
+}
+
 void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toPad)
 {
     cables.push_back(new Cable(fromModule, fromPad, toModule, toPad));

@@ -26,7 +26,7 @@ int main()
     s.connect(gain, q8);
 
     int speaker = s.addModule("CLAMP");
-    s.connect(q8, speaker, 0);
+    s.connect(q8, "quant", speaker, "in");
 
     // int noise = s.addModule(("NOISE"));
     // s.connect(noise, speaker);

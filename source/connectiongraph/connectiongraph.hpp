@@ -2,6 +2,7 @@
 #define CONNECTIONGRAPH_HPP
 
 #include <vector>
+#include <string>
 
 class Module;
 class Cable;
@@ -18,6 +19,7 @@ public:
     virtual ~ConnectionGraph();
     int addModule(Module * module);
     int addModule(const char *type);
+    void connect(int fromModule, std::string fromPad, int toModule, std::string toPad);
     void connect(int fromModule, int fromPad, int toModule, int toPad);
     void connect(int fromModule, int toModule, int toPad) { connect(fromModule, 0, toModule, toPad); }
     void connect(int fromModule, int toModule) { connect(fromModule, 0, toModule, 0); }

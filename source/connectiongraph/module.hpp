@@ -59,6 +59,28 @@ public:
             inputs[inputPad].floatingValue = value;
         }
     }
+    
+    int getInputPadFromName(std::string padName) {
+        for(int i = 0; i < inputs.size(); i++) {
+            if(inputs[i].name == padName) {
+                return i;
+            }
+        }
+        // Not found
+        std::cerr << "Error: Cannot find input pad " << padName << std::endl;
+        return -1;
+    }
+    
+    int getOutputPadFromName(std::string padName) {
+        for(int i = 0; i < outputs.size(); i++) {
+            if(outputs[i].name == padName) {
+                return i;
+            }
+        }
+        // Not found
+        std::cerr << "Error: Cannot find output pad " << padName << std::endl;
+        return -1;
+    }
 };
 
 class Phase : public Module

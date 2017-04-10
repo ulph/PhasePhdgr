@@ -2,6 +2,16 @@
 namespace PhasePhckr {
 
 struct MPEVoiceState {
+    MPEVoiceState()
+      : strikeZ(0)
+      , pressZ(0)
+      , liftZ(0)
+      , slideY(0)
+      , glideX(0)
+      , pitchHz(0)
+      , gate(0)
+    {}
+
     float strikeZ; // velocity, 0 to 1
     float pressZ; // aftertouch, 0 to 1
     float liftZ; // release velocity, 0 to 1

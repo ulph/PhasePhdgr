@@ -2,11 +2,14 @@
 #include <cstdint>
 #include "connectiongraph.hpp"
 #include "module.hpp"
+#include "moduleregister.hpp"
 
 int main()
 {
     uint32_t fs = 48000;
     ConnectionGraph s(fs);
+    ModuleRegister::registerAllModules(s);
+
     int osc1 = s.addModule("PHASE");
     s.setInput(osc1, 0, 440.0f);
     

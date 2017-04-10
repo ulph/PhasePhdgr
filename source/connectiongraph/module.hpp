@@ -278,7 +278,7 @@ class FoldBack : public Module
 public:
     FoldBack() {
         inputs.push_back(Pad("input"));
-        inputs.push_back(Pad("amount", 0.5f));
+        inputs.push_back(Pad("amount", 1.0f));
         inputs.push_back(Pad("prescalar", 1.0f));
         outputs.push_back(Pad("output"));
     }
@@ -299,8 +299,8 @@ public:
     }
     void process(uint32_t fs) {
         float v = inputs[2].value*inputs[0].value;
-        float s = fmax(0.1, fmin(1, fabs(inputs[1].value)));
-        for (int i = 0; i < 20; ++i) {
+        float s = fmax(0.0f, fmin(1.0f, fabs(inputs[1].value)));
+        for (int i = 0; i < 10; ++i) {
             if(iterate(&v, s)) break;
         }
         outputs[0].value = v;

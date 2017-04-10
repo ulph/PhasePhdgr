@@ -1,0 +1,42 @@
+set(SRC
+    abs.cpp
+    abs.hpp
+    camelenvelope.cpp
+    camelenvelope.hpp
+    clamp.cpp
+    clamp.hpp
+    clampinv.cpp
+    clampinv.hpp
+    crossfade.cpp
+    crossfade.hpp
+    foldback.cpp
+    foldback.hpp
+    lag.cpp
+    lag.hpp
+    moduleregister.hpp
+    mul.cpp
+    mul.hpp
+    noise.cpp
+    noise.hpp
+    phase.cpp
+    phase.hpp
+    quant8.cpp
+    quant8.hpp
+    saturatoratan.cpp
+    saturatoratan.hpp
+    scaleshift.cpp
+    scaleshift.hpp
+    sine.cpp
+    sine.hpp
+    square.cpp
+    square.hpp
+    sympow.cpp
+    sympow.hpp
+)
+
+include_directories(../connectiongraph)
+add_library(modules ${SRC})
+
+set_target_properties(modules PROPERTIES COMPILE_FLAGS "-fPIC")
+
+install(TARGETS modules DESTINATION lib)

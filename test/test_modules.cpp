@@ -1,14 +1,15 @@
 #include <cstdio>
 #include <cstdint>
-
+#include <iostream>
 #include "connectiongraph.hpp"
 #include "module.hpp"
-#include <iostream>
+#include "moduleregister.hpp"
 
 int main(int argc, char *argv[])
 {
     uint32_t fs = 48000;
     ConnectionGraph s;
+    ModuleRegister::registerAllModules(s);
     int phase = s.addModule("PHASE");
     int mul = s.addModule("MUL");
     s.getModule(phase)->setInput(0, 1.0);

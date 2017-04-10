@@ -28,22 +28,6 @@ ConnectionGraph::ConnectionGraph() : compiledForModule(-1)
 {
     moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("INPUT"), &(InputBus::factory)));
     moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("OUTPUT"), &(OutputBus::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("PHASE"), &(Phase::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SQUARE"), &(Square::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("MUL"), &(Mul::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("CLAMP"), &(Clamp::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("QUANT8"), &(Quant8::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("NOISE"), &(Noise::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SINE"), &(Sine::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SATAN"), &(SaturatorAtan::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("ENV"), &(CamelEnvelope::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("LAG"), &(Lag::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("ABS"), &(Abs::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("FOLD"), &(FoldBack::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("XFADE"), &(CrossFade::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SPOW"), &(SymPow::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("CINV"), &(ClampInv::factory)));
-    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(std::string("SCLSHFT"), &(ScaleShift::factory)));
 }
 
 ConnectionGraph::~ConnectionGraph()
@@ -88,6 +72,11 @@ int ConnectionGraph::addModule(const char *type)
     }
     
     return id;
+}
+
+void ConnectionGraph::registerModule(std::string name, Module* (*moduleFactory)())
+{
+    moduleRegister.push_back(std::pair<std::string, Module* (*)()>(name, moduleFactory));
 }
 
 void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule, std::string toPad)

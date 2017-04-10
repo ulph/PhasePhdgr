@@ -60,6 +60,7 @@ namespace PhasePhckr {
         float scopeBuffer[512];
         const unsigned int scopeBufferSize;
         unsigned int scopeBufferWriteIndex;
+        float scopeDrift;
     };
 
 }

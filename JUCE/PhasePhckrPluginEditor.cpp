@@ -29,7 +29,7 @@ void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colours::black);
     const PhasePhckr::Synth &synth = this->processor.getSynth();
-    size_t size = synth.getScopeBuffer(&scopeBuffer[0], 200);
+    size_t size = synth.getScopeBuffer(&scopeBuffer[0], 1024);
     float size_y = this->getHeight();
     float size_x = this->getWidth();
     float yScale = size_y * 0.25;
@@ -48,10 +48,11 @@ void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
                 size_y*0.5 + yScale*scopeBuffer[i], 
                 (i + 1)*xScale, 
                 size_y*0.5 + yScale*scopeBuffer[i + 1], 
-                2.f
+                1.f
             );
         }
     }
+    repaint();
 }
 
 void PhasePhckrAudioProcessorEditor::resized()

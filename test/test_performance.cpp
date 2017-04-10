@@ -8,7 +8,7 @@ int main()
 {
     float buffer[48000];
     
-    ExConnectionGraphVoice v = ExConnectionGraphVoice();
+    ConnectionGraphVoice v = ConnectionGraphVoice();
     
     v.mpe.on(48, 0.5f);
     

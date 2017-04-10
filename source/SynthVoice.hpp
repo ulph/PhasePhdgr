@@ -13,7 +13,7 @@ public:
     virtual void update(float * buffer, int numSamples, float sampleRate) = 0;
 };
 
-class ExConnectionGraphVoice : public SynthVoiceI {
+class ConnectionGraphVoice : public SynthVoiceI {
 
 public:
     ConnectionGraphVoice() :

@@ -15,6 +15,7 @@ protected:
 public:
     Module* getModule(int id);
     ConnectionGraph(uint32_t fs);
+    virtual ~ConnectionGraph();
     int addModule(Module * module);
     int addModule(const char *type);
     void connect(int fromModule, int fromPad, int toModule, int toPad);

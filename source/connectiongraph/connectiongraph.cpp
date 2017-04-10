@@ -27,6 +27,17 @@ ConnectionGraph::ConnectionGraph(uint32_t fs) : fs(fs)
 {
 }
 
+ConnectionGraph::~ConnectionGraph()
+{
+    for(Cable *c : cables) {
+        delete c;
+    }
+    
+    for(Module *m : modules) {
+        delete m;
+    }
+}
+
 Module* ConnectionGraph::getModule(int id)
 {
     if(id >= 0 && id < modules.size()) {

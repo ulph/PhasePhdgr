@@ -131,14 +131,21 @@ void ConnectionGraph::process(int module, uint32_t time)
         
         // Iterate over all input pads
         for(int pad = 0; pad < m->getNumInputPads(); pad++) {
+            float input = 0.0f;
+            bool padIsConnected = false;
             // Check if other modules are connected to this pad
             for(const Cable *c : cables) {
                 if(c->isConnected(module, pad)) {
+                    padIsConnected = true;
                     Module *m_dep = getModule(c->getFromModule());
                     // Found connected module
                     process(c->getFromModule(), time);
-                    m->setInput(pad, m_dep->getOutput(c->getFromPad())); 
+                    input += m_dep->getOutput(c->getFromPad());
                 }
+            }
+            
+            if(padIsConnected) {
+                m->setInput(pad, input); 
             }
         }
     }

@@ -17,14 +17,12 @@ struct Pad
 class Module
 {
 protected:
-    uint32_t time;
+    bool processed;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
 
 public:
     virtual void process(uint32_t fs) = 0;
-    uint32_t getTime() { return time; }
-    void setTime(uint32_t t) { time = t; }
     float getOutput(int outputPad) { 
         return outputs[outputPad].value;
     }
@@ -36,6 +34,8 @@ public:
     }
     int getNumInputPads() { return (int)inputs.size(); }
     int getNumOutputPads() { return (int)outputs.size(); }
+    bool isProcessed() { return processed; }
+    void setProcessed(bool p) { processed = p; }
     
     int getInputPadFromName(std::string padName) {
         for(int i = 0; i < inputs.size(); i++) {

@@ -32,7 +32,7 @@ int main()
     // s.connect(noise, speaker);
     
     for(uint32_t t = 0; t < 5*fs; t++) {
-        s.process(speaker, t);
+        s.process(speaker);
         float output = s.getOutput(speaker, 0);
         fwrite(&output, sizeof(output), 1, stdout); 
     }

@@ -29,7 +29,8 @@ protected:
     std::vector<Instruction> program;
     uint32_t fs;
     int compiledForModule;
-    void compileInternal(int module);
+    void compileProgram(int module);
+    void compileModule(int module);
 public:
     Module* getModule(int id);
     ConnectionGraph(uint32_t fs);
@@ -41,10 +42,8 @@ public:
     void connect(int fromModule, int toModule, int toPad) { connect(fromModule, 0, toModule, toPad); }
     void connect(int fromModule, int toModule) { connect(fromModule, 0, toModule, 0); }
     void setInput(int module, int pad, float value);
-    void process(int module, uint32_t time);
     float getOutput(int module, int pad);
-    void compile(int module);
-    void run(int module);
+    void process(int module);
 };
 
 #endif

@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
 
     for (uint32_t t = 0; t < 10*fs; t++) {
-        s.process(dut, t);
+        s.process(dut);
         float output = s.getOutput(dut, 0);
         fwrite(&output, sizeof(output), 1, outfile);
     }

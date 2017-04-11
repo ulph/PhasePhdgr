@@ -20,7 +20,7 @@ private:
 public:
     MPEVoice mpe;
     SynthVoice();
-    virtual void update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData);
+    virtual void update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g);
 };
 
 // special modules for the bus

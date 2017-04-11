@@ -100,29 +100,30 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(mixGain, 0, outBus, 1);
 }
 
-void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
+void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g) {
+    mpe.update();
     const MPEVoiceState &v = mpe.getState();
-    if (v.gate) {
-        rms = 1;
-    }
-    else if (v.gate == 0 && rms < 0.0000001) {
-        mpe.update();
-        t += numSamples;
-        return;
-    }
+
     for (int i = 0; i < numSamples; ++i) {
         mpe.update();
-        const MPEVoiceState &state = mpe.getState();
-        connectionGraph.setInput(inBus, 0, state.gate);
-        connectionGraph.setInput(inBus, 1, state.strikeZ);
-        connectionGraph.setInput(inBus, 2, state.liftZ);
-        connectionGraph.setInput(inBus, 3, state.pitchHz);
-        connectionGraph.setInput(inBus, 4, state.glideX);
-        connectionGraph.setInput(inBus, 5, state.slideY);
-        connectionGraph.setInput(inBus, 6, state.pressZ);
-        connectionGraph.setInput(inBus, 7, globalData.mod);
-        connectionGraph.setInput(inBus, 8, globalData.exp);
-        connectionGraph.setInput(inBus, 9, globalData.brt);
+        t++;
+
+        if (v.gate) {
+            rms = 1;
+        } else if (v.gate == 0 && rms < 0.0000001){
+            continue;
+        }
+
+        connectionGraph.setInput(inBus, 0, v.gate);
+        connectionGraph.setInput(inBus, 1, v.strikeZ);
+        connectionGraph.setInput(inBus, 2, v.liftZ);
+        connectionGraph.setInput(inBus, 3, v.pitchHz);
+        connectionGraph.setInput(inBus, 4, v.glideX);
+        connectionGraph.setInput(inBus, 5, v.slideY);
+        connectionGraph.setInput(inBus, 6, v.pressZ);
+        connectionGraph.setInput(inBus, 7, g.mod);
+        connectionGraph.setInput(inBus, 8, g.exp);
+        connectionGraph.setInput(inBus, 9, g.brt);
 
         connectionGraph.process(outBus, sampleRate);
         float sampleL = connectionGraph.getOutput(outBus, 0);
@@ -131,8 +132,6 @@ void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float 
         bufferR[i] += 0.5f*sampleR;
         rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
     }
-    t += numSamples;
 }
 
-};
-
+}

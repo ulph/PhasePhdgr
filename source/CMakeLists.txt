@@ -11,6 +11,8 @@ set(SRC
     Synth.cpp
     SynthVoice.cpp
     SynthVoice.hpp
+    EffectChain.cpp
+    EffectChain.hpp
     VoiceBus.cpp
     VoiceBus.hpp
 )

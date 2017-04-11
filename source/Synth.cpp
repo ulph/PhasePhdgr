@@ -1,6 +1,6 @@
 #include "PhasePhckr.h"
 #include "SynthVoice.hpp"
-#include "Effect.hpp"
+#include "EffectChain.hpp"
 
 namespace PhasePhckr {
 
@@ -11,7 +11,7 @@ Synth::Synth()
     : scopeBufferWriteIndex(0)
     , scopeBufferSize(sizeof(scopeBuffer)/sizeof(float))
     , scopeDrift(0.0f)
-    , effects(nullptr)
+    , effects(new EffectChain())
 {
     for (int i = 0; i<16; ++i) {
         SynthVoiceI* v = new ConnectionGraphVoice();
@@ -22,16 +22,18 @@ Synth::Synth()
     memset(scopeBuffer, 0, sizeof(scopeBuffer));
 }
 
-void Synth::update(float * buffer, int numSamples, float sampleRate)
+Synth::~Synth(){
+    for(const auto &v : voices){
+        free(v);
+    }
+    free(effects);
+}
+
+void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
     voiceBus.update();
-    for (auto & v : voices) v->update(buffer, numSamples, sampleRate, voiceBus.getGlobalData());
-    if(effects) effects->update(buffer, numSamples, sampleRate, voiceBus.getGlobalData());
-
-    // apply a silly gain stage to tame the overloads
-    for(int i=0; i<numSamples; i++){
-        buffer[i] = atanf(preSaturationReductionFactor*buffer[i]) * postSaturationReductionFactor;
-    }
+    for (auto & v : voices) v->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus.getGlobalData());
+    if(effects) effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus.getGlobalData());
 
     // find the "active" voice's hz
     float hz = voiceBus.findScopeVoiceHz();
@@ -43,7 +45,7 @@ void Synth::update(float * buffer, int numSamples, float sampleRate)
         float decimation = (float)numPeriods * samplesPerPeriod / (float)scopeBufferSize;
         float i=0;
         for(i=0; i<numSamples; i+=decimation){
-            scopeBuffer[scopeBufferWriteIndex] = buffer[(unsigned int)i];
+            scopeBuffer[scopeBufferWriteIndex] = leftChannelbuffer[(unsigned int)i];
             scopeBufferWriteIndex++;
             scopeBufferWriteIndex %= scopeBufferSize;
         }
@@ -52,7 +54,7 @@ void Synth::update(float * buffer, int numSamples, float sampleRate)
         scopeDrift += ((float)numSamples-i)/decimation;
         if(scopeDrift>=1){
             scopeDrift--;
-            scopeBuffer[scopeBufferWriteIndex] = buffer[numSamples-1];
+            scopeBuffer[scopeBufferWriteIndex] = leftChannelbuffer[numSamples-1];
             scopeBufferWriteIndex++;
             scopeBufferWriteIndex %= scopeBufferSize;
         }

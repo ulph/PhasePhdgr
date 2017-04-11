@@ -12,7 +12,7 @@ class SynthVoiceI {
 public:
     MPEVoice mpe;
     virtual void reset() = 0;
-    virtual void update(float * buffer, int numSamples, float sampleRate, const GlobalData& globalData) = 0;
+    virtual void update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) = 0;
 };
 
 // special modules for the bus
@@ -77,8 +77,8 @@ public:
         // example patch to toy with the requirements on routing
 
         // input/output bus + "vca" + one envelope
-        inBus = connectionGraph.addModule("INPUT");
-        outBus = connectionGraph.addModule("OUTPUT");
+        inBus = connectionGraph.addModule("VOICEINPUT");
+        outBus = connectionGraph.addModule("STEREOBUS");
         int mixGain = connectionGraph.addModule("MUL");
         int env = connectionGraph.addModule("ENV");
 
@@ -159,11 +159,12 @@ public:
         // mix amplitude on Z (... env)
         connectionGraph.connect(env, 0, mixGain, 1);
         connectionGraph.connect(mixGain, 0, outBus, 0);
+        connectionGraph.connect(mixGain, 0, outBus, 1);
     }
 
     virtual void reset() {}
 
-    virtual void update(float * buffer, int numSamples, float sampleRate, const GlobalData& globalData) {
+    virtual void update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
         const MPEVoiceState &v = mpe.getState();
         if (v.gate) {
             rms = 1;
@@ -188,9 +189,11 @@ public:
             connectionGraph.setInput(inBus, 9, globalData.brt);
 
             connectionGraph.process(outBus, sampleRate);
-            float sample = connectionGraph.getOutput(outBus, 0);
-            buffer[i] += 0.5*sample;
-            rms = rms*rmsSlew + (1 - rmsSlew)*(sample*sample); // without the root
+            float sampleL = connectionGraph.getOutput(outBus, 0);
+            float sampleR = connectionGraph.getOutput(outBus, 1);
+            bufferL[i] += 0.5f*sampleL;
+            bufferR[i] += 0.5f*sampleR;
+            rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
         }
         t += numSamples;
     }

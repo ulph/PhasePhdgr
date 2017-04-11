@@ -13,7 +13,8 @@ int main(int argc, char **argv)
 {
   PhasePhckr::Synth synth;
   float time = 0;
-  float buffer[kNumSamples];
+  float bufferL[kNumSamples];
+  float bufferR[kNumSamples];
 
   float tempo = 120.f;
   float beat = 60. / tempo;
@@ -50,7 +51,9 @@ int main(int argc, char **argv)
   auto it = piano_roll.begin();
   while(time < 3.)
   {
-    memset(buffer, 0, sizeof(buffer));
+    memset(bufferL, 0, sizeof(bufferL));
+    memset(bufferR, 0, sizeof(bufferR));
+
     while(it != piano_roll.end() && std::get<0>(*it) < time)
     {
       std::get<1>(*it)();
@@ -58,8 +61,8 @@ int main(int argc, char **argv)
     }
 
 
-    synth.update(buffer, kNumSamples, kSamplerate);
-    fwrite(buffer, sizeof(buffer), 1, out_fid);
+    synth.update(bufferL, bufferR, kNumSamples, kSamplerate);
+    fwrite(bufferL, sizeof(bufferL), 1, out_fid);
     time += kNumSamples / kSamplerate;
   }
 

@@ -10,7 +10,7 @@
 namespace PhasePhckr {
 
     class SynthVoiceI;
-    class EffectI;
+    class EffectChain;
     struct NoteData;
 
     struct ChannelData {
@@ -64,13 +64,14 @@ namespace PhasePhckr {
     public:
         // TODO, encapsulate the scope stuff into it's own class so we can have several
         Synth();
+        virtual ~Synth();
         VoiceBus voiceBus;
         AutomationBus automationBus;
-        virtual void update(float * buffer, int numSamples, float sampleRate);
+        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
         virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
     private:
         std::vector<SynthVoiceI*> voices; // per note sound generation
-        EffectI* effects; // effects applied to mix of voices (in series)
+        EffectChain* effects; // effects applied to mix of voices (in series)
         // settings like voice stacking, per voice detuning and etc etc goes here
         float scopeBuffer[512];
         const unsigned int scopeBufferSize;

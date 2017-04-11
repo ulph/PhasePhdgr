@@ -186,13 +186,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     }
     midiMessages.clear();
 
-    // mono (clono) for now until we have a concept of a mixer
-    synth.update(buffer.getWritePointer(0), blockSize, sampleRate);
-    for (int channel = 1; channel < numOutputChannels; ++channel)
-    {
-        float* channelData = buffer.getWritePointer(channel);
-        buffer.copyFrom(channel, 0, buffer.getReadPointer(0), blockSize);
-    }
+    synth.update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
 }
 
 //==============================================================================

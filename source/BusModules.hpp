@@ -30,10 +30,8 @@ public:
 class StereoBus : public Module {
 public:
     StereoBus() {
-        inputs.push_back(Pad("Left"));
-        inputs.push_back(Pad("Right"));
-        outputs.push_back(Pad("Left"));
-        outputs.push_back(Pad("Right"));
+        inputs.push_back(Pad("Left"      )); outputs.push_back(Pad("Left"      ));
+        inputs.push_back(Pad("Right"     )); outputs.push_back(Pad("Right"     ));
     }
 
     virtual void process(uint32_t fs)
@@ -42,4 +40,22 @@ public:
         outputs[1].value = inputs[1].value;
     }
     static Module* factory() { return new StereoBus(); }
+};
+
+class EffectInputBus : public Module {
+public:
+    EffectInputBus() {
+        inputs.push_back(Pad("Left"      )); outputs.push_back(Pad("Left"      ));
+        inputs.push_back(Pad("Right"     )); outputs.push_back(Pad("Right"     ));
+        inputs.push_back(Pad("ModWheel"  )); outputs.push_back(Pad("ModWheel"  ));
+        inputs.push_back(Pad("Expression")); outputs.push_back(Pad("Expression"));
+        inputs.push_back(Pad("Breath"    )); outputs.push_back(Pad("Breath"    ));
+    }
+
+    virtual void process(uint32_t fs)
+    {
+        outputs[0].value = inputs[0].value;
+        outputs[1].value = inputs[1].value;
+    }
+    static Module* factory() { return new EffectInputBus(); }
 };

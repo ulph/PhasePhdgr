@@ -1,3 +1,16 @@
+option(USING_NLOHMANN_JSON OFF)
+
+if(${USING_NLOHMANN_JSON})
+
+set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
+include_directories(${JSON_INCLUDE_DIR}/include)
+
+if(NOT EXISTS "${JSON_INCLUDE_DIR}/include/nlohmann/json.hpp")
+    error( "Cannot find nlohmann/json.hpp" )
+endif()
+
+endif()
+
 add_subdirectory(connectiongraph)
 add_subdirectory(modules)
 

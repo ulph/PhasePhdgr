@@ -23,7 +23,7 @@ public:
     Module* getModule(int id);
     ConnectionGraph();
     virtual ~ConnectionGraph();
-    int addModule(const char *type);
+    int addModule(std::string type);
     void registerModule(std::string name, Module* (*moduleFactory)());
     void connect(int fromModule, std::string fromPad, int toModule, std::string toPad);
     void connect(int fromModule, int fromPad, int toModule, int toPad);

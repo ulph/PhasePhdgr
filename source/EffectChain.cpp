@@ -12,14 +12,16 @@ EffectChain::EffectChain(){
 
     BusHandles bus = DesignConnectionGraph(
         connectionGraph,
-        ModuleVariable{"inBus", "EFFECTINPUTBUS"},
-        ModuleVariable{"outBus", "STEREOBUS"},
-        std::vector<ModuleVariable>(),
-        std::vector<ModulePortConnection>{
-            ModulePortConnection{"inBus", "Left", "outBus", "Left"},
-            ModulePortConnection{"inBus", "Right", "outBus", "Right"},
-        },
-        std::vector<ModulePortValue>()
+        Patch{
+            ModuleVariable{"inBus", "EFFECTINPUTBUS"},
+            ModuleVariable{"outBus", "STEREOBUS"},
+            std::vector<ModuleVariable>(),
+            std::vector<ModulePortConnection>{
+                ModulePortConnection{{"inBus", "Left"}, {"outBus", "Left"}},
+                ModulePortConnection{{"inBus", "Right"}, {"outBus", "Right"}},
+            },
+            std::vector<ModulePortValue>()
+        }
     );
 
     inBus = bus.inBus;

@@ -51,7 +51,7 @@ Module* ConnectionGraph::getModule(int id)
     return nullptr;
 }
 
-int ConnectionGraph::addModule(const char *type)
+int ConnectionGraph::addModule(std::string type)
 {
     compilationStatus = NOT_COMPILED;
     int id = -1;

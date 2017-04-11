@@ -9,7 +9,7 @@
 #if USING_NLOHMANN_JSON
 #include "nlohmann/json.hpp"
 using nlohmann::json;
-#endif
+#endif // USING_NLOHMANN_JSON
 
 namespace PhasePhckr {
 
@@ -120,12 +120,20 @@ void from_json(const json& j, Patch& m) {
     m.values = j["values"].get<std::vector<ModulePortValue>>();
 }
 
-#endif
+BusHandles DesignConnectionGraph(
+    ConnectionGraph &connectionGraph,
+    const json &patch
+) {
+    return DesignConnectionGraph(connectionGraph, patch.get<Patch>());
+}
+
+#endif // USING_NLOHMANN_JSON
 
 BusHandles DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const Patch &p
+    const Patch &patch
 ){
+    const Patch &p = patch;
 
     // internal place to bounce strings to handles
     std::map<std::string, int> moduleHandles;

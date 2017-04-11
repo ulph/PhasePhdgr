@@ -32,6 +32,7 @@ public:
     void setInput(int module, int pad, float value);
     float getOutput(int module, int pad);
     void process(int module, float fs);
+    std::string graphviz();
 };
 
 #endif

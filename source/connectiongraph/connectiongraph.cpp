@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <cstring>
+#include <sstream>
 #include "connectiongraph.hpp"
 #include "module.hpp"
 
@@ -175,4 +176,20 @@ void ConnectionGraph::process(int module, float fs)
             break;
         }
     }
+}
+
+std::string ConnectionGraph::graphviz()
+{
+    std::stringstream ss;
+
+    ss << "digraph connections {" << std::endl;
+    for(const Cable *c : cables) {
+        int fromModule = c->getFromModule();
+        int toModule = c->getToModule();
+        ss << "   \"" << modules[fromModule]->getName() << "(" << fromModule << ")\" -> ";
+        ss << "\"" << modules[toModule]->getName() << "(" << toModule << ")\"" << std::endl;
+    }
+    ss << "}" << std::endl;
+
+    return ss.str();
 }

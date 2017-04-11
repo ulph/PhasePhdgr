@@ -146,7 +146,7 @@ public:
         int lag = connectionGraph.addModule("LAG"); // simplistic lowpass
         connectionGraph.connect(fold, 0, lag, 0);
         int foldPostScale = connectionGraph.addModule("MUL");
-        connectionGraph.getModule(foldPostScale)->setInput(1, 1);
+        connectionGraph.getModule(foldPostScale)->setInput(1, 0.25);
         connectionGraph.connect(lag, 0, foldPostScale, 0);
 
         connectionGraph.connect(foldPostScale, 0, mixGain, 0);

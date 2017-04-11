@@ -21,16 +21,19 @@ class InputBus : public Module {
 public:
     InputBus()
     {
-        inputs.push_back(Pad("Gate"   )); outputs.push_back(Pad("Gate"   ));
-        inputs.push_back(Pad("StrikeZ")); outputs.push_back(Pad("StrikeZ"));
-        inputs.push_back(Pad("LiftZ"  )); outputs.push_back(Pad("LiftZ"  ));
-        inputs.push_back(Pad("PitchHz")); outputs.push_back(Pad("PitchHz"));
-        inputs.push_back(Pad("GlideX" )); outputs.push_back(Pad("GlideX" ));
-        inputs.push_back(Pad("SlideY" )); outputs.push_back(Pad("SlideY" ));
-        inputs.push_back(Pad("PressZ" )); outputs.push_back(Pad("PressZ" ));
-        inputs.push_back(Pad("ModWheel")); outputs.push_back(Pad("ModWheel"));
+        inputs.push_back(Pad("Gate"      )); outputs.push_back(Pad("Gate"      ));
+        inputs.push_back(Pad("StrikeZ"   )); outputs.push_back(Pad("StrikeZ"   ));
+        inputs.push_back(Pad("LiftZ"     )); outputs.push_back(Pad("LiftZ"     ));
+        inputs.push_back(Pad("PitchHz"   )); outputs.push_back(Pad("PitchHz"   ));
+        inputs.push_back(Pad("GlideX"    )); outputs.push_back(Pad("GlideX"    ));
+        inputs.push_back(Pad("SlideY"    )); outputs.push_back(Pad("SlideY"    ));
+        inputs.push_back(Pad("PressZ"    )); outputs.push_back(Pad("PressZ"    ));
+        inputs.push_back(Pad("ModWheel"  )); outputs.push_back(Pad("ModWheel"  ));
         inputs.push_back(Pad("Expression")); outputs.push_back(Pad("Expression"));
-        inputs.push_back(Pad("Breath")); outputs.push_back(Pad("Breath"));
+        inputs.push_back(Pad("Breath"    )); outputs.push_back(Pad("Breath"    ));
+        inputs.push_back(Pad("ModWheel"  )); outputs.push_back(Pad("ModWheel"  ));
+        inputs.push_back(Pad("Expression")); outputs.push_back(Pad("Expression"));
+        inputs.push_back(Pad("Breath"    )); outputs.push_back(Pad("Breath"    ));
     }
 
     virtual void process(uint32_t fs)

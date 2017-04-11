@@ -21,10 +21,16 @@ private:
     std::thread t;
     std::atomic<int> samplesToProcess;
     void threadedProcess();
+    GlobalData globalData;
+    float sampleRate;
+    float bufferL[48000];
+    float bufferR[48000];
+    bool doTerminate;
 
 public:
     MPEVoice mpe;
     SynthVoice();
+    ~SynthVoice();
     virtual void update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g);
 };
 

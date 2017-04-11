@@ -8,6 +8,7 @@ SynthVoice::SynthVoice()
     , rms(0)
     , rmsSlew(0.999)
     , samplesToProcess(0)
+    , doTerminate(false)
 {
     connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
@@ -102,47 +103,66 @@ SynthVoice::SynthVoice()
     t = std::thread(&SynthVoice::threadedProcess, this);
 }
 
+SynthVoice::~SynthVoice()
+{
+    doTerminate = true;
+    t.join();
+}
+
 void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g) {
-    const MPEVoiceState &v = mpe.getState();
+    // Queue
+    globalData = g;
+    this->sampleRate = sampleRate;
+    samplesToProcess = numSamples;
 
-    for (int i = 0; i < numSamples; ++i) {
-        mpe.update();
+    // Wait ...
+    while(samplesToProcess > 0);
 
-        if (v.gate) {
-            rms = 1;
-        } else if (v.gate == 0 && rms < 0.0000001){
-            continue;
-        }
-
-        connectionGraph.setInput(inBus, 0, v.gate);
-        connectionGraph.setInput(inBus, 1, v.strikeZ);
-        connectionGraph.setInput(inBus, 2, v.liftZ);
-        connectionGraph.setInput(inBus, 3, v.pitchHz);
-        connectionGraph.setInput(inBus, 4, v.glideX);
-        connectionGraph.setInput(inBus, 5, v.slideY);
-        connectionGraph.setInput(inBus, 6, v.pressZ);
-        connectionGraph.setInput(inBus, 7, g.mod);
-        connectionGraph.setInput(inBus, 8, g.exp);
-        connectionGraph.setInput(inBus, 9, g.brt);
-
-        connectionGraph.process(outBus, sampleRate);
-        float sampleL = connectionGraph.getOutput(outBus, 0);
-        float sampleR = connectionGraph.getOutput(outBus, 1);
-        bufferL[i] += 0.5f*sampleL;
-        bufferR[i] += 0.5f*sampleR;
-        rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
+    // Collect
+    for(int i = 0; i < numSamples; i++) {
+        bufferL[i] += this->bufferL[i];
+        bufferR[i] += this->bufferR[i];
     }
 }
 
 void SynthVoice::threadedProcess()
 {
-    while(1) {
-        int samples = samplesToProcess;
+    while(!doTerminate) {
+        int numSamples = samplesToProcess;
         if(samplesToProcess > 0) {
-            // Process in the thread
-            // ...
 
-            samplesToProcess -= samples;
+            GlobalData g = globalData;
+
+            for (int i = 0; i < numSamples; ++i) {
+                mpe.update();
+                const MPEVoiceState &v = mpe.getState();
+
+                if (v.gate) {
+                    rms = 1;
+                } else if (v.gate == 0 && rms < 0.0000001){
+                    continue;
+                }
+
+                connectionGraph.setInput(inBus, 0, v.gate);
+                connectionGraph.setInput(inBus, 1, v.strikeZ);
+                connectionGraph.setInput(inBus, 2, v.liftZ);
+                connectionGraph.setInput(inBus, 3, v.pitchHz);
+                connectionGraph.setInput(inBus, 4, v.glideX);
+                connectionGraph.setInput(inBus, 5, v.slideY);
+                connectionGraph.setInput(inBus, 6, v.pressZ);
+                connectionGraph.setInput(inBus, 7, g.mod);
+                connectionGraph.setInput(inBus, 8, g.exp);
+                connectionGraph.setInput(inBus, 9, g.brt);
+
+                connectionGraph.process(outBus, sampleRate);
+                float sampleL = connectionGraph.getOutput(outBus, 0);
+                float sampleR = connectionGraph.getOutput(outBus, 1);
+                bufferL[i] = 0.5f*sampleL;
+                bufferR[i] = 0.5f*sampleR;
+                rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
+            }
+
+            samplesToProcess -= numSamples;
         }
     }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <thread>
+#include <atomic>
 #include "MPEVoice.hpp"
 #include "module.hpp"
 #include "connectiongraph.hpp"
@@ -16,6 +18,9 @@ private:
     int outBus;
     float rmsSlew;
     float rms;
+    std::thread t;
+    std::atomic<int> samplesToProcess;
+    void threadedProcess();
 
 public:
     MPEVoice mpe;

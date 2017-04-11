@@ -7,6 +7,7 @@ SynthVoice::SynthVoice()
     : connectionGraph()
     , rms(0)
     , rmsSlew(0.999)
+    , samplesToProcess(0)
 {
     connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
@@ -97,6 +98,8 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(env, 0, mixGain, 1);
     connectionGraph.connect(mixGain, 0, outBus, 0);
     connectionGraph.connect(mixGain, 0, outBus, 1);
+
+    t = std::thread(&SynthVoice::threadedProcess, this);
 }
 
 void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g) {
@@ -128,6 +131,19 @@ void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float 
         bufferL[i] += 0.5f*sampleL;
         bufferR[i] += 0.5f*sampleR;
         rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
+    }
+}
+
+void SynthVoice::threadedProcess()
+{
+    while(1) {
+        int samples = samplesToProcess;
+        if(samplesToProcess > 0) {
+            // Process in the thread
+            // ...
+
+            samplesToProcess -= samples;
+        }
     }
 }
 

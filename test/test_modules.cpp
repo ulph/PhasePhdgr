@@ -16,7 +16,11 @@ int main(int argc, char *argv[])
 
     int dut = phase;
 
-    FILE * outfile = fopen("data.dat", "wb"); // stupid windows, cout doesn't work
+    FILE * outfile = stdout;
+#ifdef _MSC_VER
+    fprintf(stderr, "Windows can't pipe raw bytes on stdout, writing to 'data.dat' instead.");
+    outfile = fopen("data.dat", "wb"); 
+#endif
 
     if (argc > 1) {
         dut = s.addModule(argv[1]);

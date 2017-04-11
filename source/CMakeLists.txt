@@ -18,6 +18,7 @@ set(SRC
 )
 
 add_library(phasephckr ${SRC})
+target_link_libraries (phasephckr ${CMAKE_THREAD_LIBS_INIT})
 
 set_target_properties(phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")
 

@@ -7,11 +7,12 @@ namespace PhasePhckr {
 
 EffectChain::EffectChain(){
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
+    connectionGraph.registerModule("EFFECTINPUTBUS", &EffectInputBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
     BusHandles bus = DesignConnectionGraph(
         connectionGraph,
-        ModuleVariable{"inBus", "STEREOBUS"},
+        ModuleVariable{"inBus", "EFFECTINPUTBUS"},
         ModuleVariable{"outBus", "STEREOBUS"},
         std::vector<ModuleVariable>(),
         std::vector<ModulePortConnection>{

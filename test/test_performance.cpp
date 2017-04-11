@@ -9,7 +9,7 @@ int main()
     float bufferL[48000];
     float bufferR[48000];
 
-    ConnectionGraphVoice v;
+    SynthVoice v;
     GlobalData g;
     
     v.mpe.on(48, 0.5f);

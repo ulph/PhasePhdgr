@@ -14,8 +14,7 @@ Synth::Synth()
     , effects(new EffectChain())
 {
     for (int i = 0; i<16; ++i) {
-        SynthVoiceI* v = new ConnectionGraphVoice();
-        v->reset();
+        SynthVoice* v = new SynthVoice();
         voices.push_back(v);
     }
     voiceBus = VoiceBus(&voices);

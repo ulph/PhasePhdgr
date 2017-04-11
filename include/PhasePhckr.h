@@ -9,7 +9,7 @@
 
 namespace PhasePhckr {
 
-    class SynthVoiceI;
+    class SynthVoice;
     class EffectChain;
     struct NoteData;
 
@@ -32,7 +32,7 @@ namespace PhasePhckr {
         // only the handleBLABLA stuff should be visible on api level
     public:
         VoiceBus() : voices(nullptr), globalDataSlewFactor(0.995f) {}
-        VoiceBus(std::vector<SynthVoiceI*> * parent_voices);
+        VoiceBus(std::vector<SynthVoice*> * parent_voices);
         virtual ~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
@@ -46,7 +46,7 @@ namespace PhasePhckr {
         float findScopeVoiceHz();
         const GlobalData& getGlobalData();
     private:
-        std::vector<SynthVoiceI*> *voices;
+        std::vector<SynthVoice*> *voices;
         std::vector<NoteData*> notes;
         int getNoteDataIndex(int channel, int note);
         int findYoungestInactiveNoteDataIndex(int channel);
@@ -70,7 +70,7 @@ namespace PhasePhckr {
         virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
         virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
     private:
-        std::vector<SynthVoiceI*> voices; // per note sound generation
+        std::vector<SynthVoice*> voices; // per note sound generation
         EffectChain* effects; // effects applied to mix of voices (in series)
         // settings like voice stacking, per voice detuning and etc etc goes here
         float scopeBuffer[512];

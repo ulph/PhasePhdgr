@@ -36,7 +36,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
             }
             n->voiceIndex = oldestIdx;
         }
-        SynthVoiceI *v = (*voices)[n->voiceIndex];
+        SynthVoice *v = (*voices)[n->voiceIndex];
         v->mpe.on(note, velocity);
         v->mpe.glide(channelData[channel].x);
         v->mpe.slide(channelData[channel].y);
@@ -46,7 +46,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
         if (idx != -1) {
             NoteData* n = notes[idx];
             if (n->voiceIndex != -1) {
-                SynthVoiceI *v = (*voices)[n->voiceIndex];
+                SynthVoice *v = (*voices)[n->voiceIndex];
                 v->mpe.off(note, velocity);
                 // wake up the youngest but paused note (if any) on the same channel -- TODO across channels
                 int new_idx = findYoungestInactiveNoteDataIndex(channel);
@@ -166,7 +166,7 @@ void VoiceBus::update() {
     globalData.mod = globalData.mod*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.mod;
 }
 
-VoiceBus::VoiceBus(std::vector<SynthVoiceI*> * parent_voices)
+VoiceBus::VoiceBus(std::vector<SynthVoice*> * parent_voices)
 {
     voices = parent_voices;
 }

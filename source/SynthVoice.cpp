@@ -5,7 +5,6 @@ namespace PhasePhckr
 
 SynthVoice::SynthVoice()
     : connectionGraph()
-    , t(0)
     , rms(0)
     , rmsSlew(0.999)
 {
@@ -101,12 +100,10 @@ SynthVoice::SynthVoice()
 }
 
 void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g) {
-    mpe.update();
     const MPEVoiceState &v = mpe.getState();
 
     for (int i = 0; i < numSamples; ++i) {
         mpe.update();
-        t++;
 
         if (v.gate) {
             rms = 1;

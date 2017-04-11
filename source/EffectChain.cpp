@@ -1,4 +1,5 @@
 #include "EffectChain.hpp"
+#include "BusModules.hpp"
 
 namespace PhasePhckr {
 

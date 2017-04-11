@@ -31,7 +31,7 @@ namespace PhasePhckr {
         // TODO, this class needs to be split into 2 (or more) classes
         // only the handleBLABLA stuff should be visible on api level
     public:
-        VoiceBus() : voices(nullptr), globalDataSlewFactor(0.995f){};
+        VoiceBus() : voices(nullptr), globalDataSlewFactor(0.995f) {}
         VoiceBus(std::vector<SynthVoiceI*> * parent_voices);
         virtual ~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);

@@ -18,7 +18,7 @@ struct NoteData {
         voiceIndex(-1),
         notePressure(0),
         age(0)
-    {};
+    {}
 };
 
 }

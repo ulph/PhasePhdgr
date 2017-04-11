@@ -31,7 +31,8 @@ Synth::~Synth(){
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
     voiceBus.update();
-    for (auto & v : voices) v->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus.getGlobalData());
+    for (auto & v : voices) v->processingStart(numSamples, sampleRate, voiceBus.getGlobalData());
+    for (auto & v : voices) v->processingFinish(leftChannelbuffer, rightChannelbuffer, numSamples);
     if(effects) effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus.getGlobalData());
 
     // find the "active" voice's hz

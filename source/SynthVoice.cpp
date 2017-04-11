@@ -109,21 +109,29 @@ SynthVoice::~SynthVoice()
     t.join();
 }
 
-void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g) {
-    // Queue
+void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
+{
+    // Make sure thread is not processing already ...
+    while(samplesToProcess > 0);
+
+    // Queue work for thread
     globalData = g;
     this->sampleRate = sampleRate;
     samplesToProcess = numSamples;
+}
 
-    // Wait ...
+void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSamples)
+{
+    // Wait for thread to complete...
     while(samplesToProcess > 0);
 
-    // Collect
+    // Collect data
     for(int i = 0; i < numSamples; i++) {
         bufferL[i] += this->bufferL[i];
         bufferR[i] += this->bufferR[i];
     }
 }
+
 
 void SynthVoice::threadedProcess()
 {
@@ -139,7 +147,9 @@ void SynthVoice::threadedProcess()
 
                 if (v.gate) {
                     rms = 1;
-                } else if (v.gate == 0 && rms < 0.0000001){
+                } else if (v.gate == 0 && rms < 0.0000001) {
+                    bufferL[i] = 0.0f;
+                    bufferR[i] = 0.0f;
                     continue;
                 }
 
@@ -163,6 +173,8 @@ void SynthVoice::threadedProcess()
             }
 
             samplesToProcess -= numSamples;
+        } else {
+            std::this_thread::yield();
         }
     }
 }

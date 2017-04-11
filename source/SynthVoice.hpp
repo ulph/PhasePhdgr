@@ -31,7 +31,8 @@ public:
     MPEVoice mpe;
     SynthVoice();
     ~SynthVoice();
-    virtual void update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g);
+    virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
+    virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);
 };
 
 }

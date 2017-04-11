@@ -16,7 +16,7 @@ protected:
     std::vector<Cable*> cables;
     std::vector<Instruction> program;
     uint32_t fs;
-    int compiledForModule;
+    int compilationStatus;
     void compileProgram(int module);
     void compileModule(int module, std::vector<int> &processedModules);
 public:

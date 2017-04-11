@@ -5,6 +5,8 @@
 #include "connectiongraph.hpp"
 #include "module.hpp"
 
+#define NOT_COMPILED (-1)
+
 class Cable
 {
 protected:
@@ -23,7 +25,7 @@ public:
     }
 };
 
-ConnectionGraph::ConnectionGraph() : compiledForModule(-1)
+ConnectionGraph::ConnectionGraph() : compilationStatus(NOT_COMPILED)
 {
 }
 
@@ -50,7 +52,7 @@ Module* ConnectionGraph::getModule(int id)
 
 int ConnectionGraph::addModule(const char *type)
 {
-    compiledForModule = -1;
+    compilationStatus = NOT_COMPILED;
     int id = -1;
     Module *m = nullptr;
 
@@ -79,7 +81,7 @@ void ConnectionGraph::registerModule(std::string name, Module* (*moduleFactory)(
 
 void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule, std::string toPad)
 {
-    compiledForModule = -1;
+    compilationStatus = NOT_COMPILED;
     Module *mFrom = getModule(fromModule); 
     Module *mTo = getModule(toModule);
     
@@ -93,7 +95,7 @@ void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule,
 
 void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toPad)
 {
-    compiledForModule = -1;
+    compilationStatus = NOT_COMPILED;
     cables.push_back(new Cable(fromModule, fromPad, toModule, toPad));
 }
 
@@ -121,7 +123,7 @@ void ConnectionGraph::compileProgram(int module)
     std::vector<int> processedModules;
     
     compileModule(module, processedModules);
-    compiledForModule = module;
+    compilationStatus = module;
 }
 
 void ConnectionGraph::compileModule(int module, std::vector<int> &processedModules)
@@ -157,7 +159,7 @@ void ConnectionGraph::compileModule(int module, std::vector<int> &processedModul
 void ConnectionGraph::process(int module, float fs)
 {
     // Recompile if needed
-    if(module != compiledForModule) compileProgram(module);
+    if(module != compilationStatus) compileProgram(module);
     
     // Run program
     for(const Instruction &i : program) {

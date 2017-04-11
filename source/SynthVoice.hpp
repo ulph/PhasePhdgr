@@ -16,10 +16,10 @@ public:
 };
 
 // special modules for the bus
-class InputBus : public Module {
+class VoiceInputBus : public Module {
     // hooks up all the voice+global inputs and outputs
 public:
-    InputBus()
+    VoiceInputBus()
     {
         inputs.push_back(Pad("Gate"      )); outputs.push_back(Pad("Gate"      ));
         inputs.push_back(Pad("StrikeZ"   )); outputs.push_back(Pad("StrikeZ"   ));
@@ -42,21 +42,24 @@ public:
             outputs[i] = inputs[i];
         }
     }
-    static Module* factory() { return new InputBus(); }
+    static Module* factory() { return new VoiceInputBus(); }
 };
 
-class OutputBus : public Module {
+class StereoBus : public Module {
 public:
-    OutputBus() {
-        inputs.push_back(Pad("MonoOut"));
-        outputs.push_back(Pad("MonoOut"));
+    StereoBus() {
+        inputs.push_back(Pad("Left"));
+        inputs.push_back(Pad("Right"));
+        outputs.push_back(Pad("Left"));
+        outputs.push_back(Pad("Right"));
     }
 
     virtual void process(uint32_t fs)
     {
         outputs[0].value = inputs[0].value;
+        outputs[1].value = inputs[1].value;
     }
-    static Module* factory() { return new OutputBus(); }
+    static Module* factory() { return new StereoBus(); }
 };
 
 class ConnectionGraphVoice : public SynthVoiceI {
@@ -68,8 +71,8 @@ public:
         , rms(0)
         , rmsSlew(0.999)
     {
-        connectionGraph.registerModule("INPUT", &InputBus::factory);
-        connectionGraph.registerModule("OUTPUT", &OutputBus::factory);
+        connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
+        connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
         ModuleRegister::registerAllModules(connectionGraph);
         // example patch to toy with the requirements on routing
 

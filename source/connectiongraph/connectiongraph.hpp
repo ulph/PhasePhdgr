@@ -18,7 +18,7 @@ protected:
     uint32_t fs;
     int compiledForModule;
     void compileProgram(int module);
-    void compileModule(int module);
+    void compileModule(int module, std::vector<int> &processedModules);
 public:
     Module* getModule(int id);
     ConnectionGraph();

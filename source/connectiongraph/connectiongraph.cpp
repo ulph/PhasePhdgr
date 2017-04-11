@@ -117,32 +117,35 @@ float ConnectionGraph::getOutput(int module, int pad)
 void ConnectionGraph::compileProgram(int module)
 {
     program.clear();
-    for(Module *m : modules) m->setProcessed(false);
+    std::vector<int> processedModules;
     
-    compileModule(module);
+    compileModule(module, processedModules);
     compiledForModule = module;
 }
 
-void ConnectionGraph::compileModule(int module)
+void ConnectionGraph::compileModule(int module, std::vector<int> &processedModules)
 {
     Module *m = getModule(module);
-    if(!m->isProcessed()) {
-        m->setProcessed(true);
+
+    // Check if this module is already processed by the compiler
+    for(int processedModule : processedModules) {
+        if(module == processedModule) return;
+    }
+    processedModules.push_back(module);
         
-        // Iterate over all input pads
-        for(int pad = 0; pad < m->getNumInputPads(); pad++) {
-            bool padIsConnected = false;
-            // Check if other modules are connected to this pad
-            for(const Cable *c : cables) {
-                if(c->isConnected(module, pad)) {
-                    if(!padIsConnected) {
-                        padIsConnected = true;
-                        program.push_back(Instruction(OP_RESET_INPUT, module, pad));
-                    }
-                    Module *m_dep = getModule(c->getFromModule());
-                    compileModule(c->getFromModule());
-                    program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, c->getFromModule(), c->getFromPad(), module, pad));
+    // Iterate over all input pads
+    for(int pad = 0; pad < m->getNumInputPads(); pad++) {
+        bool padIsConnected = false;
+        // Check if other modules are connected to this pad
+        for(const Cable *c : cables) {
+            if(c->isConnected(module, pad)) {
+                if(!padIsConnected) {
+                    padIsConnected = true;
+                    program.push_back(Instruction(OP_RESET_INPUT, module, pad));
                 }
+                Module *m_dep = getModule(c->getFromModule());
+                compileModule(c->getFromModule(), processedModules);
+                program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, c->getFromModule(), c->getFromPad(), module, pad));
             }
         }
     }

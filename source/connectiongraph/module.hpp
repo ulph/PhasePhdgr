@@ -18,7 +18,6 @@ struct Pad
 class Module
 {
 protected:
-    bool processed;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
 
@@ -35,8 +34,6 @@ public:
     }
     int getNumInputPads() { return (int)inputs.size(); }
     int getNumOutputPads() { return (int)outputs.size(); }
-    bool isProcessed() { return processed; }
-    void setProcessed(bool p) { processed = p; }
     
     int getInputPadFromName(std::string padName) {
         for(int i = 0; i < inputs.size(); i++) {

@@ -18,6 +18,7 @@ struct Pad
 class Module
 {
 protected:
+    std::string name;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
 
@@ -56,6 +57,9 @@ public:
         std::cerr << "Error: Cannot find output pad " << padName << std::endl;
         return -1;
     }
+
+    void setName(const std::string &n) { name = n; }
+    std::string getName() { return name; }
 };
 
 #endif

@@ -64,6 +64,7 @@ int ConnectionGraph::addModule(const char *type)
     if(m) {
         id = (int)modules.size();
         modules.push_back(m);
+        m->setName(type);
     } else {
         std::cerr << "Error: Module '" << type << "' not found" << std::endl;
     }

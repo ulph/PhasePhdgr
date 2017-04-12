@@ -20,12 +20,21 @@ EffectChain::EffectChain(){
                 ModuleVariable{"outPreGain", "GAIN"},
                 ModuleVariable{"outSaturation", "SSATAN"},
                 ModuleVariable{"outPostGain", "GAIN"},
-                // user stuff here ...
+                ModuleVariable{"leftDelay", "DELAY" },
+                ModuleVariable{"rightDelay", "DELAY" },
             },
             std::vector<ModulePortConnection>{
                 ModulePortConnection{{"inBus", "left"}, {"outPreGain", "left"}},
                 ModulePortConnection{{"inBus", "right"}, {"outPreGain", "right"}},
-                // user stuff here ...
+
+                ModulePortConnection{{"inBus", "left"}, {"leftDelay", "in"}},
+                ModulePortConnection{{"inBus", "right"}, {"rightDelay", "in"}},
+                ModulePortConnection{{"leftDelay", "out"}, {"rightDelay", "in"}},
+                ModulePortConnection{{"rightDelay", "out"}, {"leftDelay", "in"}},
+
+                ModulePortConnection{{"leftDelay", "out"}, {"outPreGain", "left"}},
+                ModulePortConnection{{"rightDelay", "out"}, {"outPreGain", "right"}},
+
                 ModulePortConnection{{"outPreGain", "left"}, {"outSaturation", "left"}},
                 ModulePortConnection{{"outPreGain", "right"}, {"outSaturation", "right"}},
                 ModulePortConnection{{"outSaturation", "left"}, {"outPostGain", "left"}},
@@ -34,9 +43,12 @@ EffectChain::EffectChain(){
                 ModulePortConnection{{"outPostGain", "right"}, {"outBus", "right"}}
             },
             std::vector<ModulePortValue>{
-                ModulePortValue{"outPreGain", "gain", 0.5},
-                ModulePortValue{"outPostGain", "gain", 0.5},
-                // user stuff here ...
+                ModulePortValue{"outPreGain", "gain", 0.5f},
+                ModulePortValue{"outPostGain", "gain", 0.5f},
+                ModulePortValue{"leftDelay", "time", 0.22f},
+                ModulePortValue{"rightDelay", "time", 0.45f},
+                ModulePortValue{"leftDelay", "gain", 0.75f},
+                ModulePortValue{"rightDelay", "gain", 0.75f},
             }
         }
     );

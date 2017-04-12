@@ -11,7 +11,6 @@ int main(int argc, char *argv[])
     ConnectionGraph s;
     ModuleRegister::registerAllModules(s);
     int phase = s.addModule("PHASE");
-    int mul = s.addModule("MUL");
     s.getModule(phase)->setInput(0, 1.0);
 
     int dut = phase;

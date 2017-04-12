@@ -18,6 +18,7 @@
 #include "sympow.hpp"
 #include "clampinv.hpp"
 #include "scaleshift.hpp"
+#include "delay.hpp"
 
 class ModuleRegister {
 public:
@@ -41,6 +42,7 @@ public:
         cg.registerModule("SPOW", &(SymPow::factory));
         cg.registerModule("CINV", &(ClampInv::factory));
         cg.registerModule("SCLSHFT", &(ScaleShift::factory));
+        cg.registerModule("DELAY", &(Delay::factory));
     }
 };
 

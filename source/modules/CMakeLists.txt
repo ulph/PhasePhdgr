@@ -9,6 +9,8 @@ set(SRC
     clampinv.hpp
     crossfade.cpp
     crossfade.hpp
+    delay.cpp
+    delay.hpp
     foldback.cpp
     foldback.hpp
     lag.cpp

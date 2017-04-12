@@ -9,6 +9,6 @@ SaturatorAtan::SaturatorAtan()
 
 void SaturatorAtan::process(uint32_t fs)
 {
-    float scale = (float)fmax(inputs[1].value, 0.01);
+    float scale = fmaxf(inputs[1].value, 0.01);
     outputs[0].value = atanf(inputs[0].value * scale) / atanf(scale);
 }

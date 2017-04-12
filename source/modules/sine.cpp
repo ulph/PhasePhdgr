@@ -8,5 +8,5 @@ Sine::Sine()
 
 void Sine::process(uint32_t fs)
 {
-    outputs[0].value = (float)sin(M_PI * inputs[0].value);
+    outputs[0].value = sinf(float(M_PI) * inputs[0].value);
 }

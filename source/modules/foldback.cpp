@@ -9,7 +9,7 @@ FoldBack::FoldBack()
 }
 
 bool FoldBack::iterate(float *v, float scale) {
-    float d = fabs(*v) - 1;
+    float d = fabsf(*v) - 1;
     if (d > 0) {
         if (*v >= 0) {
             *v = *v - (d + d*scale);
@@ -26,7 +26,7 @@ bool FoldBack::iterate(float *v, float scale) {
 
 void FoldBack::process(uint32_t fs) {
     float v = inputs[2].value*inputs[0].value;
-    float s = fmax(0.0f, fmin(1.0f, fabs(inputs[1].value)));
+    float s = fmaxf(0.0f, fminf(1.0f, fabsf(inputs[1].value)));
     for (int i = 0; i < 10; ++i) {
         if(iterate(&v, s)) break;
     }

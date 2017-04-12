@@ -112,7 +112,7 @@ SynthVoice::~SynthVoice()
 void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
 {
     // Make sure thread is not processing already ...
-    while(samplesToProcess > 0);
+    while(samplesToProcess > 0) std::this_thread::yield();
 
     // Queue work for thread
     globalData = g;
@@ -123,7 +123,7 @@ void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalD
 void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSamples)
 {
     // Wait for thread to complete...
-    while(samplesToProcess > 0);
+    while(samplesToProcess > 0) std::this_thread::yield();
 
     // Collect data
     for(int i = 0; i < numSamples; i++) {

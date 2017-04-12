@@ -27,16 +27,20 @@ CamelEnvelope::CamelEnvelope():
     inputs.push_back(Pad("offDecayPow", 4.0f));
 }
 
+static float limitValue(float value, float low, float high) {
+    return value > high ? high : value < low ? low : value;
+}
+
 void CamelEnvelope::process(uint32_t fs) {
     float newGate       = inputs[0].value;
 
-    float onBumpHeight   = inputs[1].value;
+    float onBumpHeight   = limitValue(inputs[1].value, 0.0f, 1.0f);
     float onAttackSpeed  = inputs[2].value;
     float onDecaySpeed   = inputs[3].value;
 
-    float sustainHeight  = inputs[4].value;
+    float sustainHeight  = limitValue(inputs[4].value, 0.0f, 1.0f);
 
-    float offBumpHeight  = inputs[5].value;
+    float offBumpHeight  = limitValue(inputs[5].value, 0.0f, 1.0f);
     float offAttackSpeed = inputs[6].value;
     float offDecaySpeed  = inputs[7].value;
 
@@ -47,6 +51,10 @@ void CamelEnvelope::process(uint32_t fs) {
     float offDecayPow    = inputs[11].value;
 
     float targetValue = 0;
+
+    // no targets can be greater than 1
+    onBumpHeight = (sustainHeight + onBumpHeight) > 1.0f ? 1.0f - sustainHeight : onBumpHeight;
+    offBumpHeight = (sustainHeight + offBumpHeight) > 1.0f ? 1.0f - sustainHeight : offBumpHeight;
 
     // reset counter if falling or rising edge on gate
     if( (gate >= 1.0 && newGate < 1.0) || (gate < 1.0 && newGate >= 1.0) ){

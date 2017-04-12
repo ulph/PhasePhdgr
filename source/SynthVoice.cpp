@@ -150,8 +150,6 @@ void SynthVoice::threadedProcess()
 #endif
         int numSamples = samplesToProcess;
         if(samplesToProcess > 0) {
-
-
             for (int i = 0; i < numSamples; ++i) {
                 mpe.update();
                 globalData.update();

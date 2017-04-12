@@ -47,49 +47,65 @@ void CamelEnvelope::process(uint32_t fs) {
         samplesCtr = 0;
     }
     gate = newGate;
-    float pow = 1.0;
+    float currPow = 1.0;
+    float nextPow = 1.0;
+    float relTime = 0.0;
 
     float envTime = (float)samplesCtr / (float) fs;
     if(gate){
         if(envTime < onAttackSpeed){
             // attack region
-            targetValue = (sustainHeight + onBumpHeight) * (envTime / onAttackSpeed);
-            pow = onAttackPow;
+            relTime = envTime / onAttackSpeed;
+            targetValue = (sustainHeight + onBumpHeight) * relTime;
+            currPow = onAttackPow;
+            nextPow = onDecayPow;
         }
         else if(envTime < (onAttackSpeed + onDecaySpeed)){
             // decay region
-            targetValue = sustainHeight + onBumpHeight * (1 - ((envTime - onAttackSpeed) / onDecaySpeed));
-            pow = onDecayPow;
+            relTime = 1 - ((envTime - onAttackSpeed) / onDecaySpeed);
+            targetValue = sustainHeight + onBumpHeight * relTime;
+            currPow = onDecayPow;
+            nextPow = 1;
         }
         else{
             // sustain region
+            relTime = 1.0f; // egal, actually
             targetValue = sustainHeight;
-            pow = 1.f;
+            currPow = 1.f;
+            nextPow = 1.f;
         }
         gateOnTargetValue = targetValue; // so release has a reference
     }
     else{
         if(envTime < offAttackSpeed){
             // release attack region
-            targetValue = gateOnTargetValue + offBumpHeight * (envTime / offAttackSpeed);
-            pow = offAttackPow;
+            relTime = envTime / offAttackSpeed;
+            targetValue = gateOnTargetValue + offBumpHeight * relTime;
+            currPow = offAttackPow;
+            nextPow = offDecayPow;
         }
         else if(envTime < (offAttackSpeed + offDecaySpeed)){
             // release decay region
-            targetValue = (gateOnTargetValue + offBumpHeight) * (1 - ((envTime - offAttackSpeed) / offDecaySpeed));
-            pow = offDecayPow;
+            relTime = 1 - ((envTime - offAttackSpeed) / offDecaySpeed);
+            targetValue = (gateOnTargetValue + offBumpHeight) * relTime;
+            currPow = offDecayPow;
+            nextPow = 1.f;
         }
         else{
             // closed region
+            relTime = 0.f; // egal
             targetValue = 0;
             gateOnTargetValue = 0;
-            pow = 1.f;
+            currPow = 1.f;
+            nextPow = 1.f;
         }
     }
 
     samplesCtr++;
 
-    // limit and slew
+    float fadePow = currPow * (1-relTime) + nextPow * relTime; // linear trend of pow
+
+    // limit, apply power law and slew
     targetValue = targetValue > 1.f ? 1.f : targetValue < 0.f ? 0.f : targetValue;
-    outputs[0].value = slew*outputs[0].value + (1-slew)*powf(targetValue, pow);
+    outputs[0].value = slew*outputs[0].value + (1-slew)*powf(targetValue, fadePow);
 }

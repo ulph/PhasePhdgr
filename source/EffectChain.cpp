@@ -17,19 +17,26 @@ EffectChain::EffectChain(){
             ModuleVariable{"inBus", "EFFECTINPUTBUS"},
             ModuleVariable{"outBus", "STEREOBUS"},
             std::vector<ModuleVariable>{
-                ModuleVariable{"outGain", "GAIN"},
-                ModuleVariable{"outSaturation", "SSATAN"}
+                ModuleVariable{"outPreGain", "GAIN"},
+                ModuleVariable{"outSaturation", "SSATAN"},
+                ModuleVariable{"outPostGain", "GAIN"},
+                // user stuff here ...
             },
             std::vector<ModulePortConnection>{
-                ModulePortConnection{{"inBus", "left"}, {"outSaturation", "left"}},
-                ModulePortConnection{{"inBus", "right"}, {"outSaturation", "right"}},
-                ModulePortConnection{{"outSaturation", "left"}, {"outGain", "left"}},
-                ModulePortConnection{{"outSaturation", "right"}, {"outGain", "right"}},
-                ModulePortConnection{{"outGain", "left"}, {"outBus", "left"}},
-                ModulePortConnection{{"outGain", "right"}, {"outBus", "right"}}
+                ModulePortConnection{{"inBus", "left"}, {"outPreGain", "left"}},
+                ModulePortConnection{{"inBus", "right"}, {"outPreGain", "right"}},
+                // user stuff here ...
+                ModulePortConnection{{"outPreGain", "left"}, {"outSaturation", "left"}},
+                ModulePortConnection{{"outPreGain", "right"}, {"outSaturation", "right"}},
+                ModulePortConnection{{"outSaturation", "left"}, {"outPostGain", "left"}},
+                ModulePortConnection{{"outSaturation", "right"}, {"outPostGain", "right"}},
+                ModulePortConnection{{"outPostGain", "left"}, {"outBus", "left"}},
+                ModulePortConnection{{"outPostGain", "right"}, {"outBus", "right"}}
             },
             std::vector<ModulePortValue>{
-                ModulePortValue{"outGain", "gain", 0.5},
+                ModulePortValue{"outPreGain", "gain", 0.5},
+                ModulePortValue{"outPostGain", "gain", 0.5},
+                // user stuff here ...
             }
         }
     );

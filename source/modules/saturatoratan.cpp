@@ -4,11 +4,29 @@ SaturatorAtan::SaturatorAtan()
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("prescaler", 1.0f));
-    outputs.push_back(Pad("saturated"));
+    outputs.push_back(Pad("out"));
 }
 
 void SaturatorAtan::process(uint32_t fs)
 {
-    float scale = fmaxf(inputs[1].value, 0.01);
-    outputs[0].value = atanf(inputs[0].value * scale) / atanf(scale);
+    float s = inputs[1].value;
+    float f = 1.0f/atanf(s);
+    outputs[0].value = atanf(inputs[0].value * s) * f;
+}
+
+StereoSaturatorAtan::StereoSaturatorAtan()
+{
+    inputs.push_back(Pad("left"));
+    inputs.push_back(Pad("right"));
+    inputs.push_back(Pad("prescaler", 1.0f));
+    outputs.push_back(Pad("left"));
+    outputs.push_back(Pad("right"));
+}
+
+void StereoSaturatorAtan::process(uint32_t fs)
+{
+    float s = inputs[2].value;
+    float f = 1.0f/atanf(s);
+    outputs[0].value = atanf(inputs[0].value * s) * f;
+    outputs[1].value = atanf(inputs[1].value * s) * f;
 }

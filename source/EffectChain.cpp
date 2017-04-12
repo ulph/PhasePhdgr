@@ -15,12 +15,22 @@ EffectChain::EffectChain(){
         Patch{
             ModuleVariable{"inBus", "EFFECTINPUTBUS"},
             ModuleVariable{"outBus", "STEREOBUS"},
-            std::vector<ModuleVariable>(),
-            std::vector<ModulePortConnection>{
-                ModulePortConnection{{"inBus", "Left"}, {"outBus", "Left"}},
-                ModulePortConnection{{"inBus", "Right"}, {"outBus", "Right"}},
+            std::vector<ModuleVariable>{
+                ModuleVariable{"outGain", "GAIN"},
+                ModuleVariable{"outSaturation", "SSATAN"}
             },
-            std::vector<ModulePortValue>()
+            std::vector<ModulePortConnection>{
+                ModulePortConnection{{"inBus", "left"}, {"outSaturation", "left"}},
+                ModulePortConnection{{"inBus", "right"}, {"outSaturation", "right"}},
+                ModulePortConnection{{"outSaturation", "left"}, {"outGain", "left"}},
+                ModulePortConnection{{"outSaturation", "right"}, {"outGain", "right"}},
+                ModulePortConnection{{"outGain", "left"}, {"outBus", "left"}},
+                ModulePortConnection{{"outGain", "right"}, {"outBus", "right"}}
+            },
+            std::vector<ModulePortValue>{
+                ModulePortValue{"outGain", "gain", 0.5},
+                ModulePortValue{"outSaturation", "prescaler", 0.5}
+            }
         }
     );
 

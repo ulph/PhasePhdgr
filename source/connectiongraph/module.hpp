@@ -44,7 +44,7 @@ public:
             }
         }
         // Not found
-        std::cerr << "Error: Cannot find input pad " << padName << std::endl;
+        std::cerr << "Error: Cannot find input pad " << padName << " (" << name << ")" << std::endl;
         return -1;
     }
     
@@ -55,7 +55,7 @@ public:
             }
         }
         // Not found
-        std::cerr << "Error: Cannot find output pad " << padName << std::endl;
+        std::cerr << "Error: Cannot find output pad " << padName << " (" << name << ")" << std::endl;
         return -1;
     }
 

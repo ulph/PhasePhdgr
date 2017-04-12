@@ -26,11 +26,13 @@ public:
         cg.registerModule("PHASE", &(Phase::factory));
         cg.registerModule("SQUARE", &(Square::factory));
         cg.registerModule("MUL", &(Mul::factory));
+        cg.registerModule("GAIN", &(Gain::factory));
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("QUANT8", &(Quant8::factory));
         cg.registerModule("NOISE", &(Noise::factory));
         cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
+        cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
         cg.registerModule("ENV", &(CamelEnvelope::factory));
         cg.registerModule("LAG", &(Lag::factory));
         cg.registerModule("ABS", &(Abs::factory));

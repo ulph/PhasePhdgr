@@ -11,5 +11,12 @@ public:
     static Module* factory() { return new Mul(); }
 };
 
+class Gain : public Module
+{
+public:
+    Gain();
+    void process(uint32_t fs);
+    static Module* factory() { return new Gain(); }
+};
 
 #endif

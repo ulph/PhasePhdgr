@@ -116,7 +116,7 @@ void ConnectionGraph::setInput(int module, std::string pad, float value){
     if(module >= 0 && module < modules.size()) {
         Module *m = getModule(module);
         if(m){
-            setInput(module, m->getOutputPadFromName(pad), value);
+            setInput(module, m->getInputPadFromName(pad), value);
         }
     }
 }

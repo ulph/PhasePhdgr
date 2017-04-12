@@ -30,8 +30,8 @@ public:
 class StereoBus : public Module {
 public:
     StereoBus() {
-        inputs.push_back(Pad("Left"      )); outputs.push_back(Pad("Left"      ));
-        inputs.push_back(Pad("Right"     )); outputs.push_back(Pad("Right"     ));
+        inputs.push_back(Pad("left"      )); outputs.push_back(Pad("left"      ));
+        inputs.push_back(Pad("right"     )); outputs.push_back(Pad("right"     ));
     }
 
     virtual void process(uint32_t fs)
@@ -45,8 +45,8 @@ public:
 class EffectInputBus : public Module {
 public:
     EffectInputBus() {
-        inputs.push_back(Pad("Left"      )); outputs.push_back(Pad("Left"      ));
-        inputs.push_back(Pad("Right"     )); outputs.push_back(Pad("Right"     ));
+        inputs.push_back(Pad("left"      )); outputs.push_back(Pad("left"      ));
+        inputs.push_back(Pad("right"     )); outputs.push_back(Pad("right"     ));
         inputs.push_back(Pad("ModWheel"  )); outputs.push_back(Pad("ModWheel"  ));
         inputs.push_back(Pad("Expression")); outputs.push_back(Pad("Expression"));
         inputs.push_back(Pad("Breath"    )); outputs.push_back(Pad("Breath"    ));

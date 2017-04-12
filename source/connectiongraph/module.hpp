@@ -23,6 +23,7 @@ protected:
     std::vector<Pad> outputs;
 
 public:
+    virtual ~Module() {}
     virtual void process(uint32_t fs) = 0;
     float getOutput(int outputPad) { 
         return outputs[outputPad].value;

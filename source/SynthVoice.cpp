@@ -7,6 +7,8 @@ SynthVoice::SynthVoice()
     : connectionGraph()
     , rms(0)
     , rmsSlew(0.999)
+    , samplesToProcess(0)
+    , doTerminate(false)
 {
     connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
@@ -97,37 +99,84 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(env, 0, mixGain, 1);
     connectionGraph.connect(mixGain, 0, outBus, 0);
     connectionGraph.connect(mixGain, 0, outBus, 1);
+
+    t = std::thread(&SynthVoice::threadedProcess, this);
 }
 
-void SynthVoice::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& g) {
-    const MPEVoiceState &v = mpe.getState();
+SynthVoice::~SynthVoice()
+{
+    doTerminate = true;
+    t.join();
+}
 
-    for (int i = 0; i < numSamples; ++i) {
-        mpe.update();
+void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
+{
+    // Make sure thread is not processing already ... (should not happen)
+    while(samplesToProcess > 0) std::this_thread::yield();
 
-        if (v.gate) {
-            rms = 1;
-        } else if (v.gate == 0 && rms < 0.0000001){
-            continue;
+    // Queue work for thread
+    globalData = g;
+    this->sampleRate = sampleRate;
+    samplesToProcess = numSamples;
+}
+
+void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSamples)
+{
+    // Wait for thread to complete...
+    while(samplesToProcess > 0) std::this_thread::yield();
+
+    // Collect data
+    for(int i = 0; i < numSamples; i++) {
+        bufferL[i] += internalBuffer[0][i];
+        bufferR[i] += internalBuffer[1][i];
+    }
+}
+
+
+void SynthVoice::threadedProcess()
+{
+    while(!doTerminate) {
+        int numSamples = samplesToProcess;
+        if(samplesToProcess > 0) {
+
+            GlobalData g = globalData;
+
+            for (int i = 0; i < numSamples; ++i) {
+                mpe.update();
+                const MPEVoiceState &v = mpe.getState();
+
+                internalBuffer[0][i] = 0.0f;
+                internalBuffer[1][i] = 0.0f;
+
+                if (v.gate) {
+                    rms = 1;
+                } else if (v.gate == 0 && rms < 0.0000001) {
+                    continue;
+                }
+
+                connectionGraph.setInput(inBus, 0, v.gate);
+                connectionGraph.setInput(inBus, 1, v.strikeZ);
+                connectionGraph.setInput(inBus, 2, v.liftZ);
+                connectionGraph.setInput(inBus, 3, v.pitchHz);
+                connectionGraph.setInput(inBus, 4, v.glideX);
+                connectionGraph.setInput(inBus, 5, v.slideY);
+                connectionGraph.setInput(inBus, 6, v.pressZ);
+                connectionGraph.setInput(inBus, 7, g.mod);
+                connectionGraph.setInput(inBus, 8, g.exp);
+                connectionGraph.setInput(inBus, 9, g.brt);
+
+                connectionGraph.process(outBus, sampleRate);
+                float sampleL = connectionGraph.getOutput(outBus, 0);
+                float sampleR = connectionGraph.getOutput(outBus, 1);
+                internalBuffer[0][i] = sampleL;
+                internalBuffer[1][i] = sampleR;
+                rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
+            }
+
+            samplesToProcess -= numSamples;
+        } else {
+            std::this_thread::yield();
         }
-
-        connectionGraph.setInput(inBus, 0, v.gate);
-        connectionGraph.setInput(inBus, 1, v.strikeZ);
-        connectionGraph.setInput(inBus, 2, v.liftZ);
-        connectionGraph.setInput(inBus, 3, v.pitchHz);
-        connectionGraph.setInput(inBus, 4, v.glideX);
-        connectionGraph.setInput(inBus, 5, v.slideY);
-        connectionGraph.setInput(inBus, 6, v.pressZ);
-        connectionGraph.setInput(inBus, 7, g.mod);
-        connectionGraph.setInput(inBus, 8, g.exp);
-        connectionGraph.setInput(inBus, 9, g.brt);
-
-        connectionGraph.process(outBus, sampleRate);
-        float sampleL = connectionGraph.getOutput(outBus, 0);
-        float sampleR = connectionGraph.getOutput(outBus, 1);
-        bufferL[i] += 0.5f*sampleL;
-        bufferR[i] += 0.5f*sampleR;
-        rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
     }
 }
 

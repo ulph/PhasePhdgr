@@ -22,16 +22,31 @@ Synth::Synth()
 }
 
 Synth::~Synth(){
-    for(const auto &v : voices){
-        free(v);
+    for(SynthVoice *v : voices){
+        delete v;
     }
-    free(effects);
+    delete effects;
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
     voiceBus.update();
-    for (auto & v : voices) v->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus.getGlobalData());
+
+    int samplesLeft = numSamples;
+    int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;
+    float *bufL = leftChannelbuffer, *bufR = rightChannelbuffer;
+
+    while(samplesLeft > 0) {
+        int chunkSize = (samplesLeft < maxChunk) ? samplesLeft : maxChunk;
+
+        for(auto & v : voices) v->processingStart(chunkSize, sampleRate, voiceBus.getGlobalData());
+        for(auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);
+
+        samplesLeft -= chunkSize;
+        bufL += chunkSize;
+        bufR += chunkSize;
+    }
+
     if(effects) effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus.getGlobalData());
 
     // find the "active" voice's hz

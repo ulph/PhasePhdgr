@@ -12,7 +12,7 @@ public:
 
 private:
     float gate;
-    float target_value;
+    float gateOnTargetValue;
     float slew;
     int samplesCtr;
 };

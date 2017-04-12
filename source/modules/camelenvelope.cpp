@@ -2,7 +2,7 @@
 
 CamelEnvelope::CamelEnvelope():
     gate(0),
-    target_value(0),
+    gateOnTargetValue(0),
     slew(0.9f),
     samplesCtr(0)
 {
@@ -19,7 +19,7 @@ CamelEnvelope::CamelEnvelope():
 }
 
 void CamelEnvelope::process(uint32_t fs) {
-    float new_gate       = inputs[0].value;
+    float newGate       = inputs[0].value;
     float onBumpHeight   = inputs[1].value;
     float onAttackSpeed  = inputs[2].value;
     float onDecaySpeed   = inputs[3].value;
@@ -28,47 +28,49 @@ void CamelEnvelope::process(uint32_t fs) {
     float offAttackSpeed = inputs[6].value;
     float offDecaySpeed  = inputs[7].value;
 
-    float target_value = 0;
+    float targetValue = 0;
 
     // reset counter if falling or rising edge on gate
-    if( (gate >= 1.0 && new_gate < 1.0) || (gate < 1.0 && new_gate >= 1.0) ){
+    if( (gate >= 1.0 && newGate < 1.0) || (gate < 1.0 && newGate >= 1.0) ){
         samplesCtr = 0;
     }
-    gate = new_gate;
+    gate = newGate;
 
     float envTime = (float)samplesCtr / (float) fs;
     if(gate){
         if(envTime < onAttackSpeed){
             // attack region
-            target_value = (sustainHeight + onBumpHeight) * (envTime / onAttackSpeed);
+            targetValue = (sustainHeight + onBumpHeight) * (envTime / onAttackSpeed);
         }
         else if(envTime < (onAttackSpeed + onDecaySpeed)){
             // decay region
-            target_value = sustainHeight + onBumpHeight * (1 - ((envTime - onAttackSpeed) / onDecaySpeed));
+            targetValue = sustainHeight + onBumpHeight * (1 - ((envTime - onAttackSpeed) / onDecaySpeed));
         }
         else{
             // sustain region
-            target_value = sustainHeight;
+            targetValue = sustainHeight;
         }
+        gateOnTargetValue = targetValue; // so release has a reference
     }
     else{
         if(envTime < offAttackSpeed){
             // release attack region
-            target_value = sustainHeight + offBumpHeight * (envTime / offAttackSpeed);
+            targetValue = gateOnTargetValue + offBumpHeight * (envTime / offAttackSpeed);
         }
         else if(envTime < (offAttackSpeed + offDecaySpeed)){
             // release decay region
-            target_value = (sustainHeight + offBumpHeight) * (1 - ((envTime - offAttackSpeed) / offDecaySpeed));
+            targetValue = (gateOnTargetValue + offBumpHeight) * (1 - ((envTime - offAttackSpeed) / offDecaySpeed));
         }
         else{
             // closed region
-            target_value = 0;
+            targetValue = 0;
+            gateOnTargetValue = 0;
         }
     }
 
     samplesCtr++;
 
     // limit and slew
-    target_value = target_value > 1.f ? 1.f : target_value < 0.f ? 0.f : target_value;
-    outputs[0].value = slew*outputs[0].value + (1-slew)*target_value;
+    targetValue = targetValue > 1.f ? 1.f : targetValue < 0.f ? 0.f : targetValue;
+    outputs[0].value = slew*outputs[0].value + (1-slew)*targetValue;
 }

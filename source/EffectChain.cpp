@@ -2,6 +2,7 @@
 #include "BusModules.hpp"
 #include "moduleregister.hpp"
 #include "DesignConnectionGraph.hpp"
+#include "MPEVoice.hpp"
 
 namespace PhasePhckr {
 
@@ -39,12 +40,15 @@ EffectChain::EffectChain(){
 }
 
 void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData){
+    GlobalData globalDataCopy = globalData;
     for (int i = 0; i < numSamples; ++i) {
+        globalDataCopy.update();
+        const GlobalDataState& g = globalDataCopy.getState();
         connectionGraph.setInput(inBus, 0, bufferL[i]);
         connectionGraph.setInput(inBus, 1, bufferR[i]);
-        connectionGraph.setInput(inBus, 2, globalData.mod);
-        connectionGraph.setInput(inBus, 3, globalData.exp);
-        connectionGraph.setInput(inBus, 4, globalData.brt);
+        connectionGraph.setInput(inBus, 2, g.mod);
+        connectionGraph.setInput(inBus, 3, g.exp);
+        connectionGraph.setInput(inBus, 4, g.brt);
 
         connectionGraph.process(outBus, sampleRate);
 

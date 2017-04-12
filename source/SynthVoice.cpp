@@ -150,11 +150,12 @@ void SynthVoice::threadedProcess()
         int numSamples = samplesToProcess;
         if(samplesToProcess > 0) {
 
-            GlobalData g = globalData;
 
             for (int i = 0; i < numSamples; ++i) {
                 mpe.update();
+                globalData.update();
                 const MPEVoiceState &v = mpe.getState();
+                const GlobalDataState &g = globalData.getState();
 
                 internalBuffer[0][i] = 0.0f;
                 internalBuffer[1][i] = 0.0f;

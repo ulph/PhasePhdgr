@@ -9,6 +9,8 @@
 
 namespace PhasePhckr {
 
+    const float c_slewFactor = 0.995;
+
     class SynthVoice;
     class EffectChain;
     struct NoteData;
@@ -20,18 +22,36 @@ namespace PhasePhckr {
         float z;
     };
 
-    struct GlobalData {
-        GlobalData() : exp(0), brt(0), mod(0) {}
+    struct GlobalDataState {
+        GlobalDataState() : exp(0), brt(0), mod(0) {}
         float exp;
         float brt;
         float mod;
+    };
+
+    class GlobalData {
+    private:
+        GlobalDataState tg;
+        GlobalDataState st;
+        float slewFactor;
+    public:
+        void modwheel(float v) { tg.mod = v; }
+        void expression(float v) { tg.exp = v; }
+        void breath(float v) { tg.brt = v; }
+        GlobalData() : slewFactor(c_slewFactor) {}
+        void update() {
+            st.mod = slewFactor * st.mod + (1.0f - slewFactor) * tg.mod;
+            st.exp = slewFactor * st.exp + (1.0f - slewFactor) * tg.exp;
+            st.brt = slewFactor * st.brt + (1.0f - slewFactor) * tg.brt;
+        }
+        const GlobalDataState & getState() { return st; }
     };
 
     class VoiceBus {
         // TODO, this class needs to be split into 2 (or more) classes
         // only the handleBLABLA stuff should be visible on api level
     public:
-        VoiceBus() : voices(nullptr), globalDataSlewFactor(0.995f) {}
+        VoiceBus() : voices(nullptr) {}
         VoiceBus(std::vector<SynthVoice*> * parent_voices);
         virtual ~VoiceBus();
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
@@ -44,7 +64,7 @@ namespace PhasePhckr {
         void handleModWheel(float value);
         void update();
         float findScopeVoiceHz();
-        const GlobalData& getGlobalData();
+        const GlobalData& getGlobalData() { return globalData; }
     private:
         std::vector<SynthVoice*> *voices;
         std::vector<NoteData*> notes;
@@ -52,12 +72,6 @@ namespace PhasePhckr {
         int findYoungestInactiveNoteDataIndex(int channel);
         ChannelData channelData[16];
         GlobalData globalData;
-        GlobalData globalDataTarget;
-        float globalDataSlewFactor;
-    };
-
-    class AutomationBus {
-        // handles the automation (global VST) parameters
     };
 
     class Synth {
@@ -66,7 +80,6 @@ namespace PhasePhckr {
         Synth();
         virtual ~Synth();
         VoiceBus voiceBus;
-        AutomationBus automationBus;
         virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
         virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
     private:

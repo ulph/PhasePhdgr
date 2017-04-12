@@ -1,5 +1,5 @@
 #include "MPEVoice.hpp"
-
+#include "PhasePhckr.h"
 #include <math.h>
 #include <string.h>
 
@@ -13,7 +13,7 @@ static float NoteToHz(float note) {
     return hz;
 }
 
-MPEVoice::MPEVoice() : slewFactor(0.995f), rootNote(0), age(0){
+MPEVoice::MPEVoice() : slewFactor(c_slewFactor), rootNote(0), age(0){
     reset();
 }
 

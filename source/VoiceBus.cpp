@@ -7,7 +7,7 @@ namespace PhasePhckr {
 
 void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
     int idx = getNoteDataIndex(channel, note);
-    if (on) {
+    if (on && velocity > 0) {
         // find matching note data (or create new)
         NoteData* n;
         if (idx == -1) {
@@ -108,19 +108,15 @@ void VoiceBus::handleNoteZ(int channel, int note, float position) {
 }
 
 void VoiceBus::handleExpression(float value) {
-    globalDataTarget.exp = value;
+    globalData.expression(value);
 }
 
 void VoiceBus::handleBreath(float value) {
-    globalDataTarget.brt = value;
+    globalData.breath(value);
 }
 
 void VoiceBus::handleModWheel(float value) {
-    globalDataTarget.mod = value;
-}
-
-const GlobalData& VoiceBus::getGlobalData() {
-    return globalData;
+    globalData.modwheel(value);
 }
 
 int VoiceBus::getNoteDataIndex(int channel, int note) {
@@ -161,9 +157,6 @@ void VoiceBus::update() {
     for (const auto &n : notes) {
         n->age++;
     }
-    globalData.exp = globalData.exp*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.exp;
-    globalData.brt = globalData.brt*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.brt;
-    globalData.mod = globalData.mod*globalDataSlewFactor + (1 - globalDataSlewFactor)*globalDataTarget.mod;
 }
 
 VoiceBus::VoiceBus(std::vector<SynthVoice*> * parent_voices)

@@ -1,4 +1,7 @@
 #pragma once
+
+#include "PhasePhckr.h"
+
 namespace PhasePhckr {
 
 struct MPEVoiceState {
@@ -20,7 +23,6 @@ struct MPEVoiceState {
     float gate; // open or closed, for statey stuff
 };
 
-
 struct MPEVoiceConfig {
     float pitchRangeUp;
     float pitchRangeDown;
@@ -30,7 +32,6 @@ struct MPEVoiceConfig {
         pitchRangeDown(24)
     {}
 };
-
 
 class MPEVoice {
 public:

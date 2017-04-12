@@ -64,5 +64,4 @@ private:
     PhasePhckr::Synth synth;
 };
 
-
 #endif  // PLUGINPROCESSOR_H_INCLUDED

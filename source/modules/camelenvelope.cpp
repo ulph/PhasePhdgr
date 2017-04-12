@@ -62,8 +62,8 @@ void CamelEnvelope::process(uint32_t fs) {
         }
         else if(envTime < (onAttackSpeed + onDecaySpeed)){
             // decay region
-            relTime = 1 - ((envTime - onAttackSpeed) / onDecaySpeed);
-            targetValue = sustainHeight + onBumpHeight * relTime;
+            relTime = (envTime - onAttackSpeed) / onDecaySpeed;
+            targetValue = sustainHeight + onBumpHeight * (1-relTime);
             currPow = onDecayPow;
             nextPow = 1;
         }
@@ -86,8 +86,8 @@ void CamelEnvelope::process(uint32_t fs) {
         }
         else if(envTime < (offAttackSpeed + offDecaySpeed)){
             // release decay region
-            relTime = 1 - ((envTime - offAttackSpeed) / offDecaySpeed);
-            targetValue = (gateOnTargetValue + offBumpHeight) * relTime;
+            relTime = (envTime - offAttackSpeed) / offDecaySpeed;
+            targetValue = (gateOnTargetValue + offBumpHeight) * (1-relTime);
             currPow = offDecayPow;
             nextPow = 1.f;
         }

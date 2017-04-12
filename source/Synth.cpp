@@ -26,6 +26,7 @@ Synth::~Synth(){
         delete v;
     }
     delete effects;
+    delete voiceBus;
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)

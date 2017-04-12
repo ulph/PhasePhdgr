@@ -31,24 +31,28 @@ static float limitValue(float value, float low, float high) {
     return value > high ? high : value < low ? low : value;
 }
 
+static float limitValueLow(float value, float low) {
+    return value < low ? low : value;
+}
+
 void CamelEnvelope::process(uint32_t fs) {
     float newGate       = inputs[0].value;
 
     float onBumpHeight   = limitValue(inputs[1].value, 0.0f, 1.0f);
-    float onAttackSpeed  = inputs[2].value;
-    float onDecaySpeed   = inputs[3].value;
+    float onAttackSpeed  = limitValueLow(inputs[2].value, 0.f);
+    float onDecaySpeed   = limitValueLow(inputs[3].value, 0.f);
 
     float sustainHeight  = limitValue(inputs[4].value, 0.0f, 1.0f);
 
     float offBumpHeight  = limitValue(inputs[5].value, 0.0f, 1.0f);
-    float offAttackSpeed = inputs[6].value;
-    float offDecaySpeed  = inputs[7].value;
+    float offAttackSpeed = limitValueLow(inputs[6].value, 0.f);
+    float offDecaySpeed  = limitValueLow(inputs[7].value, 0.f);
 
-    float onAttackPow    = inputs[8].value;
-    float onDecayPow     = inputs[9].value;
+    float onAttackPow    = limitValueLow(inputs[8].value, 0.f);
+    float onDecayPow     = limitValueLow(inputs[9].value, 0.f);
 
-    float offAttackPow   = inputs[10].value;
-    float offDecayPow    = inputs[11].value;
+    float offAttackPow   = limitValueLow(inputs[10].value, 0.f);
+    float offDecayPow    = limitValueLow(inputs[11].value, 0.f);
 
     float targetValue = 0;
 

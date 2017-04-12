@@ -50,7 +50,7 @@ public:
         st.exp = slewFactor * st.exp + (1.0f - slewFactor) * tg.exp;
         st.brt = slewFactor * st.brt + (1.0f - slewFactor) * tg.brt;
     }
-    const GlobalDataState & getState() { return st; }
+    const GlobalDataState & getState() const { return st; }
 };
 
 class VoiceBus {
@@ -66,7 +66,7 @@ public:
     void handleExpression(float value);
     void handleBreath(float value);
     void handleModWheel(float value);
-    void update();
+    void update(int numSamples);
     float findScopeVoiceHz();
     const GlobalData& getGlobalData() { return globalData; }
 private:

@@ -153,9 +153,13 @@ float VoiceBus::findScopeVoiceHz() {
     return hz;
 }
 
-void VoiceBus::update() {
+void VoiceBus::update(int numSamples) {
+    // increment age on voices, only relative age matter so per chunk is ok
     for (const auto &n : notes) {
         n->age++;
+    }
+    for (int i = 0; i < numSamples; i++) {
+        globalData.update();
     }
 }
 

@@ -24,8 +24,6 @@ Synth::~Synth(){
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
-    voiceBus->update();
-
     int samplesLeft = numSamples;
     int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;
     float *bufL = leftChannelbuffer, *bufR = rightChannelbuffer;
@@ -43,7 +41,10 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
 
     effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, voiceBus->getGlobalData());
 
+    voiceBus->update(numSamples);
+
     scope.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, voiceBus->findScopeVoiceHz());
+
 }
 
 void Synth::handleNoteOnOff(int a, int b, float c, bool d) { voiceBus->handleNoteOnOff(a, b, c, d); }
@@ -80,7 +81,7 @@ void Scope::writeToBuffer(float * sourceBuffer, int numSamples, float sampleRate
         scopeDrift += ((float)numSamples - i) / decimation;
         if (scopeDrift >= 1) {
             scopeDrift--;
-            scopeBuffer[scopeBufferWriteIndex] = sourceBuffer[numSamples - 1];
+            scopeBuffer[scopeBufferWriteIndex] = sourceBuffer[numSamples - numSamples>1?1:0];
             scopeBufferWriteIndex++;
             scopeBufferWriteIndex %= scopeBufferSize;
         }

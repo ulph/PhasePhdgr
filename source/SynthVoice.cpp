@@ -99,32 +99,41 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(env, 0, mixGain, 1);
     connectionGraph.connect(mixGain, 0, outBus, 0);
     connectionGraph.connect(mixGain, 0, outBus, 1);
-
+#if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);
+#endif
 }
 
 SynthVoice::~SynthVoice()
 {
     doTerminate = true;
+#if MULTITHREADED
     t.join();
+#endif
 }
 
 void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
 {
+#if MULTITHREADED
     // Make sure thread is not processing already ... (should not happen)
     while(samplesToProcess > 0) std::this_thread::yield();
-
+#endif
     // Queue work for thread
     globalData = g;
     this->sampleRate = sampleRate;
     samplesToProcess = numSamples;
+#if MULTITHREADED
+#else
+    this->threadedProcess();
+#endif
 }
 
 void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSamples)
 {
+#if MULTITHREADED
     // Wait for thread to complete...
     while(samplesToProcess > 0) std::this_thread::yield();
-
+#endif
     // Collect data
     for(int i = 0; i < numSamples; i++) {
         bufferL[i] += internalBuffer[0][i];
@@ -135,7 +144,9 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
 
 void SynthVoice::threadedProcess()
 {
+#if MULTITHREADED
     while(!doTerminate) {
+#endif
         int numSamples = samplesToProcess;
         if(samplesToProcess > 0) {
 
@@ -175,9 +186,13 @@ void SynthVoice::threadedProcess()
 
             samplesToProcess -= numSamples;
         } else {
+#if MULTITHREADED
             std::this_thread::yield();
+#endif
         }
+#if MULTITHREADED
     }
+#endif
 }
 
 }

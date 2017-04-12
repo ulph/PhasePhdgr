@@ -1,5 +1,11 @@
-option(USING_NLOHMANN_JSON OFF)
+option(MULTITHREADING OFF)
+if(${MULTITHREADING})
+    add_definitions(-DMULTITHREADED=1)
+else()
+    add_definitions(-DMULTITHREADED=0)
+endif()
 
+option(USING_NLOHMANN_JSON OFF)
 if(${USING_NLOHMANN_JSON})
     set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
     include_directories(${JSON_INCLUDE_DIR}/include)

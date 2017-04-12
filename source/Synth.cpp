@@ -36,10 +36,8 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;
     float *bufL = leftChannelbuffer, *bufR = rightChannelbuffer;
 
-    fprintf(stderr, "numSamples: %d\n", numSamples);
     while(samplesLeft > 0) {
         int chunkSize = (samplesLeft < maxChunk) ? samplesLeft : maxChunk;
-        fprintf(stderr, "   chunkSize: %d\n", chunkSize);
 
         for(auto & v : voices) v->processingStart(chunkSize, sampleRate, voiceBus.getGlobalData());
         for(auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);

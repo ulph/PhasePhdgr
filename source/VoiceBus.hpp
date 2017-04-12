@@ -76,6 +76,7 @@ private:
     int findYoungestInactiveNoteDataIndex(int channel);
     ChannelData channelData[16];
     GlobalData globalData;
+    float scopeHz;
 };
 
 }

@@ -143,14 +143,13 @@ int VoiceBus::findYoungestInactiveNoteDataIndex(int channel) {
 }
 
 float VoiceBus::findScopeVoiceHz() {
-    float hz = 0;
     unsigned int max = 0;
     for (const auto &v : *voices) {
         if(v->mpe.getState().gate && v->mpe.getAge() > max){
-            hz = v->mpe.getState().pitchHz;
+            scopeHz = v->mpe.getState().pitchHz;
         }
     }
-    return hz;
+    return scopeHz;
 }
 
 void VoiceBus::update(int numSamples) {
@@ -164,8 +163,9 @@ void VoiceBus::update(int numSamples) {
 }
 
 VoiceBus::VoiceBus(std::vector<SynthVoice*> * parent_voices)
+    : scopeHz(0)
+    , voices(parent_voices)
 {
-    voices = parent_voices;
 }
 
 VoiceBus::~VoiceBus() {

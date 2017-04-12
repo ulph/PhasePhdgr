@@ -10,21 +10,21 @@ CamelEnvelope::CamelEnvelope():
 
     inputs.push_back(Pad("gate"));
 
-    inputs.push_back(Pad("onBumpHeight", 1.0f));
-    inputs.push_back(Pad("onAttackSpeed", 0.01f));
+    inputs.push_back(Pad("onBumpHeight", 0.5f));
+    inputs.push_back(Pad("onAttackSpeed", 0.025f));
     inputs.push_back(Pad("onDecaySpeed", 0.05f));
 
     inputs.push_back(Pad("sustainHeight", 0.5f));
 
-    inputs.push_back(Pad("offBumpHeight", 0.25f));
+    inputs.push_back(Pad("offBumpHeight", 0.05f));
     inputs.push_back(Pad("offAttackSpeed", 0.05f));
     inputs.push_back(Pad("offDecaySpeed", 0.05f));
 
-    inputs.push_back(Pad("onAttackPow", 1.0f));
-    inputs.push_back(Pad("onDecayPow", 1.0f));
+    inputs.push_back(Pad("onAttackPow", 0.5f));
+    inputs.push_back(Pad("onDecayPow", 2.0f));
 
-    inputs.push_back(Pad("offAttackPow", 1.0f));
-    inputs.push_back(Pad("offDecayPow", 1.0f));
+    inputs.push_back(Pad("offAttackPow", 4.0f));
+    inputs.push_back(Pad("offDecayPow", 4.0f));
 
 }
 
@@ -97,6 +97,5 @@ void CamelEnvelope::process(uint32_t fs) {
     samplesCtr++;
 
     // limit, apply power law and slew
-//    targetValue = targetValue > 1.f ? 1.f : targetValue < 0.f ? 0.f : targetValue;
     outputs[0].value = slew*outputs[0].value + (1-slew)*targetValue;
 }

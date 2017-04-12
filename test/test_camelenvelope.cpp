@@ -11,21 +11,23 @@ int main(int argc, char *argv[])
     outfile = fopen("data.dat", "wb");
 #endif
 
-    camel.setInput(1, 0.5);
-    camel.setInput(2, 1);
-    camel.setInput(3, 1);
+    float timescale = 40;
 
-    camel.setInput(4, 0.1);
+    camel.setInput(1, 0.5f);
+    camel.setInput(2, timescale*0.025f);
+    camel.setInput(3, timescale*0.05f);
 
-    camel.setInput(5, .1);
-    camel.setInput(6, 1);
-    camel.setInput(7, 1);
+    camel.setInput(4, 0.5f);
 
-    camel.setInput(8, .5);
-    camel.setInput(9, 10);
+    camel.setInput(5, 0.05f);
+    camel.setInput(6, timescale*0.025f);
+    camel.setInput(7, timescale*0.05f);
 
-    camel.setInput(10, 2);
-    camel.setInput(11, .5);
+    camel.setInput(8, 0.5f);
+    camel.setInput(9, 2.f);
+
+    camel.setInput(10, 4.0f);
+    camel.setInput(11, 4.0f);
 
     for (uint32_t t = 0; t < 10*fs; t++) {
         float gate = t<5*fs;

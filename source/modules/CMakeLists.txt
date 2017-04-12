@@ -1,6 +1,8 @@
 set(SRC
     abs.cpp
     abs.hpp
+    biquad.cpp
+    biquad.hpp
     camelenvelope.cpp
     camelenvelope.hpp
     clamp.cpp

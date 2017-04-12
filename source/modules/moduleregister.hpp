@@ -19,6 +19,7 @@
 #include "clampinv.hpp"
 #include "scaleshift.hpp"
 #include "delay.hpp"
+#include "biquad.hpp"
 
 class ModuleRegister {
 public:
@@ -45,6 +46,7 @@ public:
         cg.registerModule("CINV", &(ClampInv::factory));
         cg.registerModule("SCLSHFT", &(ScaleShift::factory));
         cg.registerModule("DELAY", &(Delay::factory));
+        cg.registerModule("BIQUAD", &(Biquad::factory));
     }
 };
 

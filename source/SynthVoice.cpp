@@ -111,7 +111,7 @@ SynthVoice::~SynthVoice()
 
 void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
 {
-    // Make sure thread is not processing already ...
+    // Make sure thread is not processing already ... (should not happen)
     while(samplesToProcess > 0) std::this_thread::yield();
 
     // Queue work for thread
@@ -127,8 +127,8 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
 
     // Collect data
     for(int i = 0; i < numSamples; i++) {
-        bufferL[i] += this->bufferL[i];
-        bufferR[i] += this->bufferR[i];
+        bufferL[i] += internalBuffer[0][i];
+        bufferR[i] += internalBuffer[1][i];
     }
 }
 
@@ -145,11 +145,12 @@ void SynthVoice::threadedProcess()
                 mpe.update();
                 const MPEVoiceState &v = mpe.getState();
 
+                internalBuffer[0][i] = 0.0f;
+                internalBuffer[1][i] = 0.0f;
+
                 if (v.gate) {
                     rms = 1;
                 } else if (v.gate == 0 && rms < 0.0000001) {
-                    bufferL[i] = 0.0f;
-                    bufferR[i] = 0.0f;
                     continue;
                 }
 
@@ -167,8 +168,8 @@ void SynthVoice::threadedProcess()
                 connectionGraph.process(outBus, sampleRate);
                 float sampleL = connectionGraph.getOutput(outBus, 0);
                 float sampleR = connectionGraph.getOutput(outBus, 1);
-                bufferL[i] = 0.5f*sampleL;
-                bufferR[i] = 0.5f*sampleR;
+                internalBuffer[0][i] = sampleL;
+                internalBuffer[1][i] = sampleR;
                 rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
             }
 

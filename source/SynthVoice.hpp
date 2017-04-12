@@ -9,6 +9,8 @@
 #include "PhasePhckr.h"
 #include "BusModules.hpp"
 
+#define SYNTH_VOICE_BUFFER_LENGTH 1024
+
 namespace PhasePhckr {
 
 class SynthVoice {
@@ -23,8 +25,7 @@ private:
     void threadedProcess();
     GlobalData globalData;
     float sampleRate;
-    float bufferL[48000];
-    float bufferR[48000];
+    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
     bool doTerminate;
 
 public:

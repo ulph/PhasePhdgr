@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <vector>
-#include <tuple>
+#include <utility>
 
 #include "PhasePhckr.h"
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     out_fid = stdout;
   }
 
-  std::vector< std::tuple<float, std::function<void()> > > piano_roll;
+  std::vector< std::pair<float, std::function<void()> > > piano_roll;
 
   piano_roll.emplace_back(0 * beat, std::bind(&PhasePhckr::Synth::handleNoteOnOff, &synth, 0, 64, 1.0f, true));
   piano_roll.emplace_back(0 * beat, std::bind(&PhasePhckr::Synth::handleZ, &synth, 0, .5f));
@@ -54,9 +54,9 @@ int main(int argc, char **argv)
     memset(bufferL, 0, sizeof(bufferL));
     memset(bufferR, 0, sizeof(bufferR));
 
-    while(it != piano_roll.end() && std::get<0>(*it) < time)
+    while(it != piano_roll.end() && it->first < time)
     {
-      std::get<1>(*it)();
+      it->second();
       it++;
     }
 

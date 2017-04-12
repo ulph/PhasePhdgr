@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PhasePhckr.h"
 #include "connectiongraph.hpp"
+#include "VoiceBus.hpp"
 
 namespace PhasePhckr {
 

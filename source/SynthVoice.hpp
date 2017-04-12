@@ -8,6 +8,7 @@
 #include "moduleregister.hpp"
 #include "PhasePhckr.h"
 #include "BusModules.hpp"
+#include "VoiceBus.hpp"
 
 #define SYNTH_VOICE_BUFFER_LENGTH 1024
 

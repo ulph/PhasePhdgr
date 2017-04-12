@@ -13,7 +13,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
         if (idx == -1) {
             n = new NoteData(channel, note, velocity);
             notes.push_back(n);
-            idx = notes.size();
+            idx = (int)notes.size();
         }
         else {
             n = notes[idx];

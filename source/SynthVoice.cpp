@@ -1,12 +1,13 @@
 #include "SynthVoice.hpp"
+#include "PhasePhckr.h"
 
 namespace PhasePhckr
 {
 
 SynthVoice::SynthVoice()
     : connectionGraph()
-    , rms(0)
-    , rmsSlew(0.999)
+    , rms(0.0f)
+    , rmsSlew(0.99f)
     , samplesToProcess(0)
     , doTerminate(false)
 {
@@ -36,8 +37,8 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(inBus, 8, strikeMulExpr, 0);
     connectionGraph.connect(inBus, 1, strikeMulExpr, 1);
     int envDecayTweak = connectionGraph.addModule("SCLSHFT");
-    connectionGraph.getModule(envDecayTweak)->setInput(1, 2.0);
-    connectionGraph.getModule(envDecayTweak)->setInput(2, 0.1);
+    connectionGraph.getModule(envDecayTweak)->setInput(1, 2.0f);
+    connectionGraph.getModule(envDecayTweak)->setInput(2, 0.1f);
     connectionGraph.connect(strikeMulExpr, 0, envDecayTweak, 0);
     connectionGraph.connect(envDecayTweak, 0, env, 3);
 
@@ -56,14 +57,14 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(inv, 0, ySelection, 1);
     connectionGraph.connect(inBus, 7, ySelection, 2);
     connectionGraph.connect(ySelection, 0, osc2argBoost, 0);
-    connectionGraph.getModule(osc2argBoost)->setInput(1, 20);
+    connectionGraph.getModule(osc2argBoost)->setInput(1, 20.0f);
     connectionGraph.connect(osc2argBoost, 0, osc2arg, 1);
     int osc2 = connectionGraph.addModule("SINE");
     connectionGraph.connect(osc2arg, 0, osc2, 0);
 
     int osc3arg = connectionGraph.addModule("MUL");
     connectionGraph.connect(osc2arg, 0, osc3arg, 0);
-    connectionGraph.getModule(osc3arg)->setInput(1, 2);
+    connectionGraph.getModule(osc3arg)->setInput(1, 2.0f);
     int osc3 = connectionGraph.addModule("SINE");
     connectionGraph.connect(osc3arg, 0, osc3, 0);
 
@@ -81,14 +82,14 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(abs, 0, scl, 0);
     int fold = connectionGraph.addModule("FOLD");
     int foldPreScale = connectionGraph.addModule("MUL");
-    connectionGraph.getModule(foldPreScale)->setInput(1, 4);
+    connectionGraph.getModule(foldPreScale)->setInput(1, 4.0f);
     connectionGraph.connect(foldPreScale, 0, fold, 2);
     connectionGraph.connect(env, 0, foldPreScale, 0);
     connectionGraph.connect(scl, 0, fold, 0);
     int lag = connectionGraph.addModule("LAG"); // simplistic lowpass
     connectionGraph.connect(fold, 0, lag, 0);
     int foldPostScale = connectionGraph.addModule("MUL");
-    connectionGraph.getModule(foldPostScale)->setInput(1, 0.25);
+    connectionGraph.getModule(foldPostScale)->setInput(1, 0.25f);
     connectionGraph.connect(lag, 0, foldPostScale, 0);
 
     connectionGraph.connect(foldPostScale, 0, mixGain, 0);

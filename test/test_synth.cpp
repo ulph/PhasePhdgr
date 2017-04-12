@@ -35,18 +35,18 @@ int main(int argc, char **argv)
 
   std::vector< std::tuple<float, std::function<void()> > > piano_roll;
 
-  piano_roll.emplace_back(0 * beat, std::bind(&PhasePhckr::VoiceBus::handleNoteOnOff, &synth.voiceBus, 0, 64, 1.0f, true));
-  piano_roll.emplace_back(0 * beat, std::bind(&PhasePhckr::VoiceBus::handleZ, &synth.voiceBus, 0, .5f));
-  piano_roll.emplace_back(1 * beat, std::bind(&PhasePhckr::VoiceBus::handleNoteOnOff, &synth.voiceBus, 0, 64, 0.f, false));
+  piano_roll.emplace_back(0 * beat, std::bind(&PhasePhckr::Synth::handleNoteOnOff, &synth, 0, 64, 1.0f, true));
+  piano_roll.emplace_back(0 * beat, std::bind(&PhasePhckr::Synth::handleZ, &synth, 0, .5f));
+  piano_roll.emplace_back(1 * beat, std::bind(&PhasePhckr::Synth::handleNoteOnOff, &synth, 0, 64, 0.f, false));
 
-  piano_roll.emplace_back(2 * beat, std::bind(&PhasePhckr::VoiceBus::handleNoteOnOff, &synth.voiceBus, 1, 78, 1.0f, true));
-  piano_roll.emplace_back(2 * beat, std::bind(&PhasePhckr::VoiceBus::handleX, &synth.voiceBus, 1, 0.f));
-  piano_roll.emplace_back(2 * beat, std::bind(&PhasePhckr::VoiceBus::handleZ, &synth.voiceBus, 1, .5f));
-  piano_roll.emplace_back(2.25 * beat, std::bind(&PhasePhckr::VoiceBus::handleX, &synth.voiceBus, 1, -.25f));
-  piano_roll.emplace_back(2.5 * beat, std::bind(&PhasePhckr::VoiceBus::handleX, &synth.voiceBus, 1, -.5f));
-  piano_roll.emplace_back(2.75 * beat, std::bind(&PhasePhckr::VoiceBus::handleX, &synth.voiceBus, 1, -.75f));
-  piano_roll.emplace_back(3 * beat, std::bind(&PhasePhckr::VoiceBus::handleX, &synth.voiceBus, 1, -1.f));
-  piano_roll.emplace_back(3 * beat, std::bind(&PhasePhckr::VoiceBus::handleNoteOnOff, &synth.voiceBus, 1, 78, .7f, false));
+  piano_roll.emplace_back(2 * beat, std::bind(&PhasePhckr::Synth::handleNoteOnOff, &synth, 1, 78, 1.0f, true));
+  piano_roll.emplace_back(2 * beat, std::bind(&PhasePhckr::Synth::handleX, &synth, 1, 0.f));
+  piano_roll.emplace_back(2 * beat, std::bind(&PhasePhckr::Synth::handleZ, &synth, 1, .5f));
+  piano_roll.emplace_back(2.25 * beat, std::bind(&PhasePhckr::Synth::handleX, &synth, 1, -.25f));
+  piano_roll.emplace_back(2.5 * beat, std::bind(&PhasePhckr::Synth::handleX, &synth, 1, -.5f));
+  piano_roll.emplace_back(2.75 * beat, std::bind(&PhasePhckr::Synth::handleX, &synth, 1, -.75f));
+  piano_roll.emplace_back(3 * beat, std::bind(&PhasePhckr::Synth::handleX, &synth, 1, -1.f));
+  piano_roll.emplace_back(3 * beat, std::bind(&PhasePhckr::Synth::handleNoteOnOff, &synth, 1, 78, .7f, false));
 
   auto it = piano_roll.begin();
   while(time < 3.)

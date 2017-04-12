@@ -136,7 +136,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     while (midiIt.getNextEvent(msg, evtPos)){
         int ch = msg.getChannel();
         if(msg.isNoteOnOrOff()){
-            synth.voiceBus.handleNoteOnOff(
+            synth.handleNoteOnOff(
                 ch, 
                 msg.getNoteNumber(),
                 msg.getFloatVelocity(), 
@@ -144,20 +144,20 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
             );
         }
         else if(msg.isPitchWheel()){
-            synth.voiceBus.handleX(
+            synth.handleX(
                 ch,
                 2.f*( (float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
             );
         }
         else if(msg.isAftertouch()){
-            synth.voiceBus.handleNoteZ(
+            synth.handleNoteZ(
                 ch,
                 msg.getNoteNumber(),
                 (float)msg.getAfterTouchValue() / 127.f
             );
         }
         else if(msg.isChannelPressure()){
-            synth.voiceBus.handleZ(
+            synth.handleZ(
                 ch,
                 (float)msg.getChannelPressureValue() / 127.f
             );
@@ -168,16 +168,16 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
             // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
             switch (cc) {
                 case 74:
-                    synth.voiceBus.handleY(ch, val);
+                    synth.handleY(ch, val);
                     break;
                 case 1:
-                    synth.voiceBus.handleModWheel(val);
+                    synth.handleModWheel(val);
                     break;
                 case 2:
-                    synth.voiceBus.handleBreath(val);
+                    synth.handleBreath(val);
                     break;
                 case 11:
-                    synth.voiceBus.handleExpression(val);
+                    synth.handleExpression(val);
                     break;
                 default:
                     break;

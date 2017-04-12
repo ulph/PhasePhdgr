@@ -30,7 +30,6 @@ EffectChain::EffectChain(){
             },
             std::vector<ModulePortValue>{
                 ModulePortValue{"outGain", "gain", 0.5},
-                ModulePortValue{"outSaturation", "prescaler", 0.5}
             }
         }
     );

@@ -18,7 +18,7 @@ CamelEnvelope::CamelEnvelope():
 
     inputs.push_back(Pad("offBumpHeight", 0.05f));
     inputs.push_back(Pad("offAttackSpeed", 0.05f));
-    inputs.push_back(Pad("offDecaySpeed", 0.05f));
+    inputs.push_back(Pad("offDecaySpeed", 0.25f));
 
     inputs.push_back(Pad("onAttackPow", 0.5f));
     inputs.push_back(Pad("onDecayPow", 2.0f));

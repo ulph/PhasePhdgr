@@ -15,6 +15,18 @@ namespace PhasePhckr {
     class EffectChain;
     class VoiceBus;
 
+    class Scope {
+    private:
+        float scopeBuffer[512];
+        const size_t scopeBufferSize;
+        unsigned int scopeBufferWriteIndex;
+        float scopeDrift;
+    public:
+        Scope();
+        size_t copyBuffer(float *buffer, size_t bufferSizeIn) const;
+        void writeToBuffer(float * leftChannelbuffer, int numSamples, float sampleRate, float hz);
+    };
+
     class Synth {
     public:
         Synth();
@@ -28,14 +40,12 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
-        virtual size_t getScopeBuffer(float *buffer, size_t bufferSizeIn) const;
+        const Scope& getScope() const { return scope; }
     private:
         VoiceBus *voiceBus;
-        std::vector<SynthVoice*> voices; // per note sound generation
-        EffectChain* effects; // effects applied to mix of voices (in series)
-        float scopeBuffer[512];
-        const size_t scopeBufferSize;
-        unsigned int scopeBufferWriteIndex;
-        float scopeDrift;
+        std::vector<SynthVoice*> voices;
+        EffectChain* effects;
+        Scope scope;
     };
+
 }

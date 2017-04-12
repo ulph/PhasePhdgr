@@ -58,7 +58,7 @@ void CamelEnvelope::process(uint32_t fs) {
 
     // no targets can be greater than 1
     onBumpHeight = (sustainHeight + onBumpHeight) > 1.0f ? 1.0f - sustainHeight : onBumpHeight;
-    offBumpHeight = (sustainHeight + offBumpHeight) > 1.0f ? 1.0f - sustainHeight : offBumpHeight;
+    float hangoverValue = (gateOnTargetValue + offBumpHeight > 1.0) ? 1.0f - offBumpHeight : gateOnTargetValue;
 
     // reset counter if falling or rising edge on gate
     if( (gate >= 1.0 && newGate < 1.0) || (gate < 1.0 && newGate >= 1.0) ){
@@ -90,18 +90,17 @@ void CamelEnvelope::process(uint32_t fs) {
         if(envTime < offAttackSpeed){
             // release attack region
             relTime = envTime / offAttackSpeed;
-            targetValue = gateOnTargetValue + offBumpHeight * powf(relTime, offAttackPow);
+            targetValue = hangoverValue + offBumpHeight * powf(relTime, offAttackPow);
         }
         else if(envTime < (offAttackSpeed + offDecaySpeed)){
             // release decay region
             relTime = (envTime - offAttackSpeed) / offDecaySpeed;
-            targetValue = (gateOnTargetValue + offBumpHeight) * powf((1-relTime), offDecayPow);
+            targetValue = (hangoverValue + offBumpHeight) * powf((1-relTime), offDecayPow);
         }
         else{
             // closed region
             relTime = 0.f; // egal
             targetValue = 0;
-            gateOnTargetValue = 0;
         }
     }
 

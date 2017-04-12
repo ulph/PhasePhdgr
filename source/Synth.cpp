@@ -22,10 +22,10 @@ Synth::Synth()
 }
 
 Synth::~Synth(){
-    for(const auto &v : voices){
-        free(v);
+    for(SynthVoice *v : voices){
+        delete v;
     }
-    free(effects);
+    delete effects;
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)

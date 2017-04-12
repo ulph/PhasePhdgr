@@ -25,7 +25,6 @@ CamelEnvelope::CamelEnvelope():
 
     inputs.push_back(Pad("offAttackPow", 4.0f));
     inputs.push_back(Pad("offDecayPow", 4.0f));
-
 }
 
 void CamelEnvelope::process(uint32_t fs) {

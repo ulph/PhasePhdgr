@@ -5,6 +5,8 @@
 
 class Phase : public Module
 {
+private:
+    float trig;
 public:
     Phase();
     void process(uint32_t fs);

@@ -15,7 +15,7 @@ struct ModuleVariable {
 };
 
 struct ModulePort {
-    std::string name;
+    std::string module;
     std::string port;
 };
 

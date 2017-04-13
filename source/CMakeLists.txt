@@ -8,18 +8,6 @@ endif()
 add_subdirectory(connectiongraph)
 add_subdirectory(modules)
 
-option(USING_NLOHMANN_JSON OFF)
-if(${USING_NLOHMANN_JSON})
-    set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
-    include_directories(${JSON_INCLUDE_DIR}/include)
-    if(NOT EXISTS "${JSON_INCLUDE_DIR}/include/nlohmann/json.hpp")
-        error( "Cannot find nlohmann/json.hpp" )
-    endif()
-    add_definitions(-DUSING_NLOHMANN_JSON=1)
-else()
-    add_definitions(-DUSING_NLOHMANN_JSON=0)
-endif()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(connectiongraph modules)
 set(SRC
@@ -38,6 +26,10 @@ set(SRC
     parameters.hpp
     scope.cpp
 )
+
+if(${USING_NLOHMANN_JSON})
+    list(APPEND SRC design_json.hpp)
+endif()
 
 add_library(phasephckr ${SRC})
 target_link_libraries (phasephckr ${CMAKE_THREAD_LIBS_INIT})

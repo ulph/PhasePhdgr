@@ -35,6 +35,7 @@ set(SRC
     VoiceBus.hpp
     DesignConnectionGraph.hpp
     parameters.hpp
+    scope.cpp
 )
 
 add_library(phasephckr ${SRC})

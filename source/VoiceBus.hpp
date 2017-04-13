@@ -18,6 +18,7 @@ public:
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
     void update();
     float findScopeVoiceHz(std::vector<SynthVoice*> &voices);
+    void reset();
 private:
     std::vector<NoteData*> notes;
     int getNoteDataIndex(int channel, int note);

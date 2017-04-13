@@ -4,7 +4,7 @@
 
 namespace PhasePhckr {
 
-const size_t numVoices = 16; // VoiceBus is a bit broken so it needs to not be dynamic
+const size_t numVoices = 16;
 
 Synth::Synth()
     : effects(nullptr)
@@ -28,6 +28,8 @@ void Synth::setFxChain(const ConnectionGraphDescriptor& fxChain) {
 }
 
 void Synth::setVoiceChain(const ConnectionGraphDescriptor_Numerical& voiceChain) {
+    delete voiceBus;
+    voiceBus = new VoiceBus();
     for (SynthVoice *v : voices) {
         delete v;
     }

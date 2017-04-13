@@ -27,6 +27,8 @@ EffectChain::EffectChain(){
                 ModuleVariable{"lfo", "SINE" },
                 ModuleVariable{"delayLeftTime", "SCLSHFT"},
                 ModuleVariable{"delayRightTime", "SCLSHFT"}, 
+                ModuleVariable{"leftDelayLP", "LAG"},
+                ModuleVariable{"rightDelayLP", "LAG"}, 
             },
             std::vector<ModulePortConnection>{
                 ModulePortConnection{{"inBus", "left"}, {"outPreGain", "left"}},
@@ -35,10 +37,13 @@ EffectChain::EffectChain(){
                 // a cross feedback stereo delay
                 ModulePortConnection{{"outPreGain", "left"}, {"leftDelay", "in"}},
                 ModulePortConnection{{"outPreGain", "right"}, {"rightDelay", "in"}},
-                ModulePortConnection{{"leftDelay", "out"}, {"rightDelay", "in"}},
-                ModulePortConnection{{"rightDelay", "out"}, {"leftDelay", "in"}},
-                ModulePortConnection{{"leftDelay", "out"}, {"delayGain", "left"}},
-                ModulePortConnection{{"rightDelay", "out"}, {"delayGain", "right"}},
+                ModulePortConnection{{"leftDelay", "out"}, {"leftDelayLP", "in"}},
+                ModulePortConnection{{"rightDelay", "out"}, {"rightDelayLP", "in"}},
+
+                ModulePortConnection{{"leftDelayLP", "out"}, {"rightDelay", "in"}},
+                ModulePortConnection{{"rightDelayLP", "out"}, {"leftDelay", "in"}},
+                ModulePortConnection{{"leftDelayLP", "out"}, {"delayGain", "left"}},
+                ModulePortConnection{{"rightDelayLP", "out"}, {"delayGain", "right"}},
                 ModulePortConnection{{"delayGain", "left"}, {"outPreGain", "left"}},
                 ModulePortConnection{{"delayGain", "right"}, {"outPreGain", "right"}},
                 // - time modulation
@@ -69,6 +74,9 @@ EffectChain::EffectChain(){
                 // - feedback amount
                 ModulePortValue{"leftDelay", "gain", 0.75f},
                 ModulePortValue{"rightDelay", "gain", 0.75f},
+                // - lowpass (mindless smoothing) of output
+                ModulePortValue{"leftDelayLp", "amount", 0.9f},
+                ModulePortValue{"rightDelayLP", "amount", 0.9f},
                 // - effect "wet amount"
                 ModulePortValue{"delayGain", "gain", 0.5f},
             }

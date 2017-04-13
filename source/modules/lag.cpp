@@ -2,9 +2,9 @@
 
 Lag::Lag()
 {
-    inputs.push_back(Pad("input"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("amount", 0.9f));
-    outputs.push_back(Pad("output"));
+    outputs.push_back(Pad("out"));
 }
 
 void Lag::process(uint32_t fs)

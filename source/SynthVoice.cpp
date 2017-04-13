@@ -91,11 +91,11 @@ SynthVoice::SynthVoice()
     connectionGraph.connect(foldPreScale, 0, fold, 2);
     connectionGraph.connect(env, 0, foldPreScale, 0);
     connectionGraph.connect(scl, 0, fold, 0);
-    int lag = connectionGraph.addModule("LAG"); // simplistic lowpass
-    connectionGraph.connect(fold, 0, lag, 0);
+    int lp = connectionGraph.addModule("RCLP"); // simplistic lowpass
+    connectionGraph.connect(fold, 0, lp, 0);
     int foldPostScale = connectionGraph.addModule("MUL");
     connectionGraph.getModule(foldPostScale)->setInput(1, 0.25f);
-    connectionGraph.connect(lag, 0, foldPostScale, 0);
+    connectionGraph.connect(lp, 0, foldPostScale, 0);
 
     connectionGraph.connect(foldPostScale, 0, mixGain, 0);
 

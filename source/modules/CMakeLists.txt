@@ -15,8 +15,8 @@ set(SRC
     delay.hpp
     foldback.cpp
     foldback.hpp
-    lag.cpp
-    lag.hpp
+    rlc.cpp
+    rlc.hpp
     moduleregister.hpp
     mul.cpp
     mul.hpp

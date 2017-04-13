@@ -11,7 +11,7 @@
 #include "sine.hpp"
 #include "saturatoratan.hpp"
 #include "camelenvelope.hpp"
-#include "lag.hpp"
+#include "rlc.hpp"
 #include "abs.hpp"
 #include "foldback.hpp"
 #include "crossfade.hpp"
@@ -36,9 +36,10 @@ public:
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
         cg.registerModule("ENV", &(CamelEnvelope::factory));
-        cg.registerModule("LAG", &(Lag::factory)); // TODO, prune
         cg.registerModule("RCHP", &(RcHp::factory));
         cg.registerModule("RCLP", &(RcLp::factory));
+        cg.registerModule("ORCHP", &(RcHp::factory));
+        cg.registerModule("ORCLP", &(RcLp::factory));
         cg.registerModule("ABS", &(Abs::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));

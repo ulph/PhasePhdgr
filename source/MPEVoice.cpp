@@ -2,6 +2,7 @@
 #include "PhasePhckr.h"
 #include <math.h>
 #include <string.h>
+#include <limits.h>
 
 namespace PhasePhckr {
 

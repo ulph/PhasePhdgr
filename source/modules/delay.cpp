@@ -1,4 +1,7 @@
+#include <string.h>
+
 #include "delay.hpp"
+
 
 Delay::Delay() 
     : readPosition(0)

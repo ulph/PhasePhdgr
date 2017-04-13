@@ -5,6 +5,9 @@ else()
     add_definitions(-DMULTITHREADED=0)
 endif()
 
+add_subdirectory(connectiongraph)
+add_subdirectory(modules)
+
 option(USING_NLOHMANN_JSON OFF)
 if(${USING_NLOHMANN_JSON})
     set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
@@ -16,9 +19,6 @@ if(${USING_NLOHMANN_JSON})
 else()
     add_definitions(-DUSING_NLOHMANN_JSON=0)
 endif()
-
-add_subdirectory(connectiongraph)
-add_subdirectory(modules)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(connectiongraph modules)
@@ -33,7 +33,8 @@ set(SRC
     BusModules.hpp
     VoiceBus.cpp
     VoiceBus.hpp
-    DesignConnectionGraph.hpp
+    design.hpp
+    design.cpp
     parameters.hpp
     scope.cpp
 )

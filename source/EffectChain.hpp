@@ -2,8 +2,11 @@
 
 #include "connectiongraph.hpp"
 #include "VoiceBus.hpp"
+#include "design.hpp"
 
 namespace PhasePhckr {
+
+const ConnectionGraphDescriptor& getExFxChain();
 
 class EffectChain {
 private:

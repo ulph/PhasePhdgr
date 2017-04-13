@@ -11,6 +11,18 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
 
+const std::string phasePhkrDirName = "phasephkr";
+const std::string effectsDirName = "effects";
+const std::string voiceDirName = "voice";
+const std::string componentsDirName = "components";
+
+static void createDirIfNeeded(File dir) {
+    if (!dir.exists()) {
+        auto res = dir.createDirectory();
+        // somehow we can check if was ok
+    }
+}
+
 //==============================================================================
 PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -24,6 +36,18 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
                        )
 #endif
 {
+    rootDir = File(
+        File::getSpecialLocation(
+            File::SpecialLocationType::userApplicationDataDirectory
+        ).getFullPathName() + File::separator + phasePhkrDirName
+    );
+    effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
+    voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
+    componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);
+    createDirIfNeeded(rootDir);
+    createDirIfNeeded(effectsDir);
+    createDirIfNeeded(voicesDir);
+    createDirIfNeeded(componentsDir);
 }
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()

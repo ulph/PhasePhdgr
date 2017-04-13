@@ -11,7 +11,7 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
 #include "PhasePhckr.h"
-
+#include <cstring>
 
 //==============================================================================
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioProcessor& p)

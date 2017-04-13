@@ -18,3 +18,7 @@ target_link_libraries(test_synth phasephckr connectiongraph modules)
 
 add_executable(test_camelenvelope test_camelenvelope.cpp)
 target_link_libraries(test_camelenvelope phasephckr connectiongraph modules)
+
+include_directories(../source/modules)
+add_executable(test_serialization test_serialization.cpp)
+target_link_libraries(test_serialization phasephckr connectiongraph modules)

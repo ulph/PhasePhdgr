@@ -46,6 +46,11 @@ SynthVoice::SynthVoice()
     int phase = connectionGraph.addModule("PHASE");
     connectionGraph.connect(inBus, 3, phase, 0);
 
+    // osc1 for f0 oomph
+    int osc1= connectionGraph.addModule("SINE");
+    connectionGraph.connect(phase, "phase", osc1, "phase");
+    connectionGraph.connect(osc1, 0, mixGain, 0);
+
     // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env) - Z direction depends on modwheel position!
     int ySelection = connectionGraph.addModule("XFADE");
     int inv = connectionGraph.addModule("CINV"); // inverses inside the bounds

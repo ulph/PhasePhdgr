@@ -35,7 +35,9 @@ public:
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
         cg.registerModule("ENV", &(CamelEnvelope::factory));
-        cg.registerModule("LAG", &(Lag::factory));
+        cg.registerModule("LAG", &(Lag::factory)); // TODO, prune
+        cg.registerModule("RCHP", &(RcHp::factory));
+        cg.registerModule("RCLP", &(RcLp::factory));
         cg.registerModule("ABS", &(Abs::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));

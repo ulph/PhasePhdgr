@@ -27,18 +27,23 @@ EffectChain::EffectChain(){
                 ModuleVariable{"lfo", "SINE" },
                 ModuleVariable{"delayLeftTime", "SCLSHFT"},
                 ModuleVariable{"delayRightTime", "SCLSHFT"}, 
-                ModuleVariable{"leftDelayLP", "LAG"},
-                ModuleVariable{"rightDelayLP", "LAG"}, 
+                ModuleVariable{"leftDelayLP", "RCLP"},
+                ModuleVariable{"rightDelayLP", "RCLP"},
+                ModuleVariable{"leftDelayHP", "RCHP" },
+                ModuleVariable{"rightDelayHP", "RCHP" },
             },
             std::vector<ModulePortConnection>{
                 ModulePortConnection{{"inBus", "left"}, {"outPreGain", "left"}},
                 ModulePortConnection{{"inBus", "right"}, {"outPreGain", "right"}},
 
                 // a cross feedback stereo delay
-                ModulePortConnection{{"outPreGain", "left"}, {"leftDelay", "in"}},
-                ModulePortConnection{{"outPreGain", "right"}, {"rightDelay", "in"}},
-                ModulePortConnection{{"leftDelay", "out"}, {"leftDelayLP", "in"}},
-                ModulePortConnection{{"rightDelay", "out"}, {"rightDelayLP", "in"}},
+                ModulePortConnection{{"outPreGain", "left"}, {"leftDelayHP", "in"}},
+                ModulePortConnection{{"outPreGain", "right"}, {"rightDelayHP", "in"}},
+
+                ModulePortConnection{{"leftDelay", "out"}, {"leftDelayHP", "in"}},
+                ModulePortConnection{{"rightDelay", "out"}, {"rightDelayHP", "in"}},
+                ModulePortConnection{{"leftDelayHP", "out"}, {"leftDelayLP", "in"}},
+                ModulePortConnection{{"rightDelayHP", "out"}, {"rightDelayLP", "in"}},
 
                 ModulePortConnection{{"leftDelayLP", "out"}, {"rightDelay", "in"}},
                 ModulePortConnection{{"rightDelayLP", "out"}, {"leftDelay", "in"}},
@@ -46,7 +51,7 @@ EffectChain::EffectChain(){
                 ModulePortConnection{{"rightDelayLP", "out"}, {"delayGain", "right"}},
                 ModulePortConnection{{"delayGain", "left"}, {"outPreGain", "left"}},
                 ModulePortConnection{{"delayGain", "right"}, {"outPreGain", "right"}},
-                // - time modulation
+                // - time modulation, causes artifact due to no resampling ...
                 ModulePortConnection{{"lfoPhase", "phase"}, {"lfo", "phase"}},
                 ModulePortConnection{{"lfo", "sine"}, {"delayLeftTime", "input"}},
                 ModulePortConnection{{"lfo", "sine"}, {"delayRightTime", "input"}},
@@ -72,11 +77,14 @@ EffectChain::EffectChain(){
                 ModulePortValue{"delayLeftTime", "scale", 0.001f},
                 ModulePortValue{"delayRightTime", "scale", 0.001f},
                 // - feedback amount
-                ModulePortValue{"leftDelay", "gain", 0.75f},
-                ModulePortValue{"rightDelay", "gain", 0.75f},
-                // - lowpass (mindless smoothing) of output
-                ModulePortValue{"leftDelayLp", "amount", 0.9f},
-                ModulePortValue{"rightDelayLP", "amount", 0.9f},
+                ModulePortValue{"leftDelay", "gain", 0.6f},
+                ModulePortValue{"rightDelay", "gain", 0.6f},
+                // - lowpass of feedback loop (sounds good, but also AA ...)
+                ModulePortValue{"leftDelayLP", "freq", 8000.0f},
+                ModulePortValue{"rightDelayLP", "freq", 8000.0f},
+                // - lowpass of feeback loop (sounds good, but also AA ...)
+                ModulePortValue{"leftDelayHP", "freq", 400.0f},
+                ModulePortValue{"rightDelayHP", "freq", 400.0f},
                 // - effect "wet amount"
                 ModulePortValue{"delayGain", "gain", 0.5f},
             }

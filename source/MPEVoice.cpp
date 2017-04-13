@@ -1,4 +1,4 @@
-#include "MPEVoice.hpp"
+#include "parameters.hpp"
 #include "PhasePhckr.h"
 #include <math.h>
 #include <string.h>

@@ -24,7 +24,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(connectiongraph modules)
 set(SRC
     ${CMAKE_SOURCE_DIR}/include/PhasePhckr.h
-    MPEVoice.hpp
     MPEVoice.cpp
     Synth.cpp
     SynthVoice.cpp
@@ -35,6 +34,7 @@ set(SRC
     VoiceBus.cpp
     VoiceBus.hpp
     DesignConnectionGraph.hpp
+    parameters.hpp
 )
 
 add_library(phasephckr ${SRC})

@@ -2,7 +2,7 @@
 
 #include <thread>
 #include <atomic>
-#include "MPEVoice.hpp"
+#include "parameters.hpp"
 #include "module.hpp"
 #include "connectiongraph.hpp"
 #include "moduleregister.hpp"

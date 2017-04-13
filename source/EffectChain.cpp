@@ -2,7 +2,7 @@
 #include "BusModules.hpp"
 #include "moduleregister.hpp"
 #include "DesignConnectionGraph.hpp"
-#include "MPEVoice.hpp"
+#include "parameters.hpp"
 
 namespace PhasePhckr {
 

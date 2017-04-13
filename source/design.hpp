@@ -14,20 +14,29 @@ struct ModuleVariable {
     std::string type;
 };
 
-struct ModulePort {
+template <typename T>
+struct ModulePort_ {
     std::string module;
-    std::string port;
+    T port;
 };
+typedef ModulePort_<std::string> ModulePort;
+typedef ModulePort_<int> ModulePort_Numerical;
 
-struct ModulePortConnection {
-    ModulePort from;
-    ModulePort to;
+template <typename T>
+struct ModulePortConnection_ {
+    ModulePort_<T> from;
+    ModulePort_<T> to;
 };
+typedef ModulePortConnection_<std::string> ModulePortConnection;
+typedef ModulePortConnection_<int> ModulePortConnection_Numerical;
 
-struct ModulePortValue {
-    ModulePort target;
+template <typename T>
+struct ModulePortValue_ {
+    ModulePort_<T> target;
     float value;
 };
+typedef ModulePortValue_<std::string> ModulePortValue;
+typedef ModulePortValue_<int> ModulePortValue_Numerical;
 
 struct ConnectionGraphDescriptor {
     std::vector<ModuleVariable> modules;
@@ -35,10 +44,21 @@ struct ConnectionGraphDescriptor {
     std::vector<ModulePortValue> values;
 };
 
+struct ConnectionGraphDescriptor_Numerical {
+    std::vector<ModuleVariable> modules;
+    std::vector<ModulePortConnection_Numerical> connections;
+    std::vector<ModulePortValue_Numerical> values;
+};
+
 // populate a connectionGraph
 std::map<std::string, int> DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
     const ConnectionGraphDescriptor &description
+);
+
+std::map<std::string, int> DesignConnectionGraph(
+    ConnectionGraph &connectionGraph,
+    const ConnectionGraphDescriptor_Numerical &description
 );
 
 // the following two are for creating "components"

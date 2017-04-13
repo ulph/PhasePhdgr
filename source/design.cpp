@@ -3,9 +3,10 @@
 
 namespace PhasePhckr {
 
+template <typename T>
 std::map<std::string, int> DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const ConnectionGraphDescriptor &p
+    const T& p
 ) {
     // internal place to bounce strings to handles
     std::map<std::string, int> moduleHandles;
@@ -47,6 +48,14 @@ std::map<std::string, int> DesignConnectionGraph(
     }
 
     return moduleHandles;
+}
+
+std::map<std::string, int> DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor & p) {
+    return DesignConnectionGraph<ConnectionGraphDescriptor>(connectionGraph, p);
+}
+
+std::map<std::string, int> DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor_Numerical & p) {
+    return DesignConnectionGraph<ConnectionGraphDescriptor_Numerical>(connectionGraph, p);
 }
 
 }

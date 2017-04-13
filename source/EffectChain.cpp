@@ -82,19 +82,19 @@ namespace PhasePhckr {
 
     const ConnectionGraphDescriptor& getExFxChain() { return exFxChain; }
 
-    EffectChain::EffectChain() {
+    EffectChain::EffectChain(const ConnectionGraphDescriptor& fxChain) {
+        ConnectionGraphDescriptor graph = fxChain;
+
         connectionGraph.registerModule("EFFECTINPUTBUS", &EffectInputBus::factory);
         connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
         ModuleRegister::registerAllModules(connectionGraph);
 
-        ConnectionGraphDescriptor fxChain = exFxChain; // ex one, but it'll be passed by constructor
-
-        fxChain.modules.emplace_back(ModuleVariable{ "inBus", "EFFECTINPUTBUS" });
-        fxChain.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
+        graph.modules.emplace_back(ModuleVariable{ "inBus", "EFFECTINPUTBUS" });
+        graph.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
 
         std::map<std::string, int> handles = DesignConnectionGraph(
             connectionGraph,
-            fxChain
+            graph
         );
 
         inBus = handles["inBus"];

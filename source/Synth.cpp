@@ -5,7 +5,7 @@
 namespace PhasePhckr {
 
 Synth::Synth() 
-    : effects(new EffectChain())
+    : effects(new EffectChain(getExFxChain()))
     , globalData(new GlobalData())
     , voiceBus(new VoiceBus())
 {

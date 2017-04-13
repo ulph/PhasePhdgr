@@ -5,7 +5,7 @@
 using namespace PhasePhckr;
 
 int test(std::string what, json j1, json j2) {
-    bool isOk = j1 == j2;
+    bool isOk = (j1 == j2);
     std::cout << what << " " << (isOk ? "ok" : "nok") << std::endl;
     return isOk ? 0 : -1;
 }

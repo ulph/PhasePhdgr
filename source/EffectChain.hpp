@@ -15,7 +15,7 @@ private:
     int outBus;
 
 public:
-    EffectChain();
+    EffectChain(const ConnectionGraphDescriptor& fxChain);
     virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const GlobalData& globalData);
 
 };

@@ -1,4 +1,5 @@
 #include "design.hpp"
+#include "connectiongraph.hpp"
 
 namespace PhasePhckr {
 

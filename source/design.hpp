@@ -5,7 +5,7 @@
 #include <map>
 #include <iostream>
 
-#include "connectiongraph.hpp"
+class ConnectionGraph;
 
 namespace PhasePhckr {
 

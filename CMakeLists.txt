@@ -26,3 +26,5 @@ add_subdirectory(source)
 add_subdirectory(test)
 
 install(FILES include/PhasePhckr.h DESTINATION include)
+install(FILES source/design.hpp DESTINATION include)
+install(FILES source/design_json.hpp DESTINATION include)

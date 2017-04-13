@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     ModulePortConnection mpc = { {"from module", "from port"}, {"to module", "to port"} };
     if (test("ModulePortConnection", mpc, (ModulePortConnection)json(mpc))) return -1;
 
-    ConnectionGraphDescriptor fxchain = getExFxChain();
+    ConnectionGraphDescriptor fxchain = getExampleFxChain();
     if (test("ConnectionGraphDescriptor", fxchain, (ConnectionGraphDescriptor)(json(fxchain)))) return -1;
 
     return 0;

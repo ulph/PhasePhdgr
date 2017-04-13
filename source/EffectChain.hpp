@@ -6,8 +6,6 @@
 
 namespace PhasePhckr {
 
-const ConnectionGraphDescriptor& getExFxChain();
-
 class EffectChain {
 private:
     ConnectionGraph connectionGraph;

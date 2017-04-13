@@ -41,6 +41,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
             File::SpecialLocationType::userApplicationDataDirectory
         ).getFullPathName() + File::separator + phasePhkrDirName
     );
+    synth = new PhasePhckr::Synth(PhasePhckr::getExampleFxChain());
     effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
     voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
     componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);
@@ -52,6 +53,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 {
+    delete synth;
 }
 
 //==============================================================================
@@ -160,7 +162,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     while (midiIt.getNextEvent(msg, evtPos)){
         int ch = msg.getChannel();
         if(msg.isNoteOnOrOff()){
-            synth.handleNoteOnOff(
+            synth->handleNoteOnOff(
                 ch, 
                 msg.getNoteNumber(),
                 msg.getFloatVelocity(), 
@@ -168,20 +170,20 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
             );
         }
         else if(msg.isPitchWheel()){
-            synth.handleX(
+            synth->handleX(
                 ch,
                 2.f*( (float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
             );
         }
         else if(msg.isAftertouch()){
-            synth.handleNoteZ(
+            synth->handleNoteZ(
                 ch,
                 msg.getNoteNumber(),
                 (float)msg.getAfterTouchValue() / 127.f
             );
         }
         else if(msg.isChannelPressure()){
-            synth.handleZ(
+            synth->handleZ(
                 ch,
                 (float)msg.getChannelPressureValue() / 127.f
             );
@@ -192,16 +194,16 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
             // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
             switch (cc) {
                 case 74:
-                    synth.handleY(ch, val);
+                    synth->handleY(ch, val);
                     break;
                 case 1:
-                    synth.handleModWheel(val);
+                    synth->handleModWheel(val);
                     break;
                 case 2:
-                    synth.handleBreath(val);
+                    synth->handleBreath(val);
                     break;
                 case 11:
-                    synth.handleExpression(val);
+                    synth->handleExpression(val);
                     break;
                 default:
                     break;
@@ -210,7 +212,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     }
     midiMessages.clear();
 
-    synth.update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
+    synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
 }
 
 //==============================================================================
@@ -245,6 +247,6 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new PhasePhckrAudioProcessor();
 }
 
-const PhasePhckr::Synth& PhasePhckrAudioProcessor::getSynth() const {
+const PhasePhckr::Synth* PhasePhckrAudioProcessor::getSynth() const {
     return synth;
 }

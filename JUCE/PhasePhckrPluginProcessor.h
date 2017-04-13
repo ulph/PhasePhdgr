@@ -56,12 +56,12 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    const PhasePhckr::Synth& getSynth() const;
+    const PhasePhckr::Synth* getSynth() const;
 
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
-    PhasePhckr::Synth synth;
+    PhasePhckr::Synth* synth;
     File rootDir;
     File effectsDir;
     File voicesDir;

@@ -80,7 +80,7 @@ namespace PhasePhckr {
         }
     };
 
-    const ConnectionGraphDescriptor& getExFxChain() { return exFxChain; }
+    const ConnectionGraphDescriptor& getExampleFxChain() { return exFxChain; }
 
     EffectChain::EffectChain(const ConnectionGraphDescriptor& fxChain) {
         ConnectionGraphDescriptor graph = fxChain;

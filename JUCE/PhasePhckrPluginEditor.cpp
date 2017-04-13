@@ -28,7 +28,7 @@ PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colours::black);
-    size_t size = this->processor.getSynth().getScope().copyBuffer(&scopeBuffer[0], sizeof(scopeBuffer)/sizeof(float));
+    size_t size = this->processor.getSynth()->getScope().copyBuffer(&scopeBuffer[0], sizeof(scopeBuffer)/sizeof(float));
     float size_y = (float)this->getHeight();
     float size_x = (float)this->getWidth();
     float yScale = size_y / (2.0f*1.0f + 0.25f);

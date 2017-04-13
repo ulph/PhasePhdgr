@@ -4,8 +4,8 @@
 
 namespace PhasePhckr {
 
-Synth::Synth() 
-    : effects(new EffectChain(getExFxChain()))
+Synth::Synth(const ConnectionGraphDescriptor& fxChain)
+    : effects(new EffectChain(fxChain))
     , globalData(new GlobalData())
     , voiceBus(new VoiceBus())
 {

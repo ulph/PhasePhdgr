@@ -5,13 +5,14 @@
 #include <utility>
 
 #include "PhasePhckr.h"
+#include "EffectChain.hpp"
 
 static const float kSamplerate = 48000.f;
 static const int kNumSamples = 64;
 
 int main(int argc, char **argv)
 {
-  PhasePhckr::Synth synth;
+  PhasePhckr::Synth synth(PhasePhckr::getExampleFxChain());
   float time = 0;
   float bufferL[kNumSamples];
   float bufferR[kNumSamples];

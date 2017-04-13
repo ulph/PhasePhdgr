@@ -55,25 +55,22 @@ public:
 
 class VoiceBus {
 public:
-    VoiceBus() : voices(nullptr) {}
-    VoiceBus(std::vector<SynthVoice*> * parent_voices);
+    VoiceBus();
     virtual ~VoiceBus();
-    void handleNoteOnOff(int channel, int note, float velocity, bool on);
-    void handleX(int channel, float position);
-    void handleY(int channel, float position);
-    void handleZ(int channel, float position);
-    void handleNoteZ(int channel, int note, float position);
+    void handleNoteOnOff(int channel, int note, float velocity, bool on, std::vector<SynthVoice*> &voices);
+    void handleX(int channel, float position, std::vector<SynthVoice*> &voices);
+    void handleY(int channel, float position, std::vector<SynthVoice*> &voices);
+    void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
+    void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
     void handleExpression(float value);
     void handleBreath(float value);
     void handleModWheel(float value);
     void update(int numSamples);
-    float findScopeVoiceHz();
+    float findScopeVoiceHz(std::vector<SynthVoice*> &voices);
     const GlobalData& getGlobalData() { return globalData; }
 private:
-    std::vector<SynthVoice*> *voices;
     std::vector<NoteData*> notes;
     int getNoteDataIndex(int channel, int note);
-    int findYoungestInactiveNoteDataIndex(int channel);
     ChannelData channelData[16];
     GlobalData globalData;
     float scopeHz;

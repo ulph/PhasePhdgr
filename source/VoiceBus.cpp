@@ -5,7 +5,7 @@
 
 namespace PhasePhckr {
 
-void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
+void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
     if (on && velocity > 0) {
         // find matching note data (or create new)
@@ -19,12 +19,13 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
             n = notes[idx];
         }
 
-        // find a free voice state (or steal an active)
+        // find the oldest free voice state (or steal one)
+        SynthVoice *v;
         if (n->voiceIndex == -1) {
             int i = 0;
             unsigned int oldest = 0;
             int oldestIdx = -1;
-            for (const auto &v : *voices) {
+            for (const auto &v : voices) {
                 if (v->mpe.getState().gate == 0 && v->mpe.getAge() > oldest) {
                     oldest = v->mpe.getAge();
                     oldestIdx = i;
@@ -32,11 +33,12 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
                 i++;
             }
             if (oldestIdx == -1) {
-                return; // TODO -- steal a voice
+                return; // TODO -- steal a voice ... take the oldest
             }
+            voices[oldestIdx]->mpe.reset();
             n->voiceIndex = oldestIdx;
         }
-        SynthVoice *v = (*voices)[n->voiceIndex];
+        v = voices[n->voiceIndex];
         v->mpe.on(note, velocity);
         v->mpe.glide(channelData[channel].x);
         v->mpe.slide(channelData[channel].y);
@@ -46,16 +48,9 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
         if (idx != -1) {
             NoteData* n = notes[idx];
             if (n->voiceIndex != -1) {
-                SynthVoice *v = (*voices)[n->voiceIndex];
+                SynthVoice *v = voices[n->voiceIndex];
                 v->mpe.off(note, velocity);
-                // wake up the youngest but paused note (if any) on the same channel -- TODO across channels
-                int new_idx = findYoungestInactiveNoteDataIndex(channel);
-                if (new_idx != -1) {
-                    n = notes[new_idx];
-                    v->mpe.on(n->note, n->velocity);
-                    v->mpe.press(n->notePressure);
-                    n->voiceIndex = idx;
-                }
+                // TODO -- wake up a note ... take the youngest
             }
             delete notes[idx];
             notes.erase(notes.begin() + idx);
@@ -63,46 +58,46 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on) {
     }
 }
 
-void VoiceBus::handleX(int channel, float position) {
+void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].x = position;
     for (const auto &n : notes) {
         if (n->channel == channel) {
             if (n->voiceIndex != -1) {
-                (*voices)[n->voiceIndex]->mpe.glide(position);
+                voices[n->voiceIndex]->mpe.glide(position);
             }
         }
     }
 }
 
-void VoiceBus::handleY(int channel, float position) {
+void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].y = position;
     for (const auto &n : notes) {
         if (n->channel == channel) {
             if (n->voiceIndex != -1) {
-                (*voices)[n->voiceIndex]->mpe.slide(position);
+                voices[n->voiceIndex]->mpe.slide(position);
             }
         }
     }
 }
 
-void VoiceBus::handleZ(int channel, float position) {
+void VoiceBus::handleZ(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].z = position;
     for (const auto &n : notes) {
         if (n->channel == channel) {
             if (n->voiceIndex != -1) {
-                (*voices)[n->voiceIndex]->mpe.press(position);
+                voices[n->voiceIndex]->mpe.press(position);
             }
         }
     }
 }
 
-void VoiceBus::handleNoteZ(int channel, int note, float position) {
+void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices) {
     // yes, this will be design fight with handleZ if the user uses both
     int idx = getNoteDataIndex(channel, note);
     if (idx != -1) {
         notes[idx]->notePressure = position;
         if (notes[idx]->voiceIndex != -1) {
-            (*voices)[notes[idx]->voiceIndex]->mpe.press(position);
+            voices[notes[idx]->voiceIndex]->mpe.press(position);
         }
     }
 }
@@ -130,21 +125,9 @@ int VoiceBus::getNoteDataIndex(int channel, int note) {
     return -1;
 }
 
-int VoiceBus::findYoungestInactiveNoteDataIndex(int channel) {
-    int idx = 0;
-    int min = -1;
-    for (const auto &n : notes) {
-        if (n->channel == channel && n->voiceIndex == -1 && (int)n->age < min) {
-            min = idx;
-        }
-        idx++;
-    }
-    return min;
-}
-
-float VoiceBus::findScopeVoiceHz() {
+float VoiceBus::findScopeVoiceHz(std::vector<SynthVoice*> &voices) {
     unsigned int max = 0;
-    for (const auto &v : *voices) {
+    for (const auto &v : voices) {
         if(v->mpe.getState().gate && v->mpe.getAge() > max){
             scopeHz = v->mpe.getState().pitchHz;
         }
@@ -162,9 +145,7 @@ void VoiceBus::update(int numSamples) {
     }
 }
 
-VoiceBus::VoiceBus(std::vector<SynthVoice*> * parent_voices)
-    : scopeHz(0)
-    , voices(parent_voices)
+VoiceBus::VoiceBus() : scopeHz(0)
 {
 }
 

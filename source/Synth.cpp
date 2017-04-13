@@ -11,7 +11,7 @@ Synth::Synth()
         SynthVoice* v = new SynthVoice();
         voices.push_back(v);
     }
-    voiceBus = new VoiceBus(&voices);
+    voiceBus = new VoiceBus();
 }
 
 Synth::~Synth(){
@@ -43,15 +43,15 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
 
     voiceBus->update(numSamples);
 
-    scope.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, voiceBus->findScopeVoiceHz());
+    scope.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, voiceBus->findScopeVoiceHz(voices));
 
 }
 
-void Synth::handleNoteOnOff(int a, int b, float c, bool d) { voiceBus->handleNoteOnOff(a, b, c, d); }
-void Synth::handleX(int a, float b) { voiceBus->handleX(a, b); }
-void Synth::handleY(int a, float b) { voiceBus->handleY(a, b); }
-void Synth::handleZ(int a, float b) { voiceBus->handleZ(a, b); }
-void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c); }
+void Synth::handleNoteOnOff(int a, int b, float c, bool d) { voiceBus->handleNoteOnOff(a, b, c, d, voices); }
+void Synth::handleX(int a, float b) { voiceBus->handleX(a, b, voices); }
+void Synth::handleY(int a, float b) { voiceBus->handleY(a, b, voices); }
+void Synth::handleZ(int a, float b) { voiceBus->handleZ(a, b, voices); }
+void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c, voices); }
 void Synth::handleExpression(float a) { voiceBus->handleExpression(a); }
 void Synth::handleBreath(float a) { voiceBus->handleBreath(a); }
 void Synth::handleModWheel(float a) { voiceBus->handleModWheel(a); }

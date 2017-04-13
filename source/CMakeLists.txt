@@ -18,6 +18,7 @@ set(SRC
     SynthVoice.hpp
     EffectChain.cpp
     EffectChain.hpp
+    examples.cpp
     BusModules.hpp
     VoiceBus.cpp
     VoiceBus.hpp

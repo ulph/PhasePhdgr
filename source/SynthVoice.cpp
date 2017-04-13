@@ -1,5 +1,6 @@
 #include "SynthVoice.hpp"
 #include "PhasePhckr.h"
+#include "design.hpp"
 
 namespace PhasePhckr
 {
@@ -14,97 +15,20 @@ SynthVoice::SynthVoice()
     connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
-    // example patch to toy with the requirements on routing
+    
+    ConnectionGraphDescriptor graph = getExampleVoiceChain();
 
-    // input/output bus + "vca" + one envelope
-    inBus = connectionGraph.addModule("VOICEINPUT");
-    outBus = connectionGraph.addModule("STEREOBUS");
-    int mixGain = connectionGraph.addModule("MUL");
-    int env = connectionGraph.addModule("ENV");
+    graph.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
+    graph.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
 
-    // hook up controller messages to envelope ... quite elaborate ;)
+    std::map<std::string, int> handles = DesignConnectionGraph(
+        connectionGraph,
+        graph
+    );
 
-    connectionGraph.connect(inBus, 0, env, 0);
-    connectionGraph.connect(inBus, 1, env, 1);
-    connectionGraph.connect(inBus, 2, env, 5);
-    connectionGraph.connect(inBus, 6, env, 4);
+    inBus = handles["inBus"];
+    outBus = handles["outBus"];
 
-    // if pressing down on expression, velocity adds more and more to decay length
-    // and aftertouch does less and less for sustain ...
-    // effectively morphing into a velocity based pluck instrument
-    int strikeMulExpr = connectionGraph.addModule("MUL");
-    int exprInv = connectionGraph.addModule("CINV");
-    connectionGraph.connect(inBus, 8, strikeMulExpr, 0);
-    connectionGraph.connect(inBus, 1, strikeMulExpr, 1);
-    int envDecayTweak = connectionGraph.addModule("SCLSHFT");
-    connectionGraph.getModule(envDecayTweak)->setInput(1, 2.0f);
-    connectionGraph.getModule(envDecayTweak)->setInput(2, 0.1f);
-    connectionGraph.connect(strikeMulExpr, 0, envDecayTweak, 0);
-    connectionGraph.connect(envDecayTweak, 0, env, 3);
-
-    // oscillators ...
-    int phase = connectionGraph.addModule("PHASE");
-    connectionGraph.connect(inBus, 3, phase, 0);
-
-    // osc1 for f0 oomph
-    int osc1= connectionGraph.addModule("SINE");
-    connectionGraph.connect(phase, "phase", osc1, "phase");
-    connectionGraph.connect(osc1, 0, mixGain, 0);
-
-    // osc 2 and osc 3, crossfade on Y and atan prescale on Z (... env) - Z direction depends on modwheel position!
-    int ySelection = connectionGraph.addModule("XFADE");
-    int inv = connectionGraph.addModule("CINV"); // inverses inside the bounds
-    int osc2arg = connectionGraph.addModule("SATAN");
-    connectionGraph.connect(phase, 0, osc2arg, 0);
-    int osc2argBoost = connectionGraph.addModule("MUL");
-    connectionGraph.connect(env, 0, inv, 0);
-    connectionGraph.connect(env, 0, ySelection, 0);
-    connectionGraph.connect(inv, 0, ySelection, 1);
-    connectionGraph.connect(inBus, 7, ySelection, 2);
-    connectionGraph.connect(ySelection, 0, osc2argBoost, 0);
-    connectionGraph.getModule(osc2argBoost)->setInput(1, 20.0f);
-    connectionGraph.connect(osc2argBoost, 0, osc2arg, 1);
-    int osc2 = connectionGraph.addModule("SINE");
-    connectionGraph.connect(osc2arg, 0, osc2, 0);
-
-    int osc3arg = connectionGraph.addModule("MUL");
-    connectionGraph.connect(osc2arg, 0, osc3arg, 0);
-    connectionGraph.getModule(osc3arg)->setInput(1, 2.0f);
-    int osc3 = connectionGraph.addModule("SINE");
-    connectionGraph.connect(osc3arg, 0, osc3, 0);
-
-    int osc23 = connectionGraph.addModule("XFADE");
-    connectionGraph.connect(osc2, 0, osc23, 1);
-    connectionGraph.connect(osc3, 0, osc23, 0);
-    connectionGraph.connect(inBus, 5, osc23, 2);
-
-    connectionGraph.connect(osc23, 0, mixGain, 0);
-
-    // wavefolded triangle, prescale on Z (... env)
-    int abs = connectionGraph.addModule("ABS");
-    connectionGraph.connect(phase, 0, abs, 0);
-    int scl = connectionGraph.addModule("SCLSHFT");
-    connectionGraph.connect(abs, 0, scl, 0);
-    int fold = connectionGraph.addModule("FOLD");
-    int foldPreScale = connectionGraph.addModule("MUL");
-    connectionGraph.getModule(foldPreScale)->setInput(1, 4.0f);
-    connectionGraph.connect(foldPreScale, 0, fold, 2);
-    connectionGraph.connect(env, 0, foldPreScale, 0);
-    connectionGraph.connect(scl, 0, fold, 0);
-    int lp = connectionGraph.addModule("RCLP"); // simplistic lowpass
-    connectionGraph.connect(fold, 0, lp, 0);
-    int foldPostScale = connectionGraph.addModule("MUL");
-    connectionGraph.getModule(foldPostScale)->setInput(1, 0.25f);
-    connectionGraph.connect(lp, 0, foldPostScale, 0);
-
-    connectionGraph.connect(foldPostScale, 0, mixGain, 0);
-
-    // TODO try out SPOW also
-
-    // mix amplitude on Z (... env)
-    connectionGraph.connect(env, 0, mixGain, 1);
-    connectionGraph.connect(mixGain, 0, outBus, 0);
-    connectionGraph.connect(mixGain, 0, outBus, 1);
 #if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);
 #endif

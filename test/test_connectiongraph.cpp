@@ -31,9 +31,19 @@ int main()
     int speaker = s.addModule("CLAMP");
     s.connect(q8, "quant", speaker, "in");
 
-    // int noise = s.addModule(("NOISE"));
-    // s.connect(noise, speaker);
-    
+    int noise = s.addModule(("NOISE"));
+    int lpf = s.addModule("LPF");
+    int biquad = s.addModule("BIQUAD");
+
+    s.connect(noise, "out", biquad, "input");
+    s.connect(lpf, "a1", biquad, "a1");
+    s.connect(lpf, "a2", biquad, "a2");
+    s.connect(lpf, "b0", biquad, "b0");
+    s.connect(lpf, "b1", biquad, "b1");
+    s.connect(lpf, "b2", biquad, "b2");
+    speaker = biquad;
+    s.setInput(lpf, "f0", 4000.f);
+
     for(uint32_t t = 0; t < 5*fs; t++) {
         s.process(speaker, fs);
         float output = s.getOutput(speaker, 0);

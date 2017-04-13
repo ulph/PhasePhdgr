@@ -47,6 +47,7 @@ public:
         cg.registerModule("SCLSHFT", &(ScaleShift::factory));
         cg.registerModule("DELAY", &(Delay::factory));
         cg.registerModule("BIQUAD", &(Biquad::factory));
+        cg.registerModule("LPF", &(LowPass::factory));
     }
 };
 

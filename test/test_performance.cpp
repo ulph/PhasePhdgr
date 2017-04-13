@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdint>
 #include "SynthVoice.hpp"
+#include "PhasePhckr.h"
 
 using namespace PhasePhckr;
 
@@ -9,7 +10,7 @@ int main()
     float bufferL[SYNTH_VOICE_BUFFER_LENGTH];
     float bufferR[SYNTH_VOICE_BUFFER_LENGTH];
 
-    SynthVoice v;
+    SynthVoice v(PhasePhckr::getExampleVoiceChain());
     GlobalData g;
     
     v.mpe.on(48, 0.5f);

@@ -16,9 +16,10 @@ namespace PhasePhckr {
     class VoiceBus;
     class GlobalData;
     struct ConnectionGraphDescriptor;
+    struct ConnectionGraphDescriptor_Numerical;
 
     const ConnectionGraphDescriptor& getExampleFxChain();
-    const ConnectionGraphDescriptor& getExampleVoiceChain();
+    const ConnectionGraphDescriptor_Numerical& getExampleVoiceChain();
 
     class Scope {
     private:
@@ -34,7 +35,7 @@ namespace PhasePhckr {
 
     class Synth {
     public:
-        Synth(const ConnectionGraphDescriptor& fxChain);
+        Synth();
         virtual ~Synth();
         virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
@@ -45,6 +46,8 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
+        void setFxChain(const ConnectionGraphDescriptor& fxChain);
+        void setVoiceChain(const ConnectionGraphDescriptor_Numerical& fxChain);
         const Scope& getScope() const { return scope; }
     private:
         VoiceBus *voiceBus;

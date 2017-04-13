@@ -12,7 +12,9 @@ static const int kNumSamples = 64;
 
 int main(int argc, char **argv)
 {
-  PhasePhckr::Synth synth(PhasePhckr::getExampleFxChain());
+  PhasePhckr::Synth synth;
+  synth.setFxChain(PhasePhckr::getExampleFxChain());
+  synth.setVoiceChain(PhasePhckr::getExampleVoiceChain());
   float time = 0;
   float bufferL[kNumSamples];
   float bufferR[kNumSamples];

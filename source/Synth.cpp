@@ -4,15 +4,13 @@
 
 namespace PhasePhckr {
 
-Synth::Synth(const ConnectionGraphDescriptor& fxChain)
-    : effects(new EffectChain(fxChain))
+const size_t numVoices = 16; // VoiceBus is a bit broken so it needs to not be dynamic
+
+Synth::Synth()
+    : effects(nullptr)
     , globalData(new GlobalData())
     , voiceBus(new VoiceBus())
 {
-    for (int i = 0; i<16; ++i) {
-        SynthVoice* v = new SynthVoice();
-        voices.push_back(v);
-    }
 }
 
 Synth::~Synth(){
@@ -22,6 +20,22 @@ Synth::~Synth(){
     delete effects;
     delete voiceBus;
     delete globalData;
+}
+
+void Synth::setFxChain(const ConnectionGraphDescriptor& fxChain) {
+    delete effects;
+    effects = new EffectChain(fxChain);
+}
+
+void Synth::setVoiceChain(const ConnectionGraphDescriptor_Numerical& voiceChain) {
+    for (SynthVoice *v : voices) {
+        delete v;
+    }
+    voices.clear();
+    for (int i = 0; i<numVoices; ++i) {
+        SynthVoice* v = new SynthVoice(voiceChain);
+        voices.push_back(v);
+    }
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
@@ -41,7 +55,9 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         bufR += chunkSize;
     }
 
-    effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
+    if (effects) {
+        effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
+    }
 
     for (int i = 0; i < numSamples; i++) {
         globalData->update();

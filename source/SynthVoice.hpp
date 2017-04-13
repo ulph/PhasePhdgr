@@ -31,7 +31,7 @@ private:
 
 public:
     MPEVoice mpe;
-    SynthVoice();
+    SynthVoice(const ConnectionGraphDescriptor_Numerical& voiceChain);
     ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);

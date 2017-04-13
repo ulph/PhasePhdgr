@@ -41,7 +41,9 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
             File::SpecialLocationType::userApplicationDataDirectory
         ).getFullPathName() + File::separator + phasePhkrDirName
     );
-    synth = new PhasePhckr::Synth(PhasePhckr::getExampleFxChain());
+    synth = new PhasePhckr::Synth();
+    synth->setFxChain(PhasePhckr::getExampleFxChain());
+    synth->setVoiceChain(PhasePhckr::getExampleVoiceChain());
     effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
     voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
     componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);

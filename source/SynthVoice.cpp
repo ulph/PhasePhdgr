@@ -5,7 +5,7 @@
 namespace PhasePhckr
 {
 
-SynthVoice::SynthVoice()
+SynthVoice::SynthVoice(const ConnectionGraphDescriptor_Numerical& voiceChain)
     : connectionGraph()
     , rms(0.0f)
     , rmsSlew(0.99f)
@@ -16,7 +16,7 @@ SynthVoice::SynthVoice()
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
     
-    ConnectionGraphDescriptor graph = getExampleVoiceChain();
+    ConnectionGraphDescriptor_Numerical graph = voiceChain;
 
     graph.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
     graph.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });

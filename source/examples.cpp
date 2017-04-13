@@ -78,7 +78,7 @@ namespace PhasePhckr {
 
     const ConnectionGraphDescriptor& getExampleFxChain() { return exFxChain; }
 
-    const ConnectionGraphDescriptor exVoiceChain = {
+    const ConnectionGraphDescriptor_Numerical exVoiceChain = {
         std::vector<ModuleVariable>{
             {"mixGain", "MUL"},
             {"env", "ENV"},
@@ -102,12 +102,54 @@ namespace PhasePhckr {
             {"lp", "RCLP"},
             {"foldPostScale", "MUL"}
         },
-        std::vector<ModulePortConnection>{
+        std::vector<ModulePortConnection_Numerical>{
+            { { "inBus", 0}, {"env", 0 }},
+            {{ "inBus", 1},{ "env", 1 }},
+            {{ "inBus", 2},{ "env", 5 }},
+            {{ "inBus", 6},{ "env", 4 }},
+            {{ "inBus", 8},{ "strikeMulExpr", 0 }},
+            {{ "inBus", 1},{ "strikeMulExpr", 1 }},
+            {{ "strikeMulExpr", 0},{ "envDecayTweak", 0 }},
+            {{ "envDecayTweak", 0},{ "env", 3 }},
+            {{ "inBus", 3},{ "phase", 0 }},
+            {{ "phase", 0},{ "osc1", 0 }},
+            {{ "osc1", 0},{ "mixGain", 0 }},
+            {{ "phase", 0},{ "osc2arg", 0 }},
+            {{ "env", 0},{ "inv", 0 }},
+            {{ "env", 0},{ "ySelection", 0 }},
+            {{ "inv", 0},{ "ySelection", 1 }},
+            {{ "inBus", 7},{ "ySelection", 2 }},
+            {{ "ySelection", 0},{ "osc2argBoost", 0 }},
+            {{ "osc2argBoost", 0},{ "osc2arg", 1 }},
+            {{ "osc2arg", 0},{ "osc2", 0 }},
+            {{ "osc2arg", 0},{ "osc3arg", 0 }},
+            {{ "osc3arg", 0},{ "osc3", 0 }},
+            {{ "osc2", 0},{ "osc23", 1 }},
+            {{ "osc3", 0},{ "osc23", 0 }},
+            {{ "inBus", 5},{ "osc23", 2 }},
+            {{ "osc23", 0},{ "mixGain", 0 }},
+            {{ "phase", 0},{ "abs", 0 }},
+            {{ "abs", 0},{ "scl", 0 }},
+            {{ "foldPreScale", 0},{ "fold", 2 }},
+            {{ "env", 0},{ "foldPreScale", 0 }},
+            {{ "scl", 0},{ "fold", 0 }},
+            {{ "fold", 0},{ "lp", 0 }},
+            {{ "lp", 0},{ "foldPostScale", 0 }},
+            {{ "foldPostScale", 0},{ "mixGain", 0 } },
+            {{ "env", 0},{ "mixGain", 1 }},
+            {{ "mixGain", 0},{ "outBus", 0 }},
+            {{ "mixGain", 0},{ "outBus", 1 }}
         },
-        std::vector<ModulePortValue>{
+        std::vector<ModulePortValue_Numerical>{
+            { {"foldPostScale", 1}, 0.25f},
+            { {"foldPreScale", 1}, 4.0f},
+            { {"osc3arg", 1}, 2.0f},
+            { {"osc2argBoost", 1}, 20.0f},
+            { {"envDecayTweak", 1}, 2.0f},
+            { {"envDecayTweak", 2}, 0.1f}
         }
     };
 
-    const ConnectionGraphDescriptor& getExampleVoiceChain() { return exVoiceChain; }
+    const ConnectionGraphDescriptor_Numerical& getExampleVoiceChain() { return exVoiceChain; }
 
 }

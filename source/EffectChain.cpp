@@ -20,21 +20,35 @@ EffectChain::EffectChain(){
                 ModuleVariable{"outPreGain", "GAIN"},
                 ModuleVariable{"outSaturation", "SSATAN"},
                 ModuleVariable{"outPostGain", "GAIN"},
+                ModuleVariable{"delayGain", "GAIN"},
                 ModuleVariable{"leftDelay", "DELAY" },
                 ModuleVariable{"rightDelay", "DELAY" },
+                ModuleVariable{"lfoPhase", "PHASE" },
+                ModuleVariable{"lfo", "SINE" },
+                ModuleVariable{"delayLeftTime", "SCLSHFT"},
+                ModuleVariable{"delayRightTime", "SCLSHFT"}, 
             },
             std::vector<ModulePortConnection>{
                 ModulePortConnection{{"inBus", "left"}, {"outPreGain", "left"}},
                 ModulePortConnection{{"inBus", "right"}, {"outPreGain", "right"}},
 
-                ModulePortConnection{{"inBus", "left"}, {"leftDelay", "in"}},
-                ModulePortConnection{{"inBus", "right"}, {"rightDelay", "in"}},
+                // a cross feedback stereo delay
+                ModulePortConnection{{"outPreGain", "left"}, {"leftDelay", "in"}},
+                ModulePortConnection{{"outPreGain", "right"}, {"rightDelay", "in"}},
                 ModulePortConnection{{"leftDelay", "out"}, {"rightDelay", "in"}},
                 ModulePortConnection{{"rightDelay", "out"}, {"leftDelay", "in"}},
+                ModulePortConnection{{"leftDelay", "out"}, {"delayGain", "left"}},
+                ModulePortConnection{{"rightDelay", "out"}, {"delayGain", "right"}},
+                ModulePortConnection{{"delayGain", "left"}, {"outPreGain", "left"}},
+                ModulePortConnection{{"delayGain", "right"}, {"outPreGain", "right"}},
+                // - time modulation
+                ModulePortConnection{{"lfoPhase", "phase"}, {"lfo", "phase"}},
+                ModulePortConnection{{"lfo", "sine"}, {"delayLeftTime", "input"}},
+                ModulePortConnection{{"lfo", "sine"}, {"delayRightTime", "input"}},
+                ModulePortConnection{{"delayLeftTime", "output"}, {"leftDelay", "time"}},
+                ModulePortConnection{{"delayRightTime", "output"}, {"rightDelay", "time"}},
 
-                ModulePortConnection{{"leftDelay", "out"}, {"outPreGain", "left"}},
-                ModulePortConnection{{"rightDelay", "out"}, {"outPreGain", "right"}},
-
+                // saturating gain stage
                 ModulePortConnection{{"outPreGain", "left"}, {"outSaturation", "left"}},
                 ModulePortConnection{{"outPreGain", "right"}, {"outSaturation", "right"}},
                 ModulePortConnection{{"outSaturation", "left"}, {"outPostGain", "left"}},
@@ -45,10 +59,18 @@ EffectChain::EffectChain(){
             std::vector<ModulePortValue>{
                 ModulePortValue{"outPreGain", "gain", 0.5f},
                 ModulePortValue{"outPostGain", "gain", 0.5f},
-                ModulePortValue{"leftDelay", "time", 0.22f},
-                ModulePortValue{"rightDelay", "time", 0.45f},
-                ModulePortValue{"leftDelay", "gain", 0.5f},
-                ModulePortValue{"rightDelay", "gain", 0.5f},
+
+                // delay time moduluation
+                ModulePortValue{"lfoPhase", "freq", 2.0f},
+                ModulePortValue{"delayLeftTime", "shift", 0.22f},
+                ModulePortValue{"delayRightTime", "shift", 0.45f},
+                ModulePortValue{"delayLeftTime", "scale", 0.001f},
+                ModulePortValue{"delayRightTime", "scale", 0.001f},
+                // - feedback amount
+                ModulePortValue{"leftDelay", "gain", 0.75f},
+                ModulePortValue{"rightDelay", "gain", 0.75f},
+                // - effect "wet amount"
+                ModulePortValue{"delayGain", "gain", 0.5f},
             }
         }
     );

@@ -4,37 +4,28 @@
 
 using namespace PhasePhckr;
 
+int test(std::string what, json j1, json j2) {
+    bool isOk = j1 == j2;
+    std::cout << what << " " << (isOk ? "ok" : "nok") << std::endl;
+    return isOk ? 0 : -1;
+}
+
 int main(int argc, char *argv[])
 {
     ModuleVariable mv = { "a name", "some type" };
-    json mvj = mv;
-    std::cout << mvj << std::endl;
-    ModuleVariable mv2 = mvj;
-    std::cout << json(mv2) << std::endl << std::endl;
+    if (test("ModuleVariable", mv, (ModuleVariable)json(mv))) return -1;
 
     ModulePort mp = { "a module", "a port" };
-    json mpj = mp;
-    std::cout << mpj << std::endl;
-    ModulePort mp2 = mpj;
-    std::cout << json(mp2) << std::endl << std::endl;
+    if (test("ModulePort", mp, (ModulePort)json(mp))) return -1;
 
     ModulePortValue mpv = { { "some module", "some port" }, 42.0f };
-    json mpvj = mpv;
-    std::cout << mpvj << std::endl;
-    ModulePortValue mpv2 = mpvj;
-    std::cout << json(mpv2) << std::endl << std::endl;
+    if (test("ModulePortValue", mpv, (ModulePortValue)json(mpv))) return -1;
 
     ModulePortConnection mpc = { {"from module", "from port"}, {"to module", "to port"} };
-    json mpcj = mpc;
-    std::cout << mpcj << std::endl;
-    ModulePortConnection mpc2 = mpcj;
-    std::cout << json(mpc2) << std::endl << std::endl;
+    if (test("ModulePortConnection", mpc, (ModulePortConnection)json(mpc))) return -1;
 
     ConnectionGraphDescriptor fxchain = getExFxChain();
-    json fxchainj = fxchain;
-    std::cout << fxchainj << std::endl;
-    ConnectionGraphDescriptor fxchain2 = fxchainj;
-    std::cout << json(fxchain2) << std::endl << std::endl;
+    if (test("ConnectionGraphDescriptor", fxchain, (ConnectionGraphDescriptor)(json(fxchain)))) return -1;
 
     return 0;
 }

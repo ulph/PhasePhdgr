@@ -14,6 +14,7 @@ namespace PhasePhckr {
     class SynthVoice;
     class EffectChain;
     class VoiceBus;
+    class GlobalData;
 
     class Scope {
     private:
@@ -46,6 +47,7 @@ namespace PhasePhckr {
         std::vector<SynthVoice*> voices;
         EffectChain* effects;
         Scope scope;
+        GlobalData *globalData;
     };
 
 }

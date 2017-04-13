@@ -47,8 +47,8 @@ EffectChain::EffectChain(){
                 ModulePortValue{"outPostGain", "gain", 0.5f},
                 ModulePortValue{"leftDelay", "time", 0.22f},
                 ModulePortValue{"rightDelay", "time", 0.45f},
-                ModulePortValue{"leftDelay", "gain", 0.75f},
-                ModulePortValue{"rightDelay", "gain", 0.75f},
+                ModulePortValue{"leftDelay", "gain", 0.5f},
+                ModulePortValue{"rightDelay", "gain", 0.5f},
             }
         }
     );

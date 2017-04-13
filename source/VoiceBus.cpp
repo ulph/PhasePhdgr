@@ -102,18 +102,6 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
     }
 }
 
-void VoiceBus::handleExpression(float value) {
-    globalData.expression(value);
-}
-
-void VoiceBus::handleBreath(float value) {
-    globalData.breath(value);
-}
-
-void VoiceBus::handleModWheel(float value) {
-    globalData.modwheel(value);
-}
-
 int VoiceBus::getNoteDataIndex(int channel, int note) {
     int idx = 0;
     for (const auto &n : notes) {
@@ -135,13 +123,10 @@ float VoiceBus::findScopeVoiceHz(std::vector<SynthVoice*> &voices) {
     return scopeHz;
 }
 
-void VoiceBus::update(int numSamples) {
-    // increment age on voices, only relative age matter so per chunk is ok
+void VoiceBus::update() {
+    // only relative age matter so per chunk is ok
     for (const auto &n : notes) {
         n->age++;
-    }
-    for (int i = 0; i < numSamples; i++) {
-        globalData.update();
     }
 }
 

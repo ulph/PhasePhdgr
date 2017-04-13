@@ -62,17 +62,12 @@ public:
     void handleY(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
-    void handleExpression(float value);
-    void handleBreath(float value);
-    void handleModWheel(float value);
-    void update(int numSamples);
+    void update();
     float findScopeVoiceHz(std::vector<SynthVoice*> &voices);
-    const GlobalData& getGlobalData() { return globalData; }
 private:
     std::vector<NoteData*> notes;
     int getNoteDataIndex(int channel, int note);
     ChannelData channelData[16];
-    GlobalData globalData;
     float scopeHz;
 };
 

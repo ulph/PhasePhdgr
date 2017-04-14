@@ -54,7 +54,7 @@ namespace PhasePhckr {
         },
         std::vector<ModulePortValue>{
             ModulePortValue{ "outPreGain", "gain", 0.5f },
-            ModulePortValue{ "outPostGain", "gain", 0.5f },
+            ModulePortValue{ "outPostGain", "gain", 0.75f },
 
             // delay time moduluation
             ModulePortValue{ "lfoPhase", "freq", 2.0f },

@@ -27,7 +27,7 @@ bool FoldBack::iterate(float *v, float scale) {
 void FoldBack::process(uint32_t fs) {
     float v = inputs[2].value*inputs[0].value;
     float s = fmaxf(0.0f, fminf(1.0f, fabsf(inputs[1].value)));
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 100; ++i) { // wee oo wee
         if(iterate(&v, s)) break;
     }
     outputs[0].value = v;

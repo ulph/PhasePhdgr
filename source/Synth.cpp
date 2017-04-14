@@ -10,6 +10,8 @@ Synth::Synth()
     : effects(nullptr)
     , globalData(new GlobalData())
     , voiceBus(new VoiceBus())
+    , scopeHz(0)
+    , scopeVoiceIndex(-1)
 {
 }
 
@@ -55,11 +57,24 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         samplesLeft -= chunkSize;
         bufL += chunkSize;
         bufR += chunkSize;
+
+        // fill the voice scope buffer with output of selected voice
+        int nextScopeVoiceIndex = voiceBus->findScopeVoiceIndex(voices);
+        if (nextScopeVoiceIndex != -1) {
+            scopeVoiceIndex = nextScopeVoiceIndex;
+            scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHz;
+        }
+        if (scopeVoiceIndex != -1) {
+            const float *scopeSourceBuf = voices[scopeVoiceIndex]->getInternalBuffer(0);
+            voiceScope.writeToBuffer(scopeSourceBuf, chunkSize, sampleRate, scopeHz);
+        }
     }
 
     if (effects) {
         effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
     }
+
+    outputScope.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
 
     for (int i = 0; i < numSamples; i++) {
         globalData->update();
@@ -67,7 +82,6 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
 
     voiceBus->update();
 
-    scope.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, voiceBus->findScopeVoiceHz(voices));
 }
 
 void Synth::handleNoteOnOff(int a, int b, float c, bool d) { voiceBus->handleNoteOnOff(a, b, c, d, voices); }

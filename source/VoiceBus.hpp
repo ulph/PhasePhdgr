@@ -17,12 +17,11 @@ public:
     void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
     void update();
-    float findScopeVoiceHz(std::vector<SynthVoice*> &voices);
+    int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
 private:
     std::vector<NoteData*> notes;
     int getNoteDataIndex(int channel, int note);
     ChannelData *channelData;
-    float scopeHz;
 };
 
 }

@@ -10,7 +10,7 @@ Scope::Scope()
     memset(scopeBuffer, 0, sizeof(scopeBuffer));
 }
 
-void Scope::writeToBuffer(float * sourceBuffer, int numSamples, float sampleRate, float hz) {
+void Scope::writeToBuffer(const float * sourceBuffer, int numSamples, float sampleRate, float hz) {
     // fill scope buffer with a (poorly) resampled version matching a couple of cycles
     if (hz > 1) {
         unsigned int numPeriods = 2;

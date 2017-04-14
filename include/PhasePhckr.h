@@ -30,7 +30,7 @@ namespace PhasePhckr {
     public:
         Scope();
         size_t copyBuffer(float *buffer, size_t bufferSizeIn) const;
-        void writeToBuffer(float * leftChannelbuffer, int numSamples, float sampleRate, float hz);
+        void writeToBuffer(const float * leftChannelbuffer, int numSamples, float sampleRate, float hz);
     };
 
     class Synth {
@@ -48,13 +48,17 @@ namespace PhasePhckr {
         void handleModWheel(float value);
         void setFxChain(const ConnectionGraphDescriptor& fxChain);
         void setVoiceChain(const ConnectionGraphDescriptor_Numerical& fxChain);
-        const Scope& getScope() const { return scope; }
+        const Scope& getVoiceScope() const { return voiceScope; }
+        const Scope& getOutputScope() const { return outputScope; }
     private:
         VoiceBus *voiceBus;
         std::vector<SynthVoice*> voices;
         EffectChain* effects;
-        Scope scope;
+        Scope voiceScope;
+        Scope outputScope;
         GlobalData *globalData;
+        float scopeHz;
+        int scopeVoiceIndex;
     };
 
 }

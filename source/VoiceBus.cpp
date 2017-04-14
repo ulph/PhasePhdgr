@@ -137,14 +137,17 @@ int VoiceBus::getNoteDataIndex(int channel, int note) {
     return -1;
 }
 
-float VoiceBus::findScopeVoiceHz(std::vector<SynthVoice*> &voices) {
+int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
     unsigned int max = 0;
+    int idx = -1;
+    int i = 0;
     for (const auto &v : voices) {
         if(v->mpe.getState().gate && v->mpe.getAge() > max){
-            scopeHz = v->mpe.getState().pitchHz;
+            idx = i;
         }
+        i++;
     }
-    return scopeHz;
+    return idx;
 }
 
 void VoiceBus::update() {
@@ -155,8 +158,7 @@ void VoiceBus::update() {
 }
 
 VoiceBus::VoiceBus() 
-    : scopeHz(0)
-    , channelData(new ChannelData[16])
+    : channelData(new ChannelData[16])
 {
 }
 

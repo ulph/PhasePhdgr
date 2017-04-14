@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PhasePhckrPluginProcessor.h"
+#include "PhasePhkrScope.h"
 
 
 //==============================================================================
@@ -32,7 +33,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     PhasePhckrAudioProcessor& processor;
-    float scopeBuffer[512];
+    PhasePhkrScope voiceScope;
+    PhasePhkrScope outputScope;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };
 

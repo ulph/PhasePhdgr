@@ -19,6 +19,10 @@
           resource="0" file="JUCE/PhasePhckrPluginProcessor.cpp"/>
     <FILE id="Ydu0o1" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
           file="JUCE/PhasePhckrPluginProcessor.h"/>
+    <FILE id="gC8R7H" name="PhasePhkrScope.cpp" compile="1" resource="0"
+          file="JUCE/PhasePhkrScope.cpp"/>
+    <FILE id="iymXGR" name="PhasePhkrScope.h" compile="0" resource="0"
+          file="JUCE/PhasePhkrScope.h"/>
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="phasephckr&#10;connectiongraph&#10;modules">

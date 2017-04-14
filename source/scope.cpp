@@ -43,13 +43,10 @@ void Scope::writeToBuffer(const float * sourceBuffer, int numSamples, float samp
     }
 }
 
-size_t Scope::copyBuffer(float *buffer, size_t bufferSizeIn) const
+const float* Scope::getBuffer(int* size) const
 {
-    size_t size = bufferSizeIn > scopeBufferSize ? scopeBufferSize : bufferSizeIn;
-    for (int i = 0; i < size; i++) {
-        buffer[i] = scopeBuffer[i];
-    }
-    return size;
+    *size = scopeBufferSize;
+    return &scopeBuffer[0];
 }
 
 }

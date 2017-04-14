@@ -29,7 +29,7 @@ namespace PhasePhckr {
         float scopeDrift;
     public:
         Scope();
-        size_t copyBuffer(float *buffer, size_t bufferSizeIn) const;
+        const float* Scope::getBuffer(int* size) const;
         void writeToBuffer(const float * leftChannelbuffer, int numSamples, float sampleRate, float hz);
     };
 

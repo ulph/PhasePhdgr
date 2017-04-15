@@ -44,7 +44,7 @@ void Biquad::process(uint32_t fs) {
 
 LowPass::LowPass()
 {
-  inputs.push_back(Pad("f0"));
+  inputs.push_back(Pad("f0", "Hz"));
   inputs.push_back(Pad("Q", 1.0));
 
   outputs.push_back(Pad("a1"));
@@ -79,4 +79,50 @@ void LowPass::process(uint32_t fs)
   outputs[3].value = 2.f * outputs[2].value;
   outputs[4].value = outputs[2].value;
 
+}
+
+
+PeakingEQ::PeakingEQ()
+{
+    inputs.push_back(Pad("f0", "Hz"));
+    inputs.push_back(Pad("A", 0.0, "dB"));
+    inputs.push_back(Pad("Q", 1.0));
+
+    outputs.push_back(Pad("a1"));
+    outputs.push_back(Pad("a2"));
+    outputs.push_back(Pad("b0"));
+    outputs.push_back(Pad("b1"));
+    outputs.push_back(Pad("b2"));
+
+}
+
+/**
+ * @brief PeakingEQ::process H(s) = (s^2 + s*(A/Q) + 1) / (s^2 + s/(A*Q) + 1)
+ * @param fs
+ *   b0 =   1 + alpha*A
+ *   b1 =  -2*cos(w0)
+ *   b2 =   1 - alpha*A
+ *   a0 =   1 + alpha/A
+ *   a1 =  -2*cos(w0)
+ *   a2 =   1 - alpha/A
+ */
+void PeakingEQ::process(uint32_t fs)
+{
+    float w0 = 2 * M_PI * inputs[0].value / fs;
+    float alpha = sinf(w0) / (2.0 * inputs[2].value);
+    float A = powf(10.f, inputs[1].value/40.);
+
+    float a0 = (1. + alpha)/A;
+    outputs[0].value = -2.f * cosf(w0);
+    outputs[1].value = (1.f - alpha/A);
+
+    outputs[2].value = 1.f + alpha * A;
+    outputs[3].value = -2.0 * cosf(w0);
+    outputs[4].value = 1.f - alpha * A;
+
+    // Normalization by a0
+    for(auto &out: outputs)
+    {
+        out.value /= a0;
+    }
 }

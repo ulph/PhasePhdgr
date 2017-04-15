@@ -25,3 +25,11 @@ public:
     virtual void process(uint32_t fs);
     static Module* factory() { return new LowPass(); }
 };
+
+class PeakingEQ : public Module
+{
+public:
+  PeakingEQ();
+  virtual void process(uint32_t fs);
+  static Module *factory() {return new PeakingEQ(); }
+};

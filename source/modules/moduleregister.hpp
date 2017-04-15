@@ -49,6 +49,7 @@ public:
         cg.registerModule("DELAY", &(Delay::factory));
         cg.registerModule("BIQUAD", &(Biquad::factory));
         cg.registerModule("LPF", &(LowPass::factory));
+        cg.registerModule("PEAKEQ", &(PeakingEQ::factory));
     }
 };
 

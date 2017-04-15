@@ -11,8 +11,11 @@ struct Pad
 {
     float value;
     std::string name;
-    Pad(const char *name) : name(name), value(0.0f) {}
-    Pad(const char *name, float value) : name(name), value(value) {}
+    std::string unit;
+    Pad(const char *name) : name(name), value(0.0f), unit("") {}
+    Pad(const char *name, float value) : name(name), value(value), unit("") {}
+    Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) {}
+    Pad(const char *name, const char *unit) : name(name), value(0.0f), unit(unit) {}
 };
 
 class Module

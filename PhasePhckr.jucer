@@ -50,11 +50,11 @@
     <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="phasephckr.lib&#10;connectiongraph.lib&#10;modules.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="D:\dev\phasephckr\Builds\install\lib"
-                       headerPath="D:\dev\phasephckr\Builds\install\include" binaryPath="D:\VST_dev"/>
+                       isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="..\phasephckr_install\lib"
+                       headerPath="..\phasephckr_install\include" binaryPath="D:\VST_dev"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="PhasePhckr" binaryPath="D:\VST_dev"
-                       libraryPath="Builds\phasephckr_install\lib" headerPath="Builds\phasephckr_install\include"/>
+                       libraryPath="..\phasephckr_install\lib" headerPath="..\phasephckr_install\include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../sdk/JUCE/modules"/>
@@ -77,11 +77,10 @@
                 externalLibraries="phasephckr&#10;connectiongraph&#10;modules">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"
-                       libraryPath="Builds/phasephckr_install/lib" headerPath="Builds/phasephckr_install/include"
+                       libraryPath="../phasephckr_install/lib" headerPath="../phasephckr_install/include"
                        binaryPath="~/.vst"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"
-                       binaryPath="~/.vst" libraryPath="Builds/phasephckr_install/lib"
-                       headerPath="Builds/phasephckr_install/include"/>
+                       binaryPath="~/.vst" libraryPath="../phasephckr_install/lib" headerPath="../phasephckr_install/include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

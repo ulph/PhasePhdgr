@@ -53,8 +53,8 @@ namespace PhasePhckr {
             ModulePortConnection{ { "outPostGain", "right" },{ "outBus", "right" } }
         },
         std::vector<ModulePortValue>{
-            ModulePortValue{ "outPreGain", "gain", 0.5f },
-            ModulePortValue{ "outPostGain", "gain", 0.75f },
+            ModulePortValue{ "outPreGain", "gain", 0.1f },
+            ModulePortValue{ "outPostGain", "gain", 1.0f },
 
             // delay time moduluation
             ModulePortValue{ "lfoPhase", "freq", 2.0f },
@@ -78,7 +78,7 @@ namespace PhasePhckr {
 
     const ConnectionGraphDescriptor& getExampleFxChain() { return exFxChain; }
 
-    const ConnectionGraphDescriptor_Numerical exVoiceChain = {
+    const ConnectionGraphDescriptor_Numerical exMPEVoiceChain = {
         std::vector<ModuleVariable>{
             {"mixGain", "MUL"},
             {"env", "ENV"},
@@ -150,6 +150,39 @@ namespace PhasePhckr {
         }
     };
 
-    const ConnectionGraphDescriptor_Numerical& getExampleVoiceChain() { return exVoiceChain; }
+    const ConnectionGraphDescriptor_Numerical& getExampleMPEVoiceChain() { return exMPEVoiceChain; }
+
+    const ConnectionGraphDescriptor exVoiceChain = {
+        std::vector<ModuleVariable>{
+            {"ampEnv", "ENV"},
+            {"filtEnv", "ENV"},
+            {"clk1", "SCLSHFT"},
+            {"clk2", "SCLSHFT"},
+            {"ph1", "PHASE"},
+            {"ph2", "PHASE"},
+            {"vca", "GAIN"},
+        },
+        std::vector<ModulePortConnection>{
+            { { "inBus", "gate" }, { "ampEnv", "gate" } },
+            { { "inBus", "gate" }, { "filtEnv", "gate" } },
+            { { "inBus", "pitch_hz" }, { "clk1", "input" } },
+            { { "inBus", "pitch_hz" }, { "clk2", "input" } },
+            { { "clk1", "output" }, { "ph1", "freq" } },
+            { { "clk2", "output" }, { "ph2", "freq" } },
+            { { "ph1", "phase" }, { "vca", "left" } },
+            { { "ph2", "phase" }, { "vca", "right" } },
+            { { "vca", "left" }, { "outBus", "left" } },
+            { { "vca", "right" }, { "outBus", "right" } },
+            { { "ampEnv", "value" }, { "vca", "gain" } },
+        },
+        std::vector<ModulePortValue>{
+            { {"clk1", "scale"}, 1.0f},
+            { {"clk1", "shift"}, 0.9f},
+            { {"clk2", "scale"}, 1.0f},
+            { {"clk2", "shift"}, -1.f},
+        }
+    };
+
+    const ConnectionGraphDescriptor& getExampleVoiceChain() { return exVoiceChain; }
 
 }

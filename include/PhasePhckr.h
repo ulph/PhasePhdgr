@@ -19,7 +19,8 @@ namespace PhasePhckr {
     struct ConnectionGraphDescriptor_Numerical;
 
     const ConnectionGraphDescriptor& getExampleFxChain();
-    const ConnectionGraphDescriptor_Numerical& getExampleVoiceChain();
+    const ConnectionGraphDescriptor_Numerical& getExampleMPEVoiceChain();
+    const ConnectionGraphDescriptor& getExampleVoiceChain();
 
     class Scope {
     private:
@@ -52,6 +53,8 @@ namespace PhasePhckr {
         const Scope& getVoiceScope() const { return voiceScope; }
         const Scope& getOutputScope() const { return outputScope; }
     private:
+        template <class T>
+        void setVoiceChain_internal(const T& voiceChain);
         VoiceBus *voiceBus;
         std::vector<SynthVoice*> voices;
         EffectChain* effects;

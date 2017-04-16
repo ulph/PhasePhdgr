@@ -6,7 +6,7 @@ CamelEnvelope::CamelEnvelope():
     slew(0.9f),
     samplesCtr(0)
 {
-    outputs.push_back(Pad("envelopeValue"));
+    outputs.push_back(Pad("value"));
 
     inputs.push_back(Pad("gate"));
 

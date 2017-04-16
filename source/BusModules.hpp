@@ -6,16 +6,16 @@ class VoiceInputBus : public Module {
 public:
     VoiceInputBus()
     {
-        inputs.push_back(Pad("Gate"      )); outputs.push_back(Pad("Gate"      ));
-        inputs.push_back(Pad("StrikeZ"   )); outputs.push_back(Pad("StrikeZ"   ));
-        inputs.push_back(Pad("LiftZ"     )); outputs.push_back(Pad("LiftZ"     ));
-        inputs.push_back(Pad("PitchHz"   )); outputs.push_back(Pad("PitchHz"   ));
-        inputs.push_back(Pad("GlideX"    )); outputs.push_back(Pad("GlideX"    ));
-        inputs.push_back(Pad("SlideY"    )); outputs.push_back(Pad("SlideY"    ));
-        inputs.push_back(Pad("PressZ"    )); outputs.push_back(Pad("PressZ"    ));
-        inputs.push_back(Pad("ModWheel"  )); outputs.push_back(Pad("ModWheel"  ));
-        inputs.push_back(Pad("Expression")); outputs.push_back(Pad("Expression"));
-        inputs.push_back(Pad("Breath"    )); outputs.push_back(Pad("Breath"    ));
+        inputs.push_back(Pad("gate"      )); outputs.push_back(Pad("gate"      ));
+        inputs.push_back(Pad("strike_z"   )); outputs.push_back(Pad("strike_z"   ));
+        inputs.push_back(Pad("lift_z"     )); outputs.push_back(Pad("lift_z"     ));
+        inputs.push_back(Pad("pitch_hz"   )); outputs.push_back(Pad("pitch_hz"   ));
+        inputs.push_back(Pad("glide_x"    )); outputs.push_back(Pad("glide_x"    ));
+        inputs.push_back(Pad("slide_y"    )); outputs.push_back(Pad("slide_y"    ));
+        inputs.push_back(Pad("press_z"    )); outputs.push_back(Pad("press_z"    ));
+        inputs.push_back(Pad("modwheel"  )); outputs.push_back(Pad("modwheel"  ));
+        inputs.push_back(Pad("expression")); outputs.push_back(Pad("expression"));
+        inputs.push_back(Pad("breath"    )); outputs.push_back(Pad("breath"    ));
     }
 
     virtual void process(uint32_t fs)
@@ -47,9 +47,9 @@ public:
     EffectInputBus() {
         inputs.push_back(Pad("left"      )); outputs.push_back(Pad("left"      ));
         inputs.push_back(Pad("right"     )); outputs.push_back(Pad("right"     ));
-        inputs.push_back(Pad("ModWheel"  )); outputs.push_back(Pad("ModWheel"  ));
-        inputs.push_back(Pad("Expression")); outputs.push_back(Pad("Expression"));
-        inputs.push_back(Pad("Breath"    )); outputs.push_back(Pad("Breath"    ));
+        inputs.push_back(Pad("modwheel"  )); outputs.push_back(Pad("modWheel"  ));
+        inputs.push_back(Pad("expression")); outputs.push_back(Pad("expression"));
+        inputs.push_back(Pad("breath"    )); outputs.push_back(Pad("breath"    ));
     }
 
     virtual void process(uint32_t fs)

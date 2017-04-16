@@ -163,6 +163,10 @@ namespace PhasePhckr {
             {"ph1", "PHASE"},
             {"ph2", "PHASE"},
             {"vca", "GAIN"},
+            {"lpDesign", "LPF"},
+            {"wc", "SCLSHFT"},
+            {"flt1", "BIQUAD"},
+            {"flt2", "BIQUAD"},
         },
         std::vector<ModulePortConnection>{
             { { "inBus", "gate" }, { "ampEnv", "gate" } },
@@ -175,17 +179,43 @@ namespace PhasePhckr {
             { { "clk2", "output" }, { "ph2", "freq" } },
             { { "osc", "sine" }, { "vca", "left" } },
             { { "osc", "sine" }, { "vca", "right" } },
-            { { "ph1", "phase" }, { "vca", "left" } },
-            { { "ph2", "phase" }, { "vca", "right" } },
+            { { "ph1", "phase" }, { "flt1", "input" } },
+            { { "ph2", "phase" }, { "flt2", "input" } },
+            { { "flt1", "output" }, { "vca", "left" } },
+            { { "flt2", "output" }, { "vca", "right" } },
             { { "vca", "left" }, { "outBus", "left" } },
             { { "vca", "right" }, { "outBus", "right" } },
             { { "ampEnv", "value" }, { "vca", "gain" } },
+
+            { { "lpDesign", "a1" }, { "flt1", "a1" } },
+            { { "lpDesign", "a2" }, { "flt1", "a2" } },
+            { { "lpDesign", "b0" }, { "flt1", "b0" } },
+            { { "lpDesign", "b1" }, { "flt1", "b1" } },
+            { { "lpDesign", "b2" }, { "flt1", "b2" } },
+
+            { { "lpDesign", "a1" }, { "flt2", "a1" } },
+            { { "lpDesign", "a2" }, { "flt2", "a2" } },
+            { { "lpDesign", "b0" }, { "flt2", "b0" } },
+            { { "lpDesign", "b1" }, { "flt2", "b1" } },
+            { { "lpDesign", "b2" }, { "flt2", "b2" } },
+
+            { { "filtEnv", "value" }, { "wc", "input" } },
+            { { "wc", "output" }, { "lpDesign", "f0" } },
+
+            { { "ampEnv", "value" }, { "vca", "gain" } },
+
         },
         std::vector<ModulePortValue>{
             { {"clk1", "scale"}, 1.0f},
             { {"clk1", "shift"}, 0.9f},
             { {"clk2", "scale"}, 1.0f},
             { {"clk2", "shift"}, -1.f},
+            { {"lpDesign", "Q"}, 3},
+            { {"wc", "scale"}, 22000},
+            { {"wc", "shift"}, 100},
+            { {"filtEnv", "onBumpHeight"}, 1},
+            { {"filtEnv", "sustainHeight"}, 0.05},
+            { {"filtEnv", "onDecaySpeed"}, 0.1},
         }
     };
 

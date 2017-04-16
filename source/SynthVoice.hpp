@@ -28,10 +28,12 @@ private:
     float sampleRate;
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
     bool doTerminate;
-
+    template <class T>
+    void init(const T& voiceChain); // DEPRECATED
 public:
     MPEVoice mpe;
-    SynthVoice(const ConnectionGraphDescriptor_Numerical& voiceChain);
+    SynthVoice(const ConnectionGraphDescriptor_Numerical& voiceChain); // DEPRECATED
+    SynthVoice(const ConnectionGraphDescriptor& voiceChain);
     ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);

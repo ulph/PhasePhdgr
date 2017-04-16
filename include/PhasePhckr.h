@@ -47,7 +47,8 @@ namespace PhasePhckr {
         void handleBreath(float value);
         void handleModWheel(float value);
         void setFxChain(const ConnectionGraphDescriptor& fxChain);
-        void setVoiceChain(const ConnectionGraphDescriptor_Numerical& fxChain);
+        void setVoiceChain(const ConnectionGraphDescriptor_Numerical& fxChain); // DEPRECATED
+        void setVoiceChain(const ConnectionGraphDescriptor& fxChain);
         const Scope& getVoiceScope() const { return voiceScope; }
         const Scope& getOutputScope() const { return outputScope; }
     private:

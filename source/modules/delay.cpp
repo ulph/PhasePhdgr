@@ -2,9 +2,6 @@
 #include <assert.h>
 #include "delay.hpp"
 
-const int c_sincWindowSize = 5;
-const int c_fracSincTableSize = 100;
-
 float sincf(float x){
     return x!=0 ? sinf(x)/x : 1;
 }
@@ -40,7 +37,7 @@ struct FractionalSincTable
     const int numFractions;
     float coeffs[numFractions_][N_];
 };
-const auto g_fracSincTable = FractionalSincTable<c_sincWindowSize, c_fracSincTableSize>();
+const auto g_fracSincTable = FractionalSincTable<5, 1000>();
 
 Delay::Delay() 
     : readPosition(0)
@@ -79,16 +76,11 @@ void Delay::process(uint32_t fs) {
     const float ratio = softIdx - tableIdx1;
     assert(ratio < 1.0f && ratio >= 0.0f);
 
-    float coeffs[g_fracSincTable.N] = {0.0f};
-    for(int n=0; n<g_fracSincTable.N; n++){
-        coeffs[n] = (1 - ratio) * g_fracSincTable.coeffs[tableIdx1][n];
-        coeffs[n] += ratio * g_fracSincTable.coeffs[tableIdx2][n];
-    }
-
     // apply it on to write buffer (running convolution)
     int bufferSize = sizeof(buffer) / sizeof(float);
     for(int n=0; n<g_fracSincTable.N; n++){
-        buffer[(writePosition+n)%bufferSize] += g*inputs[0].value * coeffs[n];
+        float c = (1 - ratio) * g_fracSincTable.coeffs[tableIdx1][n] + ratio * g_fracSincTable.coeffs[tableIdx2][n];
+        buffer[(writePosition+n)%bufferSize] += c*g*inputs[0].value;
     }
 
     outputs[0].value = buffer[readPosition];

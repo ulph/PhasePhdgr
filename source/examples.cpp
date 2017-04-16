@@ -174,6 +174,10 @@ namespace PhasePhckr {
             { { "inBus", "pitch_hz" }, { "ph", "freq" } },
             { { "inBus", "pitch_hz" }, { "clk1", "input" } },
             { { "inBus", "pitch_hz" }, { "clk2", "input" } },
+
+            { { "inBus", "strike_z" }, { "ampEnv", "onBumpHeight" } },
+            { { "inBus", "strike_z" }, { "filtEnv", "onBumpHeight" } },
+
             { { "ph", "phase" }, { "osc", "phase" } },
             { { "clk1", "output" }, { "ph1", "freq" } },
             { { "clk2", "output" }, { "ph2", "freq" } },
@@ -213,9 +217,21 @@ namespace PhasePhckr {
             { {"lpDesign", "Q"}, 3},
             { {"wc", "scale"}, 22000},
             { {"wc", "shift"}, 100},
+
             { {"filtEnv", "onBumpHeight"}, 1},
             { {"filtEnv", "sustainHeight"}, 0.05},
-            { {"filtEnv", "onDecaySpeed"}, 0.1},
+            { {"filtEnv", "onDecaySpeed"}, 0.25},
+            { {"filtEnv", "offDecaySpeed"}, 0.25},
+            { {"ampEnv", "onDecaySpeed"}, 0.5},
+            { {"ampEnv", "offDecaySpeed"}, 0.5},
+
+            { {"ampEnv", "offBumpHeight"}, 0.0},
+            { {"filtEnv", "offBumpHeight"}, 0.0},
+            { {"ampEnv", "offAttackSpeed"}, 0.0},
+            { {"filtEnv", "offAttackSpeed"}, 0.0},
+            { {"ampEnv", "sustainHeight"}, 0.0},
+            { {"filtEnv", "sustainHeight"}, 0.0},
+
         }
     };
 

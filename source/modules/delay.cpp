@@ -59,7 +59,7 @@ void Delay::process(uint32_t fs) {
     // limit time ranges
     t = t > 5.0f ? 5.0f : t < 0.0f ? 0.0f : t;
 
-    int tapeSamples = (int)(t*fs) - c_sincWindowSize;
+    int tapeSamples = (int)(t*fs) - g_fracSincTable.N;
     tapeSamples = tapeSamples < 0 ? 0 : tapeSamples;
 
     const int writePosition = (readPosition + tapeSamples);
@@ -69,25 +69,25 @@ void Delay::process(uint32_t fs) {
     assert(frac < 1.0f && frac >= 0.0f);
 
     // linearly interpolate between neighbouring sets of coefficients
-    const float softIdx = frac * (float)c_fracSincTableSize;
-    assert(softIdx < c_fracSincTableSize);
+    const float softIdx = frac * (float)g_fracSincTable.numFractions;
+    assert(softIdx < g_fracSincTable.numFractions);
     const int tableIdx1 = (int)softIdx;
-    const int tableIdx2 = ((tableIdx1+1) < c_fracSincTableSize) ? (tableIdx1+1) : 0;
-    assert(tableIdx1 < c_fracSincTableSize);
-    assert(tableIdx2 < c_fracSincTableSize);
+    const int tableIdx2 = ((tableIdx1+1) < g_fracSincTable.numFractions) ? (tableIdx1+1) : 0;
+    assert(tableIdx1 < g_fracSincTable.numFractions);
+    assert(tableIdx2 < g_fracSincTable.numFractions);
 
     const float ratio = softIdx - tableIdx1;
     assert(ratio < 1.0f && ratio >= 0.0f);
 
-    float coeffs[c_sincWindowSize] = {0.0f};
-    for(int n=0; n<c_sincWindowSize; n++){
+    float coeffs[g_fracSincTable.N] = {0.0f};
+    for(int n=0; n<g_fracSincTable.N; n++){
         coeffs[n] = (1 - ratio) * g_fracSincTable.coeffs[tableIdx1][n];
         coeffs[n] += ratio * g_fracSincTable.coeffs[tableIdx2][n];
     }
 
     // apply it on to write buffer (running convolution)
     int bufferSize = sizeof(buffer) / sizeof(float);
-    for(int n=0; n<c_sincWindowSize; n++){
+    for(int n=0; n<g_fracSincTable.N; n++){
         buffer[(writePosition+n)%bufferSize] += g*inputs[0].value * coeffs[n];
     }
 

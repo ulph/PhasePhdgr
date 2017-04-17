@@ -39,6 +39,7 @@ set(SRC
 )
 
 include_directories(../connectiongraph)
+include_directories(../dsp)
 add_library(modules ${SRC})
 
 set_target_properties(modules PROPERTIES COMPILE_FLAGS "-fPIC")

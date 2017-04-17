@@ -6,10 +6,11 @@ else()
 endif()
 
 add_subdirectory(connectiongraph)
+add_subdirectory(dsp)
 add_subdirectory(modules)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(connectiongraph modules)
+include_directories(connectiongraph modules dsp)
 set(SRC
     ${CMAKE_SOURCE_DIR}/include/PhasePhckr.h
     MPEVoice.cpp

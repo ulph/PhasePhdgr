@@ -5,6 +5,7 @@
 const int c_sincDelayN = 5;
 const int c_sincDelayNumFraction = 1000;
 const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction);
+const float max_delay_t = 5.f;
 
 Delay::Delay()
     : readPosition(0)
@@ -27,7 +28,7 @@ void Delay::process(uint32_t fs) {
     float t = inputs[1].value;
     float g = inputs[2].value;
 
-    t = (t < 0.f) ? 0.f : ( t > 10.f ? 10.f : t); // max 10s
+    t = (t < 0.f) ? 0.f : ( t > max_delay_t ? max_delay_t : t); // max 10s
 
     // account for filter delay
     int tapeSamples = (int)(t*fs) - c_sincDelayN;

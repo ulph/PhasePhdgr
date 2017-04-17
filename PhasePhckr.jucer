@@ -50,11 +50,11 @@
     <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="phasephckr.lib&#10;connectiongraph.lib&#10;modules.lib&#10;dsp.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="..\phasephckr_install\lib"
-                       headerPath="..\phasephckr_install\include" binaryPath="D:\VST_dev"/>
+                       isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="../phasephckr_install/lib"
+                       headerPath="../phasephckr_install/include" binaryPath="D:\VST_dev"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="PhasePhckr" binaryPath="D:\VST_dev"
-                       libraryPath="..\phasephckr_install\lib" headerPath="..\phasephckr_install\include"/>
+                       libraryPath="../phasephckr_install/lib" headerPath="../phasephckr_install/include"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../sdk/JUCE/modules"/>

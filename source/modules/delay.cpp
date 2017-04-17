@@ -8,12 +8,17 @@ const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayN
 
 Delay::Delay()
     : readPosition(0)
+    , buffer(nullptr)
+    , bufferSize(0)
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("time", 0.5f));
     inputs.push_back(Pad("gain", 0.5f));
     outputs.push_back(Pad("out"));
-    memset(buffer, 0, sizeof(buffer));
+}
+
+Delay::~Delay(){
+    delete[] buffer;
 }
 
 void Delay::process(uint32_t fs) {
@@ -22,10 +27,19 @@ void Delay::process(uint32_t fs) {
     float t = inputs[1].value;
     float g = inputs[2].value;
 
+    t = (t < 0.f) ? 0.f : ( t > 10.f ? 10.f : t); // max 10s
+
     // account for filter delay
     int tapeSamples = (int)(t*fs) - c_sincDelayN;
     tapeSamples = tapeSamples < 0 ? 0 : tapeSamples;
-    tapeSamples = ((tapeSamples+c_sincDelayN) > c_delayBufferSize) ? (c_delayBufferSize-c_sincDelayN) : tapeSamples;
+
+    if(tapeSamples > bufferSize){
+        delete[] buffer;
+        bufferSize = 2*tapeSamples;
+        buffer = new float[bufferSize]();
+    }
+
+    tapeSamples = ((tapeSamples+c_sincDelayN) > bufferSize) ? (bufferSize-c_sincDelayN) : tapeSamples;
 
     const int writePosition = (readPosition + tapeSamples);
 
@@ -36,7 +50,6 @@ void Delay::process(uint32_t fs) {
     const int N = c_delayFracSincTable.getCoefficients(frac, &coeffs[0], c_sincDelayN);
 
     // apply it on to write buffer (running convolution)
-    int bufferSize = sizeof(buffer) / sizeof(float);
     for(int n=0; n<N; n++){
         buffer[(writePosition+n)%bufferSize] += coeffs[n]*g*inputs[0].value;
     }

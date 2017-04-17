@@ -3,15 +3,15 @@
 
 #include "module.hpp"
 
-const int c_delayBufferSize = 96000*5;
-
 class Delay : public Module
 {
 private:
-    float buffer[c_delayBufferSize];
+    float *buffer;
+    int bufferSize;
     int readPosition;
 public:
     Delay();
+    virtual ~Delay();
     void process(uint32_t fs);
     static Module* factory() { return new Delay(); }
 };

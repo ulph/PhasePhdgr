@@ -2,7 +2,11 @@
 #include "delay.hpp"
 #include "sinc.hpp"
 
-Delay::Delay() 
+const int c_sincDelayN = 5;
+const int c_sincDelayNumFraction = 1000;
+const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction);
+
+Delay::Delay()
     : readPosition(0)
 {
     inputs.push_back(Pad("in"));
@@ -13,23 +17,23 @@ Delay::Delay()
 }
 
 void Delay::process(uint32_t fs) {
+    // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
+
     float t = inputs[1].value;
     float g = inputs[2].value;
 
-    // limit time ranges
-    t = t > 5.0f ? 5.0f : t < 0.0f ? 0.0f : t;
-
+    // account for filter delay
     int tapeSamples = (int)(t*fs) - c_sincDelayN;
     tapeSamples = tapeSamples < 0 ? 0 : tapeSamples;
+    tapeSamples = ((tapeSamples+c_sincDelayN) > c_delayBufferSize) ? (c_delayBufferSize-c_sincDelayN) : tapeSamples;
 
     const int writePosition = (readPosition + tapeSamples);
 
-    // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
     const float frac = t*fs-(int)(t*fs);
 
-    // get it from a precalcuated buffer
+    // ... (interpolated) impulse response from a precalcuated buffer
     float coeffs[c_sincDelayN] = {0};
-    const int N = g_delayFracSincTable.getCoefficients(frac, &coeffs[0], c_sincDelayN);
+    const int N = c_delayFracSincTable.getCoefficients(frac, &coeffs[0], c_sincDelayN);
 
     // apply it on to write buffer (running convolution)
     int bufferSize = sizeof(buffer) / sizeof(float);

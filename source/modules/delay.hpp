@@ -3,10 +3,12 @@
 
 #include "module.hpp"
 
+const int c_delayBufferSize = 96000*5;
+
 class Delay : public Module
 {
 private:
-    float buffer[96000*5];
+    float buffer[c_delayBufferSize];
     int readPosition;
 public:
     Delay();

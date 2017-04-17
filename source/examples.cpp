@@ -165,6 +165,7 @@ namespace PhasePhckr {
             {"vca", "GAIN"},
             {"lpDesign", "LPF"},
             {"wc", "SCLSHFT"},
+            {"snap", "SCLSHFT"},
             {"flt1", "BIQUAD"},
             {"flt2", "BIQUAD"},
         },
@@ -177,6 +178,7 @@ namespace PhasePhckr {
 
             { { "inBus", "strike_z" }, { "ampEnv", "onBumpHeight" } },
             { { "inBus", "strike_z" }, { "filtEnv", "onBumpHeight" } },
+            { { "inBus", "strike_z" }, { "snap", "input" } },
 
             { { "ph", "phase" }, { "osc", "phase" } },
             { { "clk1", "output" }, { "ph1", "freq" } },
@@ -203,6 +205,7 @@ namespace PhasePhckr {
             { { "lpDesign", "b1" }, { "flt2", "b1" } },
             { { "lpDesign", "b2" }, { "flt2", "b2" } },
 
+            { { "snap", "output" }, { "filtEnv", "onDecaySpeed" } },
             { { "filtEnv", "value" }, { "wc", "input" } },
             { { "wc", "output" }, { "lpDesign", "f0" } },
 
@@ -220,7 +223,8 @@ namespace PhasePhckr {
 
             { {"filtEnv", "onBumpHeight"}, 1},
             { {"filtEnv", "sustainHeight"}, 0.05},
-            { {"filtEnv", "onDecaySpeed"}, 0.25},
+            { {"snap", "scale"}, 0.20},
+            { {"snap", "shift"}, 0.05},
             { {"filtEnv", "offDecaySpeed"}, 0.25},
             { {"ampEnv", "onDecaySpeed"}, 0.5},
             { {"ampEnv", "offDecaySpeed"}, 0.5},

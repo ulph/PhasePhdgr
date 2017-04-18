@@ -6,15 +6,18 @@ static inline float sincf(float x){
     return x!=0 ? sinf(x)/x : 1;
 }
 
+
 struct FractionalSincTable
 {
-private:
+protected:
     const int N;
     const int numFractions;
     float *coeffs;
-
+    virtual void compute();
+    float normFreq;
 public:
-    FractionalSincTable(int N, int numFractions);
+    FractionalSincTable(): N(0), numFractions(0), coeffs(nullptr) {};
+    FractionalSincTable(int N, int numFractions, float normFreq);
     virtual ~FractionalSincTable();
     const int getCoefficients(const float fraction, float* destinationBuffer, const int destinationBufferSize) const;
 };

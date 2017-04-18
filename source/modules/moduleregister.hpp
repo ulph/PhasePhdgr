@@ -20,6 +20,7 @@
 #include "scaleshift.hpp"
 #include "delay.hpp"
 #include "biquad.hpp"
+#include "bleposc.hpp"
 
 class ModuleRegister {
 public:
@@ -50,6 +51,7 @@ public:
         cg.registerModule("BIQUAD", &(Biquad::factory));
         cg.registerModule("LPF", &(LowPass::factory));
         cg.registerModule("PEAKEQ", &(PeakingEQ::factory));
+        cg.registerModule("PBLOSC", &(PolyBlepOsc::factory));
     }
 };
 

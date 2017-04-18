@@ -4,21 +4,26 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-FractionalSincTable::FractionalSincTable(const int N, const int numFractions)
+FractionalSincTable::FractionalSincTable(const int N, const int numFractions, float normFreq)
     : N(N)
     , numFractions(numFractions)
     , coeffs(new float[numFractions*N])
+    , normFreq(normFreq)
 {
+    compute();
+}
+
+void FractionalSincTable::compute() {
     for (auto i = 0; i < numFractions; ++i)
     {
-        float frac = (float)i*1.0f/(float(numFractions));
+        float frac = (float)i*1.0f / (float(numFractions));
         float M = 0;
         for (auto n = 0; n < N; ++n)
         {
             int ni = i*N + n;
-            float arg = (float)n-frac-((float)N-1.f)/2.f;
-            float hamming = 0.54f+0.46f*cosf( (2.f*M_PI*arg) / (float)(N-1) );
-            coeffs[ni] = hamming*sincf(arg);
+            float arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
+            float hamming = 0.54f + 0.46f*cosf((2.f*M_PI*arg) / (float)(N - 1));
+            coeffs[ni] = hamming*sincf(arg * normFreq);
             M += coeffs[ni];
         }
         // silly normalization

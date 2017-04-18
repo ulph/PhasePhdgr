@@ -160,8 +160,8 @@ namespace PhasePhckr {
             {"clk2", "SCLSHFT"},
             {"ph", "PHASE"},
             {"osc", "SINE"},
-            {"ph1", "PHASE"},
-            {"ph2", "PHASE"},
+            {"sq1", "PBLOSC"},
+            {"sq2", "PBLOSC"},
             {"vca", "GAIN"},
             {"lpDesign", "LPF"},
             {"wc", "SCLSHFT"},
@@ -172,21 +172,31 @@ namespace PhasePhckr {
         std::vector<ModulePortConnection>{
             { { "inBus", "gate" }, { "ampEnv", "gate" } },
             { { "inBus", "gate" }, { "filtEnv", "gate" } },
+
             { { "inBus", "pitch_hz" }, { "ph", "freq" } },
+            { { "ph", "phase" }, { "osc", "phase" } },
+
             { { "inBus", "pitch_hz" }, { "clk1", "input" } },
             { { "inBus", "pitch_hz" }, { "clk2", "input" } },
+            { { "clk1", "output" }, { "sq1", "freq" } },
+            { { "clk2", "output" }, { "sq2", "freq" } },
+            { { "inBus", "slide_y" }, { "sq1", "shape" } },
+            { { "inBus", "slide_y" }, { "sq2", "shape" } },
+            { { "inBus", "modwheel" }, { "sq1", "pwm" } },
+            { { "inBus", "modwheel" }, { "sq2", "pwm" } },
 
             { { "inBus", "strike_z" }, { "ampEnv", "onBumpHeight" } },
             { { "inBus", "strike_z" }, { "filtEnv", "onBumpHeight" } },
             { { "inBus", "strike_z" }, { "snap", "input" } },
 
-            { { "ph", "phase" }, { "osc", "phase" } },
-            { { "clk1", "output" }, { "ph1", "freq" } },
-            { { "clk2", "output" }, { "ph2", "freq" } },
+            { { "inBus", "press_z" }, { "ampEnv", "sustainHeight" } },
+            { { "inBus", "press_z" }, { "filtEnv", "sustainHeight" } },
+
             { { "osc", "sine" }, { "vca", "left" } },
             { { "osc", "sine" }, { "vca", "right" } },
-            { { "ph1", "phase" }, { "flt1", "input" } },
-            { { "ph2", "phase" }, { "flt2", "input" } },
+
+            { { "sq1", "output" },{ "flt1", "input" } },
+            { { "sq2", "output" },{ "flt2", "input" } },
             { { "flt1", "output" }, { "vca", "left" } },
             { { "flt2", "output" }, { "vca", "right" } },
             { { "vca", "left" }, { "outBus", "left" } },

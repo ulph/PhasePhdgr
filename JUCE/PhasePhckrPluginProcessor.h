@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PhasePhckr.h" // for now
+#include "design.hpp"
 
 //==============================================================================
 /**
@@ -66,6 +67,10 @@ private:
     File effectsDir;
     File voicesDir;
     File componentsDir;
+    PhasePhckr::ConnectionGraphDescriptor voiceChain;
+    PhasePhckr::ConnectionGraphDescriptor effectChain;
+    void applyVoiceChain();
+    void applyEffectChain();
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

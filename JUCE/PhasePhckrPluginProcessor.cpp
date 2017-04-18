@@ -10,6 +10,7 @@
 
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
+#include "design_json.hpp"
 
 const std::string phasePhkrDirName = "phasephkr";
 const std::string effectsDirName = "effects";
@@ -41,21 +42,58 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
             File::SpecialLocationType::userApplicationDataDirectory
         ).getFullPathName() + File::separator + phasePhkrDirName
     );
-    synth = new PhasePhckr::Synth();
-    synth->setFxChain(PhasePhckr::getExampleFxChain());
-    synth->setVoiceChain(PhasePhckr::getExampleVoiceChain());
+
+    //  create user dirs
     effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
     voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
     componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);
+
     createDirIfNeeded(rootDir);
     createDirIfNeeded(effectsDir);
     createDirIfNeeded(voicesDir);
     createDirIfNeeded(componentsDir);
+
+    // load init patch, dump to disk otherwise
+    File initVoice = voicesDir.getFullPathName() + File::separator + "_init_voice.json";
+    File initEffect = effectsDir.getFullPathName() + File::separator + "_init_effect.json"; 
+
+    if (initVoice.exists()) {
+        String p = initVoice.loadFileAsString();
+        voiceChain = json::parse(p.toStdString().c_str());
+    }
+    else {
+        voiceChain = PhasePhckr::getExampleVoiceChain();
+        initVoice.replaceWithText(PhasePhckr::prettydump(voiceChain));
+    }
+
+    if (initEffect.exists()) {
+        String p = initEffect.loadFileAsString();
+        effectChain = json::parse(p.toStdString().c_str());
+    }
+    else {
+        effectChain = PhasePhckr::getExampleFxChain();
+        initEffect.replaceWithText(PhasePhckr::prettydump(effectChain));
+    }
+
+    // create the synth and push down the initial chains
+    synth = new PhasePhckr::Synth();
+
+    applyVoiceChain();
+    applyEffectChain();
+
 }
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 {
     delete synth;
+}
+
+void PhasePhckrAudioProcessor::applyVoiceChain() {
+    synth->setVoiceChain(voiceChain);
+}
+
+void PhasePhckrAudioProcessor::applyEffectChain() {
+    synth->setFxChain(effectChain);
 }
 
 //==============================================================================

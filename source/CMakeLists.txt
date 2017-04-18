@@ -12,7 +12,6 @@ add_subdirectory(modules)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(connectiongraph modules dsp)
 set(SRC
-    ${CMAKE_SOURCE_DIR}/include/PhasePhckr.h
     MPEVoice.cpp
     Synth.cpp
     SynthVoice.cpp
@@ -27,6 +26,7 @@ set(SRC
     design.cpp
     parameters.hpp
     scope.cpp
+    PhasePhckr.h
 )
 
 if(${USING_NLOHMANN_JSON})
@@ -39,3 +39,7 @@ target_link_libraries (phasephckr ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")
 
 install(TARGETS phasephckr DESTINATION lib)
+
+install(FILES PhasePhckr.h DESTINATION include)
+install(FILES design.hpp DESTINATION include)
+install(FILES design_json.hpp DESTINATION include)

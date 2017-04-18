@@ -21,10 +21,11 @@ static inline float poly3blep1(float t)
 class PolyBlepOsc : public Module
 {
 private:
-    float phase;
+    float internalPhase;
     float blepDelay;
     float widthDelay;
     int   pulseStage;
+    float oldPhase;
 public:
     PolyBlepOsc();
     void process(uint32_t fs);

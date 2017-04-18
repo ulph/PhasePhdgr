@@ -159,6 +159,12 @@ namespace PhasePhckr {
             {"clk1", "SCLSHFT"},
             {"clk2", "SCLSHFT"},
             {"ph", "PHASE"},
+            {"ph1", "PHASE"},
+            {"ph2", "PHASE"},
+            {"lfoClk1", "PHASE"},
+            {"lfoClk2", "PHASE"},
+            {"lfo1", "ABS"},
+            {"lfo2", "ABS"},
             {"osc", "SINE"},
             {"sq1", "PBLOSC"},
             {"sq2", "PBLOSC"},
@@ -179,12 +185,16 @@ namespace PhasePhckr {
 
             { { "inBus", "pitch_hz" }, { "clk1", "input" } },
             { { "inBus", "pitch_hz" }, { "clk2", "input" } },
-            { { "clk1", "output" }, { "sq1", "freq" } },
-            { { "clk2", "output" }, { "sq2", "freq" } },
+            { { "clk1", "output" }, { "ph1", "freq" } },
+            { { "clk2", "output" }, { "ph2", "freq" } },
+            { { "ph1", "phase" }, { "sq1", "phase" } },
+            { { "ph2", "phase" }, { "sq2", "phase" } },
             { { "inBus", "slide_y" }, { "sq1", "shape" } },
             { { "inBus", "slide_y" }, { "sq2", "shape" } },
-            { { "inBus", "modwheel" }, { "sq1", "pwm" } },
-            { { "inBus", "modwheel" }, { "sq2", "pwm" } },
+            { { "lfoClk1", "phase" }, { "lfo1", "input" } },
+            { { "lfoClk2", "phase" }, { "lfo2", "input" } },
+            { { "lfo1", "abs" }, { "sq1", "pwm" } },
+            { { "lfo2", "abs" }, { "sq2", "pwm" } },
 
             { { "inBus", "strike_z" }, { "ampEnv", "onBumpHeight" } },
             { { "inBus", "strike_z" }, { "filtEnv", "onBumpHeight" } },
@@ -247,6 +257,10 @@ namespace PhasePhckr {
             { {"filtEnv", "sustainHeight"}, 0.0f},
 
             { {"ampGain", "in2"}, 0.5f},
+
+            { {"lfoClk1", "freq"}, 1.1f},
+            { {"lfoClk2", "freq"}, 0.9f},
+
         }
     };
 

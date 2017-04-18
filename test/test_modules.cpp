@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     float hz = 440.f;
     ConnectionGraph s;
     ModuleRegister::registerAllModules(s);
-    int phase = s.addModule("PBLOSC");
+    int phase = s.addModule("PHASE");
     s.getModule(phase)->setInput(0, hz);
 
     int dut = phase;

@@ -8,10 +8,11 @@
 int main(int argc, char *argv[])
 {
     uint32_t fs = 48000;
+    float hz = 440.f;
     ConnectionGraph s;
     ModuleRegister::registerAllModules(s);
-    int phase = s.addModule("BLOSC");
-    s.getModule(phase)->setInput(0, 480.0);
+    int phase = s.addModule("PBLOSC");
+    s.getModule(phase)->setInput(0, hz);
 
     int dut = phase;
 
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    for (uint32_t t = 0; t < fs; t++) {
+    for (uint32_t t = 0; t < 5.0f*(float(fs)/hz); t++) {
         s.process(dut, fs);
         float output = s.getOutput(dut, 0);
         fwrite(&output, sizeof(output), 1, outfile);

@@ -2,14 +2,15 @@
 #define BLEPOSC_HPP
 
 #include "module.hpp"
+#include <assert.h>
 
 static inline float poly3blep0(float t)
 {
+    assert(t >= 0 && t<= 1);
     if(t < 0) return 0;
     if(t > 1) return 1;
-
-    float t2 = t*t;
-    return t * t2 - 0.5f * t2 * t2;
+//    return t*t*t - 0.5*t*t*t*t;
+    return 0.5f*t*t;
 }
 
 static inline float poly3blep1(float t)

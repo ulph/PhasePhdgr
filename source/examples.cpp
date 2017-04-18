@@ -72,7 +72,7 @@ namespace PhasePhckr {
             ModulePortValue{ "leftDelayHP", "wc", 350.0f },
             ModulePortValue{ "rightDelayHP", "wc", 450.0f },
             // - effect "wet amount"
-            ModulePortValue{ "delayGain", "gain", 0.5f },
+            ModulePortValue{ "delayGain", "gain", 1.0f },
         }
     };
 

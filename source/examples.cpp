@@ -168,6 +168,7 @@ namespace PhasePhckr {
             {"snap", "SCLSHFT"},
             {"flt1", "BIQUAD"},
             {"flt2", "BIQUAD"},
+            {"ampGain", "MUL"},
         },
         std::vector<ModulePortConnection>{
             { { "inBus", "gate" }, { "ampEnv", "gate" } },
@@ -199,9 +200,10 @@ namespace PhasePhckr {
             { { "sq2", "output" },{ "flt2", "input" } },
             { { "flt1", "output" }, { "vca", "left" } },
             { { "flt2", "output" }, { "vca", "right" } },
+            { { "ampEnv", "value" }, { "ampGain", "in1" } },
+            { { "ampGain", "prod" }, { "vca", "gain" } },
             { { "vca", "left" }, { "outBus", "left" } },
             { { "vca", "right" }, { "outBus", "right" } },
-            { { "ampEnv", "value" }, { "vca", "gain" } },
 
             { { "lpDesign", "a1" }, { "flt1", "a1" } },
             { { "lpDesign", "a2" }, { "flt1", "a2" } },
@@ -218,8 +220,6 @@ namespace PhasePhckr {
             { { "snap", "output" }, { "filtEnv", "onDecaySpeed" } },
             { { "filtEnv", "value" }, { "wc", "input" } },
             { { "wc", "output" }, { "lpDesign", "f0" } },
-
-            { { "ampEnv", "value" }, { "vca", "gain" } },
 
         },
         std::vector<ModulePortValue>{
@@ -246,6 +246,7 @@ namespace PhasePhckr {
             { {"ampEnv", "sustainHeight"}, 0.0f},
             { {"filtEnv", "sustainHeight"}, 0.0f},
 
+            { {"ampGain", "in2"}, 0.5f},
         }
     };
 

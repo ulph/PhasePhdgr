@@ -37,6 +37,9 @@ private:
     FileListComponent voiceDirectoryList;
     FileListComponent effectDirectoryList;
 
+    PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
+    PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };
 

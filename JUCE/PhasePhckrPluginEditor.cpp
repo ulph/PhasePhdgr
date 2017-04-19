@@ -30,6 +30,11 @@ static void configureTabList(TabbedComponent& tbc) {
     tbc.setColour(tbc.outlineColourId, Colours::white);
 }
 
+static json loadJson(const File & f) {
+    String s = f.loadFileAsString();
+    return json::parse(s.toStdString().c_str());
+}
+
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
@@ -41,6 +46,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
     , voiceDirectoryList(voiceDirectoryWatcher)
     , effectDirectoryList(effectDirectoryWatcher)
+    , voiceListListener([this](const File& f) { processor.setVoicePatch(loadJson(f)); voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch())); })
+    , effectListListener([this](const File& f) { processor.setEffectPatch(loadJson(f)); effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch())); })
 {
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);
@@ -70,6 +77,9 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     configureFileList(voiceDirectoryList);
     configureFileList(effectDirectoryList);
+
+    voiceDirectoryList.addListener(&voiceListListener);
+    effectDirectoryList.addListener(&effectListListener);
 
     configureEditor(voiceEditor);
     configureEditor(effectEditor);

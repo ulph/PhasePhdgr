@@ -40,8 +40,20 @@ namespace PhasePhckrFileStuff {
 
     void createDirIfNeeded(File dir);
 
-    typedef std::pair < int64_t, int64_t> FileInfo;
-    typedef std::map<std::string, FileInfo> DirInfo;
-    typedef std::function<void(std::vector<File>)> CallBack;
+    typedef std::function<void(const File&)> StupidCallBack;
+
+    class StupidFileBrowserListener : public FileBrowserListener {
+    public:
+        StupidFileBrowserListener() = delete;
+        StupidFileBrowserListener(StupidCallBack callBack) : callBack(callBack) {}
+        virtual void selectionChanged() {}
+        virtual void fileClicked(const File &file, const MouseEvent &e) {
+            callBack(file);
+        }
+        virtual void fileDoubleClicked(const File &file) {}
+        virtual void browserRootChanged(const File &newRoot) {}
+    private:
+        StupidCallBack callBack;
+    };
 
 }

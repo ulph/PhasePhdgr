@@ -73,8 +73,8 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
             scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHz;
         }
         if (scopeVoiceIndex != -1) {
-            const float *scopeSourceBuf = voices[scopeVoiceIndex]->getInternalBuffer(0);
-            voiceScope.writeToBuffer(scopeSourceBuf, chunkSize, sampleRate, scopeHz);
+            voiceScopeL.writeToBuffer(voices[scopeVoiceIndex]->getInternalBuffer(0), chunkSize, sampleRate, scopeHz);
+            voiceScopeR.writeToBuffer(voices[scopeVoiceIndex]->getInternalBuffer(1), chunkSize, sampleRate, scopeHz);
         }
     }
 
@@ -82,7 +82,8 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
     }
 
-    outputScope.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
+    outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
+    outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
 
     for (int i = 0; i < numSamples; i++) {
         globalData->update();

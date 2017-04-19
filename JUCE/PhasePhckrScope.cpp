@@ -35,4 +35,5 @@ void PhasePhckrScope::paint (Graphics& g)
 
 void PhasePhckrScope::resized()
 {
+    repaint();
 }

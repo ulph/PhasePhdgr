@@ -30,7 +30,7 @@ set(SRC
 )
 
 if(${USING_NLOHMANN_JSON})
-    list(APPEND SRC design_json.hpp)
+    list(APPEND SRC design_json.hpp design_json.cpp)
 endif()
 
 add_library(phasephckr ${SRC})

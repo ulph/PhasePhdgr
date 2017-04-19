@@ -3,13 +3,18 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PhasePhckr.h"
+#include <vector>
 
 class PhasePhckrGrid : public Component
 {
 public:
+    PhasePhckrGrid() : numberOfColumns(2) {}
     void paint (Graphics&) override;
     void resized() override;
+    void addComponent(Component* component);
+    int numberOfColumns;
 private:
+    std::vector<Component*> gridComponents;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrGrid)
 };
 

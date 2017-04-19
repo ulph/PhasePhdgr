@@ -50,16 +50,30 @@ namespace PhasePhckr {
         void setFxChain(const ConnectionGraphDescriptor& fxChain);
         void setVoiceChain(const ConnectionGraphDescriptor_Numerical& fxChain); // DEPRECATED
         void setVoiceChain(const ConnectionGraphDescriptor& fxChain);
-        const Scope& getVoiceScope() const { return voiceScope; }
-        const Scope& getOutputScope() const { return outputScope; }
+        const Scope& getVoiceScope(int i) const {
+            if(i==0)
+                return voiceScopeL;
+            if(i==1)
+                return voiceScopeR;
+            return voiceScopeL;
+        }
+        const Scope& getOutputScope(int i) const {
+            if(i==0)
+                return outputScopeL;
+            if(i==1)
+                return outputScopeR;
+            return outputScopeL;
+        }
     private:
         template <class T>
         void setVoiceChain_internal(const T& voiceChain);
         VoiceBus *voiceBus;
         std::vector<SynthVoice*> voices;
         EffectChain* effects;
-        Scope voiceScope;
-        Scope outputScope;
+        Scope voiceScopeL;
+        Scope voiceScopeR;
+        Scope outputScopeL;
+        Scope outputScopeR;
         GlobalData *globalData;
         float scopeHz;
         int scopeVoiceIndex;

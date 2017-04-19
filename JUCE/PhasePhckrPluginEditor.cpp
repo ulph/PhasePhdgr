@@ -18,10 +18,15 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     : AudioProcessorEditor (&p), processor (p)
     , outputScope(processor.getSynth()->getOutputScope())
     , voiceScope(processor.getSynth()->getVoiceScope())
+    , mainFrame(TabbedButtonBar::TabsAtTop)
 {
-    setSize (1200, 680); // slightly less than 720p
-    addAndMakeVisible(outputScope);
-    addAndMakeVisible(voiceScope);
+    setResizeLimits(128, 128, 1800, 1000);
+    setConstrainer(nullptr);
+    setResizable(true, true);
+    setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
+    addAndMakeVisible(mainFrame);
+    mainFrame.addTab("scopes", Colours::black, &voiceScope, false);
+    mainFrame.addTab("master scope", Colours::black, &outputScope, false);
     resized();
 }
 
@@ -32,14 +37,11 @@ PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 //==============================================================================
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll(Colours::black);
-    g.setColour(Colours::white);
-    g.drawHorizontalLine((int)(getHeight()*0.5f), 0.0f, (float)this->getWidth());
 }
 
 void PhasePhckrAudioProcessorEditor::resized()
 {
-    voiceScope.setBoundsRelative(0, 0, 1, 0.5);
-    outputScope.setBoundsRelative(0, 0.5, 1, 0.5);
+    mainFrame.setBoundsRelative(0, 0, 1, 1);
+    mainFrame.repaint(); // sometimes it does work reliably otherwise
     repaint();
 }

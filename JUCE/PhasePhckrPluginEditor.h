@@ -35,6 +35,7 @@ private:
     PhasePhckrAudioProcessor& processor;
     PhasePhkrScope voiceScope;
     PhasePhkrScope outputScope;
+    TabbedComponent mainFrame;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };
 

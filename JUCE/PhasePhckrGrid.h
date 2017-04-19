@@ -12,8 +12,9 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     void addComponent(Component* component);
-    int numberOfColumns;
+    void setNumberOfColumns(int n);
 private:
+    int numberOfColumns;
     std::vector<Component*> gridComponents;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrGrid)
 };

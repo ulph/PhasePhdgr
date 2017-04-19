@@ -37,7 +37,6 @@ void PhasePhckrGrid::resized(){
       1.f/(float)numberOfColumns, // w
       1.f/(float)numberOfRows     // h
     );
-
     i++;
   }
 
@@ -48,4 +47,11 @@ void PhasePhckrGrid::addComponent(Component* component){
   addAndMakeVisible(*component);
   gridComponents.push_back(component);
   resized();
+}
+
+void PhasePhckrGrid::setNumberOfColumns(int n) {
+    if (n > 0) {
+        numberOfColumns = n;
+        resized();
+    }
 }

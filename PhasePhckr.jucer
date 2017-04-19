@@ -11,6 +11,10 @@
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.1"
               companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions">
   <MAINGROUP id="hSD0uH" name="PhasePhckr">
+    <FILE id="v6sYDe" name="DirectoryWatcher.cpp" compile="1" resource="0"
+          file="JUCE/DirectoryWatcher.cpp"/>
+    <FILE id="x89jZ8" name="DirectoryWatcher.hpp" compile="0" resource="0"
+          file="JUCE/DirectoryWatcher.hpp"/>
     <FILE id="BMSBvJ" name="PhasePhckrGrid.cpp" compile="1" resource="0"
           file="JUCE/PhasePhckrGrid.cpp"/>
     <FILE id="vxOj65" name="PhasePhckrGrid.h" compile="0" resource="0"

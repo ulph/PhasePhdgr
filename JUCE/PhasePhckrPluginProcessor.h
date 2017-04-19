@@ -41,10 +41,10 @@ public:
 
     const PhasePhckr::Synth* getSynth() const;
 
-    json getVoicePatch();
-    json getEffectPatch();
-    void setVoicePatch(json p);
-    void setEffectPatch(json p);
+    json getVoicePatch() { json j; PhasePhckr::to_json(j, voiceChain); return j; }
+    json getEffectPatch() { json j; PhasePhckr::to_json(j, effectChain); return j; }
+    void setVoicePatch(const json &j) { PhasePhckr::from_json(j, voiceChain); applyVoiceChain(); }
+    void setEffectPatch(const json &j) { PhasePhckr::from_json(j, effectChain); applyEffectChain(); }
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)

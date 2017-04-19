@@ -11,18 +11,9 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
 #include "design_json.hpp"
+#include "DirectoryWatcher.hpp"
 
-const std::string phasePhkrDirName = "phasephkr";
-const std::string effectsDirName = "effects";
-const std::string voiceDirName = "voice";
-const std::string componentsDirName = "components";
-
-static void createDirIfNeeded(File dir) {
-    if (!dir.exists()) {
-        auto res = dir.createDirectory();
-        // somehow we can check if was ok
-    }
-}
+using namespace PhasePhckrFileStuff;
 
 //==============================================================================
 PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
@@ -37,16 +28,6 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
                        )
 #endif
 {
-    rootDir = File(
-        File::getSpecialLocation(
-            File::SpecialLocationType::userApplicationDataDirectory
-        ).getFullPathName() + File::separator + phasePhkrDirName
-    );
-
-    //  create user dirs
-    effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
-    voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
-    componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);
 
     createDirIfNeeded(rootDir);
     createDirIfNeeded(effectsDir);

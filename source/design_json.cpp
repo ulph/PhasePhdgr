@@ -67,7 +67,7 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
     cgd.values = j.at("values").get<std::vector<ModulePortValue>>();
 }
 
-std::string prettydump(ConnectionGraphDescriptor& cgd)
+std::string prettydump(const ConnectionGraphDescriptor& cgd)
 {
     // rigid stupid pretty dump thing
     // as the json.hpp has too simplistic pretty printing

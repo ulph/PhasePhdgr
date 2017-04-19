@@ -25,7 +25,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     setResizable(true, true);
     setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
     addAndMakeVisible(mainFrame);
-    mainFrame.addTab("scopes", Colours::black, &voiceScope, false);
+    mainFrame.addTab("voice scope", Colours::black, &voiceScope, false);
     mainFrame.addTab("master scope", Colours::black, &outputScope, false);
     resized();
 }

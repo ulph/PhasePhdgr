@@ -4,16 +4,16 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PhasePhckr.h"
 
-class PhasePhkrScope    : public Component
+class PhasePhckrScope : public Component
 {
 public:
-    PhasePhkrScope(const PhasePhckr::Scope& source) : source(source) {}
-    ~PhasePhkrScope() {}
+    PhasePhckrScope(const PhasePhckr::Scope& source) : source(source) {}
+    ~PhasePhckrScope() {}
     void paint (Graphics&) override;
     void resized() override;
 private:
     const PhasePhckr::Scope& source;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhkrScope)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrScope)
 };
 
 #endif  // PHASEPHKRSCOPE_H_INCLUDED

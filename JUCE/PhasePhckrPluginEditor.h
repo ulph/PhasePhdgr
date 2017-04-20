@@ -5,6 +5,7 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"
+#include "GraphView.h"
 #include <vector>
 
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor
@@ -43,6 +44,12 @@ private:
 
     PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
+
+    Viewport voiceGraphViewport;
+    GraphView voiceGraphView;
+    
+    Viewport effectGraphViewport;
+    GraphView effectGraphView;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };

@@ -3,5 +3,6 @@ Builds/*
 /build
 \#*
 .\#*
-/.vscode
+.vscode
+*/.vscode
 CMakeLists.txt.user

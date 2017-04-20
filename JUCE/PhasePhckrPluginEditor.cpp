@@ -43,6 +43,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , effectDirectoryList(effectDirectoryWatcher)
     , voiceListListener([this](const File& f) { processor.setVoicePatch(loadJson(f)); voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch())); })
     , effectListListener([this](const File& f) { processor.setEffectPatch(loadJson(f)); effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch())); })
+    , voiceGraphViewport("voiceGraphView")
+    , effectGraphViewport("effectGraphView")
 {
     setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
@@ -69,8 +71,13 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorMenu.addComponent(&effectDirectoryList);
     editorMenu.setNumberOfColumns(2);
 
-    mainFrame.addTab("view", g_tabColor, nullptr, false);
-    // TODO, something here
+    mainFrame.addTab("voice graph", g_tabColor, &voiceGraphViewport, false);
+    voiceGraphViewport.setViewedComponent(&voiceGraphView, false);
+    voiceGraphView.setGraph(processor.getVoicePatch());
+
+    mainFrame.addTab("effect graph", g_tabColor, &effectGraphViewport, false);
+    effectGraphViewport.setViewedComponent(&effectGraphView, false);
+    effectGraphView.setGraph(processor.getEffectPatch());
 
     configureTabList(mainFrame);
 

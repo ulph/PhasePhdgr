@@ -3,31 +3,24 @@
 #include "PhasePhckr.h"
 #include <cstring>
 #include "DirectoryWatcher.hpp"
+#include "Style.hpp"
+
+PhasePhckrLookAndFeel g_lookAndFeel;
 
 using namespace PhasePhckrFileStuff;
 
 const Font monoFont = Font(Font::getDefaultMonospacedFontName(), 14, 0);
 
 static void configureEditor(TextEditor& ed) {
-    ed.setBorder(BorderSize<int>(14));
-    ed.setColour(ed.textColourId, Colours::green);
-    ed.setColour(ed.backgroundColourId, Colours::black);
-    ed.setColour(ed.highlightColourId, Colours::darkgreen);
-    ed.setColour(ed.highlightedTextColourId, Colours::lightgreen);
     ed.setMultiLine(true, false);
 }
 
 static void configureFileList(FileListComponent& bx) {
-    bx.setColour(bx.backgroundColourId, Colours::darkgreen);
-    bx.setColour(bx.outlineColourId, Colours::lightgreen);
-    bx.setColour(bx.ListBox::textColourId, Colours::white);
-    bx.setColour(bx.DirectoryContentsDisplayComponent::textColourId, Colours::white);
-    bx.setColour(bx.highlightColourId, Colours::black);
+    //
 }
 
 static void configureTabList(TabbedComponent& tbc) {
-    tbc.setColour(tbc.backgroundColourId, Colours::grey);
-    tbc.setColour(tbc.outlineColourId, Colours::white);
+    //
 }
 
 static json loadJson(const File & f) {
@@ -41,6 +34,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
     , outputScopeL(processor.getSynth()->getOutputScope(0))
     , outputScopeR(processor.getSynth()->getOutputScope(1))
+    , voiceScopeXY(processor.getSynth()->getVoiceScope(0), processor.getSynth()->getVoiceScope(1))
+    , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
     , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
     , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
@@ -49,19 +44,23 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , voiceListListener([this](const File& f) { processor.setVoicePatch(loadJson(f)); voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch())); })
     , effectListListener([this](const File& f) { processor.setEffectPatch(loadJson(f)); effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch())); })
 {
+    setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);
     setResizable(true, true);
     setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
     addAndMakeVisible(mainFrame);
 
-    mainFrame.addTab("scopes", Colours::black, &scopeGrid, false);
+    mainFrame.addTab("scopes", g_tabColor, &scopeGrid, false);
     scopeGrid.addComponent(&voiceScopeL);
+    scopeGrid.addComponent(&voiceScopeXY);
     scopeGrid.addComponent(&voiceScopeR);
     scopeGrid.addComponent(&outputScopeL);
+    scopeGrid.addComponent(&outputScopeXY);
     scopeGrid.addComponent(&outputScopeR);
+    scopeGrid.setNumberOfColumns(3);
 
-    mainFrame.addTab("files", Colours::black, &editorGrid, false);
+    mainFrame.addTab("files", g_tabColor, &editorGrid, false);
     editorGrid.addComponent(&voiceEditor);
     editorGrid.addComponent(&editorMenu);
     editorGrid.addComponent(&effectEditor);
@@ -70,7 +69,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorMenu.addComponent(&effectDirectoryList);
     editorMenu.setNumberOfColumns(2);
 
-    mainFrame.addTab("view", Colours::black, nullptr, false);
+    mainFrame.addTab("view", g_tabColor, nullptr, false);
     // TODO, something here
 
     configureTabList(mainFrame);
@@ -99,7 +98,7 @@ PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll(Colours::grey);
+    g.fillAll(Colours::black);
 }
 
 void PhasePhckrAudioProcessorEditor::resized()

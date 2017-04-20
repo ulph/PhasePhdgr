@@ -31,6 +31,7 @@
           file="JUCE/PhasePhckrScope.cpp"/>
     <FILE id="dQh2Pq" name="PhasePhckrScope.h" compile="0" resource="0"
           file="JUCE/PhasePhckrScope.h"/>
+    <FILE id="bMTeg8" name="Style.hpp" compile="0" resource="0" file="JUCE/Style.hpp"/>
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp">

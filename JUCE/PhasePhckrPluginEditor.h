@@ -19,10 +19,14 @@ public:
 
 private:
     PhasePhckrAudioProcessor& processor;
+
     PhasePhckrScope voiceScopeL;
-    PhasePhckrScope outputScopeL;
     PhasePhckrScope voiceScopeR;
+    PhasePhckrXYScope voiceScopeXY;
+    PhasePhckrScope outputScopeL;
     PhasePhckrScope outputScopeR;
+    PhasePhckrXYScope outputScopeXY;
+
     TabbedComponent mainFrame;
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid editorGrid;

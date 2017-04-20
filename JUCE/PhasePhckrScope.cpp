@@ -17,7 +17,6 @@ void PhasePhckrScope::paint (Graphics& g)
 
     g.setColour(Colours::yellow);
     if (sourceSize > 1 && size_x > 1) {
-        g.setColour(Colours::yellow);
         float xScale = size_x / (float)(sourceSize - 1);
         for (int i = 0; i < (sourceSize - 1); ++i) {
             g.drawLine(
@@ -34,6 +33,34 @@ void PhasePhckrScope::paint (Graphics& g)
 }
 
 void PhasePhckrScope::resized()
+{
+    repaint();
+}
+
+
+void PhasePhckrXYScope::paint (Graphics& g)
+{
+    float size_y = (float)this->getHeight();
+    float size_x = (float)this->getWidth();
+    int sourceSizeL = 0;
+    const float * sourceBufferL = sourceL.getBuffer(&sourceSizeL);
+    int sourceSizeR = 0;
+    const float * sourceBufferR = sourceR.getBuffer(&sourceSizeR);
+
+    if(sourceSizeL != sourceSizeR || sourceSizeL < 0){ repaint(); return; }
+
+    g.setColour(Colours::yellow);
+    for (int i = 0; i < sourceSizeL; ++i) {
+        g.setPixel(
+            size_x*(sourceBufferL[i]+0.5f),
+            size_y*(sourceBufferR[i]+0.5f)
+        );
+    }
+
+    repaint();
+}
+
+void PhasePhckrXYScope::resized()
 {
     repaint();
 }

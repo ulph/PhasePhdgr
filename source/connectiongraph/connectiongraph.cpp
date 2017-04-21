@@ -202,3 +202,15 @@ std::string ConnectionGraph::graphviz()
 
     return ss.str();
 }
+
+void ConnectionGraph::makeModuleDocs(std::vector<ModuleDoc> &docList) {
+    for (const auto & p : moduleRegister) {
+        auto m = p.second();
+        ModuleDoc doc;
+        doc.type = p.first;
+        doc.docString = m->docString();
+        doc.inputs = m->copyInputPads();
+        doc.outputs = m->copyOutputPads();
+        docList.push_back(doc);
+    }
+}

@@ -76,4 +76,5 @@ struct PatchDescriptor {
 bool registerComponent(std::string name, const ComponentDescriptor & desc);
 bool getComponent(std::string name, ComponentDescriptor & desc);
 
+
 }

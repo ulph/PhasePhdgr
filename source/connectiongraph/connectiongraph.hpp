@@ -7,6 +7,14 @@
 
 class Module;
 class Cable;
+struct Pad;
+
+struct ModuleDoc {
+    std::string type;
+    std::vector<Pad> inputs;
+    std::vector<Pad> outputs;
+    std::string docString;
+};
 
 class ConnectionGraph
 {
@@ -34,6 +42,7 @@ public:
     float getOutput(int module, int pad);
     void process(int module, float fs);
     std::string graphviz();
+    void makeModuleDocs(std::vector<ModuleDoc> &doc);
 };
 
 #endif

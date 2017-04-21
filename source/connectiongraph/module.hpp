@@ -64,6 +64,15 @@ public:
 
     void setName(const std::string &n) { name = n; }
     std::string getName() { return name; }
+
+    virtual std::string docString() { return "..."; };
+    std::vector<Pad> copyInputPads() {
+        return inputs;
+    }
+    std::vector<Pad> copyOutputPads() {
+        return outputs;
+    }
+
 };
 
 #endif

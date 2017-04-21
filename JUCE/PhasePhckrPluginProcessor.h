@@ -55,10 +55,6 @@ public:
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
     PhasePhckr::Synth* synth;
-    File rootDir;
-    File effectsDir;
-    File voicesDir;
-    File componentsDir;
     PhasePhckr::ConnectionGraphDescriptor voiceChain;
     PhasePhckr::ConnectionGraphDescriptor effectChain;
     void applyVoiceChain();

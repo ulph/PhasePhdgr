@@ -6,7 +6,7 @@ void PhasePhckrGrid::paint(Graphics& g){
   float size_y = (float)this->getHeight();
   float size_x = (float)this->getWidth();
 
-  g.setColour(Colours::grey);
+  g.setColour(Colours::darkgrey);
   
   for(int i=0; i<numberOfRows; ++i){
     g.drawHorizontalLine(((float)i/(float)numberOfRows) * size_y, 0.0f, size_x);

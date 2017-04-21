@@ -13,22 +13,46 @@
 
 typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
 
-struct PathAndCost{
-    std::vector<std::string> path;
-    int cost;
-};
-
-/*
-bool updateNodesX(
-    std::string start,
+void updateNodesX(
     std::map<std::string, XY> & positions,
-    const ConnectionsMap &connections
+    const ConnectionsMap &connections,
+    const XY &lowerBound,
+    const XY &upperBound
     )
 {
-    float y = positions[start].y;
-    return true;
+    // convert to a bunch of lines
+    std::vector<std::vector<std::string>> pyramid;
+    for(float y=lowerBound.y; y<upperBound.y; y++){
+        std::vector<std::string> layer;
+        for(const auto & m : positions){
+            if(m.second.y==y){
+                layer.push_back(m.first);
+            }
+        }
+        pyramid.push_back(layer);
+    }
+
+    // iterate over the lines, shuffling around X values for a bit
+    bool done = false;
+    int iter=0;
+    while(!done && iter<1000){
+        for(auto layer : pyramid){
+            while(layer.size()){
+                auto &p = layer.back(); layer.pop_back();
+                for( auto &p_other : layer){
+                    auto dx = positions[p].x - positions[p_other].x;
+                    auto force = -powf(2.0f, -(50*dx)*(50*dx));
+                    positions[p].x += force;
+                    positions[p_other].x -= force;
+                    
+                }
+            }
+        }
+        iter++;
+    }
+
+    // apply the re-arranged lines
 }
-*/
 
 void updateNodesY(
   const std::string & node, 
@@ -96,7 +120,7 @@ void GraphView::paint (Graphics& g){
         if (y1 <= y0) {
             g.setColour(Colours::darkgrey);
             float dy = 0.25*nodeSize;
-            float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1);
+            float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1); 
             float s = x1 != x0 ? 1 : -1;
             float x[7]{
                 x0+dx, 
@@ -192,6 +216,21 @@ void GraphView::recalculate(){
   int y_bias = modulePosition[start].y;
   for (auto &p: modulePosition){
       p.second.y -= y_bias;
+  }
+
+  recalculateBounds();
+
+  updateNodesX(modulePosition, connections, lowerBound, upperBound);
+
+  int x_bias = INT_MAX;
+  for (auto &p: modulePosition){
+      if(p.second.x < x_bias){
+          x_bias = p.second.x;
+      }
+  }
+
+  for (auto &p: modulePosition){
+     p.second.x -= x_bias;
   }
 
   recalculateBounds();

@@ -18,13 +18,17 @@ struct PathAndCost{
     int cost;
 };
 
-std::vector<PathAndCost> updateNodesX(
-    const PathAndCost &path, 
+/*
+bool updateNodesX(
+    std::string start,
     std::map<std::string, XY> & positions,
     const ConnectionsMap &connections
     )
 {
+    float y = positions[start].y;
+    return true;
 }
+*/
 
 void updateNodesY(
   const std::string & node, 
@@ -185,10 +189,10 @@ void GraphView::recalculate(){
   }
 
   // and shift everything to positive
-  int bias = modulePosition[start].y;
+  int y_bias = modulePosition[start].y;
   for (auto &p: modulePosition){
-      p.second.y -= bias;
-  } 
+      p.second.y -= y_bias;
+  }
 
   recalculateBounds();
 
@@ -197,20 +201,21 @@ void GraphView::recalculate(){
 void GraphView::recalculateBounds() {
     bool boundChanged = false;
     for (const auto &mp : modulePosition) {
-        if (mp.second.x < x_bounds.first) {
-            x_bounds.first = mp.second.x;
+        const auto & p = mp.second;
+        if (mp.second.x < lowerBound.x) {
+            lowerBound.x = p.x;
             boundChanged = true;
         }
-        if (mp.second.x > x_bounds.second) {
-            x_bounds.second = mp.second.x;
+        if (mp.second.x > upperBound.x) {
+            upperBound.x = p.x;
             boundChanged = true;
         }
-        if (mp.second.y < y_bounds.first) {
-            y_bounds.first = mp.second.y;
+        if (mp.second.y < lowerBound.y) {
+            lowerBound.y = p.y;
             boundChanged = true;
         }
-        if (mp.second.y > y_bounds.second) {
-            y_bounds.second = mp.second.y;
+        if (mp.second.y > upperBound.y) {
+            upperBound.y = p.y;
             boundChanged = true;
         }
     }
@@ -219,8 +224,8 @@ void GraphView::recalculateBounds() {
         setBounds(
             0,
             0,
-            (x_bounds.second - x_bounds.first + 1)*gridSize,
-            (y_bounds.second - y_bounds.first + 1)*gridSize
+            (upperBound.x - lowerBound.x + 1)*gridSize,
+            (upperBound.y - lowerBound.y + 1)*gridSize
         );
     }
 

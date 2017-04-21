@@ -38,8 +38,8 @@ private:
     const std::string *clickedComponent;
     void recalculate();
     void recalculateBounds();
-    std::pair<float, float> x_bounds;
-    std::pair<float, float> y_bounds;
+    XY upperBound;
+    XY lowerBound;
     float gridSize;
     float nodeSize;
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;

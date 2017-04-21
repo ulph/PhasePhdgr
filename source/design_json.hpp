@@ -36,5 +36,7 @@ namespace PhasePhckr {
     void from_json(const json& j, PatchDescriptor& cgd);
 
     std::string prettydump(const ConnectionGraphDescriptor& cgd);
+    std::string prettydump(const ComponentDescriptor& cgd);
+    std::string prettydump(const PatchDescriptor& cgd);
 
 }

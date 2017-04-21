@@ -93,14 +93,14 @@ void from_json(const json& j, PatchDescriptor& cgd) {
     cgd.effectGraph = j.at("effect");
 }
 
-std::string prettydump(const ConnectionGraphDescriptor& cgd)
-{
+// I hate myself for doing this ...
+
+std::string prettydump_(const ConnectionGraphDescriptor& cgd){
     // rigid stupid pretty dump thing
     // as the json.hpp has too simplistic pretty printing
-    int i = 0;
     std::stringstream ss;
-    ss << u8"{" << std::endl;
 
+    int i = 0;
     ss << "  \"modules\" : [";
     i = cgd.modules.size();
     for (const auto& m : cgd.modules) {
@@ -125,8 +125,49 @@ std::string prettydump(const ConnectionGraphDescriptor& cgd)
     }
     ss << "\n  ]\n";
 
-    ss << "}" << std::endl;
+    return ss.str();
+}
 
+std::string prettydump(const ConnectionGraphDescriptor& cgd)
+{
+    std::stringstream ss;
+    ss << u8"{" << std::endl;
+    ss << prettydump_(cgd);
+    ss << "}" << std::endl;
+    return ss.str();
+}
+
+std::string prettydump(const ComponentDescriptor& cgd){
+    std::stringstream ss;
+    ss << u8"{" << std::endl;
+
+    int i = 0;
+    ss << "  \"input\" : [";
+    i = cgd.input.size();
+    for (const auto& m : cgd.input) {
+        ss << "\n    " << json(m);
+        if (--i != 0) ss << ",";
+    }
+    ss << "\n  ],\n";
+
+    ss << "  \"output\" : [";
+    i = cgd.input.size();
+    for (const auto& m : cgd.output) {
+        ss << "\n    " << json(m);
+        if (--i != 0) ss << ",";
+    }
+    ss << "\n  ],\n";
+    ss << prettydump_(cgd.graph);
+    ss << "}" << std::endl;
+    return ss.str();
+}
+
+std::string prettydump(const PatchDescriptor& cgd){
+    std::stringstream ss;
+    ss << u8"{" << std::endl;
+    ss << "\"voice\" : " << prettydump(cgd.voiceGraph);
+    ss << ",\"effect\" : " << prettydump(cgd.effectGraph);
+    ss << "}" << std::endl;
     return ss.str();
 }
 

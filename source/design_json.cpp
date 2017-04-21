@@ -157,7 +157,9 @@ std::string prettydump(const ComponentDescriptor& cgd){
         if (--i != 0) ss << ",";
     }
     ss << "\n  ],\n";
+
     ss << prettydump_(cgd.graph);
+
     ss << "}" << std::endl;
     return ss.str();
 }

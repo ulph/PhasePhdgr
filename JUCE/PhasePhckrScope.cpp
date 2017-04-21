@@ -5,7 +5,7 @@ void PhasePhckrScope::paint (Graphics& g)
 {
     float size_y = (float)this->getHeight();
     float size_x = (float)this->getWidth();
-    float yScale = size_y / (2.0f*1.0f + 0.25f);
+    float yScale = size_y / (2.0f*1.0f + 0.75f);
 
     g.setColour(Colours::brown);
     g.drawLine(0.0f, (size_y*0.5f), size_x, (size_y*0.5f), 0.5f);

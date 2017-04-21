@@ -50,15 +50,16 @@ struct ConnectionGraphDescriptor_Numerical {
     std::vector<ModulePortValue_Numerical> values;
 };
 
-// populate a connectionGraph
-std::map<std::string, int> DesignConnectionGraph(
+void DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const ConnectionGraphDescriptor &description
+    const ConnectionGraphDescriptor &description,
+    std::map<std::string, int> & moduleHandles
 );
 
-std::map<std::string, int> DesignConnectionGraph(
+void DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const ConnectionGraphDescriptor_Numerical &description
+    const ConnectionGraphDescriptor_Numerical &description,
+    std::map<std::string, int> & moduleHandles
 );
 
 struct ComponentDescriptor {
@@ -71,5 +72,8 @@ struct PatchDescriptor {
     ConnectionGraphDescriptor voiceGraph;
     ConnectionGraphDescriptor effectGraph;
 };
+
+bool registerComponent(std::string name, const ComponentDescriptor & desc);
+bool getComponent(std::string name, ComponentDescriptor & desc);
 
 }

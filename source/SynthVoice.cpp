@@ -17,9 +17,11 @@ void SynthVoice::init(const T& voiceChain)
     graph.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
     graph.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
 
-    std::map<std::string, int> handles = DesignConnectionGraph(
+    std::map<std::string, int> handles;
+    DesignConnectionGraph(
         connectionGraph,
-        graph
+        graph,
+        handles
     );
 
     inBus = handles["inBus"];

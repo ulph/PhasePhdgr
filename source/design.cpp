@@ -4,12 +4,50 @@
 namespace PhasePhckr {
 
 template <typename T>
-std::map<std::string, int> DesignConnectionGraph(
+void unpackComponent(
     ConnectionGraph &connectionGraph,
-    const T& p
+    const ModuleVariable &mv, 
+    std::map<std::string, int>&mh
 ) {
-    // internal place to bounce strings to handles
-    std::map<std::string, int> moduleHandles;
+    ComponentDescriptor comp;
+    if (!getComponent(mv.type, comp)) {
+        std::cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << std::endl;
+        return;
+    }
+
+    const std::string pfx = mv.name + "@";
+    for (auto &i : comp.input) {
+        i.module = pfx + i.module;
+    }
+    for (auto &o : comp.output) {
+        o.module = pfx + o.module;
+    }
+    for (auto &m : comp.graph.modules) {
+        m.name = pfx + m.name;
+    }
+    for (auto &v : comp.graph.values) {
+        v.target.module = pfx + v.target.module;
+    }
+    for (auto &c : comp.graph.connections) {
+        c.from.module = pfx + c.from.module;
+        c.to.module = pfx + c.to.module;
+    }
+
+    DesignConnectionGraph(connectionGraph, comp.graph, mh);
+}
+
+template <typename T>
+void DesignConnectionGraph(
+    ConnectionGraph &connectionGraph,
+    const T& p,
+    std::map<std::string, int>&moduleHandles
+) {
+    // find any components (module bundles) and unpack them
+    for (const auto &m : p.modules) {
+        if (m.type.front() == '@') {
+            unpackComponent<T>(connectionGraph, m, moduleHandles);
+        }
+    }
 
     // create the modules and store their handles
     for (const auto &m : p.modules) {
@@ -46,16 +84,28 @@ std::map<std::string, int> DesignConnectionGraph(
             connectionGraph.setInput(targetHandle, v.target.port, v.value);
         }
     }
-
-    return moduleHandles;
 }
 
-std::map<std::string, int> DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor & p) {
-    return DesignConnectionGraph<ConnectionGraphDescriptor>(connectionGraph, p);
+void DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor & p, std::map<std::string, int>&mh) {
+    DesignConnectionGraph<ConnectionGraphDescriptor>(connectionGraph, p, mh);
 }
 
-std::map<std::string, int> DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor_Numerical & p) {
-    return DesignConnectionGraph<ConnectionGraphDescriptor_Numerical>(connectionGraph, p);
+void DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor_Numerical & p, std::map<std::string, int>&mh) {
+    DesignConnectionGraph<ConnectionGraphDescriptor_Numerical>(connectionGraph, p, mh);
+}
+
+std::map<std::string, ComponentDescriptor> g_componentRegistry;
+
+bool registerComponent(std::string name, const ComponentDescriptor & desc) {
+    if (g_componentRegistry.count(name)) return false;
+    g_componentRegistry[name] = desc;
+    return true;
+}
+
+bool getComponent(std::string name, ComponentDescriptor & desc) {
+    if (!g_componentRegistry.count(name)) return false;
+    desc = g_componentRegistry[name];
+    return true;
 }
 
 }

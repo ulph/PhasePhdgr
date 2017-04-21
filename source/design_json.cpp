@@ -79,13 +79,13 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.graph.modules = j.at("modules").get<std::vector<ModuleVariable>>();
     cgd.graph.connections = j.at("connections").get<std::vector<ModulePortConnection>>();
     cgd.graph.values = j.at("values").get<std::vector<ModulePortValue>>();
-    cgd.graph.input = j.at("input").get<std::vector<ModuleVariable>>();
-    cgd.graph.output = j.at("output").get<std::vector<ModuleVariable>>();
+    cgd.input = j.at("input").get<std::vector<ModulePort>>();
+    cgd.output = j.at("output").get<std::vector<ModulePort>>();
 }
 
 void to_json(json& j, const PatchDescriptor& cgd) {
-    j["voice"] = ;
-    j["effect"] =
+    j["voice"] = cgd.voiceGraph;
+    j["effect"] = cgd.effectGraph;
 }
 
 void from_json(const json& j, PatchDescriptor& cgd) {

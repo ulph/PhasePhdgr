@@ -67,6 +67,32 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
     cgd.values = j.at("values").get<std::vector<ModulePortValue>>();
 }
 
+void to_json(json& j, const ComponentDescriptor& cgd) {
+    j["modules"] = cgd.graph.modules;
+    j["connections"] = cgd.graph.connections;
+    j["values"] = cgd.graph.values;
+    j["input"] = cgd.input;
+    j["output"] = cgd.output;
+}
+
+void from_json(const json& j, ComponentDescriptor& cgd) {
+    cgd.graph.modules = j.at("modules").get<std::vector<ModuleVariable>>();
+    cgd.graph.connections = j.at("connections").get<std::vector<ModulePortConnection>>();
+    cgd.graph.values = j.at("values").get<std::vector<ModulePortValue>>();
+    cgd.graph.input = j.at("input").get<std::vector<ModuleVariable>>();
+    cgd.graph.output = j.at("output").get<std::vector<ModuleVariable>>();
+}
+
+void to_json(json& j, const PatchDescriptor& cgd) {
+    j["voice"] = ;
+    j["effect"] =
+}
+
+void from_json(const json& j, PatchDescriptor& cgd) {
+    cgd.voiceGraph = j.at("voice");
+    cgd.effectGraph = j.at("effect");
+}
+
 std::string prettydump(const ConnectionGraphDescriptor& cgd)
 {
     // rigid stupid pretty dump thing

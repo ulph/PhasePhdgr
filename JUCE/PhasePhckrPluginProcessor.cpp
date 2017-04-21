@@ -33,6 +33,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     createDirIfNeeded(effectsDir);
     createDirIfNeeded(voicesDir);
     createDirIfNeeded(componentsDir);
+    createDirIfNeeded(patchesDir);
 
     // load init patch, dump to disk otherwise
     File initVoice = voicesDir.getFullPathName() + File::separator + "_init_voice.json";

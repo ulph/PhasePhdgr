@@ -37,13 +37,20 @@ private:
     PhasePhckrGrid editorMenu;
 
     DirectoryContentsList voiceDirectoryWatcher;
-    DirectoryContentsList effectDirectoryWatcher;
-
     FileListComponent voiceDirectoryList;
-    FileListComponent effectDirectoryList;
-
     PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
+
+    DirectoryContentsList effectDirectoryWatcher;
+    FileListComponent effectDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
+
+    DirectoryContentsList componentDirectoryWatcher;
+    FileListComponent componentDirectoryList;
+    PhasePhckrFileStuff::StupidFileBrowserListener componentListListener;
+
+    DirectoryContentsList patchDirectoryWatcher;
+    FileListComponent patchDirectoryList;
+    PhasePhckrFileStuff::StupidFileBrowserListener patchListListener;
 
     Viewport voiceGraphViewport;
     GraphView voiceGraphView;

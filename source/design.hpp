@@ -61,15 +61,15 @@ std::map<std::string, int> DesignConnectionGraph(
     const ConnectionGraphDescriptor_Numerical &description
 );
 
-// the following two are for creating "components"
-struct BusDiscriptor {
-    std::string type; // 'input' or 'output'
-    ModulePort value;
+struct ComponentDescriptor {
+    std::vector<ModulePort> input;
+    std::vector<ModulePort> output;
+    ConnectionGraphDescriptor graph;
 };
 
-struct ComponentDescriptor {
-    std::vector<BusDiscriptor> bus;
-    ConnectionGraphDescriptor graph;
+struct PatchDescriptor {
+    ConnectionGraphDescriptor voiceGraph;
+    ConnectionGraphDescriptor effectGraph;
 };
 
 }

@@ -27,6 +27,7 @@ namespace PhasePhckrFileStuff {
     const std::string effectsDirName = "effects";
     const std::string voiceDirName = "voice";
     const std::string componentsDirName = "components";
+    const std::string patchesDirName = "patches";
 
     const File rootDir = File(
         File::getSpecialLocation(
@@ -37,6 +38,7 @@ namespace PhasePhckrFileStuff {
     const File effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
     const File voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
     const File componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);
+    const File patchesDir = File(rootDir.getFullPathName() + File::separator + patchesDirName);
 
     void createDirIfNeeded(File dir);
 

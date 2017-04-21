@@ -15,14 +15,6 @@ static void configureEditor(TextEditor& ed) {
     ed.setMultiLine(true, false);
 }
 
-static void configureFileList(FileListComponent& bx) {
-    //
-}
-
-static void configureTabList(TabbedComponent& tbc) {
-    //
-}
-
 static json loadJson(const File & f) {
     String s = f.loadFileAsString();
     return json::parse(s.toStdString().c_str());
@@ -37,14 +29,35 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , voiceScopeXY(processor.getSynth()->getVoiceScope(0), processor.getSynth()->getVoiceScope(1))
     , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
-    , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
-    , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
-    , voiceDirectoryList(voiceDirectoryWatcher)
-    , effectDirectoryList(effectDirectoryWatcher)
-    , voiceListListener([this](const File& f) { processor.setVoicePatch(loadJson(f)); voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch())); })
-    , effectListListener([this](const File& f) { processor.setEffectPatch(loadJson(f)); effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch())); })
     , voiceGraphViewport("voiceGraphView")
     , effectGraphViewport("effectGraphView")
+
+    , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
+    , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
+    , componentDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
+    , patchDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
+    
+    , voiceDirectoryList(voiceDirectoryWatcher)
+    , effectDirectoryList(effectDirectoryWatcher)
+    , componentDirectoryList(componentDirectoryWatcher)
+    , patchDirectoryList(patchDirectoryWatcher)
+
+    , voiceListListener([this](const File& f) { 
+        processor.setVoicePatch(loadJson(f)); 
+        voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch())); 
+        })
+
+    , effectListListener([this](const File& f) { 
+        processor.setEffectPatch(loadJson(f)); 
+        effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch())); 
+        })
+
+    , componentListListener([this](const File& f) { 
+        })
+
+    , patchListListener([this](const File& f) { 
+        })
+
 {
     setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
@@ -69,6 +82,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorGrid.setNumberOfColumns(3);
     editorMenu.addComponent(&voiceDirectoryList);
     editorMenu.addComponent(&effectDirectoryList);
+    editorMenu.addComponent(&componentDirectoryList);
+    editorMenu.addComponent(&patchDirectoryList);
     editorMenu.setNumberOfColumns(2);
 
     mainFrame.addTab("voice graph", g_tabColor, &voiceGraphViewport, false);
@@ -79,19 +94,18 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     effectGraphViewport.setViewedComponent(&effectGraphView, false);
     effectGraphView.setGraph(processor.getEffectPatch());
 
-    configureTabList(mainFrame);
-
-    configureFileList(voiceDirectoryList);
-    configureFileList(effectDirectoryList);
-
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);
-
-    configureEditor(voiceEditor);
-    configureEditor(effectEditor);
+    componentDirectoryList.addListener(&componentListListener);
+    patchDirectoryList.addListener(&patchListListener);
 
     voiceDirectoryWatcher.setDirectory(PhasePhckrFileStuff::voicesDir, true, true);
     effectDirectoryWatcher.setDirectory(PhasePhckrFileStuff::effectsDir, true, true);
+    componentDirectoryWatcher.setDirectory(PhasePhckrFileStuff::componentsDir, true, true);
+    patchDirectoryWatcher.setDirectory(PhasePhckrFileStuff::patchesDir, true, true);
+
+    configureEditor(voiceEditor);
+    configureEditor(effectEditor);
 
     voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch()));
     effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch()));

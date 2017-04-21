@@ -8,9 +8,9 @@ void PhasePhckrScope::paint (Graphics& g)
     float yScale = size_y / (2.0f*1.0f + 0.25f);
 
     g.setColour(Colours::brown);
-    g.drawHorizontalLine((int)(size_y*0.5f), 0.0f, size_x);
-    g.drawHorizontalLine((int)(size_y*0.5f + yScale), 0.0f, size_x);
-    g.drawHorizontalLine((int)(size_y*0.5f - yScale), 0.0f, size_x);
+    g.drawLine(0.0f, (size_y*0.5f), size_x, (size_y*0.5f), 0.5f);
+    g.drawLine(0.0f, (size_y*0.5f + yScale), size_x, (size_y*0.5f + yScale), 0.5f);
+    g.drawLine(0.0f, (size_y*0.5f - yScale), size_x, (size_y*0.5f - yScale), 0.5f);
 
     int sourceSize = 0;
     const float * sourceBuffer = source.getBuffer(&sourceSize);

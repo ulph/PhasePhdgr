@@ -75,6 +75,16 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     scopeGrid.addComponent(&outputScopeR);
     scopeGrid.setNumberOfColumns(3);
 
+    mainFrame.addTab("perform", g_tabColor, &performGrid, false);
+
+    mainFrame.addTab("voice graph", g_tabColor, &voiceGraphViewport, false);
+    voiceGraphViewport.setViewedComponent(&voiceGraphView, false);
+    voiceGraphView.setGraph(processor.getVoicePatch());
+
+    mainFrame.addTab("effect graph", g_tabColor, &effectGraphViewport, false);
+    effectGraphViewport.setViewedComponent(&effectGraphView, false);
+    effectGraphView.setGraph(processor.getEffectPatch());
+
     mainFrame.addTab("files", g_tabColor, &editorGrid, false);
     editorGrid.addComponent(&voiceEditor);
     editorGrid.addComponent(&editorMenu);
@@ -85,14 +95,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorMenu.addComponent(&componentDirectoryList);
     editorMenu.addComponent(&patchDirectoryList);
     editorMenu.setNumberOfColumns(2);
-
-    mainFrame.addTab("voice graph", g_tabColor, &voiceGraphViewport, false);
-    voiceGraphViewport.setViewedComponent(&voiceGraphView, false);
-    voiceGraphView.setGraph(processor.getVoicePatch());
-
-    mainFrame.addTab("effect graph", g_tabColor, &effectGraphViewport, false);
-    effectGraphViewport.setViewedComponent(&effectGraphView, false);
-    effectGraphView.setGraph(processor.getEffectPatch());
 
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);

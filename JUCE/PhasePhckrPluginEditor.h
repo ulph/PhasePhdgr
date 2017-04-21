@@ -36,6 +36,8 @@ private:
     TextEditor effectEditor;
     PhasePhckrGrid editorMenu;
 
+    PhasePhckrGrid performGrid;
+
     DirectoryContentsList voiceDirectoryWatcher;
     FileListComponent voiceDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;

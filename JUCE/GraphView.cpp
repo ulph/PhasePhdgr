@@ -9,13 +9,46 @@
 */
 
 #include "GraphView.h"
+#include <algorithm>
+
+typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
+
+struct PathAndCost{
+    std::vector<std::string> path;
+    int cost;
+};
+
+std::vector<PathAndCost> updateNodesX(
+    const PathAndCost &path, 
+    std::map<std::string, XY> & positions,
+    const ConnectionsMap &connections
+    )
+{
+}
+
+void updateNodesY(
+  const std::string & node, 
+  std::map<std::string, XY> & positions,
+  const ConnectionsMap & connections,
+  int depth,
+  const std::string & terminator
+  )
+{
+    int currentDepth = positions[node].y;
+    if(depth <= currentDepth) return;
+    positions[node].y = depth;
+    if(node == terminator) return;
+    for(const auto &c : connections.at(node)){
+        updateNodesY(c, positions, connections, depth-1, terminator);
+    }
+}
 
 void GraphView::mouseDown(const MouseEvent & event) {
     for (const auto & mp : modulePosition) {
-        float x1 = (mp.second.x - x_bounds.first)*gridSize;
-        float x2 = (mp.second.x - x_bounds.first)*gridSize + nodeSize;
-        float y1 = (mp.second.y - y_bounds.first)*gridSize;
-        float y2 = (mp.second.y - y_bounds.first)*gridSize + nodeSize;
+        float x1 = mp.second.x*gridSize;
+        float x2 = mp.second.x*gridSize + nodeSize;
+        float y1 = mp.second.y*gridSize;
+        float y2 = mp.second.y*gridSize + nodeSize;
         if ( (event.x >= x1 ) 
           && (event.x <= x2 )
           && (event.y >= y1 )
@@ -31,8 +64,8 @@ void GraphView::mouseDown(const MouseEvent & event) {
 
 void GraphView::mouseDrag(const MouseEvent & event) {
     if (clickedComponent) {
-        modulePosition[*clickedComponent].x = (event.x - 0.5*nodeSize) / gridSize + x_bounds.first;
-        modulePosition[*clickedComponent].y = (event.y - 0.5*nodeSize) / gridSize + y_bounds.first;
+        modulePosition[*clickedComponent].x = (event.x - 0.5*nodeSize) / gridSize;
+        modulePosition[*clickedComponent].y = (event.y - 0.5*nodeSize) / gridSize;
         repaint();
     }
 }
@@ -47,10 +80,10 @@ void GraphView::paint (Graphics& g){
     for (const auto &mpc : graphDescriptor.connections) {
         auto from = mpc.from.module;
         auto to = mpc.to.module;
-        float x0 = (modulePosition[from].x - x_bounds.first)*gridSize + 0.5*nodeSize;
-        float x1 = (modulePosition[to].x - x_bounds.first)*gridSize + 0.5*nodeSize;
-        float y0 = (modulePosition[from].y - y_bounds.first)*gridSize + nodeSize;
-        float y1 = (modulePosition[to].y - y_bounds.first)*gridSize;
+        float x0 = modulePosition[from].x*gridSize + 0.5*nodeSize;
+        float x1 = modulePosition[to].x*gridSize + 0.5*nodeSize;
+        float y0 = modulePosition[from].y*gridSize + nodeSize;
+        float y1 = modulePosition[to].y*gridSize;
 
         Path path;
         PathStrokeType strokeType(1);
@@ -99,8 +132,8 @@ void GraphView::paint (Graphics& g){
 
     g.setColour(Colours::white);
     for(const auto &mp : modulePosition){
-        float x = (mp.second.x - x_bounds.first)*gridSize;
-        float y = (mp.second.y - y_bounds.first)*gridSize;
+        float x = mp.second.x*gridSize;
+        float y = mp.second.y*gridSize;
         float w = nodeSize;
         float h = nodeSize;
         g.drawRoundedRectangle(x, y, w, h, 5.f, 2.f);
@@ -118,27 +151,8 @@ void GraphView::setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph){
   recalculate();
 }
 
-void GraphView::updateNodeDepths(
-  const std::string & node, 
-  std::map<std::string, XY> & positions,
-  const ConnectionsMap & connections,
-  int depth,
-  const std::string & terminator
-  )
-{
-    int currentDepth = positions[node].y;
-    if(depth <= currentDepth) return;
-    std::cout << node << " " << depth << std::endl;
-    positions[node].y = depth;
-    if(node == terminator) return;
-    for(const auto &c : connections.at(node)){
-        updateNodeDepths(c, positions, connections, depth-1, terminator);
-    }
-}
-
 void GraphView::recalculate(){
   modulePosition.clear();
-  std::cout << "= bnis =" << std::endl;
 
   // initial positions
   for(const auto &mv : graphDescriptor.modules){
@@ -159,15 +173,22 @@ void GraphView::recalculate(){
 
   // find all paths starting from inBus
   int depth = 0;
-  updateNodeDepths(
+  updateNodesY(
       stop, modulePosition, connections, depth, start
   );
   
+  // special case to make inBus always at the top
   for (auto const &p: modulePosition){
       if(p.first != start && p.second.y <= modulePosition[start].y){
           modulePosition[start].y = p.second.y - 1;
       }
   }
+
+  // and shift everything to positive
+  int bias = modulePosition[start].y;
+  for (auto &p: modulePosition){
+      p.second.y -= bias;
+  } 
 
   recalculateBounds();
 
@@ -196,8 +217,8 @@ void GraphView::recalculateBounds() {
 
     if (boundChanged) {
         setBounds(
-            (x_bounds.first - 1)*gridSize,
-            (y_bounds.first - 1)*gridSize,
+            0,
+            0,
             (x_bounds.second - x_bounds.first + 1)*gridSize,
             (y_bounds.second - y_bounds.first + 1)*gridSize
         );

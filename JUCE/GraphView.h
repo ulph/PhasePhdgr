@@ -10,8 +10,6 @@
 #include <assert.h>
 #include <climits>
 
-typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
-
 struct XY {
     XY() : x(0), y(0){}
     XY(float x, float y) : x(x), y(y){}
@@ -38,13 +36,6 @@ public:
 
 private:
     const std::string *clickedComponent;
-    void updateNodeDepths(
-      const std::string & node, 
-      std::map<std::string, XY> & positions,
-      const ConnectionsMap & connections,
-      int depth,
-      const std::string & terminator
-      );
     void recalculate();
     void recalculateBounds();
     std::pair<float, float> x_bounds;

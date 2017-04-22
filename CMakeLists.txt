@@ -4,16 +4,13 @@ set (CMAKE_CXX_STANDARD 11)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+include_directories(include)
+
 find_package(Threads)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
-option(BUILD_JUCE_STUFF OFF)
-if(${BUILD_JUCE_STUFF})
-    add_subdirectory(JUCE)
-endif()
 
 option(USING_NLOHMANN_JSON OFF)
 if(${USING_NLOHMANN_JSON})
@@ -30,4 +27,16 @@ endif()
 
 add_subdirectory(source)
 
+option(BUILD_JUCE_STUFF OFF)
+if(${BUILD_JUCE_STUFF})
+    add_subdirectory(JUCE)
+endif()
+
 add_subdirectory(test)
+
+install(FILES 
+    include/PhasePhckr.h 
+    include/design.hpp
+    include/design_json.hpp
+    DESTINATION include
+)

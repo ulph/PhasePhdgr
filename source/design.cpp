@@ -3,7 +3,6 @@
 
 namespace PhasePhckr {
 
-template <typename T>
 void unpackComponent(
     ConnectionGraph &connectionGraph,
     const ModuleVariable &mv, 
@@ -17,10 +16,14 @@ void unpackComponent(
 
     const std::string pfx = mv.name + "@";
     for (auto &i : comp.input) {
-        i.module = pfx + i.module;
+        for (auto &t : i.targets) {
+            t.module = pfx + t.module;
+        }
     }
     for (auto &o : comp.output) {
-        o.module = pfx + o.module;
+        for (auto &t : o.targets) {
+            t.module = pfx + t.module;
+        }
     }
     for (auto &m : comp.graph.modules) {
         m.name = pfx + m.name;
@@ -36,16 +39,15 @@ void unpackComponent(
     DesignConnectionGraph(connectionGraph, comp.graph, mh);
 }
 
-template <typename T>
 void DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const T& p,
+    const ConnectionGraphDescriptor& p,
     std::map<std::string, int>&moduleHandles
 ) {
     // find any components (module bundles) and unpack them
     for (const auto &m : p.modules) {
         if (m.type.front() == '@') {
-            unpackComponent<T>(connectionGraph, m, moduleHandles);
+            unpackComponent(connectionGraph, m, moduleHandles);
         }
     }
 
@@ -84,14 +86,6 @@ void DesignConnectionGraph(
             connectionGraph.setInput(targetHandle, v.target.port, v.value);
         }
     }
-}
-
-void DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor & p, std::map<std::string, int>&mh) {
-    DesignConnectionGraph<ConnectionGraphDescriptor>(connectionGraph, p, mh);
-}
-
-void DesignConnectionGraph(ConnectionGraph &connectionGraph, const ConnectionGraphDescriptor_Numerical & p, std::map<std::string, int>&mh) {
-    DesignConnectionGraph<ConnectionGraphDescriptor_Numerical>(connectionGraph, p, mh);
 }
 
 std::map<std::string, ComponentDescriptor> g_componentRegistry;

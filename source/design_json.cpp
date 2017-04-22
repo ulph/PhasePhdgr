@@ -1,10 +1,5 @@
 #include "design_json.hpp"
 
-/*
-#include "nlohmann/json.hpp"
-using nlohmann::json;
-*/
-
 #include <sstream>
 
 namespace PhasePhckr{
@@ -67,6 +62,7 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
     cgd.values = j.at("values").get<std::vector<ModulePortValue>>();
 }
 
+/*
 void to_json(json& j, const ComponentDescriptor& cgd) {
     j["modules"] = cgd.graph.modules;
     j["connections"] = cgd.graph.connections;
@@ -82,6 +78,7 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.input = j.at("input").get<std::vector<ModulePort>>();
     cgd.output = j.at("output").get<std::vector<ModulePort>>();
 }
+*/
 
 void to_json(json& j, const PatchDescriptor& cgd) {
     j["voice"] = cgd.voiceGraph;
@@ -93,7 +90,7 @@ void from_json(const json& j, PatchDescriptor& cgd) {
     cgd.effectGraph = j.at("effect");
 }
 
-// I hate myself for doing this ...
+// TODO - figure out how to make json.dump(2) do useful stuff instead ...
 
 std::string prettydump_(const ConnectionGraphDescriptor& cgd){
     // rigid stupid pretty dump thing
@@ -133,33 +130,6 @@ std::string prettydump(const ConnectionGraphDescriptor& cgd)
     std::stringstream ss;
     ss << u8"{" << std::endl;
     ss << prettydump_(cgd);
-    ss << "}" << std::endl;
-    return ss.str();
-}
-
-std::string prettydump(const ComponentDescriptor& cgd){
-    std::stringstream ss;
-    ss << u8"{" << std::endl;
-
-    int i = 0;
-    ss << "  \"input\" : [";
-    i = cgd.input.size();
-    for (const auto& m : cgd.input) {
-        ss << "\n    " << json(m);
-        if (--i != 0) ss << ",";
-    }
-    ss << "\n  ],\n";
-
-    ss << "  \"output\" : [";
-    i = cgd.input.size();
-    for (const auto& m : cgd.output) {
-        ss << "\n    " << json(m);
-        if (--i != 0) ss << ",";
-    }
-    ss << "\n  ],\n";
-
-    ss << prettydump_(cgd.graph);
-
     ss << "}" << std::endl;
     return ss.str();
 }

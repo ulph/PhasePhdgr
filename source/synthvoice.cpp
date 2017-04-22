@@ -5,14 +5,13 @@
 namespace PhasePhckr
 {
 
-template <class T>
-void SynthVoice::init(const T& voiceChain)
+void SynthVoice::init(const ConnectionGraphDescriptor& voiceChain)
 {
     connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
-    T graph = voiceChain;
+    ConnectionGraphDescriptor graph = voiceChain;
 
     graph.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
     graph.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
@@ -30,16 +29,6 @@ void SynthVoice::init(const T& voiceChain)
 #if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);
 #endif
-}
-
-SynthVoice::SynthVoice(const ConnectionGraphDescriptor_Numerical& voiceChain)
-    : connectionGraph()
-    , rms(0.0f)
-    , rmsSlew(0.99f)
-    , samplesToProcess(0)
-    , doTerminate(false)
-{
-    init(voiceChain);
 }
 
 SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain)

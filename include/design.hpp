@@ -9,45 +9,43 @@ class ConnectionGraph;
 
 namespace PhasePhckr {
 
+/* Graph stuff */
+
 struct ModuleVariable {
     std::string name;
     std::string type;
 };
 
-template <typename T>
-struct ModulePort_ {
+struct ModulePort {
     std::string module;
-    T port;
+    std::string port;
 };
-typedef ModulePort_<std::string> ModulePort;
-typedef ModulePort_<int> ModulePort_Numerical;
 
-template <typename T>
-struct ModulePortConnection_ {
-    ModulePort_<T> from;
-    ModulePort_<T> to;
+// TODO, deprecate ModulePortConnection (1:1) in favour of ModulePortConnections (1:N)
+struct ModulePortConnection {
+    ModulePort from;
+    ModulePort to;
 };
-typedef ModulePortConnection_<std::string> ModulePortConnection;
-typedef ModulePortConnection_<int> ModulePortConnection_Numerical;
 
-template <typename T>
-struct ModulePortValue_ {
-    ModulePort_<T> target;
+struct ModulePortConnections {
+    ModulePort source;
+    std::vector<ModulePort> targets;
+};
+
+// TODO, Mechanisms for ModulePortTrivialConnection which implies 
+//     "mono"->"mono", or "left"->"left"+"right"->"right", 
+//     defaulting to 0->0 if nothing else works
+//     ... this is such a common use case that it warrents the extra logic in code
+
+struct ModulePortValue {
+    ModulePort target;
     float value;
 };
-typedef ModulePortValue_<std::string> ModulePortValue;
-typedef ModulePortValue_<int> ModulePortValue_Numerical;
 
 struct ConnectionGraphDescriptor {
     std::vector<ModuleVariable> modules;
     std::vector<ModulePortConnection> connections;
     std::vector<ModulePortValue> values;
-};
-
-struct ConnectionGraphDescriptor_Numerical {
-    std::vector<ModuleVariable> modules;
-    std::vector<ModulePortConnection_Numerical> connections;
-    std::vector<ModulePortValue_Numerical> values;
 };
 
 void DesignConnectionGraph(
@@ -56,15 +54,16 @@ void DesignConnectionGraph(
     std::map<std::string, int> & moduleHandles
 );
 
-void DesignConnectionGraph(
-    ConnectionGraph &connectionGraph,
-    const ConnectionGraphDescriptor_Numerical &description,
-    std::map<std::string, int> & moduleHandles
-);
+/* Component (subgraph) stuff */
+
+struct ModulePortAlias {
+    std::string alias;
+    std::vector<ModulePort> targets;
+};
 
 struct ComponentDescriptor {
-    std::vector<ModulePort> input;
-    std::vector<ModulePort> output;
+    std::vector<ModulePortAlias> input;
+    std::vector<ModulePortAlias> output;
     ConnectionGraphDescriptor graph;
 };
 
@@ -73,8 +72,8 @@ struct PatchDescriptor {
     ConnectionGraphDescriptor effectGraph;
 };
 
+// TODO, move these two somewhere like a componentRegistry.hpp
 bool registerComponent(std::string name, const ComponentDescriptor & desc);
 bool getComponent(std::string name, ComponentDescriptor & desc);
-
 
 }

@@ -29,8 +29,7 @@ void Synth::setFxChain(const ConnectionGraphDescriptor& fxChain) {
     effects = new EffectChain(fxChain);
 }
 
-template <class T>
-void Synth::setVoiceChain_internal(const T& voiceChain) {
+void Synth::setVoiceChain(const ConnectionGraphDescriptor& voiceChain){
     delete voiceBus;
     voiceBus = new VoiceBus();
     for (SynthVoice *v : voices) {
@@ -41,13 +40,6 @@ void Synth::setVoiceChain_internal(const T& voiceChain) {
         SynthVoice* v = new SynthVoice(voiceChain);
         voices.push_back(v);
     }
-}
-void Synth::setVoiceChain(const ConnectionGraphDescriptor& voiceChain){
-    setVoiceChain_internal(voiceChain);
-}
-
-void Synth::setVoiceChain(const ConnectionGraphDescriptor_Numerical& voiceChain){
-    setVoiceChain_internal(voiceChain);
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)

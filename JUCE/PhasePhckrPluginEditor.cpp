@@ -1,6 +1,6 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
-#include "PhasePhckr.h"
+#include "phasephckr.h"
 #include <cstring>
 #include "DirectoryWatcher.hpp"
 #include "Style.hpp"

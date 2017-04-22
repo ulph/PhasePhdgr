@@ -1,4 +1,4 @@
-#include "PhasePhckr.h"
+#include "phasephckr.h"
 
 namespace PhasePhckr {
 

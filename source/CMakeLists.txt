@@ -12,19 +12,21 @@ add_subdirectory(modules)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(connectiongraph modules dsp)
 set(SRC
-    MPEVoice.cpp
-    Synth.cpp
-    SynthVoice.cpp
-    SynthVoice.hpp
-    EffectChain.cpp
-    EffectChain.hpp
+    mpevoice.cpp
+    synth.cpp
+    synthvoice.cpp
+    synthvoice.hpp
+    effectchain.cpp
+    effectchain.hpp
     examples.cpp
-    BusModules.hpp
-    VoiceBus.cpp
-    VoiceBus.hpp
+    busmodules.hpp
+    voicebus.cpp
+    voicebus.hpp
     design.cpp
     parameters.hpp
     scope.cpp
+    docs.cpp
+    docs.hpp
 )
 
 if(${USING_NLOHMANN_JSON})

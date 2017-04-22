@@ -26,23 +26,23 @@ else()
 endif()
 
 add_subdirectory(source)
+add_subdirectory(test)
+
+install(FILES 
+    include/phasephckr.h 
+    include/design.hpp
+    include/design_json.hpp
+    DESTINATION include
+)
 
 option(BUILD_JUCE_STUFF OFF)
 if(${BUILD_JUCE_STUFF})
     add_subdirectory(JUCE)
 endif()
 
-add_subdirectory(test)
-
-install(FILES 
-    include/PhasePhckr.h 
-    include/design.hpp
-    include/design_json.hpp
-    DESTINATION include
-)
-
 option(BUILD_VST OFF)
 if(${BUILD_VST})
+    set(VST_DESTINATION "~/.vst" CACHE FILEPATH "Where to INSTALL the VST")
     add_library(
         PhasePhckr SHARED
         $<TARGET_OBJECTS:connectiongraph_obj>
@@ -53,4 +53,5 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:juce_phasephckr_obj>
     )
     set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)
+    install(TARGETS PhasePhckr DESTINATION ${VST_DESTINATION})
 endif()

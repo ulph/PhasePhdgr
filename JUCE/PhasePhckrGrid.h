@@ -2,7 +2,7 @@
 #define PHASEPHCKRGRID_H_INCLUDED
 
 #include "JuceLibraryCode/JuceHeader.h"
-#include "PhasePhckr.h"
+#include "phasephckr.h"
 #include <vector>
 
 class PhasePhckrGrid : public Component

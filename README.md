@@ -5,11 +5,14 @@ Suck my balls!
 
 ## core / synth ##
 
-As long as you work with the JUCE-less parts, leave cmake options at default
+As long as you work with the JUCE-less parts, leave cmake options at default.
 
 ## json format ##
 
-We rely on nlhomann/json for this. Copy that projects json.hpp to SOMEPATH/nlohmann (or clone their repo), and enter SOMEPATH as the cmake json variable.
+We rely on nlhomann/json for this. 
+
+* Copy that projects json.hpp to SOMEPATH/nlohmann (or clone their repo). 
+* cmake options USING_NLOHMANN_JSON=ON and JSON_INCLUDE_DIR=SOMEPATH
 
 ## JUCE ##
 

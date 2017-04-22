@@ -1,4 +1,4 @@
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceLibraryCode/JuceHeader.h"
 #include "PhasePhckrScope.h"
 
 void PhasePhckrScope::paint (Graphics& g)

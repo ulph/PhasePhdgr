@@ -1,7 +1,7 @@
 #ifndef GRAPHVIEW_H_INCLUDED
 #define GRAPHVIEW_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceLibraryCode/JuceHeader.h"
 #include "design.hpp"
 #include <iostream>
 #include <set>

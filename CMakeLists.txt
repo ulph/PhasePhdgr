@@ -2,13 +2,18 @@ project(phasephckr)
 cmake_minimum_required(VERSION 3.0)
 set (CMAKE_CXX_STANDARD 11)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 find_package(Threads)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+option(BUILD_JUCE_STUFF OFF)
+if(${BUILD_JUCE_STUFF})
+    add_subdirectory(JUCE)
+endif()
 
 option(USING_NLOHMANN_JSON OFF)
 if(${USING_NLOHMANN_JSON})
@@ -24,4 +29,5 @@ else()
 endif()
 
 add_subdirectory(source)
+
 add_subdirectory(test)

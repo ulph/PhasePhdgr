@@ -10,31 +10,7 @@
               pluginAUExportPrefix="PhasePhckrAU" pluginRTASCategory="" aaxIdentifier="com.yourcompany.PhasePhckr"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.1"
               companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions">
-  <MAINGROUP id="hSD0uH" name="PhasePhckr">
-    <FILE id="v6sYDe" name="DirectoryWatcher.cpp" compile="1" resource="0"
-          file="JUCE/DirectoryWatcher.cpp"/>
-    <FILE id="x89jZ8" name="DirectoryWatcher.hpp" compile="0" resource="0"
-          file="JUCE/DirectoryWatcher.hpp"/>
-    <FILE id="SmOEQI" name="GraphView.cpp" compile="1" resource="0" file="JUCE/GraphView.cpp"/>
-    <FILE id="i1ijzQ" name="GraphView.h" compile="0" resource="0" file="JUCE/GraphView.h"/>
-    <FILE id="BMSBvJ" name="PhasePhckrGrid.cpp" compile="1" resource="0"
-          file="JUCE/PhasePhckrGrid.cpp"/>
-    <FILE id="vxOj65" name="PhasePhckrGrid.h" compile="0" resource="0"
-          file="JUCE/PhasePhckrGrid.h"/>
-    <FILE id="Tj3NUJ" name="PhasePhckrPluginEditor.cpp" compile="1" resource="0"
-          file="JUCE/PhasePhckrPluginEditor.cpp"/>
-    <FILE id="sAf1gc" name="PhasePhckrPluginEditor.h" compile="0" resource="0"
-          file="JUCE/PhasePhckrPluginEditor.h"/>
-    <FILE id="UoKnho" name="PhasePhckrPluginProcessor.cpp" compile="1"
-          resource="0" file="JUCE/PhasePhckrPluginProcessor.cpp"/>
-    <FILE id="Ydu0o1" name="PhasePhckrPluginProcessor.h" compile="0" resource="0"
-          file="JUCE/PhasePhckrPluginProcessor.h"/>
-    <FILE id="bFv7Dl" name="PhasePhckrScope.cpp" compile="1" resource="0"
-          file="JUCE/PhasePhckrScope.cpp"/>
-    <FILE id="dQh2Pq" name="PhasePhckrScope.h" compile="0" resource="0"
-          file="JUCE/PhasePhckrScope.h"/>
-    <FILE id="bMTeg8" name="Style.hpp" compile="0" resource="0" file="JUCE/Style.hpp"/>
-  </MAINGROUP>
+  <MAINGROUP id="hSD0uH" name="PhasePhckr"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp">
       <CONFIGURATIONS>
@@ -114,20 +90,20 @@
     </LINUX_MAKE>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
   <LIVE_SETTINGS>

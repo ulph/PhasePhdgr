@@ -50,7 +50,7 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:modules_obj>
         $<TARGET_OBJECTS:phasephckr_obj>
         $<TARGET_OBJECTS:juce_lib_obj>
-        $<TARGET_OBJECTS:phasephckr_juce_obj>
+        $<TARGET_OBJECTS:juce_phasephckr_obj>
     )
     set_target_properties(PhasePhckr PROPERTIES FOLDER plugin/VST)
 endif()

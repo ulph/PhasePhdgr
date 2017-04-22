@@ -15,10 +15,10 @@ set(PH_SRC
     PhasePhckrScope.h
     Style.hpp
 )
-add_library(phasephckr_juce_obj OBJECT ${PH_SRC})
-add_library(phasephckr_juce  $<TARGET_OBJECTS:phasephckr_juce_obj>)
-set_property(TARGET phasephckr_juce PROPERTY FOLDER lib)
-set_target_properties(phasephckr_juce PROPERTIES COMPILE_FLAGS "-fPIC")
+add_library(juce_phasephckr_obj OBJECT ${PH_SRC})
+add_library(juce_phasephckr  $<TARGET_OBJECTS:juce_phasephckr_obj>)
+set_property(TARGET juce_phasephckr PROPERTY FOLDER lib)
+set_target_properties(juce_phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)

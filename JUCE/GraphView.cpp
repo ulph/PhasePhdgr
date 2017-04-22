@@ -96,8 +96,8 @@ void GraphView::mouseUp(const MouseEvent & event) {
 void GraphView::paint (Graphics& g){
 
     for (const auto &mpc : graphDescriptor.connections) {
-        auto from = mpc.from.module;
-        auto to = mpc.to.module;
+        auto from = mpc.source.module;
+        auto to = mpc.target.module;
         float x0 = modulePosition[from].x*gridSize + 0.5*nodeSize;
         float x1 = modulePosition[to].x*gridSize + 0.5*nodeSize;
         float y0 = modulePosition[from].y*gridSize + nodeSize;
@@ -180,8 +180,8 @@ void GraphView::recalculate(){
   // store the connections between nodes
   ConnectionsMap connections;
   for(const auto &mpc : graphDescriptor.connections){
-    connections[mpc.from.module].insert(mpc.to.module);
-    connections[mpc.to.module].insert(mpc.from.module);
+    connections[mpc.source.module].insert(mpc.target.module);
+    connections[mpc.target.module].insert(mpc.source.module);
   }
 
   const std::string start = "inBus";

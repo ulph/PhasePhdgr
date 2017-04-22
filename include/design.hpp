@@ -23,13 +23,18 @@ struct ModulePort {
 
 // TODO, deprecate ModulePortConnection (1:1) in favour of ModulePortConnections (1:N)
 struct ModulePortConnection {
-    ModulePort from;
-    ModulePort to;
+    ModulePort source;
+    ModulePort target;
 };
 
 struct ModulePortConnections {
     ModulePort source;
     std::vector<ModulePort> targets;
+};
+
+struct ModulePortTrivialConnection {
+    std::string source;
+    std::string target;
 };
 
 // TODO, Mechanisms for ModulePortTrivialConnection which implies 
@@ -62,8 +67,8 @@ struct ModulePortAlias {
 };
 
 struct ComponentDescriptor {
-    std::vector<ModulePortAlias> input;
-    std::vector<ModulePortAlias> output;
+    std::vector<ModulePortAlias> inputs;
+    std::vector<ModulePortAlias> outputs;
     ConnectionGraphDescriptor graph;
 };
 

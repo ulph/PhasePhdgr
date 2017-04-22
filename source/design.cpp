@@ -15,12 +15,12 @@ void unpackComponent(
     }
 
     const std::string pfx = mv.name + "@";
-    for (auto &i : comp.input) {
+    for (auto &i : comp.inputs) {
         for (auto &t : i.targets) {
             t.module = pfx + t.module;
         }
     }
-    for (auto &o : comp.output) {
+    for (auto &o : comp.outputs) {
         for (auto &t : o.targets) {
             t.module = pfx + t.module;
         }
@@ -32,8 +32,8 @@ void unpackComponent(
         v.target.module = pfx + v.target.module;
     }
     for (auto &c : comp.graph.connections) {
-        c.from.module = pfx + c.from.module;
-        c.to.module = pfx + c.to.module;
+        c.source.module = pfx + c.source.module;
+        c.target.module = pfx + c.target.module;
     }
 
     DesignConnectionGraph(connectionGraph, comp.graph, mh);
@@ -63,16 +63,16 @@ void DesignConnectionGraph(
 
     // iterate over the connections
     for (const auto &c : p.connections) {
-        int fromModuleHandle = moduleHandles.count(c.from.module) > 0 ? moduleHandles.at(c.from.module) : -2;
-        int toModuleHandle = moduleHandles.count(c.to.module) > 0 ? moduleHandles.at(c.to.module) : -2;
+        int fromModuleHandle = moduleHandles.count(c.source.module) > 0 ? moduleHandles.at(c.source.module) : -2;
+        int toModuleHandle = moduleHandles.count(c.target.module) > 0 ? moduleHandles.at(c.target.module) : -2;
         if (fromModuleHandle < 0) {
-            std::cerr << "Error: " << c.from.module << " not found! (connections)" << std::endl;
+            std::cerr << "Error: " << c.source.module << " not found! (connections)" << std::endl;
         }
         else if (toModuleHandle < 0) {
-            std::cerr << "Error: " << c.to.module << " not found! (connections)" << std::endl;
+            std::cerr << "Error: " << c.target.module << " not found! (connections)" << std::endl;
         }
         else {
-            connectionGraph.connect(fromModuleHandle, c.from.port, toModuleHandle, c.to.port);
+            connectionGraph.connect(fromModuleHandle, c.source.port, toModuleHandle, c.target.port);
         }
     }
 

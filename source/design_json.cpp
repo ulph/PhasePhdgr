@@ -37,17 +37,27 @@ void from_json(const json& j, ModulePortValue& mpv) {
 }
 
 void to_json(json& j, const ModulePortConnection& mpc) {
-    j[0] = mpc.from.module;
-    j[1] = mpc.from.port;
-    j[2] = mpc.to.module;
-    j[3] = mpc.to.port;
+    j[0] = mpc.source.module;
+    j[1] = mpc.source.port;
+    j[2] = mpc.target.module;
+    j[3] = mpc.target.port;
 }
 
 void from_json(const json& j, ModulePortConnection& mpc) {
-    mpc.from.module = j.at(0).get<std::string>();
-    mpc.from.port = j.at(1).get<std::string>();
-    mpc.to.module = j.at(2).get<std::string>();
-    mpc.to.port = j.at(3).get<std::string>();
+    mpc.source.module = j.at(0).get<std::string>();
+    mpc.source.port = j.at(1).get<std::string>();
+    mpc.target.module = j.at(2).get<std::string>();
+    mpc.target.port = j.at(3).get<std::string>();
+}
+
+void to_json(json& j, const ModulePortConnections& mpcs) {
+    j[0] = mpcs.source;
+    j[1] = mpcs.targets;
+}
+
+void from_json(const json& j, ModulePortConnections& mpcs) {
+    mpcs.source = j.at(0).get<ModulePort>();
+    mpcs.targets = j.at(1).get<std::vector<ModulePort>>();
 }
 
 void to_json(json& j, const ConnectionGraphDescriptor& cgd) {
@@ -62,23 +72,31 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
     cgd.values = j.at("values").get<std::vector<ModulePortValue>>();
 }
 
-/*
+void to_json(json& j, const ModulePortAlias& mv) {
+    j[0] = mv.alias;
+    j[1] = mv.targets;
+}
+
+void from_json(const json& j, ModulePortAlias& mv) {
+    mv.alias = j.at(0).get<std::string>();
+    mv.targets = j.at(1).get<std::vector<ModulePort>>();
+}
+
 void to_json(json& j, const ComponentDescriptor& cgd) {
     j["modules"] = cgd.graph.modules;
     j["connections"] = cgd.graph.connections;
     j["values"] = cgd.graph.values;
-    j["input"] = cgd.input;
-    j["output"] = cgd.output;
+    j["input"] = cgd.inputs;
+    j["output"] = cgd.outputs;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.graph.modules = j.at("modules").get<std::vector<ModuleVariable>>();
     cgd.graph.connections = j.at("connections").get<std::vector<ModulePortConnection>>();
     cgd.graph.values = j.at("values").get<std::vector<ModulePortValue>>();
-    cgd.input = j.at("input").get<std::vector<ModulePort>>();
-    cgd.output = j.at("output").get<std::vector<ModulePort>>();
+    cgd.inputs = j.at("input").get<std::vector<ModulePortAlias>>();
+    cgd.outputs = j.at("output").get<std::vector<ModulePortAlias>>();
 }
-*/
 
 void to_json(json& j, const PatchDescriptor& cgd) {
     j["voice"] = cgd.voiceGraph;

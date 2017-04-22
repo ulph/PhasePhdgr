@@ -39,7 +39,7 @@ set(JUCE_SRC
     ${JUCE_LIB}/juce_audio_plugin_client_RTAS_3.cpp
     ${JUCE_LIB}/juce_audio_plugin_client_RTAS_4.cpp
     ${JUCE_LIB}/juce_audio_plugin_client_RTAS_utils.cpp
-    ${JUCE_LIB}/juce_audio_plugin_client_Standalone.cpp
+#    ${JUCE_LIB}/juce_audio_plugin_client_Standalone.cpp
     ${JUCE_LIB}/juce_audio_plugin_client_utils.cpp
     ${JUCE_LIB}/juce_audio_plugin_client_VST2.cpp
     ${JUCE_LIB}/juce_audio_plugin_client_VST3.cpp

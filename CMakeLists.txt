@@ -40,3 +40,9 @@ install(FILES
     include/design_json.hpp
     DESTINATION include
 )
+
+option(BUILD_VST OFF)
+if(${BUILD_VST})
+    add_library(PhasePhckr SHARED)
+    set_target_properties(PhasePhckr PROPERTIES FOLDER VST)
+endif()

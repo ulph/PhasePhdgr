@@ -33,7 +33,7 @@ endif()
 
 add_library(phasephckr_obj OBJECT ${SRC})
 add_library(phasephckr $<TARGET_OBJECTS:phasephckr_obj>)
-set_property(TARGET phasephckr PROPERTY FOLDER lib)
+set_property(TARGET phasephckr PROPERTY FOLDER targets/lib)
 
 target_link_libraries(phasephckr ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")

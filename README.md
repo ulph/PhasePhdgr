@@ -12,6 +12,7 @@ As long as you work with the JUCE-less parts, leave cmake options at default.
 We rely on nlhomann/json for this. 
 
 * Copy that projects json.hpp to SOMEPATH/nlohmann (or clone their repo). 
+
 * cmake options USING_NLOHMANN_JSON=ON and JSON_INCLUDE_DIR=SOMEPATH
 
 ## JUCE ##

@@ -1,3 +1,5 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 set(PH_SRC
     DirectoryWatcher.cpp
     DirectoryWatcher.hpp
@@ -17,13 +19,14 @@ add_library(phasephckr_juce ${PH_SRC})
 set_target_properties(phasephckr_juce PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(phasephckr_juce PROPERTIES FOLDER JUCE)
 
-set(JUCE_EXPORT_ROOT "" CACHE FILEPATH "Folder containing exported JuceLibraryCode ...")
-file(TO_CMAKE_PATH ${JUCE_EXPORT_ROOT} JUCE_EXPORT_ROOT)
-include_directories(${JUCE_EXPORT_ROOT})
-set(JUCE_LIB ${JUCE_EXPORT_ROOT}/JuceLibraryCode)
-include_directories(${JUCE_LIB}/modules)
-if(NOT EXISTS "${JUCE_EXPORT_ROOT}/JuceLibraryCode/JuceHeader.h")
-    message(FATAL_ERROR "Cannot find JuceLibraryCode/JuceHeader.h (expected it in ${JUCE_EXPORT_ROOT})")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
+   message(FATAL_ERROR "Could not JUCE/modules folder at ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules. Need a symlink/folder with sdk root...")
+endif()
+
+set(JUCE_LIB ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
+if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
+    message(FATAL_ERROR "Cannot find JuceLibraryCode/JuceHeader.h ... forgot to run Projuicer at least once?")
 endif()
 
 set(JUCE_SRC

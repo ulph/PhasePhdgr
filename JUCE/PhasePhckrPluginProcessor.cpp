@@ -45,7 +45,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     }
     else {
         voiceChain = PhasePhckr::getExampleVoiceChain();
-        initVoice.replaceWithText(PhasePhckr::prettydump(voiceChain));
+        initVoice.replaceWithText(json(voiceChain).dump(2));
     }
 
     if (initEffect.exists()) {
@@ -54,7 +54,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     }
     else {
         effectChain = PhasePhckr::getExampleFxChain();
-        initEffect.replaceWithText(PhasePhckr::prettydump(effectChain));
+        initEffect.replaceWithText(json(effectChain).dump(2));
     }
 
     // create the synth and push down the initial chains

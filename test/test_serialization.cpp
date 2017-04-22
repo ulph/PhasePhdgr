@@ -5,9 +5,10 @@
 using namespace PhasePhckr;
 
 json test(std::string what, json j1, json j2) {
+    std::cout << j1.dump(2) << std::endl;
     json diff = json::diff(j1, j2);
     bool isOk = diff.size() == 0;
-    std::cout << what << " " << (isOk ? "ok" : "nok") << std::endl;
+    std::cerr << what << " " << (isOk ? "ok" : "nok") << "\n" << std::endl;
     return diff;
 }
 

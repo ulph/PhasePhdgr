@@ -86,16 +86,16 @@ void to_json(json& j, const ComponentDescriptor& cgd) {
     j["modules"] = cgd.graph.modules;
     j["connections"] = cgd.graph.connections;
     j["values"] = cgd.graph.values;
-    j["input"] = cgd.inputs;
-    j["output"] = cgd.outputs;
+    j["inputs"] = cgd.inputs;
+    j["outputs"] = cgd.outputs;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.graph.modules = j.at("modules").get<std::vector<ModuleVariable>>();
     cgd.graph.connections = j.at("connections").get<std::vector<ModulePortConnection>>();
     cgd.graph.values = j.at("values").get<std::vector<ModulePortValue>>();
-    cgd.inputs = j.at("input").get<std::vector<ModulePortAlias>>();
-    cgd.outputs = j.at("output").get<std::vector<ModulePortAlias>>();
+    cgd.inputs = j.at("inputs").get<std::vector<ModulePortAlias>>();
+    cgd.outputs = j.at("outputs").get<std::vector<ModulePortAlias>>();
 }
 
 void to_json(json& j, const PatchDescriptor& cgd) {
@@ -106,59 +106,6 @@ void to_json(json& j, const PatchDescriptor& cgd) {
 void from_json(const json& j, PatchDescriptor& cgd) {
     cgd.voiceGraph = j.at("voice");
     cgd.effectGraph = j.at("effect");
-}
-
-// TODO - figure out how to make json.dump(2) do useful stuff instead ...
-
-std::string prettydump_(const ConnectionGraphDescriptor& cgd){
-    // rigid stupid pretty dump thing
-    // as the json.hpp has too simplistic pretty printing
-    std::stringstream ss;
-
-    int i = 0;
-    ss << "  \"modules\" : [";
-    i = cgd.modules.size();
-    for (const auto& m : cgd.modules) {
-        ss << "\n    " << json(m);
-        if (--i != 0) ss << ",";
-    }
-    ss << "\n  ],\n";
-
-    ss << "  \"connections\" : [";
-    i = cgd.connections.size();
-    for (const auto& c : cgd.connections) {
-        ss << "\n    " << json(c);
-        if (--i != 0) ss << ",";
-    }
-    ss << "\n  ],\n";
-
-    ss << "  \"values\" : [";
-    i = cgd.values.size();
-    for (const auto& v : cgd.values) {
-        ss << "\n    " << json(v);
-        if (--i != 0) ss << ",";
-    }
-    ss << "\n  ]\n";
-
-    return ss.str();
-}
-
-std::string prettydump(const ConnectionGraphDescriptor& cgd)
-{
-    std::stringstream ss;
-    ss << u8"{" << std::endl;
-    ss << prettydump_(cgd);
-    ss << "}" << std::endl;
-    return ss.str();
-}
-
-std::string prettydump(const PatchDescriptor& cgd){
-    std::stringstream ss;
-    ss << u8"{" << std::endl;
-    ss << "\"voice\" : " << prettydump(cgd.voiceGraph);
-    ss << ",\"effect\" : " << prettydump(cgd.effectGraph);
-    ss << "}" << std::endl;
-    return ss.str();
 }
 
 }

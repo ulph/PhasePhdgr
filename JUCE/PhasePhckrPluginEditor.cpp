@@ -44,12 +44,12 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     , voiceListListener([this](const File& f) { 
         processor.setVoicePatch(loadJson(f)); 
-        voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch())); 
+        voiceEditor.setText(json(processor.getVoicePatch()).dump(2)); 
         })
 
     , effectListListener([this](const File& f) { 
         processor.setEffectPatch(loadJson(f)); 
-        effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch())); 
+        effectEditor.setText(json(processor.getEffectPatch()).dump(2)); 
         })
 
     , componentListListener([this](const File& f) { 
@@ -108,9 +108,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     configureEditor(voiceEditor);
     configureEditor(effectEditor);
-
-    voiceEditor.setText(PhasePhckr::prettydump(processor.getVoicePatch()));
-    effectEditor.setText(PhasePhckr::prettydump(processor.getEffectPatch()));
 
     resized();
 }

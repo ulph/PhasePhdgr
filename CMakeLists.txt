@@ -26,7 +26,11 @@ else()
 endif()
 
 add_subdirectory(source)
-add_subdirectory(test)
+
+option(BUILD_TESTS OFF)
+if(${BUILD_TESTS})
+    add_subdirectory(test)
+endif()
 
 install(FILES 
     include/phasephckr.h 

@@ -49,7 +49,6 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:dsp_obj>
         $<TARGET_OBJECTS:modules_obj>
         $<TARGET_OBJECTS:phasephckr_obj>
-        $<TARGET_OBJECTS:modules_obj>
         $<TARGET_OBJECTS:juce_lib_obj>
         $<TARGET_OBJECTS:phasephckr_juce_obj>
     )

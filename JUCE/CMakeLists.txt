@@ -62,4 +62,4 @@ add_library(juce_lib_obj OBJECT ${JUCE_SRC})
 add_library(juce_lib $<TARGET_OBJECTS:juce_lib_obj>)
 set_property(TARGET juce_lib PROPERTY FOLDER lib)
 set_target_properties(juce_lib PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(juce_lib PROPERTIES FOLDER JUCE)
+

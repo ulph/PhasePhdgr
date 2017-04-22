@@ -16,10 +16,9 @@ set(PH_SRC
     Style.hpp
 )
 add_library(phasephckr_juce_obj OBJECT ${PH_SRC})
-set_property(TARGET phasephckr_juce_obj PROPERTY FOLDER obj)
-add_library(phasephckr_juce ${PH_SRC})
+add_library(phasephckr_juce  $<TARGET_OBJECTS:phasephckr_juce_obj>)
+set_property(TARGET phasephckr_juce PROPERTY FOLDER lib)
 set_target_properties(phasephckr_juce PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(phasephckr_juce PROPERTIES FOLDER JUCE)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
@@ -60,7 +59,7 @@ set(JUCE_SRC
 )
 
 add_library(juce_lib_obj OBJECT ${JUCE_SRC})
-set_property(TARGET juce_lib_obj PROPERTY FOLDER obj)
-add_library(juce_lib ${JUCE_SRC})
+add_library(juce_lib $<TARGET_OBJECTS:juce_lib_obj>)
+set_property(TARGET juce_lib PROPERTY FOLDER lib)
 set_target_properties(juce_lib PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(juce_lib PROPERTIES FOLDER JUCE)

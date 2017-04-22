@@ -4,8 +4,8 @@ set(SRC
 )
 
 add_library(dsp_obj OBJECT ${SRC})
-set_property(TARGET dsp_obj PROPERTY FOLDER obj)
-add_library(dsp ${SRC})
+add_library(dsp $<TARGET_OBJECTS:objlib>)
+set_property(TARGET dsp PROPERTY FOLDER lib)
 
 set_target_properties(dsp PROPERTIES COMPILE_FLAGS "-fPIC")
 

@@ -32,9 +32,9 @@ if(${USING_NLOHMANN_JSON})
 endif()
 
 add_library(phasephckr_obj OBJECT ${SRC})
-set_property(TARGET phasephckr_obj PROPERTY FOLDER obj)
+add_library(phasephckr $<TARGET_OBJECTS:phasephckr_obj>)
+set_property(TARGET phasephckr PROPERTY FOLDER lib)
 
-add_library(phasephckr ${SRC})
 target_link_libraries(phasephckr ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")
 install(TARGETS phasephckr DESTINATION lib)

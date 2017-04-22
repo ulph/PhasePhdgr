@@ -42,10 +42,9 @@ set(SRC
 
 include_directories(../connectiongraph)
 include_directories(../dsp)
-add_library(modules ${SRC})
-add_library(modules_obj OBJECT ${SRC})
-set_property(TARGET modules_obj PROPERTY FOLDER obj)
 
+add_library(modules_obj OBJECT ${JUCE_SRC})
+add_library(modules $<TARGET_OBJECTS:modules_obj>)
+set_property(TARGET modules PROPERTY FOLDER lib)
 set_target_properties(modules PROPERTIES COMPILE_FLAGS "-fPIC")
-
 install(TARGETS modules DESTINATION lib)

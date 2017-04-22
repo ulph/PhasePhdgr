@@ -43,6 +43,15 @@ install(FILES
 
 option(BUILD_VST OFF)
 if(${BUILD_VST})
-    add_library(PhasePhckr SHARED)
+    add_library(
+        PhasePhckr SHARED
+        $<TARGET_OBJECTS:connectiongraph_obj>
+        $<TARGET_OBJECTS:dsp_obj>
+        $<TARGET_OBJECTS:modules_obj>
+        $<TARGET_OBJECTS:phasephckr_obj>
+        $<TARGET_OBJECTS:modules_obj>
+        $<TARGET_OBJECTS:juce_lib_obj>
+        $<TARGET_OBJECTS:phasephckr_juce_obj>
+    )
     set_target_properties(PhasePhckr PROPERTIES FOLDER VST)
 endif()

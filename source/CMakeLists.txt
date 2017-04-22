@@ -31,9 +31,8 @@ if(${USING_NLOHMANN_JSON})
     list(APPEND SRC design_json.cpp)
 endif()
 
+add_library(phasephckr_obj OBJECT ${SRC})
 add_library(phasephckr ${SRC})
-target_link_libraries (phasephckr ${CMAKE_THREAD_LIBS_INIT})
-
+target_link_libraries(phasephckr ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")
-
 install(TARGETS phasephckr DESTINATION lib)

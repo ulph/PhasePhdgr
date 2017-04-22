@@ -15,6 +15,7 @@ set(PH_SRC
     PhasePhckrScope.h
     Style.hpp
 )
+add_library(phasephckr_juce_obj OBJECT ${PH_SRC})
 add_library(phasephckr_juce ${PH_SRC})
 set_target_properties(phasephckr_juce PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(phasephckr_juce PROPERTIES FOLDER JUCE)
@@ -56,6 +57,8 @@ set(JUCE_SRC
     ${JUCE_LIB}/AppConfig.h
     ${JUCE_LIB}/JuceHeader.h
 )
+
+add_library(juce_lib_obj OBJECT ${JUCE_SRC})
 add_library(juce_lib ${JUCE_SRC})
 set_target_properties(juce_lib PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(juce_lib PROPERTIES FOLDER JUCE)

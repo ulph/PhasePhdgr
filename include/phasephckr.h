@@ -16,11 +16,11 @@ namespace PhasePhckr {
     class VoiceBus;
     class GlobalData;
     struct ConnectionGraphDescriptor;
-    struct ConnectionGraphDescriptor_Numerical;
+    struct ComponentDescriptor;
 
     const ConnectionGraphDescriptor& getExampleFxChain();
-    const ConnectionGraphDescriptor_Numerical& getExampleMPEVoiceChain();
     const ConnectionGraphDescriptor& getExampleVoiceChain();
+    const ComponentDescriptor& getExampleComponent();
 
     class Scope {
     private:

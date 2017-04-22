@@ -60,6 +60,8 @@ namespace PhasePhckr {
         }
     };
 
+    const ComponentDescriptor& getExampleComponent() { return stereoTapeDelay; }
+
     const ConnectionGraphDescriptor exFxChain = {
         std::vector<ModuleVariable>{
             ModuleVariable{ "outPreGain", "GAIN" },

@@ -4,21 +4,21 @@
 namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
-    std::vector<ModulePortAlias>{
-        {"left", {"leftDelay", "in"}},
-        {"right", {"rightDelay", "in"}},
-        {"leftTime", {"delayLeftTime", "shift"}},
-        {"rightTime", {"delayRightTime", "shift"}},
-        {"leftModDepth", {"delayLeftTime", "scale"}},
-        {"rightModDepth", {"delayRightTime", "scale"}},
-        {"feedback", {"feedbackGain", "gain"}},
-        {"leftHpHz", {"leftDelayHP", "wc"}},
-        {"rightHpHz", {"rightDelayHP", "wc"}},
-        {"leftLpHz", {"leftDelayLP", "wc"}},
-        {"rightLpHz", {"rightDelayLP", "wc"}},
-        {"modHz", {"lfoPhase", "freq"}},
+    std::vector<ModulePortInputAlias>{
+        {"left", {{"leftDelay", "in"}}},
+        {"right", {{"rightDelay", "in"}}},
+        {"leftTime", {{"delayLeftTime", "shift"}}},
+        {"rightTime", {{"delayRightTime", "shift"}}},
+        {"leftModDepth", {{"delayLeftTime", "scale"}}},
+        {"rightModDepth", {{"delayRightTime", "scale"}}},
+        {"feedback", {{"feedbackGain", "gain"}}},
+        {"leftHpHz", {{"leftDelayHP", "wc"}}},
+        {"rightHpHz", {{"rightDelayHP", "wc"}}},
+        {"leftLpHz", {{"leftDelayLP", "wc"}}},
+        {"rightLpHz", {{"rightDelayLP", "wc"}}},
+        {"modHz", {{"lfoPhase", "freq"}}}
     },
-    std::vector<ModulePortAlias>{
+    std::vector<ModulePortOutputAlias>{
         {"left", {"leftDelayLP", "y1"}},
         {"right", {"rightDelayLP", "y1"}}
     },

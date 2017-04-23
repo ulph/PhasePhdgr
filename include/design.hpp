@@ -45,14 +45,19 @@ void designConnectionGraph(
 
 /* Component (subgraph) stuff */
 
-struct ModulePortAlias {
+struct ModulePortInputAlias {
+    std::string alias;
+    std::vector<ModulePort> wrapped;
+};
+
+struct ModulePortOutputAlias {
     std::string alias;
     ModulePort wrapped;
 };
 
 struct ComponentDescriptor {
-    std::vector<ModulePortAlias> inputs;
-    std::vector<ModulePortAlias> outputs;
+    std::vector<ModulePortInputAlias> inputs;
+    std::vector<ModulePortOutputAlias> outputs;
     ConnectionGraphDescriptor graph;
 };
 

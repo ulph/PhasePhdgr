@@ -25,8 +25,10 @@ void applyComponent(
         if (c.target.module == name) {
             for (auto ai : cD.inputs) {
                 if (ai.alias == c.target.port) {
-                    c.target.module = ai.wrapped.module;
-                    c.target.port = ai.wrapped.port;
+                    for (auto &w : ai.wrapped) {
+                        c.target.module = w.module;
+                        c.target.port = w.port;
+                    }
                 }
             }
         }
@@ -37,8 +39,10 @@ void applyComponent(
         if (v.target.module == name) {
             for (auto ai : cD.inputs) {
                 if (ai.alias == v.target.port) {
-                    v.target.module = ai.wrapped.module;
-                    v.target.port = ai.wrapped.port;
+                    for (auto &w : ai.wrapped) {
+                        v.target.module = w.module;
+                        v.target.port = w.port;
+                    }
                 }
             }
         }
@@ -63,7 +67,9 @@ bool unpackComponent(
     // move component subgraph onto the mv's "namespace"
     const std::string pfx = mv.name + ".";
     for (auto &i : cD.inputs) {
-        i.wrapped.module = pfx + i.wrapped.module;
+        for (auto &w : i.wrapped) {
+            w.module = pfx + w.module;
+        }
     }
     for (auto &o : cD.outputs) {
         o.wrapped.module = pfx + o.wrapped.module;

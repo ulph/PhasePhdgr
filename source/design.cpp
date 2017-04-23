@@ -79,11 +79,12 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
+    // parse the sub graph
+    designConnectionGraph(g, cD.graph, handles);
+
     // refresh the ConnectionGraphDescriptor with these new composite names
     applyComponent(gDesc, cD, mv.name);
 
-    // parse the sub graph
-    designConnectionGraph(g, cD.graph, handles);
     return true;
 }
 

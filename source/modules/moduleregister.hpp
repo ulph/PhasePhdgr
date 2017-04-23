@@ -39,8 +39,8 @@ public:
         cg.registerModule("ENV", &(CamelEnvelope::factory));
         cg.registerModule("RCHP", &(RcHp::factory));
         cg.registerModule("RCLP", &(RcLp::factory));
-        cg.registerModule("ORCHP", &(RcHp::factory));
-        cg.registerModule("ORCLP", &(RcLp::factory));
+        cg.registerModule("ORCHP", &(OpenRcHp::factory));
+        cg.registerModule("ORCLP", &(OpenRcLp::factory));
         cg.registerModule("ABS", &(Abs::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));

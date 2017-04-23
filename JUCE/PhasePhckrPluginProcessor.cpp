@@ -39,23 +39,11 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     File initVoice = voicesDir.getFullPathName() + File::separator + "_init_voice.json";
     File initEffect = effectsDir.getFullPathName() + File::separator + "_init_effect.json"; 
 
-    if (initVoice.exists()) {
-        String p = initVoice.loadFileAsString();
-        voiceChain = json::parse(p.toStdString().c_str());
-    }
-    else {
-        voiceChain = PhasePhckr::getExampleVoiceChain();
-        initVoice.replaceWithText(json(voiceChain).dump(2));
-    }
+    voiceChain = PhasePhckr::getExampleVoiceChain();
+    initVoice.replaceWithText(json(voiceChain).dump(2));
 
-    if (initEffect.exists()) {
-        String p = initEffect.loadFileAsString();
-        effectChain = json::parse(p.toStdString().c_str());
-    }
-    else {
-        effectChain = PhasePhckr::getExampleFxChain();
-        initEffect.replaceWithText(json(effectChain).dump(2));
-    }
+    effectChain = PhasePhckr::getExampleFxChain();
+    initEffect.replaceWithText(json(effectChain).dump(2));
 
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();

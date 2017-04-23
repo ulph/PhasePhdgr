@@ -4,6 +4,7 @@
 #include <cstring>
 #include "DirectoryWatcher.hpp"
 #include "Style.hpp"
+#include <typeinfo>
 
 PhasePhckrLookAndFeel g_lookAndFeel;
 
@@ -57,8 +58,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     , patchListListener([this](const File& f) { 
         })
-
+    , coutIntercept(std::cout)
+    , cerrIntercept(std::cerr)
 {
+
     setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);
@@ -109,11 +112,33 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     configureEditor(voiceEditor);
     configureEditor(effectEditor);
 
+    mainFrame.addTab("debug", g_tabColor, &debugTab, false);
+    debugTab.addComponent(&coutView);
+    debugTab.addComponent(&cerrView);
+    configureEditor(coutView);
+    configureEditor(cerrView);
+    debugViewUpdateTimer = new LambdaTimer(new std::function<void()>([this](){
+        std::string s;
+        coutIntercept.readAll(s);
+        if (s.size()) {
+            coutView.insertTextAtCaret(s);
+        }
+        s.clear();
+        cerrIntercept.readAll(s);
+        if (s.size()) {
+            cerrView.insertTextAtCaret(s);
+        }
+    }));
+    debugViewUpdateTimer->startTimer(1000);
+    std::cout << "#intercepted cout#\n\n" << std::endl;
+    std::cerr << "#intercepted cerr#\n\n" << std::endl;
+
     resized();
 }
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
+    delete debugViewUpdateTimer;
 }
 
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)

@@ -5,57 +5,57 @@ namespace PhasePhckr {
     const ComponentDescriptor stereoTapeDelay = {
 
         std::vector<ModulePortAlias> {
-            ModulePortAlias{"left", std::vector<ModulePort>{{"leftDelay", "left"}}},
-            ModulePortAlias{"right", std::vector<ModulePort>{{"rightDelay", "right"}}},
+            {"left", std::vector<ModulePort>{{"leftDelay", "left"}}},
+            {"right", std::vector<ModulePort>{{"rightDelay", "right"}}},
         },
 
         std::vector<ModulePortAlias>{
-            ModulePortAlias{"left", std::vector<ModulePort>{{"delayGain", "left"}}},
-            ModulePortAlias{"right", std::vector<ModulePort>{{"delayGain", "right"}}},
+            {"left", std::vector<ModulePort>{{"delayGain", "left"}}},
+            {"right", std::vector<ModulePort>{{"delayGain", "right"}}},
         },
 
         ConnectionGraphDescriptor{
             std::vector<ModuleVariable>{
-                ModuleVariable{ "delayGain", "GAIN" },
-                ModuleVariable{ "leftDelay", "DELAY" },
-                ModuleVariable{ "rightDelay", "DELAY" },
-                ModuleVariable{ "lfoPhase", "PHASE" },
-                ModuleVariable{ "lfo", "SINE" },
-                ModuleVariable{ "delayLeftTime", "SCLSHFT" },
-                ModuleVariable{ "delayRightTime", "SCLSHFT" },
-                ModuleVariable{ "leftDelayLP", "RCLP" },
-                ModuleVariable{ "rightDelayLP", "RCLP" },
-                ModuleVariable{ "leftDelayHP", "RCHP" },
-                ModuleVariable{ "rightDelayHP", "RCHP" }
+                { "delayGain", "GAIN" },
+                { "leftDelay", "DELAY" },
+                { "rightDelay", "DELAY" },
+                { "lfoPhase", "PHASE" },
+                { "lfo", "SINE" },
+                { "delayLeftTime", "SCLSHFT" },
+                { "delayRightTime", "SCLSHFT" },
+                { "leftDelayLP", "RCLP" },
+                { "rightDelayLP", "RCLP" },
+                { "leftDelayHP", "RCHP" },
+                { "rightDelayHP", "RCHP" }
             },
             std::vector<ModulePortConnection>{
-                ModulePortConnection{ { "leftDelay", "out" },{ "leftDelayHP", "x1" } },
-                ModulePortConnection{ { "rightDelay", "out" },{ "rightDelayHP", "x1" } },
-                ModulePortConnection{ { "leftDelayHP", "y1" },{ "leftDelayLP", "x1" } },
-                ModulePortConnection{ { "rightDelayHP", "y1" },{ "rightDelayLP", "x1" } },
-                ModulePortConnection{ { "leftDelayLP", "y1" },{ "rightDelay", "in" } },
-                ModulePortConnection{ { "rightDelayLP", "y1" },{ "leftDelay", "in" } },
-                ModulePortConnection{ { "leftDelayLP", "y1" },{ "delayGain", "left" } },
-                ModulePortConnection{ { "rightDelayLP", "y1" },{ "delayGain", "right" } },
-                ModulePortConnection{ { "lfoPhase", "phase" },{ "lfo", "phase" } },
-                ModulePortConnection{ { "lfo", "sine" },{ "delayLeftTime", "input" } },
-                ModulePortConnection{ { "lfo", "sine" },{ "delayRightTime", "input" } },
-                ModulePortConnection{ { "delayLeftTime", "output" },{ "leftDelay", "time" } },
-                ModulePortConnection{ { "delayRightTime", "output" },{ "rightDelay", "time" } }
+                { { "leftDelay", "out" },{ "leftDelayHP", "x1" } },
+                { { "rightDelay", "out" },{ "rightDelayHP", "x1" } },
+                { { "leftDelayHP", "y1" },{ "leftDelayLP", "x1" } },
+                { { "rightDelayHP", "y1" },{ "rightDelayLP", "x1" } },
+                { { "leftDelayLP", "y1" },{ "rightDelay", "in" } },
+                { { "rightDelayLP", "y1" },{ "leftDelay", "in" } },
+                { { "leftDelayLP", "y1" },{ "delayGain", "left" } },
+                { { "rightDelayLP", "y1" },{ "delayGain", "right" } },
+                { { "lfoPhase", "phase" },{ "lfo", "phase" } },
+                { { "lfo", "sine" },{ "delayLeftTime", "input" } },
+                { { "lfo", "sine" },{ "delayRightTime", "input" } },
+                { { "delayLeftTime", "output" },{ "leftDelay", "time" } },
+                { { "delayRightTime", "output" },{ "rightDelay", "time" } }
             },
             std::vector<ModulePortValue>{
-                ModulePortValue{ "lfoPhase", "freq", 2.0f },
-                ModulePortValue{ "delayLeftTime", "shift", 0.22f },
-                ModulePortValue{ "delayRightTime", "shift", 0.45f },
-                ModulePortValue{ "delayLeftTime", "scale", 0.001f },
-                ModulePortValue{ "delayRightTime", "scale", 0.001f },
-                ModulePortValue{ "leftDelay", "gain", 0.56f },
-                ModulePortValue{ "rightDelay", "gain", 0.62f },
-                ModulePortValue{ "leftDelayLP", "wc", 8500.0f },
-                ModulePortValue{ "rightDelayLP", "wc", 7500.0f },
-                ModulePortValue{ "leftDelayHP", "wc", 350.0f },
-                ModulePortValue{ "rightDelayHP", "wc", 450.0f },
-                ModulePortValue{ "delayGain", "gain", 1.0f }
+                { "lfoPhase", "freq", 2.0f },
+                { "delayLeftTime", "shift", 0.22f },
+                { "delayRightTime", "shift", 0.45f },
+                { "delayLeftTime", "scale", 0.001f },
+                { "delayRightTime", "scale", 0.001f },
+                { "leftDelay", "gain", 0.56f },
+                { "rightDelay", "gain", 0.62f },
+                { "leftDelayLP", "wc", 8500.0f },
+                { "rightDelayLP", "wc", 7500.0f },
+                { "leftDelayHP", "wc", 350.0f },
+                { "rightDelayHP", "wc", 450.0f },
+                { "delayGain", "gain", 1.0f }
             }
         }
     };
@@ -64,77 +64,30 @@ namespace PhasePhckr {
 
     const ConnectionGraphDescriptor exFxChain = {
         std::vector<ModuleVariable>{
-            ModuleVariable{ "outPreGain", "GAIN" },
-            ModuleVariable{ "outSaturation", "SSATAN" },
-            ModuleVariable{ "outPostGain", "GAIN" },
-            ModuleVariable{ "delayGain", "GAIN" },
-            ModuleVariable{ "leftDelay", "DELAY" },
-            ModuleVariable{ "rightDelay", "DELAY" },
-            ModuleVariable{ "lfoPhase", "PHASE" },
-            ModuleVariable{ "lfo", "SINE" },
-            ModuleVariable{ "delayLeftTime", "SCLSHFT" },
-            ModuleVariable{ "delayRightTime", "SCLSHFT" },
-            ModuleVariable{ "leftDelayLP", "RCLP" },
-            ModuleVariable{ "rightDelayLP", "RCLP" },
-            ModuleVariable{ "leftDelayHP", "RCHP" },
-            ModuleVariable{ "rightDelayHP", "RCHP" },
+            { "outPreGain", "GAIN" },
+            { "outSaturation", "SSATAN" },
+            { "outPostGain", "GAIN" },
+            { "stereoDelay", "@STEREOTAPE"}
         },
         std::vector<ModulePortConnection>{
-            ModulePortConnection{ { "inBus", "left" },{ "outPreGain", "left" } },
-            ModulePortConnection{ { "inBus", "right" },{ "outPreGain", "right" } },
-
-            ModulePortConnection{ { "outPreGain", "left" },{ "leftDelayHP", "x1" } },
-            ModulePortConnection{ { "outPreGain", "right" },{ "rightDelayHP", "x1" } },
-
-            // a cross feedback stereo delay
-            ModulePortConnection{ { "leftDelay", "out" },{ "leftDelayHP", "x1" } },
-            ModulePortConnection{ { "rightDelay", "out" },{ "rightDelayHP", "x1" } },
-            ModulePortConnection{ { "leftDelayHP", "y1" },{ "leftDelayLP", "x1" } },
-            ModulePortConnection{ { "rightDelayHP", "y1" },{ "rightDelayLP", "x1" } },
-            ModulePortConnection{ { "leftDelayLP", "y1" },{ "rightDelay", "in" } },
-            ModulePortConnection{ { "rightDelayLP", "y1" },{ "leftDelay", "in" } },
-            // - output and "wet" factor
-            ModulePortConnection{ { "leftDelayLP", "y1" },{ "delayGain", "left" } },
-            ModulePortConnection{ { "rightDelayLP", "y1" },{ "delayGain", "right" } },
-            // - time modulation, causes artifact due to no resampling ...
-            ModulePortConnection{ { "lfoPhase", "phase" },{ "lfo", "phase" } },
-            ModulePortConnection{ { "lfo", "sine" },{ "delayLeftTime", "input" } },
-            ModulePortConnection{ { "lfo", "sine" },{ "delayRightTime", "input" } },
-            ModulePortConnection{ { "delayLeftTime", "output" },{ "leftDelay", "time" } },
-            ModulePortConnection{ { "delayRightTime", "output" },{ "rightDelay", "time" } },
-
-            ModulePortConnection{ { "delayGain", "left" },{ "outPreGain", "left" } },
-            ModulePortConnection{ { "delayGain", "right" },{ "outPreGain", "right" } },
-
+            { { "inBus", "left" },{ "outPreGain", "left" } },
+            { { "inBus", "right" },{ "outPreGain", "right" } },
+            // adding in a Component
+            { { "inBus", "left" },{ "stereoDelay", "left" } },
+            { { "inBus", "right" },{ "stereoDelay", "right" } },
+            { { "stereoDelay", "left" },{ "outPreGain", "left" } },
+            { { "stereoDelay", "right" },{ "outPreGain", "right" } },
             // saturating gain stage
-            ModulePortConnection{ { "outPreGain", "left" },{ "outSaturation", "left" } },
-            ModulePortConnection{ { "outPreGain", "right" },{ "outSaturation", "right" } },
-            ModulePortConnection{ { "outSaturation", "left" },{ "outPostGain", "left" } },
-            ModulePortConnection{ { "outSaturation", "right" },{ "outPostGain", "right" } },
-            ModulePortConnection{ { "outPostGain", "left" },{ "outBus", "left" } },
-            ModulePortConnection{ { "outPostGain", "right" },{ "outBus", "right" } }
+            { { "outPreGain", "left" },{ "outSaturation", "left" } },
+            { { "outPreGain", "right" },{ "outSaturation", "right" } },
+            { { "outSaturation", "left" },{ "outPostGain", "left" } },
+            { { "outSaturation", "right" },{ "outPostGain", "right" } },
+            { { "outPostGain", "left" },{ "outBus", "left" } },
+            { { "outPostGain", "right" },{ "outBus", "right" } }
         },
         std::vector<ModulePortValue>{
-            ModulePortValue{ "outPreGain", "gain", 0.5f },
-            ModulePortValue{ "outPostGain", "gain", 2.0f },
-
-            // delay time moduluation
-            ModulePortValue{ "lfoPhase", "freq", 2.0f },
-            ModulePortValue{ "delayLeftTime", "shift", 0.22f },
-            ModulePortValue{ "delayRightTime", "shift", 0.45f },
-            ModulePortValue{ "delayLeftTime", "scale", 0.001f },
-            ModulePortValue{ "delayRightTime", "scale", 0.001f },
-            // - feedback amount
-            ModulePortValue{ "leftDelay", "gain", 0.56f },
-            ModulePortValue{ "rightDelay", "gain", 0.62f },
-            // - lowpass of feedback loop (sounds good, but also AA ...)
-            ModulePortValue{ "leftDelayLP", "wc", 8500.0f },
-            ModulePortValue{ "rightDelayLP", "wc", 7500.0f },
-            // - lowpass of feeback loop (sounds good, but also AA ...)
-            ModulePortValue{ "leftDelayHP", "wc", 350.0f },
-            ModulePortValue{ "rightDelayHP", "wc", 450.0f },
-            // - effect "wet amount"
-            ModulePortValue{ "delayGain", "gain", 1.0f },
+            { "outPreGain", "gain", 0.5f },
+            { "outPostGain", "gain", 2.0f },
         }
     };
 

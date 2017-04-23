@@ -106,6 +106,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorMenu.addComponent(&docView);
     editorMenu.setNumberOfColumns(2);
     docList.updateContent();
+    docView.setMultiLine(true, true);
 
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);
@@ -119,7 +120,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     configureEditor(voiceEditor);
     configureEditor(effectEditor);
-    configureEditor(docView);
 
     mainFrame.addTab("debug", g_tabColor, &debugTab, false);
     debugTab.addComponent(&coutView);

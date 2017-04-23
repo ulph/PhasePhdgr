@@ -65,7 +65,6 @@ public:
             const ModuleDoc &doc = moduleDocs[row];
             docView.clear();
             docView.insertTextAtCaret(doc.type + "\n\n");
-            docView.insertTextAtCaret(doc.docString+"\n\n");
             docView.insertTextAtCaret("inputs:\n");
             for (const auto & i : doc.inputs) {
                 docView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.value) + "\n");
@@ -74,6 +73,8 @@ public:
             for (const auto & o : doc.outputs) {
                 docView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + " " + std::to_string(o.value) + "\n");
             }
+            docView.insertTextAtCaret("\n\n" + doc.docString);
+            docView.moveCaretToTop(false);
         }
     }
 };

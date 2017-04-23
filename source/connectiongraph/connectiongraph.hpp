@@ -7,14 +7,7 @@
 
 class Module;
 class Cable;
-struct Pad;
-
-struct ModuleDoc {
-    std::string type;
-    std::vector<Pad> inputs;
-    std::vector<Pad> outputs;
-    std::string docString;
-};
+struct ModuleDoc;
 
 class ConnectionGraph
 {

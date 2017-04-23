@@ -16,7 +16,6 @@ namespace PhasePhckr {
     class VoiceBus;
     class GlobalData;
     struct ConnectionGraphDescriptor;
-    struct ComponentDescriptor;
 
     const ConnectionGraphDescriptor& getExampleFxChain();
     const ConnectionGraphDescriptor& getExampleVoiceChain();

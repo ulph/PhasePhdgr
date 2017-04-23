@@ -33,7 +33,8 @@ if(${BUILD_TESTS})
 endif()
 
 install(FILES 
-    include/phasephckr.h 
+    include/phasephckr.h
+    include/docs.hpp
     include/design.hpp
     include/design_json.hpp
     DESTINATION include

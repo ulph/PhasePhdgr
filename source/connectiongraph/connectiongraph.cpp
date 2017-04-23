@@ -5,6 +5,7 @@
 #include <sstream>
 #include "connectiongraph.hpp"
 #include "module.hpp"
+#include "docs.hpp"
 
 #define NOT_COMPILED (-1)
 
@@ -209,8 +210,22 @@ void ConnectionGraph::makeModuleDocs(std::vector<ModuleDoc> &docList) {
         ModuleDoc doc;
         doc.type = p.first;
         doc.docString = m->docString();
-        doc.inputs = m->copyInputPads();
-        doc.outputs = m->copyOutputPads();
-        docList.push_back(doc);
+        std::vector<Pad> inputs = m->copyInputPads();
+        for (const auto p : inputs) {
+            PadDescription pd;
+            pd.name = p.name;
+            pd.unit = p.unit;
+            pd.value = p.value;
+            doc.inputs.emplace_back(pd);
+        }
+        std::vector<Pad> outputs = m->copyOutputPads();
+        for (const auto p : outputs) {
+            PadDescription pd;
+            pd.name = p.name;
+            pd.unit = p.unit;
+            pd.value = p.value;
+            doc.outputs.emplace_back(pd);
+        }
+        docList.emplace_back(doc);
     }
 }

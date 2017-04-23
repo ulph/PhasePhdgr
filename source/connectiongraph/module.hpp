@@ -66,10 +66,10 @@ public:
     std::string getName() { return name; }
 
     virtual std::string docString() { return "..."; };
-    std::vector<Pad> copyInputPads() {
+    const std::vector<Pad> &copyInputPads() {
         return inputs;
     }
-    std::vector<Pad> copyOutputPads() {
+    const std::vector<Pad> &copyOutputPads() {
         return outputs;
     }
 

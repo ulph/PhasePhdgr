@@ -21,26 +21,10 @@ struct ModulePort {
     std::string port;
 };
 
-// TODO, deprecate ModulePortConnection (1:1) in favour of ModulePortConnections (1:N)
 struct ModulePortConnection {
     ModulePort source;
     ModulePort target;
 };
-
-struct ModulePortConnections {
-    ModulePort source;
-    std::vector<ModulePort> targets;
-};
-
-struct ModulePortTrivialConnection {
-    std::string source;
-    std::string target;
-};
-
-// TODO, Mechanisms for ModulePortTrivialConnection which implies 
-//     "mono"->"mono", or "left"->"left"+"right"->"right", 
-//     defaulting to 0->0 if nothing else works
-//     ... this is such a common use case that it warrents the extra logic in code
 
 struct ModulePortValue {
     ModulePort target;
@@ -72,9 +56,12 @@ struct ComponentDescriptor {
     ConnectionGraphDescriptor graph;
 };
 
+/* High level structure 
+TODO synths pass these down, so a file can be completely portable. Any conflicts of components with factory should be in favour of the patch...
+*/
 struct PatchDescriptor {
-    ConnectionGraphDescriptor voiceGraph;
-    ConnectionGraphDescriptor effectGraph;
+    ConnectionGraphDescriptor graph;
+    std::vector<ComponentDescriptor> components;
 };
 
 }

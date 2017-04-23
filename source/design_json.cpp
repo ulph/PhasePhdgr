@@ -50,16 +50,6 @@ void from_json(const json& j, ModulePortConnection& mpc) {
     mpc.target.port = j.at(3).get<std::string>();
 }
 
-void to_json(json& j, const ModulePortConnections& mpcs) {
-    j[0] = mpcs.source;
-    j[1] = mpcs.targets;
-}
-
-void from_json(const json& j, ModulePortConnections& mpcs) {
-    mpcs.source = j.at(0).get<ModulePort>();
-    mpcs.targets = j.at(1).get<std::vector<ModulePort>>();
-}
-
 void to_json(json& j, const ConnectionGraphDescriptor& cgd) {
     j["modules"] = cgd.modules;
     j["connections"] = cgd.connections;
@@ -96,16 +86,6 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.graph.values = j.at("values").get<std::vector<ModulePortValue>>();
     cgd.inputs = j.at("inputs").get<std::vector<ModulePortAlias>>();
     cgd.outputs = j.at("outputs").get<std::vector<ModulePortAlias>>();
-}
-
-void to_json(json& j, const PatchDescriptor& cgd) {
-    j["voice"] = cgd.voiceGraph;
-    j["effect"] = cgd.effectGraph;
-}
-
-void from_json(const json& j, PatchDescriptor& cgd) {
-    cgd.voiceGraph = j.at("voice");
-    cgd.effectGraph = j.at("effect");
 }
 
 }

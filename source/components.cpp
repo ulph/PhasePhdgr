@@ -72,31 +72,20 @@ const ComponentDescriptor stereoTape = {
     }
 };
 
-typedef std::map<std::string, ComponentDescriptor> ComponentRegistry_t;
-ComponentRegistry_t *g_componentRegistry = nullptr;
-
-static ComponentRegistry_t* getComponentRegistry() {
-    if (!g_componentRegistry) {
-        // singleton and register the factory stuff
-        g_componentRegistry = new ComponentRegistry_t();
-        (*g_componentRegistry)["@STEREOTAPE"] = stereoTape;
-    };
-    return g_componentRegistry;
+void ComponentRegister::registerFactoryComponents() {
+    registerComponent("@STEREOTAPE", stereoTape);
+    // etc
 }
 
-bool registerComponent(std::string name, const ComponentDescriptor & desc) {
-    // for registering any user stuff
-    ComponentRegistry_t * r = getComponentRegistry();
-    if (r->count(name)) return false;
-    (*r)[name] = desc;
+bool ComponentRegister::registerComponent(std::string name, const ComponentDescriptor & desc) {
+    if (r.count(name)) return false;
+    r[name] = desc;
     return true;
 }
 
-bool getComponent(std::string name, ComponentDescriptor & desc) {
-    ComponentRegistry_t * r = getComponentRegistry();
-    if (!(r->count(name))) return false;
-    const ComponentDescriptor & cmp = (*r)[name];
-    desc = cmp;
+bool ComponentRegister::getComponent(std::string name, ComponentDescriptor & desc) const {
+    if (!r.count(name)) return false;
+    desc = r.at(name);
     return true;
 }
 

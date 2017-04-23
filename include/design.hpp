@@ -5,7 +5,10 @@
 #include <map>
 #include <iostream>
 
+#include "components.hpp"
+
 class ConnectionGraph;
+class ComponentRegister;
 
 namespace PhasePhckr {
 
@@ -37,12 +40,6 @@ struct ConnectionGraphDescriptor {
     std::vector<ModulePortValue> values;
 };
 
-void designConnectionGraph(
-    ConnectionGraph &connectionGraph,
-    ConnectionGraphDescriptor &description,
-    std::map<std::string, int> &moduleHandles
-);
-
 /* Component (subgraph) stuff */
 
 struct ModulePortInputAlias {
@@ -69,5 +66,14 @@ struct PatchDescriptor {
     std::vector<ComponentDescriptor> components; // optional
     std::vector<ModulePortValue> values;
 };
+
+/* Functions and aux types */
+
+void designConnectionGraph(
+    ConnectionGraph &connectionGraph,
+    ConnectionGraphDescriptor &description,
+    std::map<std::string, int> &moduleHandles,
+    const ComponentRegister & cp
+);
 
 }

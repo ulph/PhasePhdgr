@@ -16,11 +16,15 @@ void SynthVoice::init(const ConnectionGraphDescriptor& voiceChain)
     graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
     graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
 
+    ComponentRegister cp;
+    cp.registerFactoryComponents();
+
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(
         connectionGraph,
         graphDescriptor,
-        moduleHandles
+        moduleHandles,
+        cp
     );
 
     inBus = moduleHandles["inBus"];

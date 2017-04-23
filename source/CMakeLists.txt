@@ -26,7 +26,6 @@ set(SRC
     parameters.hpp
     scope.cpp
     components.cpp
-    components.hpp
     docs.cpp
 )
 

@@ -34,6 +34,7 @@ endif()
 
 install(FILES 
     include/phasephckr.h
+    include/components.hpp
     include/docs.hpp
     include/design.hpp
     include/design_json.hpp

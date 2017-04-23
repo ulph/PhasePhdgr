@@ -53,13 +53,14 @@ bool unpackComponent(
     ConnectionGraph &g,
     ConnectionGraphDescriptor& gDesc,
     const ModuleVariable &mv, 
-    std::map<std::string, int>&handles
+    std::map<std::string, int>&handles,
+    const ComponentRegister & cp
 ) {
     ComponentDescriptor cD;
 
     // find the component definition
     std::cout << "component " << mv.name << " " << mv.type << std::endl;
-    if (!getComponent(mv.type, cD)) {
+    if (!cp.getComponent(mv.type, cD)) {
         std::cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << std::endl;
         return false;
     }
@@ -86,7 +87,7 @@ bool unpackComponent(
     }
 
     // parse the sub graph
-    designConnectionGraph(g, cD.graph, handles);
+    designConnectionGraph(g, cD.graph, handles, cp);
 
     // refresh the ConnectionGraphDescriptor with these new composite names
     applyComponent(gDesc, cD, mv.name);
@@ -97,14 +98,15 @@ bool unpackComponent(
 void designConnectionGraph(
     ConnectionGraph &g,
     ConnectionGraphDescriptor& gDesc,
-    std::map<std::string, int>& handles
+    std::map<std::string, int>& handles,
+    const ComponentRegister & cp
 ) {
     std::set<std::string> skip;
 
     // find any components (module bundles) and unpack them
     for (const auto &m : gDesc.modules) {
         if (m.type.front() == '@') {
-            if (unpackComponent(g, gDesc, m, handles)) {
+            if (unpackComponent(g, gDesc, m, handles, cp)) {
                 skip.insert(m.name);
             }
         }

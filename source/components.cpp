@@ -4,24 +4,23 @@
 namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
-    std::vector<ModulePortAlias> {
+    std::vector<ModulePortAlias>{
         {"left", {"leftDelay", "in"}},
         {"right", {"rightDelay", "in"}},
-    },
-    std::vector<ModulePortAlias>{
-        {"left", {"leftDelayLP", "y1"}},
-        {"right", {"rightDelayLP", "y1"}},
         {"leftTime", {"delayLeftTime", "shift"}},
         {"rightTime", {"delayRightTime", "shift"}},
         {"leftModDepth", {"delayLeftTime", "scale"}},
         {"rightModDepth", {"delayRightTime", "scale"}},
-        {"leftFeedback", {"leftDelay", "gain"}},
-        {"rightFeedback", {"rightDelay", "gain"}},
+        {"feedback", {"feedbackGain", "gain"}},
         {"leftHpHz", {"leftDelayHP", "wc"}},
         {"rightHpHz", {"rightDelayHP", "wc"}},
         {"leftLpHz", {"leftDelayLP", "wc"}},
         {"rightLpHz", {"rightDelayLP", "wc"}},
         {"modHz", {"lfoPhase", "freq"}},
+    },
+    std::vector<ModulePortAlias>{
+        {"left", {"leftDelayLP", "y1"}},
+        {"right", {"rightDelayLP", "y1"}}
     },
     ConnectionGraphDescriptor{
         std::vector<ModuleVariable>{
@@ -29,6 +28,7 @@ const ComponentDescriptor stereoTape = {
             {"rightDelay", "DELAY"},
             {"lfoPhase", "PHASE"},
             {"lfo", "SINE"},
+            {"feedbackGain", "GAIN"},
             {"delayLeftTime", "SCLSHFT"},
             {"delayRightTime", "SCLSHFT"},
             {"leftDelayLP", "RCLP"},
@@ -41,8 +41,12 @@ const ComponentDescriptor stereoTape = {
             {{"rightDelay", "out"}, {"rightDelayHP", "x1"}},
             {{"leftDelayHP", "y1"}, {"leftDelayLP", "x1"}},
             {{"rightDelayHP", "y1"}, {"rightDelayLP", "x1"}},
-            {{"leftDelayLP", "y1"}, {"rightDelay", "in"}},
-            {{"rightDelayLP", "y1"}, {"leftDelay", "in"}},
+
+            {{"leftDelayLP", "y1"}, {"feedbackGain", "left"}},
+            {{"rightDelayLP", "y1"}, {"feedbackGain", "right"}},
+            {{"feedbackGain", "left"}, {"rightDelay", "in"}},
+            {{"feedbackGain", "right"}, {"leftDelay", "in"}},
+
             {{"lfoPhase", "phase"}, {"lfo", "phase"}},
             {{"lfo", "sine"}, {"delayLeftTime", "input"}},
             {{"lfo", "sine"}, {"delayRightTime", "input"}},
@@ -55,12 +59,11 @@ const ComponentDescriptor stereoTape = {
             {"delayRightTime", "shift", 0.45f},
             {"delayLeftTime", "scale", 0.001f},
             {"delayRightTime", "scale", 0.001f},
-            {"leftDelay", "gain", 0.56f},
-            {"rightDelay", "gain", 0.62f},
             {"leftDelayLP", "wc", 8500.0f},
             {"rightDelayLP", "wc", 7500.0f},
             {"leftDelayHP", "wc", 350.0f},
-            {"rightDelayHP", "wc", 450.0f}
+            {"rightDelayHP", "wc", 450.0f},
+            {"feedbackGain", "gain", 0.5f}
         }
     }
 };

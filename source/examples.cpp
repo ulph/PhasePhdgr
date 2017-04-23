@@ -28,6 +28,10 @@ namespace PhasePhckr {
         std::vector<ModulePortValue>{
             { "outPreGain", "gain", 0.5f },
             { "outPostGain", "gain", 2.0f },
+            // overriding component defaults ;)
+            { "stereoTape", "feedback", 1.5f },
+            { "stereoTape", "leftModDepth", 0.002f },
+            { "stereoTape", "rightModDepth", 0.002f },
         }
     };
 

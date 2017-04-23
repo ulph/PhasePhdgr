@@ -15,7 +15,7 @@ bool unpackComponent(
         std::cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << std::endl;
         return false;
     }
-    const std::string pfx = mv.name + "@";
+    const std::string pfx = mv.name + ".";
     for (auto &i : comp.inputs) {
         i.target.module = pfx + i.target.module;
     }
@@ -32,11 +32,8 @@ bool unpackComponent(
         c.source.module = pfx + c.source.module;
         c.target.module = pfx + c.target.module;
     }
-
     // parse the sub graph
     DesignConnectionGraph(connectionGraph, comp.graph, mh);
-
-    std::cout << std::endl;
     return true;
 }
 
@@ -57,8 +54,8 @@ void DesignConnectionGraph(
         }
     }
 
-    // modify any connections involving found components
     if (componentDescriptors.size()) {
+        // modify any connections involving components
         for (auto &c : p.connections) {
             // from a component
             if (componentDescriptors.count(c.source.module)){
@@ -77,6 +74,19 @@ void DesignConnectionGraph(
                     if (ai.alias == c.target.port) {
                         c.target.module = ai.target.module;
                         c.target.port = ai.target.port;
+                    }
+                }
+            }
+        }
+
+        // modify any values involving components
+        for (auto &v : p.values) {
+            if (componentDescriptors.count(v.target.module)) {
+                auto cmp = componentDescriptors[v.target.module];
+                for (auto ai : cmp.inputs) {
+                    if (ai.alias == v.target.port) {
+                        v.target.module = ai.target.module;
+                        v.target.port = ai.target.port;
                     }
                 }
             }
@@ -114,12 +124,14 @@ void DesignConnectionGraph(
 
     // set default values provided
     for (const auto &v : p.values) {
+        if (componentDescriptors.count(v.target.module)) continue;
         int targetHandle = moduleHandles.count(v.target.module) > 0 ? moduleHandles.at(v.target.module) : -2;
         if (targetHandle < 0) {
-            std::cerr << "Error: " << v.target.module << "not found! (values)" << std::endl;
+            std::cerr << "Error: " << v.target.module << " not found! (values)" << std::endl;
         }
         else {
             connectionGraph.setInput(targetHandle, v.target.port, v.value);
+            std::cout << v.target.module << ":" << v.target.port << " = " << v.value << std::endl;
         }
     }
 }

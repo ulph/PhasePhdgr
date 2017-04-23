@@ -60,7 +60,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , patchListListener([this](const File& f) { 
         })
 
-    , docListModel(PhasePhckr::GetModuleDocs(), docView)
+    , docListModel(doc.get(), docView)
     , docList( "docList", &docListModel)
 
     , coutIntercept(std::cout)

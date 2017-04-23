@@ -68,8 +68,9 @@ const ComponentDescriptor stereoTape = {
             {"leftDelayHP", "wc", 350.0f},
             {"rightDelayHP", "wc", 450.0f},
             {"feedbackGain", "gain", 0.5f},
-        }
-    }
+        },
+    },
+    std::string{"Time modulated stereo cross feedback delay with saturating filter stages."}
 };
 
 void ComponentRegister::registerFactoryComponents() {

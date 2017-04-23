@@ -18,8 +18,14 @@ struct ModuleDoc {
 };
 
 namespace PhasePhckr {
-    void RefreshDocs();
-    const std::vector<ModuleDoc> & GetModuleDocs();
+    class Doc {
+    private:
+        void RefreshDocs();
+        std::vector<ModuleDoc> moduleDocs;
+    public:
+        Doc();
+        const std::vector<ModuleDoc> & get();
+    };
 }
 
 #endif

@@ -131,6 +131,7 @@ private:
     Viewport effectGraphViewport;
     GraphView effectGraphView;
 
+    PhasePhckr::Doc doc;
     TextEditor docView;
     ListBox docList;
     DocListModel docListModel;

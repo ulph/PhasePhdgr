@@ -1,29 +1,26 @@
 #include "design.hpp"
 #include "connectiongraph.hpp"
+#include "components.hpp"
 
 namespace PhasePhckr {
 
-void unpackComponent(
+bool unpackComponent(
     ConnectionGraph &connectionGraph,
     const ModuleVariable &mv, 
-    std::map<std::string, int>&mh
+    std::map<std::string, int>&mh,
+    ComponentDescriptor &comp
 ) {
-    ComponentDescriptor comp;
+    std::cout << "component " << mv.name << " " << mv.type << std::endl;
     if (!getComponent(mv.type, comp)) {
         std::cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << std::endl;
-        return;
+        return false;
     }
-
     const std::string pfx = mv.name + "@";
     for (auto &i : comp.inputs) {
-        for (auto &t : i.targets) {
-            t.module = pfx + t.module;
-        }
+        i.target.module = pfx + i.target.module;
     }
     for (auto &o : comp.outputs) {
-        for (auto &t : o.targets) {
-            t.module = pfx + t.module;
-        }
+        o.target.module = pfx + o.target.module;
     }
     for (auto &m : comp.graph.modules) {
         m.name = pfx + m.name;
@@ -36,28 +33,66 @@ void unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
+    // parse the sub graph
     DesignConnectionGraph(connectionGraph, comp.graph, mh);
+
+    std::cout << std::endl;
+    return true;
 }
 
 void DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const ConnectionGraphDescriptor& p,
+    ConnectionGraphDescriptor& p,
     std::map<std::string, int>&moduleHandles
 ) {
+    std::map<std::string, ComponentDescriptor> componentDescriptors;
+
     // find any components (module bundles) and unpack them
     for (const auto &m : p.modules) {
         if (m.type.front() == '@') {
-            unpackComponent(connectionGraph, m, moduleHandles);
+            ComponentDescriptor comp;
+            if (unpackComponent(connectionGraph, m, moduleHandles, comp)) {
+                componentDescriptors[m.name] = comp;
+            }
+        }
+    }
+
+    // modify any connections involving found components
+    if (componentDescriptors.size()) {
+        for (auto &c : p.connections) {
+            // from a component
+            if (componentDescriptors.count(c.source.module)){
+                auto cmp = componentDescriptors[c.source.module];
+                for (auto ao : cmp.outputs) {
+                    if (ao.alias == c.source.port) {
+                        c.source.module = ao.target.module;
+                        c.source.port = ao.target.port;
+                    }
+                }
+            }
+            // to a component
+            if (componentDescriptors.count(c.target.module)) {
+                auto cmp = componentDescriptors[c.target.module];
+                for (auto ai : cmp.inputs) {
+                    if (ai.alias == c.target.port) {
+                        c.target.module = ai.target.module;
+                        c.target.port = ai.target.port;
+                    }
+                }
+            }
         }
     }
 
     // create the modules and store their handles
     for (const auto &m : p.modules) {
+        if (componentDescriptors.count(m.name)) continue; // skip any components
         if (moduleHandles.count(m.name) > 0) {
             std::cerr << "Error: " << m.name << " name dupe! (modules)" << std::endl;
         }
         else {
-            moduleHandles[m.name] = connectionGraph.addModule(m.type);
+            int handle = connectionGraph.addModule(m.type);
+            moduleHandles[m.name] = handle;
+            std::cout << handle << " : " << " " << m.name << std::endl;
         }
     }
 
@@ -66,13 +101,14 @@ void DesignConnectionGraph(
         int fromModuleHandle = moduleHandles.count(c.source.module) > 0 ? moduleHandles.at(c.source.module) : -2;
         int toModuleHandle = moduleHandles.count(c.target.module) > 0 ? moduleHandles.at(c.target.module) : -2;
         if (fromModuleHandle < 0) {
-            std::cerr << "Error: " << c.source.module << " not found! (connections)" << std::endl;
+            std::cerr << "Error: " << c.source.module << " not found! (connection source)" << std::endl;
         }
         else if (toModuleHandle < 0) {
-            std::cerr << "Error: " << c.target.module << " not found! (connections)" << std::endl;
+            std::cerr << "Error: " << c.target.module << " not found! (connection target)" << std::endl;
         }
         else {
             connectionGraph.connect(fromModuleHandle, c.source.port, toModuleHandle, c.target.port);
+            std::cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << std::endl;
         }
     }
 
@@ -86,20 +122,6 @@ void DesignConnectionGraph(
             connectionGraph.setInput(targetHandle, v.target.port, v.value);
         }
     }
-}
-
-std::map<std::string, ComponentDescriptor> g_componentRegistry;
-
-bool registerComponent(std::string name, const ComponentDescriptor & desc) {
-    if (g_componentRegistry.count(name)) return false;
-    g_componentRegistry[name] = desc;
-    return true;
-}
-
-bool getComponent(std::string name, ComponentDescriptor & desc) {
-    if (!g_componentRegistry.count(name)) return false;
-    desc = g_componentRegistry[name];
-    return true;
 }
 
 }

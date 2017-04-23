@@ -27,6 +27,8 @@ set(SRC
     scope.cpp
     docs.cpp
     docs.hpp
+    components.cpp
+    components.hpp
 )
 
 if(${USING_NLOHMANN_JSON})

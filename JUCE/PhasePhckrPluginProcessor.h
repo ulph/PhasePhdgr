@@ -59,6 +59,8 @@ private:
     PhasePhckr::ConnectionGraphDescriptor effectChain;
     void applyVoiceChain();
     void applyEffectChain();
+
+    std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

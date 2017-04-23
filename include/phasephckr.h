@@ -20,7 +20,6 @@ namespace PhasePhckr {
 
     const ConnectionGraphDescriptor& getExampleFxChain();
     const ConnectionGraphDescriptor& getExampleVoiceChain();
-    const ComponentDescriptor& getExampleComponent();
 
     class Scope {
     private:

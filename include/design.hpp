@@ -55,7 +55,7 @@ struct ConnectionGraphDescriptor {
 
 void DesignConnectionGraph(
     ConnectionGraph &connectionGraph,
-    const ConnectionGraphDescriptor &description,
+    ConnectionGraphDescriptor &description, // may be mutated inside
     std::map<std::string, int> & moduleHandles
 );
 
@@ -63,7 +63,7 @@ void DesignConnectionGraph(
 
 struct ModulePortAlias {
     std::string alias;
-    std::vector<ModulePort> targets;
+    ModulePort target;
 };
 
 struct ComponentDescriptor {
@@ -76,9 +76,5 @@ struct PatchDescriptor {
     ConnectionGraphDescriptor voiceGraph;
     ConnectionGraphDescriptor effectGraph;
 };
-
-// TODO, move these two somewhere like a componentRegistry.hpp
-bool registerComponent(std::string name, const ComponentDescriptor & desc);
-bool getComponent(std::string name, ComponentDescriptor & desc);
 
 }

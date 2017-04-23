@@ -59,11 +59,15 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 }
 
 void PhasePhckrAudioProcessor::applyVoiceChain() {
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setVoiceChain(voiceChain);
+    synthUpdateLock.clear(std::memory_order_release);
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain() {
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setFxChain(effectChain);
+    synthUpdateLock.clear(std::memory_order_release);
 }
 
 //==============================================================================
@@ -155,6 +159,8 @@ bool PhasePhckrAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+
     const int numOutputChannels = getTotalNumOutputChannels();
     const int numMidiMessages = midiMessages.getNumEvents();
     const int blockSize = buffer.getNumSamples();
@@ -223,6 +229,8 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     midiMessages.clear();
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
+
+    synthUpdateLock.clear(std::memory_order_release);
 }
 
 //==============================================================================

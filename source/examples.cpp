@@ -2,81 +2,21 @@
 
 namespace PhasePhckr {
 
-    const ComponentDescriptor stereoTapeDelay = {
-
-        std::vector<ModulePortAlias> {
-            {"left", std::vector<ModulePort>{{"leftDelay", "left"}}},
-            {"right", std::vector<ModulePort>{{"rightDelay", "right"}}},
-        },
-
-        std::vector<ModulePortAlias>{
-            {"left", std::vector<ModulePort>{{"delayGain", "left"}}},
-            {"right", std::vector<ModulePort>{{"delayGain", "right"}}},
-        },
-
-        ConnectionGraphDescriptor{
-            std::vector<ModuleVariable>{
-                { "delayGain", "GAIN" },
-                { "leftDelay", "DELAY" },
-                { "rightDelay", "DELAY" },
-                { "lfoPhase", "PHASE" },
-                { "lfo", "SINE" },
-                { "delayLeftTime", "SCLSHFT" },
-                { "delayRightTime", "SCLSHFT" },
-                { "leftDelayLP", "RCLP" },
-                { "rightDelayLP", "RCLP" },
-                { "leftDelayHP", "RCHP" },
-                { "rightDelayHP", "RCHP" }
-            },
-            std::vector<ModulePortConnection>{
-                { { "leftDelay", "out" },{ "leftDelayHP", "x1" } },
-                { { "rightDelay", "out" },{ "rightDelayHP", "x1" } },
-                { { "leftDelayHP", "y1" },{ "leftDelayLP", "x1" } },
-                { { "rightDelayHP", "y1" },{ "rightDelayLP", "x1" } },
-                { { "leftDelayLP", "y1" },{ "rightDelay", "in" } },
-                { { "rightDelayLP", "y1" },{ "leftDelay", "in" } },
-                { { "leftDelayLP", "y1" },{ "delayGain", "left" } },
-                { { "rightDelayLP", "y1" },{ "delayGain", "right" } },
-                { { "lfoPhase", "phase" },{ "lfo", "phase" } },
-                { { "lfo", "sine" },{ "delayLeftTime", "input" } },
-                { { "lfo", "sine" },{ "delayRightTime", "input" } },
-                { { "delayLeftTime", "output" },{ "leftDelay", "time" } },
-                { { "delayRightTime", "output" },{ "rightDelay", "time" } }
-            },
-            std::vector<ModulePortValue>{
-                { "lfoPhase", "freq", 2.0f },
-                { "delayLeftTime", "shift", 0.22f },
-                { "delayRightTime", "shift", 0.45f },
-                { "delayLeftTime", "scale", 0.001f },
-                { "delayRightTime", "scale", 0.001f },
-                { "leftDelay", "gain", 0.56f },
-                { "rightDelay", "gain", 0.62f },
-                { "leftDelayLP", "wc", 8500.0f },
-                { "rightDelayLP", "wc", 7500.0f },
-                { "leftDelayHP", "wc", 350.0f },
-                { "rightDelayHP", "wc", 450.0f },
-                { "delayGain", "gain", 1.0f }
-            }
-        }
-    };
-
-    const ComponentDescriptor& getExampleComponent() { return stereoTapeDelay; }
-
     const ConnectionGraphDescriptor exFxChain = {
         std::vector<ModuleVariable>{
             { "outPreGain", "GAIN" },
             { "outSaturation", "SSATAN" },
             { "outPostGain", "GAIN" },
-            { "stereoDelay", "@STEREOTAPE"}
+            { "stereoTape", "@STEREOTAPE"}
         },
         std::vector<ModulePortConnection>{
             { { "inBus", "left" },{ "outPreGain", "left" } },
             { { "inBus", "right" },{ "outPreGain", "right" } },
             // adding in a Component
-            { { "inBus", "left" },{ "stereoDelay", "left" } },
-            { { "inBus", "right" },{ "stereoDelay", "right" } },
-            { { "stereoDelay", "left" },{ "outPreGain", "left" } },
-            { { "stereoDelay", "right" },{ "outPreGain", "right" } },
+            { { "inBus", "left" },{ "stereoTape", "left" } },
+            { { "inBus", "right" },{ "stereoTape", "right" } },
+            { { "stereoTape", "left" },{ "outPreGain", "left" } },
+            { { "stereoTape", "right" },{ "outPreGain", "right" } },
             // saturating gain stage
             { { "outPreGain", "left" },{ "outSaturation", "left" } },
             { { "outPreGain", "right" },{ "outSaturation", "right" } },

@@ -74,12 +74,12 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
 
 void to_json(json& j, const ModulePortAlias& mv) {
     j[0] = mv.alias;
-    j[1] = mv.targets;
+    j[1] = mv.target;
 }
 
 void from_json(const json& j, ModulePortAlias& mv) {
     mv.alias = j.at(0).get<std::string>();
-    mv.targets = j.at(1).get<std::vector<ModulePort>>();
+    mv.target = j.at(1).get<ModulePort>();
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {

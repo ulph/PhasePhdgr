@@ -56,6 +56,7 @@ struct ComponentDescriptor {
     std::vector<ModulePortInputAlias> inputs;
     std::vector<ModulePortOutputAlias> outputs;
     ConnectionGraphDescriptor graph;
+    // TODO; values here ...
     std::string docString;
 };
 

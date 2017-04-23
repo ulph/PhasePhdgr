@@ -16,7 +16,8 @@ const ComponentDescriptor stereoTape = {
         {"rightHpHz", {{"rightDelayHP", "wc"}}},
         {"leftLpHz", {{"leftDelayLP", "wc"}}},
         {"rightLpHz", {{"rightDelayLP", "wc"}}},
-        {"modHz", {{"lfoPhase", "freq"}}}
+        {"modHz", {{"lfoPhase", "freq"}}},
+        {"saturation", {{"saturation", "prescaler"}}}
     },
     std::vector<ModulePortOutputAlias>{
         {"left", {"leftDelayLP", "y1"}},
@@ -34,11 +35,14 @@ const ComponentDescriptor stereoTape = {
             {"leftDelayLP", "RCLP"},
             {"rightDelayLP", "RCLP"},
             {"leftDelayHP", "RCHP"},
-            {"rightDelayHP", "RCHP"}
+            {"rightDelayHP", "RCHP"},
+            {"saturation", "SSATAN"},
         },
         std::vector<ModulePortConnection>{
-            {{"leftDelay", "out"}, {"leftDelayHP", "x1"}},
-            {{"rightDelay", "out"}, {"rightDelayHP", "x1"}},
+            {{"leftDelay", "out"}, {"saturation", "left"}},
+            {{"rightDelay", "out"}, {"saturation", "right"}},
+            {{"saturation", "left"}, {"leftDelayHP", "x1"}},
+            {{"saturation", "right"}, {"rightDelayHP", "x1"}},
             {{"leftDelayHP", "y1"}, {"leftDelayLP", "x1"}},
             {{"rightDelayHP", "y1"}, {"rightDelayLP", "x1"}},
 
@@ -63,7 +67,7 @@ const ComponentDescriptor stereoTape = {
             {"rightDelayLP", "wc", 7500.0f},
             {"leftDelayHP", "wc", 350.0f},
             {"rightDelayHP", "wc", 450.0f},
-            {"feedbackGain", "gain", 0.5f}
+            {"feedbackGain", "gain", 0.5f},
         }
     }
 };

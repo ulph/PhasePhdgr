@@ -64,7 +64,7 @@ bool unpackComponent(
         return false;
     }
 
-    // move component subgraph onto the mv's "namespace"
+    // move component subgraph onto the mv's "scope"
     const std::string pfx = mv.name + ".";
     for (auto &i : cD.inputs) {
         for (auto &w : i.wrapped) {

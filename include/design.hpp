@@ -66,7 +66,8 @@ TODO synths pass these down, so a file can be completely portable. Any conflicts
 */
 struct PatchDescriptor {
     ConnectionGraphDescriptor graph;
-    std::vector<ComponentDescriptor> components;
+    std::vector<ComponentDescriptor> components; // optional
+    std::vector<ModulePortValue> values;
 };
 
 }

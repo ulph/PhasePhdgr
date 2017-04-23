@@ -13,7 +13,7 @@ private:
     int outBus;
 
 public:
-    EffectChain(const ConnectionGraphDescriptor& fxChain);
+    EffectChain(const ConnectionGraphDescriptor& fxChain, const ComponentRegister & cp);
     virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const GlobalData& globalData);
 
 };

@@ -17,6 +17,7 @@ namespace PhasePhckr {
     class GlobalData;
     struct ConnectionGraphDescriptor;
     struct ComponentDescriptor;
+    class ComponentRegister;
 
     const ConnectionGraphDescriptor& getExampleFxChain();
     const ConnectionGraphDescriptor& getExampleVoiceChain();
@@ -46,8 +47,8 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
-        void setFxChain(const ConnectionGraphDescriptor& fxChain);
-        void setVoiceChain(const ConnectionGraphDescriptor& fxChain);
+        void setFxChain(const ConnectionGraphDescriptor & fxChain, const ComponentRegister & cp);
+        void setVoiceChain(const ConnectionGraphDescriptor & fxChain, const ComponentRegister & cp);
         const Scope& getVoiceScope(int i) const {
             if(i==0)
                 return voiceScopeL;
@@ -62,7 +63,6 @@ namespace PhasePhckr {
                 return outputScopeR;
             return outputScopeL;
         }
-        void registerComponent(const ComponentDescriptor &);
     private:
         VoiceBus *voiceBus;
         std::vector<SynthVoice*> voices;

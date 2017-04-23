@@ -24,12 +24,12 @@ Synth::~Synth(){
     delete globalData;
 }
 
-void Synth::setFxChain(const ConnectionGraphDescriptor& fxChain) {
+void Synth::setFxChain(const ConnectionGraphDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
-    effects = new EffectChain(fxChain);
+    effects = new EffectChain(fxChain, cp);
 }
 
-void Synth::setVoiceChain(const ConnectionGraphDescriptor& voiceChain){
+void Synth::setVoiceChain(const ConnectionGraphDescriptor& voiceChain, const ComponentRegister & cp){
     delete voiceBus;
     voiceBus = new VoiceBus();
     for (SynthVoice *v : voices) {
@@ -37,7 +37,7 @@ void Synth::setVoiceChain(const ConnectionGraphDescriptor& voiceChain){
     }
     voices.clear();
     for (int i = 0; i<numVoices; ++i) {
-        SynthVoice* v = new SynthVoice(voiceChain);
+        SynthVoice* v = new SynthVoice(voiceChain, cp);
         voices.push_back(v);
     }
 }

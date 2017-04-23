@@ -5,6 +5,7 @@
 #include "phasephckr.h" // for now
 #include "design_json.hpp"
 #include "PhasePhckrGrid.h"
+#include "components.hpp"
 
 class PhasePhckrAudioProcessor  : public AudioProcessor
 {
@@ -51,6 +52,8 @@ public:
         effectChain = p;
         applyEffectChain(); 
     }
+
+    PhasePhckr::ComponentRegister componentRegister;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)

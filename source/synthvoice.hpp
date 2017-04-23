@@ -28,10 +28,9 @@ private:
     float sampleRate;
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
     bool doTerminate;
-    void init(const ConnectionGraphDescriptor& voiceChain);
 public:
     MPEVoice mpe;
-    SynthVoice(const ConnectionGraphDescriptor& voiceChain);
+    SynthVoice(const ConnectionGraphDescriptor& voiceChain, const ComponentRegister & cp);
     ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);

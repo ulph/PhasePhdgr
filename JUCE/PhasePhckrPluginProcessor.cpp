@@ -60,13 +60,13 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 
 void PhasePhckrAudioProcessor::applyVoiceChain() {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    synth->setVoiceChain(voiceChain);
+    synth->setVoiceChain(voiceChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain() {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    synth->setFxChain(effectChain);
+    synth->setFxChain(effectChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
 }
 

@@ -11,20 +11,20 @@ void SynthVoice::init(const ConnectionGraphDescriptor& voiceChain)
     connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
-    ConnectionGraphDescriptor graph = voiceChain;
+    ConnectionGraphDescriptor graphDescriptor = voiceChain;
 
-    graph.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
-    graph.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
+    graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
+    graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
 
-    std::map<std::string, int> handles;
-    DesignConnectionGraph(
+    std::map<std::string, int> moduleHandles;
+    designConnectionGraph(
         connectionGraph,
-        graph,
-        handles
+        graphDescriptor,
+        moduleHandles
     );
 
-    inBus = handles["inBus"];
-    outBus = handles["outBus"];
+    inBus = moduleHandles["inBus"];
+    outBus = moduleHandles["outBus"];
 
 #if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);

@@ -37,17 +37,17 @@ struct ConnectionGraphDescriptor {
     std::vector<ModulePortValue> values;
 };
 
-void DesignConnectionGraph(
+void designConnectionGraph(
     ConnectionGraph &connectionGraph,
-    ConnectionGraphDescriptor &description, // may be mutated inside
-    std::map<std::string, int> & moduleHandles
+    ConnectionGraphDescriptor &description,
+    std::map<std::string, int> &moduleHandles
 );
 
 /* Component (subgraph) stuff */
 
 struct ModulePortAlias {
     std::string alias;
-    ModulePort target;
+    ModulePort wrapped;
 };
 
 struct ComponentDescriptor {

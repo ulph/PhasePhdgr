@@ -71,7 +71,7 @@ public:
             }
             docView.insertTextAtCaret("\noutputs:\n");
             for (const auto & o : doc.outputs) {
-                docView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + " " + std::to_string(o.value) + "\n");
+                docView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + "\n");
             }
             docView.insertTextAtCaret("\n\n" + doc.docString);
             docView.moveCaretToTop(false);

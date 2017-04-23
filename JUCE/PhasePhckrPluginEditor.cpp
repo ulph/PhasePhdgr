@@ -60,13 +60,13 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , patchListListener([this](const File& f) { 
         })
 
+    , doc(processor.componentRegister)
     , docListModel(doc.get(), docView)
     , docList( "docList", &docListModel)
 
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 {
-
     setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);

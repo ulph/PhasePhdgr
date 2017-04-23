@@ -90,4 +90,25 @@ bool ComponentRegister::getComponent(std::string name, ComponentDescriptor & des
     return true;
 }
 
+void ComponentRegister::makeComponentDocs(std::vector<ModuleDoc> &docList) const {
+    for (const auto kv : r) {
+        ModuleDoc doc;
+        doc.type = kv.first;
+        for (const auto i : kv.second.inputs) {
+            PadDescription pd;
+            pd.name = i.alias;
+            // TODO, unit/value
+            doc.inputs.emplace_back(pd);
+        }
+        for (const auto o : kv.second.outputs) {
+            PadDescription pd;
+            pd.name = o.alias;
+            // TODO, unit
+            doc.outputs.emplace_back(pd);
+        }
+        doc.docString = kv.second.docString;
+        docList.emplace_back(doc);
+    }
+}
+
 }

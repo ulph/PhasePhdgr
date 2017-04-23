@@ -1,5 +1,7 @@
 #include "docs.hpp"
 #include "moduleregister.hpp"
+#include "connectiongraph.hpp"
+#include "module.hpp"
 
 std::vector<ModuleDoc> *g_moduleDocs = nullptr;
 

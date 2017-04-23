@@ -21,6 +21,7 @@ static json loadJson(const File & f) {
     return json::parse(s.toStdString().c_str());
 }
 
+
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
@@ -58,6 +59,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     , patchListListener([this](const File& f) { 
         })
+
+    , docListModel(PhasePhckr::GetModuleDocs(), docView)
+    , docList( "docList", &docListModel)
+
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 {
@@ -97,7 +102,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorMenu.addComponent(&effectDirectoryList);
     editorMenu.addComponent(&componentDirectoryList);
     editorMenu.addComponent(&patchDirectoryList);
+    editorMenu.addComponent(&docList);
+    editorMenu.addComponent(&docView);
     editorMenu.setNumberOfColumns(2);
+    docList.updateContent();
 
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);
@@ -111,6 +119,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     configureEditor(voiceEditor);
     configureEditor(effectEditor);
+    configureEditor(docView);
 
     mainFrame.addTab("debug", g_tabColor, &debugTab, false);
     debugTab.addComponent(&coutView);

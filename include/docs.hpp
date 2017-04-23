@@ -1,8 +1,8 @@
 #ifndef DOCS_HPP
 #define DOCS_HPP
 
-#include "connectiongraph.hpp"
-#include "module.hpp"
+#include <vector>
+#include <string>
 
 struct PadDescription {
     float value;

@@ -98,6 +98,7 @@ void ComponentRegister::makeComponentDocs(std::vector<ModuleDoc> &docList) const
             PadDescription pd;
             pd.name = i.alias;
             // TODO, unit/value
+            pd.value = 1337;
             doc.inputs.emplace_back(pd);
         }
         for (const auto o : kv.second.outputs) {

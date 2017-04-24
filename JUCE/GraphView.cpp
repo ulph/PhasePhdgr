@@ -1,5 +1,6 @@
 #include "GraphView.h"
 #include <algorithm>
+#include <utility>
 
 typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
 
@@ -93,121 +94,155 @@ void GraphView::mouseUp(const MouseEvent & event) {
     recalculateBounds();
 }
 
+static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float nodeSize){
+    Path path;
+
+    path.startNewSubPath(x0, y0);
+    if (y1 <= y0) {
+        float dy = 0.25*nodeSize;
+        float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1);
+        float s = x1 != x0 ? 1 : -1;
+        float x[7]{
+            x0+dx,
+            x0+2*dx,
+
+            x0+3*dx,
+            x1-3*dx*s,
+
+            x1-2*dx*s,
+            x1-dx*s,
+            x1
+        };
+        float y[7]{
+            y0+2*dy,
+            y0+dy,
+
+            y0,
+            y1,
+
+            y1-dy,
+            y1-2*dy,
+            y1
+        };
+        path.quadraticTo(x[0], y[0], x[1], y[1]);
+        path.cubicTo(x[2], y[2], x[3], y[3], x[4], y[4]);
+        path.quadraticTo(x[5], y[5], x[6], y[6]);
+    }
+    else {
+        float d = 0.5*nodeSize;
+        path.cubicTo( x0, y0+d, x1, y1-d, x1, y1 );
+    }
+    ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
+    g.setColour(Colours::green);
+    PathStrokeType strokeType(1);
+    strokeType.createStrokedPath(path, path);
+    g.setGradientFill(grad);
+    g.fillPath(path);
+}
+
+
+static void drawModule(Graphics& g, float x, float y, float w, float h, std::string label, float nodeSize){
+    g.setColour(Colour((uint8_t)0, (uint8_t)0, (uint8_t)0, (float)0.5f));
+    g.fillRoundedRectangle(x, y, w, h, 5.f);
+
+    g.setColour(Colours::white); // restore trans
+
+    Path path;
+    path.addRoundedRectangle(x, y, w, h, 5.f, 2.f);
+    PathStrokeType strokeType(1);
+    strokeType.createStrokedPath(path, path);
+    ColourGradient grad(Colours::white, x, y, Colours::grey, x, y+h, false);
+    g.setGradientFill(grad);
+    g.fillPath(path);
+
+    g.setColour(Colours::white);
+    g.drawFittedText(label, x, y, w, h, Justification::centred, 1);
+}
+
 void GraphView::paint (Graphics& g){
+    const auto& docs = doc.get();
+    float r = 7.0f;
 
-    const auto & docs = doc.get();
+    // calculate all the port positions, as we need them at least twice ...
+    std::map< std::string, std::map<std::string, XY>> inputPortPositions;
+    std::map< std::string, std::map<std::string, XY>> outputPortPositions;
 
-    for (const auto &mpc : graphDescriptor.connections) {
-        auto from = mpc.source.module;
-        auto to = mpc.target.module;
-        float x0 = modulePosition[from].x*gridSize + 0.5*nodeSize;
-        float x1 = modulePosition[to].x*gridSize + 0.5*nodeSize;
-        float y0 = modulePosition[from].y*gridSize + nodeSize;
-        float y1 = modulePosition[to].y*gridSize;
-
-        Path path;
-
-        path.startNewSubPath(x0, y0);
-        if (y1 <= y0) {
-            float dy = 0.25*nodeSize;
-            float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1); 
-            float s = x1 != x0 ? 1 : -1;
-            float x[7]{
-                x0+dx, 
-                x0+2*dx,
-
-                x0+3*dx, 
-                x1-3*dx*s, 
-                
-                x1-2*dx*s,
-                x1-dx*s, 
-                x1
-            };
-            float y[7]{
-                y0+2*dy, 
-                y0+dy,
-
-                y0, 
-                y1, 
-
-                y1-dy, 
-                y1-2*dy, 
-                y1
-            };
-            path.quadraticTo(x[0], y[0], x[1], y[1]);
-            path.cubicTo(x[2], y[2], x[3], y[3], x[4], y[4]);
-            path.quadraticTo(x[5], y[5], x[6], y[6]);
+    for(const auto &m : graphDescriptor.modules){
+        if(docs.count(m.type)){
+            const auto& doc = docs.at(m.type);
+            float i=0;
+            std::map<std::string, XY> ipos;
+            for(const auto& ip:doc.inputs){
+                ipos[ip.name] = XY((i+0.5f)/(doc.inputs.size())*nodeSize, - 0.5f*r);
+                i++;
+            }
+            inputPortPositions[m.name] = ipos;
+            i=0;
+            std::map<std::string, XY> opos;
+            for(const auto& op:doc.outputs){
+                opos[op.name] = XY((i+0.5f)/(doc.outputs.size())*nodeSize, nodeSize - 0.5f*r);
+                i++;
+            }
+            outputPortPositions[m.name] = opos;
         }
-        else {
-            float d = 0.5*nodeSize;
-            path.cubicTo( x0, y0+d, x1, y1-d, x1, y1 );
-        }
-        ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
-        g.setColour(Colours::green);
-        PathStrokeType strokeType(1);
-        strokeType.createStrokedPath(path, path);
-        g.setGradientFill(grad);
-        g.fillPath(path);
-
     }
 
-    for(const auto &mp : modulePosition){
-        float x = mp.second.x*gridSize;
-        float y = mp.second.y*gridSize;
-        float w = nodeSize;
-        float h = nodeSize;
-        g.setColour(Colour((uint8_t)0, (uint8_t)0, (uint8_t)0, (float)0.5f));
-        g.fillRoundedRectangle(x, y, w, h, 5.f);
 
-        g.setColour(Colours::white); // restore trans
-
-        Path path;
-        path.addRoundedRectangle(x, y, w, h, 5.f, 2.f);
-        PathStrokeType strokeType(1);
-        strokeType.createStrokedPath(path, path);
-        ColourGradient grad(Colours::white, x, y, Colours::grey, x, y+h, false);
-        g.setGradientFill(grad);
-        g.fillPath(path);
-
-        g.setColour(Colours::white);
-        g.drawFittedText(mp.first, x, y, w, h, Justification::centred, 1);
-
-        int numInPorts = 1;
-        int numOutPorts = 1;
-        if(moduleTypes.count(mp.first)){
-            const auto &type = moduleTypes.at(mp.first);
-            if(docs.count(type)){
-                auto d = docs.at(type);
-                numInPorts = d.inputs.size();
-                numOutPorts = d.outputs.size();
+    for (const auto& mpc : graphDescriptor.connections) {
+        if(modulePosition.count(mpc.source.module) && modulePosition.count(mpc.target.module)){
+            const auto& from = mpc.source.module;
+            const auto& to = mpc.target.module;
+            float x0 = modulePosition.at(from).x * gridSize;
+            float y0 = modulePosition.at(from).y * gridSize;
+            float x1 = modulePosition.at(to).x * gridSize;
+            float y1 = modulePosition.at(to).y * gridSize;
+            if(outputPortPositions.count(from) && inputPortPositions.count(to)){
+                const auto& fromMap = outputPortPositions.at(from);
+                const auto& toMap = inputPortPositions.at(to);
+                if(fromMap.count(mpc.source.port) && toMap.count(mpc.target.port)){
+                    const auto& fromPos = fromMap.at(mpc.source.port);
+                    const auto& toPos = toMap.at(mpc.target.port);
+                    drawCable(g, x0+fromPos.x, y0+fromPos.y, x1+toPos.x, y1+toPos.y, nodeSize);
+                }
             }
         }
-        g.setGradientFill(grad);
-        float r = 7.0f;
-        for(float i=0; i<numInPorts; ++i){
-            float x_ = x + ((i+.5f)/numInPorts) * nodeSize - r*.5f;
-            g.fillEllipse(x_, y-r*0.5, r, r);
-        }
-        for(float i=0; i<numOutPorts; ++i){
-            float x_ = x + ((i+0.5f)/numOutPorts) * nodeSize - r*.5f;;
-            g.fillEllipse(x_, y+nodeSize-r*0.5, r, r);
+    }
+
+
+    for(const auto &m : graphDescriptor.modules){
+        if(modulePosition.count(m.name)){
+            const auto& pos = modulePosition.at(m.name);
+            float x = pos.x*gridSize;
+            float y = pos.y*gridSize;
+            float w = nodeSize;
+            float h = nodeSize;
+            drawModule(g, x, y, w, h, m.name+"\n\n"+m.type, nodeSize);
+            if(inputPortPositions.count(m.name)){
+                for(const auto pp : inputPortPositions.at(m.name)){
+                    g.fillEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r);
+                }
+            }
+            if(outputPortPositions.count(m.name)){
+                for(const auto pp : outputPortPositions.at(m.name)){
+                    g.fillEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r);
+                }
+            }
         }
     }
 
 }
+
 
 void GraphView::resized() {
   repaint();
 };
 
+
 void GraphView::setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph){
   graphDescriptor = graph;
-  moduleTypes.clear();
-  for(const auto& m : graph.modules){
-      moduleTypes[m.name] = m.type;
-  }
   recalculate();
 }
+
 
 void GraphView::recalculate(){
   modulePosition.clear();
@@ -266,6 +301,7 @@ void GraphView::recalculate(){
   recalculateBounds();
 
 }
+
 
 void GraphView::recalculateBounds() {
     bool boundChanged = false;

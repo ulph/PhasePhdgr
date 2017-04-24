@@ -382,10 +382,13 @@ void GraphView::recalculateBounds(bool force) {
         }
     }
 
+    auto p = parent.getViewPosition();
+
     if (lowerBound.x < 0) {
         for (auto &mp : modulePosition) {
             mp.second.x -= lowerBound.x;
         }
+        p.addXY(-gridSize*lowerBound.x, 0);
         lowerBound.x = 0;
     }
 
@@ -393,16 +396,15 @@ void GraphView::recalculateBounds(bool force) {
         for (auto &mp : modulePosition) {
             mp.second.y -= lowerBound.y;
         }
+        p.addXY(0, -gridSize*lowerBound.y);
         lowerBound.y = 0;
     }
-
-    auto p = parent.getViewPosition();
 
     if (boundChanged) {
         setBounds(
             lowerBound.x*gridSize,
             lowerBound.y*gridSize,
-            (upperBound.x + 4)*gridSize,    
+            (upperBound.x + 4)*gridSize,
             (upperBound.y + 1)*gridSize
         );
     }

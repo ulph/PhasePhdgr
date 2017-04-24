@@ -64,6 +64,9 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , docListModel(doc.get(), docView)
     , docList( "docList", &docListModel)
 
+    , voiceGraphView(doc)
+    , effectGraphView(doc)
+
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 {

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 struct PadDescription {
     float value;
@@ -22,11 +23,11 @@ namespace PhasePhckr {
 
     class Doc {
     private:
-        std::vector<ModuleDoc> docs;
+        std::map<std::string, ModuleDoc> docs;
         const ComponentRegister & cp;
     public:
         Doc(const ComponentRegister & cp);
-        const std::vector<ModuleDoc> & get();
+        const std::map<std::string, ModuleDoc> & get() const;
     };
 }
 

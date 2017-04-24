@@ -9,6 +9,7 @@
 #include <vector>
 #include <assert.h>
 #include <climits>
+#include "docs.hpp"
 
 struct XY {
     XY() : x(0), y(0){}
@@ -21,10 +22,11 @@ class GraphView : public Component
 {
 
 public:
-    GraphView()
+    GraphView(const PhasePhckr::Doc& doc)
         : gridSize(200)
         , nodeSize(100)
         , clickedComponent(nullptr)
+        , doc(doc)
     {}
     ~GraphView() {}
     virtual void mouseDown(const MouseEvent & event) override;
@@ -44,6 +46,7 @@ private:
     float nodeSize;
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;
     std::map<std::string, XY> modulePosition;
+    const PhasePhckr::Doc& doc;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };
 

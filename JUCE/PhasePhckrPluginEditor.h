@@ -45,24 +45,31 @@ private:
 
 class DocListModel : public ListBoxModel {
 private:
-    std::vector<ModuleDoc> moduleDocs;
+    std::map<std::string, ModuleDoc> moduleDocs;
+    std::vector<std::string> rows;
     TextEditor & docView;
 public:
-    DocListModel(const std::vector<ModuleDoc> & moduleDocs, TextEditor & docView)
+    DocListModel(const std::map<std::string, ModuleDoc> & moduleDocs, TextEditor & docView)
         : ListBoxModel()
         , moduleDocs(moduleDocs)
         , docView(docView)
-    {}
+    {
+        for(const auto &kv:moduleDocs){
+            rows.push_back(kv.first);
+        }
+    }
     virtual int getNumRows() {
-        return moduleDocs.size();
+        return rows.size();
     }
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected) {
-        const auto & doc = moduleDocs.at(rowNumber);
+        const auto &key = rows[rowNumber];
+        const auto &doc = moduleDocs.at(key);
         g.drawFittedText(doc.type, 0, 0, width, height, Justification::centred, 1);
     }
     virtual void listBoxItemClicked(int row, const MouseEvent &) {
         if (row >= 0) {
-            const ModuleDoc &doc = moduleDocs[row];
+            const auto &key = rows[row];
+            const auto &doc = moduleDocs[key];
             docView.clear();
             docView.insertTextAtCaret(doc.type + "\n\n");
             docView.insertTextAtCaret("inputs:\n");

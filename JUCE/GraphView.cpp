@@ -95,6 +95,8 @@ void GraphView::mouseUp(const MouseEvent & event) {
 
 void GraphView::paint (Graphics& g){
 
+    const auto & docs = doc.get();
+
     for (const auto &mpc : graphDescriptor.connections) {
         auto from = mpc.source.module;
         auto to = mpc.target.module;
@@ -149,9 +151,11 @@ void GraphView::paint (Graphics& g){
 
     }
 
-    int numInPorts = 3;
-    int numOutPorts = 2;
     for(const auto &mp : modulePosition){
+//        auto d = docs.at(mp.first);
+        int numInPorts = 3;
+        int numOutPorts = 2;
+
         float x = mp.second.x*gridSize;
         float y = mp.second.y*gridSize;
         float w = nodeSize;

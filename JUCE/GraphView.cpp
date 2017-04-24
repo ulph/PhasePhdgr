@@ -143,7 +143,7 @@ void GraphView::paint (Graphics& g){
         ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
         g.setColour(Colours::green);
         PathStrokeType strokeType(1);
-        strokeType.createStrokeWithArrowheads(path, path, 0, 0, 5, 5); // maybe no need
+        strokeType.createStrokedPath(path, path);
         g.setGradientFill(grad);
         g.fillPath(path);
 

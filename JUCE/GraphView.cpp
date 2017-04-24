@@ -159,6 +159,40 @@ static void drawModule(Graphics& g, float x, float y, float w, float h, std::str
     g.drawFittedText(label, x, y, w, h, Justification::centred, 1);
 }
 
+static void drawModuleBundle(
+    Graphics& g, 
+    float x, 
+    float y, 
+    float r, 
+    float w,
+    float h,
+    float nodeSize,
+    const std::string & name,
+    const std::string & type,
+    const std::map< std::string, std::map<std::string, XY>> & inputPortPositions,
+    const std::map< std::string, std::map<std::string, XY>> & outputPortPositions
+) {
+    drawModule(g, x, y, w, h, name + "\n\n" + type, nodeSize);
+    if (inputPortPositions.count(name)) {
+        for (const auto pp : inputPortPositions.at(name)) {
+            g.setColour(Colours::black);
+            g.fillEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r);
+            g.setColour(Colours::grey);
+            g.drawEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r, 1.0f);
+            // draw label
+        }
+    }
+    if (outputPortPositions.count(name)) {
+        for (const auto pp : outputPortPositions.at(name)) {
+            g.setColour(Colours::black);
+            g.fillEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r);
+            g.setColour(Colours::grey);
+            g.drawEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r, 1.0f);
+            // draw label
+        }
+    }
+}
+
 void GraphView::paint (Graphics& g){
 
     for (const auto& mpc : graphDescriptor.connections) {
@@ -186,30 +220,21 @@ void GraphView::paint (Graphics& g){
             const auto& pos = modulePosition.at(m.name);
             float x = pos.x*gridSize;
             float y = pos.y*gridSize;
-            float w = nodeSize;
-            float h = nodeSize;
-            drawModule(g, x, y, w, h, m.name+"\n\n"+m.type, nodeSize);
-            if(inputPortPositions.count(m.name)){
-                for(const auto pp : inputPortPositions.at(m.name)){
-                    g.setColour(Colours::black);
-                    g.fillEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r);
-                    g.setColour(Colours::grey);
-                    g.drawEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r, 1.0f);
-                    // draw label
-                }
-            }
-            if(outputPortPositions.count(m.name)){
-                for(const auto pp : outputPortPositions.at(m.name)){
-                    g.setColour(Colours::black);
-                    g.fillEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r);
-                    g.setColour(Colours::grey);
-                    g.drawEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r, 1.0f);
-                    // draw label
-                }
-            }
+            drawModuleBundle(g, x, y, r, nodeSize, nodeSize, nodeSize, m.name, m.type, inputPortPositions, outputPortPositions);
         }
     }
 
+    std::vector< std::pair<std::string, std::string>> busModules;
+    busModules.push_back(inBus);
+    busModules.push_back(outBus);
+    for (const auto &p : busModules) {
+        if (modulePosition.count(p.first)) {
+            const auto& pos = modulePosition.at(p.first);
+            float x = pos.x*gridSize;
+            float y = pos.y*gridSize;
+            drawModuleBundle(g, x, y, r, 4*nodeSize, nodeSize, nodeSize, p.first, p.second, inputPortPositions, outputPortPositions);
+        }
+    }
 }
 
 
@@ -229,19 +254,20 @@ static void buildPortPositions(
     const std::string & name,
     const ModuleDoc & doc,
     float nodeSize,
-    float r
+    float r,
+    bool busModule
     ) {
     float i = 0;
     std::map<std::string, XY> ipos;
     for (const auto& ip : doc.inputs) {
-        ipos[ip.name] = XY((i + 0.5f) / (doc.inputs.size())*nodeSize, -0.5f*r);
+        ipos[ip.name] = XY((i + 0.5f) / (doc.inputs.size())*nodeSize * (busModule ? 4 : 1), -0.5f*r);
         i++;
     }
     inputPortPositions[name] = ipos;
     i = 0;
     std::map<std::string, XY> opos;
     for (const auto& op : doc.outputs) {
-        opos[op.name] = XY((i + 0.5f) / (doc.outputs.size())*nodeSize, nodeSize - 0.5f*r);
+        opos[op.name] = XY((i + 0.5f) / (doc.outputs.size())*nodeSize * (busModule ? 4 : 1), nodeSize - 0.5f*r);
         i++;
     }
     outputPortPositions[name] = opos;
@@ -308,7 +334,7 @@ void GraphView::recalculate(){
   for(const auto &m : graphDescriptor.modules){
       if(docs.count(m.type)){
           const auto& doc = docs.at(m.type);
-          buildPortPositions(inputPortPositions, outputPortPositions, m.name, doc, nodeSize, r);
+          buildPortPositions(inputPortPositions, outputPortPositions, m.name, doc, nodeSize, r, false);
       }
   }
 
@@ -318,7 +344,7 @@ void GraphView::recalculate(){
   for (const auto &p : busModules) {
       if (docs.count(p.second)) {
           const auto& doc = docs.at(p.second);
-          buildPortPositions(inputPortPositions, outputPortPositions, p.first, doc, nodeSize, r);
+          buildPortPositions(inputPortPositions, outputPortPositions, p.first, doc, nodeSize, r, true);
       }
   }
 

@@ -316,15 +316,21 @@ void GraphView::recalculate(){
 
   updateNodesX(modulePosition, connections, lowerBound, upperBound);
 
-  int x_bias = INT_MAX;
+  int x_min = INT_MAX;
+  int x_max = INT_MIN;
   for (auto &p: modulePosition){
-      if(p.second.x < x_bias){
-          x_bias = p.second.x;
+      if(p.second.x < x_min){
+          x_min = p.second.x;
       }
   }
 
+  x_max -= x_min;
+
+  x_max = x_max > 5 ? x_max : 5;
+
+  float x_move = -x_min + 0.5*x_max;
   for (auto &p: modulePosition){
-     p.second.x -= x_bias;
+     p.second.x += x_move;
   }
 
   // calculate the port positions
@@ -348,13 +354,13 @@ void GraphView::recalculate(){
       }
   }
 
-  recalculateBounds();
+  recalculateBounds(true);
 
 }
 
 
-void GraphView::recalculateBounds() {
-    bool boundChanged = false;
+void GraphView::recalculateBounds(bool force) {
+    bool boundChanged = force;
     for (const auto &mp : modulePosition) {
         const auto & p = mp.second;
         if (mp.second.x < lowerBound.x) {
@@ -377,10 +383,10 @@ void GraphView::recalculateBounds() {
 
     if (boundChanged) {
         setBounds(
-            0,
-            0,
-            (upperBound.x - lowerBound.x + 1)*gridSize,
-            (upperBound.y - lowerBound.y + 1)*gridSize
+            (lowerBound.x - 1)*gridSize,
+            (lowerBound.y - 1)*gridSize,
+            (upperBound.x + 1)*gridSize,    
+            (upperBound.y + 1)*gridSize
         );
     }
 

@@ -57,7 +57,7 @@ private:
     SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD;
     const std::string *clickedComponent;
     void recalculate();
-    void recalculateBounds();
+    void recalculateBounds(bool force=false);
     XY upperBound;
     XY lowerBound;
     float gridSize;

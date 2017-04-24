@@ -160,33 +160,6 @@ static void drawModule(Graphics& g, float x, float y, float w, float h, std::str
 }
 
 void GraphView::paint (Graphics& g){
-    const auto& docs = doc.get();
-    float r = 7.0f;
-
-    // calculate all the port positions, as we need them at least twice ...
-    std::map< std::string, std::map<std::string, XY>> inputPortPositions;
-    std::map< std::string, std::map<std::string, XY>> outputPortPositions;
-
-    for(const auto &m : graphDescriptor.modules){
-        if(docs.count(m.type)){
-            const auto& doc = docs.at(m.type);
-            float i=0;
-            std::map<std::string, XY> ipos;
-            for(const auto& ip:doc.inputs){
-                ipos[ip.name] = XY((i+0.5f)/(doc.inputs.size())*nodeSize, - 0.5f*r);
-                i++;
-            }
-            inputPortPositions[m.name] = ipos;
-            i=0;
-            std::map<std::string, XY> opos;
-            for(const auto& op:doc.outputs){
-                opos[op.name] = XY((i+0.5f)/(doc.outputs.size())*nodeSize, nodeSize - 0.5f*r);
-                i++;
-            }
-            outputPortPositions[m.name] = opos;
-        }
-    }
-
 
     for (const auto& mpc : graphDescriptor.connections) {
         if(modulePosition.count(mpc.source.module) && modulePosition.count(mpc.target.module)){
@@ -208,7 +181,6 @@ void GraphView::paint (Graphics& g){
         }
     }
 
-
     for(const auto &m : graphDescriptor.modules){
         if(modulePosition.count(m.name)){
             const auto& pos = modulePosition.at(m.name);
@@ -219,12 +191,20 @@ void GraphView::paint (Graphics& g){
             drawModule(g, x, y, w, h, m.name+"\n\n"+m.type, nodeSize);
             if(inputPortPositions.count(m.name)){
                 for(const auto pp : inputPortPositions.at(m.name)){
+                    g.setColour(Colours::black);
                     g.fillEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r);
+                    g.setColour(Colours::grey);
+                    g.drawEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r, 1.0f);
+                    // draw label
                 }
             }
             if(outputPortPositions.count(m.name)){
                 for(const auto pp : outputPortPositions.at(m.name)){
+                    g.setColour(Colours::black);
                     g.fillEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r);
+                    g.setColour(Colours::grey);
+                    g.drawEllipse(x + pp.second.x - 0.5f*r, y+pp.second.y, r, r, 1.0f);
+                    // draw label
                 }
             }
         }
@@ -296,6 +276,30 @@ void GraphView::recalculate(){
 
   for (auto &p: modulePosition){
      p.second.x -= x_bias;
+  }
+
+  // calculate the port positions as well
+
+  const auto& docs = doc.get();
+
+  for(const auto &m : graphDescriptor.modules){
+      if(docs.count(m.type)){
+          const auto& doc = docs.at(m.type);
+          float i=0;
+          std::map<std::string, XY> ipos;
+          for(const auto& ip:doc.inputs){
+              ipos[ip.name] = XY((i+0.5f)/(doc.inputs.size())*nodeSize, - 0.5f*r);
+              i++;
+          }
+          inputPortPositions[m.name] = ipos;
+          i=0;
+          std::map<std::string, XY> opos;
+          for(const auto& op:doc.outputs){
+              opos[op.name] = XY((i+0.5f)/(doc.outputs.size())*nodeSize, nodeSize - 0.5f*r);
+              i++;
+          }
+          outputPortPositions[m.name] = opos;
+      }
   }
 
   recalculateBounds();

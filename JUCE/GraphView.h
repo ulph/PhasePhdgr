@@ -23,10 +23,11 @@ class GraphView : public Component
 
 public:
     GraphView(const PhasePhckr::Doc& doc)
-        : gridSize(200)
-        , nodeSize(100)
+        : gridSize(200.0f)
+        , nodeSize(100.0f)
         , clickedComponent(nullptr)
         , doc(doc)
+        , r(7.0f)
     {}
     ~GraphView() {}
     virtual void mouseDown(const MouseEvent & event) override;
@@ -44,8 +45,11 @@ private:
     XY lowerBound;
     float gridSize;
     float nodeSize;
+    float r;
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;
     std::map<std::string, XY> modulePosition;
+    std::map< std::string, std::map<std::string, XY>> inputPortPositions;
+    std::map< std::string, std::map<std::string, XY>> outputPortPositions;
     const PhasePhckr::Doc& doc;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

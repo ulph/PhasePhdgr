@@ -29,7 +29,7 @@ endif()
 
 set(JUCE_LIB ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
 if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
-    message(FATAL_ERROR "Cannot find JuceLibraryCode/JuceHeader.h ... forgot to run Projuicer at least once?")
+    message(FATAL_ERROR "Cannot find ${JUCE_LIB}/JuceHeader.h ... forgot to run Projuicer at least once?")
 endif()
 
 set(JUCE_SRC

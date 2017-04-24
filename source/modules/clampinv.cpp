@@ -1,10 +1,10 @@
 #include "clampinv.hpp"
 
 ClampInv::ClampInv() {
-    inputs.push_back(Pad("in"));
+    inputs.push_back(Pad("input"));
     inputs.push_back(Pad("low", 0.0f));
     inputs.push_back(Pad("high", 1.0f));
-    outputs.push_back(Pad("out"));
+    outputs.push_back(Pad("output"));
 }
 
 void ClampInv::process(uint32_t fs) {

@@ -47,7 +47,7 @@ public:
     EffectInputBus() {
         inputs.push_back(Pad("left"      )); outputs.push_back(Pad("left"      ));
         inputs.push_back(Pad("right"     )); outputs.push_back(Pad("right"     ));
-        inputs.push_back(Pad("modwheel"  )); outputs.push_back(Pad("modWheel"  ));
+        inputs.push_back(Pad("modwheel"  )); outputs.push_back(Pad("modwheel"  ));
         inputs.push_back(Pad("expression")); outputs.push_back(Pad("expression"));
         inputs.push_back(Pad("breath"    )); outputs.push_back(Pad("breath"    ));
     }
@@ -56,6 +56,9 @@ public:
     {
         outputs[0].value = inputs[0].value;
         outputs[1].value = inputs[1].value;
+        outputs[2].value = inputs[2].value;
+        outputs[3].value = inputs[3].value;
+        outputs[4].value = inputs[4].value;
     }
     static Module* factory() { return new EffectInputBus(); }
 };

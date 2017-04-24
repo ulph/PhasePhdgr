@@ -7,16 +7,23 @@ namespace PhasePhckr {
             { "outPreGain", "GAIN" },
             { "outSaturation", "SSATAN" },
             { "outPostGain", "GAIN" },
+            { "delayAmount", "CINV"},
+            { "delayGain", "GAIN"},
             { "stereoTape", "@STEREOTAPE"}
         },
         std::vector<ModulePortConnection>{
             { { "inBus", "left" },{ "outPreGain", "left" } },
             { { "inBus", "right" },{ "outPreGain", "right" } },
             // adding in a Component
-            { { "inBus", "left" },{ "stereoTape", "left" } },
-            { { "inBus", "right" },{ "stereoTape", "right" } },
+            { { "inBus", "left" },{ "delayGain", "left" } },
+            { { "inBus", "right" },{ "delayGain", "right" } },
+            { { "delayGain", "left" },{ "stereoTape", "left" } },
+            { { "delayGain", "right" },{ "stereoTape", "right" } },
             { { "stereoTape", "left" },{ "outPreGain", "left" } },
             { { "stereoTape", "right" },{ "outPreGain", "right" } },
+            // scale the component output via modwheel
+            { { "inBus", "modwheel" },{ "delayAmount", "input" } },
+            { { "delayAmount", "output" },{ "delayGain", "gain" } },
             // saturating gain stage
             { { "outPreGain", "left" },{ "outSaturation", "left" } },
             { { "outPreGain", "right" },{ "outSaturation", "right" } },

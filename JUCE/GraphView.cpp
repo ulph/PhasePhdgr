@@ -86,13 +86,13 @@ void GraphView::mouseDrag(const MouseEvent & event) {
     if (clickedComponent) {
         modulePosition[*clickedComponent].x = (event.x - 0.5*nodeSize) / gridSize;
         modulePosition[*clickedComponent].y = (event.y - 0.5*nodeSize) / gridSize;
+        recalculateBounds();
         repaint();
     }
 }
 
 void GraphView::mouseUp(const MouseEvent & event) {
     clickedComponent = nullptr;
-    recalculateBounds();
 }
 
 static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float nodeSize){
@@ -382,13 +382,31 @@ void GraphView::recalculateBounds(bool force) {
         }
     }
 
+    if (lowerBound.x < 0) {
+        for (auto &mp : modulePosition) {
+            mp.second.x -= lowerBound.x;
+        }
+        lowerBound.x = 0;
+    }
+
+    if (lowerBound.y < 0) {
+        for (auto &mp : modulePosition) {
+            mp.second.y -= lowerBound.y;
+        }
+        lowerBound.y = 0;
+    }
+
+    auto p = parent.getViewPosition();
+
     if (boundChanged) {
         setBounds(
-            (lowerBound.x - 1)*gridSize,
-            (lowerBound.y - 1)*gridSize,
+            lowerBound.x*gridSize,
+            lowerBound.y*gridSize,
             (upperBound.x + 4)*gridSize,    
             (upperBound.y + 1)*gridSize
         );
     }
+
+    parent.setViewPosition(p);
 
 }

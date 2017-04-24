@@ -1,5 +1,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+include(FindFreetype)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+
 set(PH_SRC
     DirectoryWatcher.cpp
     DirectoryWatcher.hpp
@@ -15,10 +18,9 @@ set(PH_SRC
     PhasePhckrScope.h
     Style.hpp
 )
+
 add_library(juce_phasephckr_obj OBJECT ${PH_SRC})
-add_library(juce_phasephckr  $<TARGET_OBJECTS:juce_phasephckr_obj>)
-set_property(TARGET juce_phasephckr PROPERTY FOLDER targets/lib)
-set_target_properties(juce_phasephckr PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(juce_phasephckr_obj PROPERTIES COMPILE_FLAGS "-fPIC")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
@@ -59,7 +61,4 @@ set(JUCE_SRC
 )
 
 add_library(juce_lib_obj OBJECT ${JUCE_SRC})
-add_library(juce_lib $<TARGET_OBJECTS:juce_lib_obj>)
-set_property(TARGET juce_lib PROPERTY FOLDER targets/lib)
-set_target_properties(juce_lib PROPERTIES COMPILE_FLAGS "-fPIC")
-
+set_target_properties(juce_lib_obj PROPERTIES COMPILE_FLAGS "-fPIC")

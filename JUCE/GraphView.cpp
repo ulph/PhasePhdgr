@@ -104,11 +104,9 @@ void GraphView::paint (Graphics& g){
         float y1 = modulePosition[to].y*gridSize;
 
         Path path;
-        PathStrokeType strokeType(1);
 
         path.startNewSubPath(x0, y0);
         if (y1 <= y0) {
-            g.setColour(Colours::darkgrey);
             float dy = 0.25*nodeSize;
             float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1); 
             float s = x1 != x0 ? 1 : -1;
@@ -140,21 +138,27 @@ void GraphView::paint (Graphics& g){
         }
         else {
             float d = 0.5*nodeSize;
-            g.setColour(Colours::grey);
             path.cubicTo( x0, y0+d, x1, y1-d, x1, y1 );
         }
-
-        g.strokePath(path, strokeType);
+        ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
+        g.setColour(Colours::green);
+        PathStrokeType strokeType(1);
+        strokeType.createStrokeWithArrowheads(path, path, 0, 0, 5, 5); // maybe no need
+        g.setGradientFill(grad);
+        g.fillPath(path);
 
     }
 
-    g.setColour(Colours::white);
     for(const auto &mp : modulePosition){
         float x = mp.second.x*gridSize;
         float y = mp.second.y*gridSize;
         float w = nodeSize;
         float h = nodeSize;
+        g.setColour(Colour((uint8_t)0, (uint8_t)0, (uint8_t)0, (float)0.5f));
+        g.fillRoundedRectangle(x, y, w, h, 5.f);
+        g.setColour(Colours::green);
         g.drawRoundedRectangle(x, y, w, h, 5.f, 2.f);
+        g.setColour(Colours::white);
         g.drawFittedText(mp.first, x, y, w, h, Justification::centred, 1);
     }
 

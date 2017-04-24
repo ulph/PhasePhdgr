@@ -24,6 +24,7 @@ class GraphView : public Component
 
 public:
     GraphView(
+        Viewport& parent,
         const PhasePhckr::Doc& doc,
         SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD,
         std::pair<std::string, std::string> inBus,
@@ -37,7 +38,9 @@ public:
         , subscribedCGD(subscribedCGD)
         , inBus(inBus)
         , outBus(outBus)
+        , parent(parent)
     {
+        parent.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD->subscribe(
             [this](const PhasePhckr::ConnectionGraphDescriptor& g){setGraph(g);}
         );
@@ -58,6 +61,7 @@ private:
     const std::string *clickedComponent;
     void recalculate();
     void recalculateBounds(bool force=false);
+    Viewport& parent;
     XY upperBound;
     XY lowerBound;
     float gridSize;

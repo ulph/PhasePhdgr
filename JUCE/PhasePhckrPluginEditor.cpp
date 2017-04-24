@@ -77,12 +77,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , effectEditor(&activeEffect)
 
     , voiceGraphView(
+        voiceGraphViewport,
         voiceDoc,
         &activeVoice,
         std::make_pair("inBus", PhasePhckr::getVoiceBusInputDoc().type),
         std::make_pair("outBus", PhasePhckr::getVoiceBusOutputDoc().type)
     )
     , effectGraphView(
+        effectGraphViewport,
         effectDoc, 
         &activeEffect, 
         std::make_pair("inBus", PhasePhckr::getEffectBusInputDoc().type), 

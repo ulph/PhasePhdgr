@@ -63,6 +63,7 @@ void updateNodesY(
 }
 
 void GraphView::mouseDown(const MouseEvent & event) {
+    parent.setScrollOnDragEnabled(true);
     for (const auto & mp : modulePosition) {
         float x1 = mp.second.x*gridSize;
         float x2 = mp.second.x*gridSize + nodeSize;
@@ -74,8 +75,8 @@ void GraphView::mouseDown(const MouseEvent & event) {
           && (event.y <= y2 )
             ) 
         {
+            parent.setScrollOnDragEnabled(false);
             clickedComponent = &(mp.first);
-            beginDragAutoRepeat(100);
             break;
         }
     }

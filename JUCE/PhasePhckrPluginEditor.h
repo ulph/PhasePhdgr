@@ -139,9 +139,8 @@ private:
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
 
     Viewport voiceGraphViewport;
-    GraphView voiceGraphView;
-    
     Viewport effectGraphViewport;
+    GraphView voiceGraphView;    
     GraphView effectGraphView;
 
     // TODO, bundle?

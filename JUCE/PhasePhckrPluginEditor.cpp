@@ -12,15 +12,10 @@ using namespace PhasePhckrFileStuff;
 
 const Font monoFont = Font(Font::getDefaultMonospacedFontName(), 14, 0);
 
-static void configureEditor(TextEditor& ed) {
-    ed.setMultiLine(true, false);
-}
-
 static json loadJson(const File & f) {
     String s = f.loadFileAsString();
     return json::parse(s.toStdString().c_str());
 }
-
 
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
@@ -36,25 +31,17 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
     , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
-    , componentDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
-    , patchDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
     
     , voiceDirectoryList(voiceDirectoryWatcher)
     , effectDirectoryList(effectDirectoryWatcher)
-    , componentDirectoryList(componentDirectoryWatcher)
-    , patchDirectoryList(patchDirectoryWatcher)
 
     , activeVoiceSubscribeHandle(activeVoice.subscribe(
         [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
             processor.setVoicePatch(v);
-            voiceEditor.setText(json(v).dump(2));
-//            voiceGraphView.setGraph(v);
         }))
     , activeEffectSubscribeHandle(activeEffect.subscribe(
         [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
             processor.setEffectPatch(v);
-            effectEditor.setText(json(v).dump(2));
-//            effectGraphView.setGraph(v);
         }))
     , voiceListListener([this](const File& f) { 
             activeVoice.set(-1, loadJson(f));
@@ -62,16 +49,13 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , effectListListener([this](const File& f) { 
             activeEffect.set(-1, loadJson(f));
         })
-    , componentListListener([this](const File& f) { 
-            // loadJson(f)
-        })
-    , patchListListener([this](const File& f) { 
-            // loadJson(f)
-        })
 
     , doc(processor.componentRegister)
     , docListModel(doc.get(), docView)
     , docList( "docList", &docListModel)
+
+    , voiceEditor(&activeVoice)
+    , effectEditor(&activeEffect)
 
     , voiceGraphView(doc, &activeVoice)
     , effectGraphView(doc, &activeEffect)
@@ -114,8 +98,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     editorGrid.setNumberOfColumns(3);
     editorMenu.addComponent(&voiceDirectoryList);
     editorMenu.addComponent(&effectDirectoryList);
-    editorMenu.addComponent(&componentDirectoryList);
-    editorMenu.addComponent(&patchDirectoryList);
     editorMenu.addComponent(&docList);
     editorMenu.addComponent(&docView);
     editorMenu.setNumberOfColumns(2);
@@ -124,22 +106,15 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);
-    componentDirectoryList.addListener(&componentListListener);
-    patchDirectoryList.addListener(&patchListListener);
 
     voiceDirectoryWatcher.setDirectory(PhasePhckrFileStuff::voicesDir, true, true);
     effectDirectoryWatcher.setDirectory(PhasePhckrFileStuff::effectsDir, true, true);
-    componentDirectoryWatcher.setDirectory(PhasePhckrFileStuff::componentsDir, true, true);
-    patchDirectoryWatcher.setDirectory(PhasePhckrFileStuff::patchesDir, true, true);
-
-    configureEditor(voiceEditor);
-    configureEditor(effectEditor);
 
     mainFrame.addTab("debug", g_tabColor, &debugTab, false);
     debugTab.addComponent(&coutView);
     debugTab.addComponent(&cerrView);
-    configureEditor(coutView);
-    configureEditor(cerrView);
+    coutView.setMultiLine(true, true);
+    cerrView.setMultiLine(true, true);
     debugViewUpdateTimer = new LambdaTimer(new std::function<void()>([this](){
         std::string s;
         coutIntercept.readAll(s);

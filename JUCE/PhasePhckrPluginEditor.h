@@ -86,6 +86,34 @@ public:
     }
 };
 
+
+template <class T>
+class SubValue {
+private:
+    T value;
+    int ctr;
+    std::map<int, std::function<void(const T&)>> listeners;
+public:
+    SubValue() : ctr(0) {}
+    int subscribe(std::function<void(const T&)> callback) {
+        listeners.emplace(ctr, callback);
+        return ctr++;
+    }
+    void unsubscribe(int handle) {
+        if (listeners.count(handle)) delete listeners[handle];
+        listeners.erase(handle);
+    }
+    void set(int handle, const T& newValue) {
+        value = newValue;
+        for (const auto &l : listeners) {
+            if (l.first != handle) {
+                l.second(value);
+            }
+        }
+    }
+};
+
+
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
@@ -98,6 +126,19 @@ public:
 
 private:
     PhasePhckrAudioProcessor& processor;
+
+    /*
+    int voiceDocSubscribeHandle;
+    int effectDocSubscribeHandle;
+    SubValue<PhasePhckr::Doc> activeVoice;
+    SubValue<PhasePhckr::Doc> activeEffect;
+    */
+
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeVoice;
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeEffect;
+
+    int activeVoiceSubscribeHandle;
+    int activeEffectSubscribeHandle;
 
     PhasePhckrScope voiceScopeL;
     PhasePhckrScope voiceScopeR;

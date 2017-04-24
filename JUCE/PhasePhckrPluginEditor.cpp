@@ -44,20 +44,29 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , componentDirectoryList(componentDirectoryWatcher)
     , patchDirectoryList(patchDirectoryWatcher)
 
+    , activeVoiceSubscribeHandle(activeVoice.subscribe(
+        [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
+            processor.setVoicePatch(v);
+            voiceEditor.setText(json(v).dump(2));
+            voiceGraphView.setGraph(v);
+        }))
+    , activeEffectSubscribeHandle(activeEffect.subscribe(
+        [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
+            processor.setEffectPatch(v);
+            effectEditor.setText(json(v).dump(2));
+            effectGraphView.setGraph(v);
+        }))
     , voiceListListener([this](const File& f) { 
-        processor.setVoicePatch(loadJson(f)); 
-        voiceEditor.setText(json(processor.getVoicePatch()).dump(2)); 
+            activeVoice.set(-1, loadJson(f));
         })
-
     , effectListListener([this](const File& f) { 
-        processor.setEffectPatch(loadJson(f)); 
-        effectEditor.setText(json(processor.getEffectPatch()).dump(2)); 
+            activeEffect.set(-1, loadJson(f));
         })
-
     , componentListListener([this](const File& f) { 
+            // loadJson(f)
         })
-
     , patchListListener([this](const File& f) { 
+            // loadJson(f)
         })
 
     , doc(processor.componentRegister)
@@ -70,6 +79,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 {
+
+    activeVoice.set(-1, processor.getVoicePatch());
+    activeEffect.set(-1, processor.getEffectPatch());
+
     setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);
@@ -90,11 +103,9 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     mainFrame.addTab("voice graph", g_tabColor, &voiceGraphViewport, false);
     voiceGraphViewport.setViewedComponent(&voiceGraphView, false);
-    voiceGraphView.setGraph(processor.getVoicePatch());
 
     mainFrame.addTab("effect graph", g_tabColor, &effectGraphViewport, false);
     effectGraphViewport.setViewedComponent(&effectGraphView, false);
-    effectGraphView.setGraph(processor.getEffectPatch());
 
     mainFrame.addTab("files", g_tabColor, &editorGrid, false);
     editorGrid.addComponent(&voiceEditor);

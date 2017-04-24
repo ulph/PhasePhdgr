@@ -17,7 +17,7 @@ if(${USING_NLOHMANN_JSON})
     set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
     include_directories(${JSON_INCLUDE_DIR})
     if(NOT EXISTS "${JSON_INCLUDE_DIR}/nlohmann/json.hpp")
-        message(FATAL_ERROR "Cannot find nlohmann/json.hpp (expected it in ${JSON_INCLUDE_DIR})")
+        message(FATAL_ERROR "Cannot find nlohmann/json.hpp")
     endif()
     add_definitions(-DUSING_NLOHMANN_JSON=1)
     install(FILES "${JSON_INCLUDE_DIR}/nlohmann/json.hpp" DESTINATION include/nlohmann)
@@ -32,12 +32,18 @@ if(${BUILD_TESTS})
     add_subdirectory(test)
 endif()
 
+set(API_INC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/phasephckr.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/components.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/docs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/design.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/design_json.hpp
+)
+
+add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
+
 install(FILES 
-    include/phasephckr.h
-    include/components.hpp
-    include/docs.hpp
-    include/design.hpp
-    include/design_json.hpp
+    ${API_INC}
     DESTINATION include
 )
 

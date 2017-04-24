@@ -385,7 +385,7 @@ void GraphView::recalculateBounds(bool force) {
         setBounds(
             (lowerBound.x - 1)*gridSize,
             (lowerBound.y - 1)*gridSize,
-            (upperBound.x + 1)*gridSize,    
+            (upperBound.x + 4)*gridSize,    
             (upperBound.y + 1)*gridSize
         );
     }

@@ -156,10 +156,20 @@ void GraphView::paint (Graphics& g){
         float h = nodeSize;
         g.setColour(Colour((uint8_t)0, (uint8_t)0, (uint8_t)0, (float)0.5f));
         g.fillRoundedRectangle(x, y, w, h, 5.f);
-        g.setColour(Colours::green);
-        g.drawRoundedRectangle(x, y, w, h, 5.f, 2.f);
+
+        g.setColour(Colours::white); // restore trans
+
+        Path path;
+        path.addRoundedRectangle(x, y, w, h, 5.f, 2.f);
+        PathStrokeType strokeType(1);
+        strokeType.createStrokedPath(path, path);
+        ColourGradient grad(Colours::white, x, y, Colours::grey, x, y+h, false);
+        g.setGradientFill(grad);
+        g.fillPath(path);
+
         g.setColour(Colours::white);
         g.drawFittedText(mp.first, x, y, w, h, Justification::centred, 1);
+
     }
 
 }

@@ -46,6 +46,7 @@ private:
     float nodeSize;
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;
     std::map<std::string, XY> modulePosition;
+    std::map<std::string, std::string> moduleTypes;
     const PhasePhckr::Doc& doc;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

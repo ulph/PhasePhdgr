@@ -152,10 +152,6 @@ void GraphView::paint (Graphics& g){
     }
 
     for(const auto &mp : modulePosition){
-//        auto d = docs.at(mp.first);
-        int numInPorts = 3;
-        int numOutPorts = 2;
-
         float x = mp.second.x*gridSize;
         float y = mp.second.y*gridSize;
         float w = nodeSize;
@@ -176,6 +172,16 @@ void GraphView::paint (Graphics& g){
         g.setColour(Colours::white);
         g.drawFittedText(mp.first, x, y, w, h, Justification::centred, 1);
 
+        int numInPorts = 1;
+        int numOutPorts = 1;
+        if(moduleTypes.count(mp.first)){
+            const auto &type = moduleTypes.at(mp.first);
+            if(docs.count(type)){
+                auto d = docs.at(type);
+                numInPorts = d.inputs.size();
+                numOutPorts = d.outputs.size();
+            }
+        }
         g.setGradientFill(grad);
         float r = 7.0f;
         for(float i=0; i<numInPorts; ++i){
@@ -196,6 +202,10 @@ void GraphView::resized() {
 
 void GraphView::setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph){
   graphDescriptor = graph;
+  moduleTypes.clear();
+  for(const auto& m : graph.modules){
+      moduleTypes[m.name] = m.type;
+  }
   recalculate();
 }
 

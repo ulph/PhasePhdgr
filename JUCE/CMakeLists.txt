@@ -17,6 +17,7 @@ set(PH_SRC
     PhasePhckrScope.cpp
     PhasePhckrScope.h
     Style.hpp
+    Utils.hpp
 )
 
 add_library(juce_phasephckr_obj OBJECT ${PH_SRC})

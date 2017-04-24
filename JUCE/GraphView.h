@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <climits>
 #include "docs.hpp"
+#include "Utils.hpp"
 
 struct XY {
     XY() : x(0), y(0){}
@@ -22,22 +23,31 @@ class GraphView : public Component
 {
 
 public:
-    GraphView(const PhasePhckr::Doc& doc)
+    GraphView(const PhasePhckr::Doc& doc, SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD)
         : gridSize(200.0f)
         , nodeSize(100.0f)
         , clickedComponent(nullptr)
         , doc(doc)
         , r(7.0f)
-    {}
-    ~GraphView() {}
+        , subscribedCGD(subscribedCGD)
+    {
+        subscribedCGDhandle = subscribedCGD->subscribe(
+            [this](const PhasePhckr::ConnectionGraphDescriptor& g){setGraph(g);}
+        );
+    }
+    ~GraphView() {
+        subscribedCGD->unsubscribe(subscribedCGDhandle);
+    }
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;
     virtual void mouseUp(const MouseEvent & event) override;
     void paint (Graphics& g);
     void resized();
-    void setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph);
 
 private:
+    void setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph);
+    int subscribedCGDhandle;
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD;
     const std::string *clickedComponent;
     void recalculate();
     void recalculateBounds();

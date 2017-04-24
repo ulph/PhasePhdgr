@@ -48,13 +48,13 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
         [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
             processor.setVoicePatch(v);
             voiceEditor.setText(json(v).dump(2));
-            voiceGraphView.setGraph(v);
+//            voiceGraphView.setGraph(v);
         }))
     , activeEffectSubscribeHandle(activeEffect.subscribe(
         [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
             processor.setEffectPatch(v);
             effectEditor.setText(json(v).dump(2));
-            effectGraphView.setGraph(v);
+//            effectGraphView.setGraph(v);
         }))
     , voiceListListener([this](const File& f) { 
             activeVoice.set(-1, loadJson(f));
@@ -73,8 +73,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , docListModel(doc.get(), docView)
     , docList( "docList", &docListModel)
 
-    , voiceGraphView(doc)
-    , effectGraphView(doc)
+    , voiceGraphView(doc, &activeVoice)
+    , effectGraphView(doc, &activeEffect)
 
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)

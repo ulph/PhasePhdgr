@@ -104,12 +104,8 @@ public:
 private:
     PhasePhckrAudioProcessor& processor;
 
-    /*
-    int voiceDocSubscribeHandle;
-    int effectDocSubscribeHandle;
-    SubValue<PhasePhckr::Doc> activeVoice;
-    SubValue<PhasePhckr::Doc> activeEffect;
-    */
+    PhasePhckr::Doc voiceDoc;
+    PhasePhckr::Doc effectDoc;
 
     SubValue<PhasePhckr::ConnectionGraphDescriptor> activeVoice;
     SubValue<PhasePhckr::ConnectionGraphDescriptor> activeEffect;
@@ -148,6 +144,7 @@ private:
     Viewport effectGraphViewport;
     GraphView effectGraphView;
 
+    // TODO, bundle?
     PhasePhckr::Doc doc;
     TextEditor docView;
     ListBox docList;

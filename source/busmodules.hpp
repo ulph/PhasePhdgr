@@ -1,6 +1,7 @@
 #pragma once
 
 #include "module.hpp"
+#include "design.hpp"
 
 class VoiceInputBus : public Module {
 public:

@@ -23,13 +23,20 @@ class GraphView : public Component
 {
 
 public:
-    GraphView(const PhasePhckr::Doc& doc, SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD)
+    GraphView(
+        const PhasePhckr::Doc& doc,
+        SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD,
+        std::pair<std::string, std::string> inBus,
+        std::pair<std::string, std::string> outBus
+    )
         : gridSize(200.0f)
         , nodeSize(100.0f)
         , clickedComponent(nullptr)
         , doc(doc)
         , r(7.0f)
         , subscribedCGD(subscribedCGD)
+        , inBus(inBus)
+        , outBus(outBus)
     {
         subscribedCGDhandle = subscribedCGD->subscribe(
             [this](const PhasePhckr::ConnectionGraphDescriptor& g){setGraph(g);}
@@ -56,11 +63,13 @@ private:
     float gridSize;
     float nodeSize;
     float r;
+    std::pair<std::string, std::string> inBus;
+    std::pair<std::string, std::string> outBus;
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;
+    PhasePhckr::Doc doc;
     std::map<std::string, XY> modulePosition;
     std::map< std::string, std::map<std::string, XY>> inputPortPositions;
     std::map< std::string, std::map<std::string, XY>> outputPortPositions;
-    const PhasePhckr::Doc& doc;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };
 

@@ -9,12 +9,12 @@ namespace PhasePhckr {
 EffectChain::EffectChain(const ConnectionGraphDescriptor& fxChain, const ComponentRegister & cp) {
     ConnectionGraphDescriptor graphDescriptor = fxChain;
 
-    connectionGraph.registerModule("EFFECTINPUTBUS", &EffectInputBus::factory);
-    connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
+    connectionGraph.registerModule("_EFFECTINPUT", &EffectInputBus::factory);
+    connectionGraph.registerModule("_EFFECTOUTPUT", &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
-    graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "EFFECTINPUTBUS" });
-    graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
+    graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "_EFFECTINPUT" });
+    graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "_EFFECTOUTPUT" });
 
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(

@@ -28,7 +28,14 @@ namespace PhasePhckr {
     public:
         Doc(const ComponentRegister & cp);
         const std::map<std::string, ModuleDoc> & get() const;
+        void Doc::add(const ModuleDoc & d);
     };
+
+    ModuleDoc getVoiceBusInputDoc();
+    ModuleDoc getVoiceBusOutputDoc();
+    ModuleDoc getEffectBusInputDoc();
+    ModuleDoc getEffectBusOutputDoc();
+
 }
 
 #endif

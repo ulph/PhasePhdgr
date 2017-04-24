@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "docs.hpp"
 
 struct Pad
 {
@@ -71,6 +72,29 @@ public:
     }
     const std::vector<Pad> &copyOutputPads() {
         return outputs;
+    }
+
+    ModuleDoc makeDoc() {
+        ModuleDoc doc;
+        doc.type = name;
+        doc.docString = docString();
+        std::vector<Pad> inputs = copyInputPads();
+        for (const auto p : inputs) {
+            PadDescription pd;
+            pd.name = p.name;
+            pd.unit = p.unit;
+            pd.value = p.value;
+            doc.inputs.emplace_back(pd);
+        }
+        std::vector<Pad> outputs = copyOutputPads();
+        for (const auto p : outputs) {
+            PadDescription pd;
+            pd.name = p.name;
+            pd.unit = p.unit;
+            pd.value = p.value;
+            doc.outputs.emplace_back(pd);
+        }
+        return doc;
     }
 
 };

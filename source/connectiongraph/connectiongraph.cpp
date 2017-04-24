@@ -207,25 +207,8 @@ std::string ConnectionGraph::graphviz()
 void ConnectionGraph::makeModuleDocs(std::vector<ModuleDoc> &docList) {
     for (const auto & p : moduleRegister) {
         auto m = p.second();
-        ModuleDoc doc;
-        doc.type = p.first;
-        doc.docString = m->docString();
-        std::vector<Pad> inputs = m->copyInputPads();
-        for (const auto p : inputs) {
-            PadDescription pd;
-            pd.name = p.name;
-            pd.unit = p.unit;
-            pd.value = p.value;
-            doc.inputs.emplace_back(pd);
-        }
-        std::vector<Pad> outputs = m->copyOutputPads();
-        for (const auto p : outputs) {
-            PadDescription pd;
-            pd.name = p.name;
-            pd.unit = p.unit;
-            pd.value = p.value;
-            doc.outputs.emplace_back(pd);
-        }
-        docList.emplace_back(doc);
+        m->setName(p.first);
+        docList.emplace_back(m->makeDoc());
+        delete m;
     }
 }

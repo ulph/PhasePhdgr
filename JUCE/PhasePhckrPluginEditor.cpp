@@ -5,6 +5,7 @@
 #include "DirectoryWatcher.hpp"
 #include "Style.hpp"
 #include <typeinfo>
+#include "docs.hpp"
 
 PhasePhckrLookAndFeel g_lookAndFeel;
 
@@ -50,6 +51,24 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
             activeEffect.set(-1, loadJson(f));
         })
 
+    , voiceDoc(
+        [this]()->PhasePhckr::Doc {
+            PhasePhckr::Doc d(processor.componentRegister);
+            d.add(PhasePhckr::getVoiceBusInputDoc());
+            d.add(PhasePhckr::getVoiceBusOutputDoc());
+            return d;
+        }()
+    )
+
+    , effectDoc(
+        [this]()->PhasePhckr::Doc {
+            PhasePhckr::Doc d(processor.componentRegister);
+            d.add(PhasePhckr::getEffectBusInputDoc());
+            d.add(PhasePhckr::getEffectBusOutputDoc());
+            return d;
+        }()
+    )
+
     , doc(processor.componentRegister)
     , docListModel(doc.get(), docView)
     , docList( "docList", &docListModel)
@@ -57,8 +76,18 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     , voiceEditor(&activeVoice)
     , effectEditor(&activeEffect)
 
-    , voiceGraphView(doc, &activeVoice)
-    , effectGraphView(doc, &activeEffect)
+    , voiceGraphView(
+        voiceDoc,
+        &activeVoice,
+        std::make_pair("inBus", PhasePhckr::getVoiceBusInputDoc().type),
+        std::make_pair("outBus", PhasePhckr::getVoiceBusOutputDoc().type)
+    )
+    , effectGraphView(
+        effectDoc, 
+        &activeEffect, 
+        std::make_pair("inBus", PhasePhckr::getEffectBusInputDoc().type), 
+        std::make_pair("outBus", PhasePhckr::getEffectBusOutputDoc().type)
+    )
 
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
@@ -128,8 +157,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
         }
     }));
     debugViewUpdateTimer->startTimer(1000);
-    std::cout << "#intercepted cout#\n\n" << std::endl;
-    std::cerr << "#intercepted cerr#\n\n" << std::endl;
 
     resized();
 }

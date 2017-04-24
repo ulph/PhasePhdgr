@@ -223,6 +223,29 @@ void GraphView::setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph){
   recalculate();
 }
 
+static void buildPortPositions(
+    std::map< std::string, std::map<std::string, XY>> & inputPortPositions,
+    std::map< std::string, std::map<std::string, XY>> & outputPortPositions,
+    const std::string & name,
+    const ModuleDoc & doc,
+    float nodeSize,
+    float r
+    ) {
+    float i = 0;
+    std::map<std::string, XY> ipos;
+    for (const auto& ip : doc.inputs) {
+        ipos[ip.name] = XY((i + 0.5f) / (doc.inputs.size())*nodeSize, -0.5f*r);
+        i++;
+    }
+    inputPortPositions[name] = ipos;
+    i = 0;
+    std::map<std::string, XY> opos;
+    for (const auto& op : doc.outputs) {
+        opos[op.name] = XY((i + 0.5f) / (doc.outputs.size())*nodeSize, nodeSize - 0.5f*r);
+        i++;
+    }
+    outputPortPositions[name] = opos;
+}
 
 void GraphView::recalculate(){
   modulePosition.clear();
@@ -239,8 +262,8 @@ void GraphView::recalculate(){
     connections[mpc.target.module].insert(mpc.source.module);
   }
 
-  const std::string start = "inBus";
-  const std::string stop = "outBus";
+  const std::string start = inBus.first;
+  const std::string stop = outBus.first;
   modulePosition[start] = XY(0, INT_MIN);
   modulePosition[stop] = XY(0, INT_MIN);
 
@@ -278,27 +301,24 @@ void GraphView::recalculate(){
      p.second.x -= x_bias;
   }
 
-  // calculate the port positions as well
+  // calculate the port positions
 
   const auto& docs = doc.get();
 
   for(const auto &m : graphDescriptor.modules){
       if(docs.count(m.type)){
           const auto& doc = docs.at(m.type);
-          float i=0;
-          std::map<std::string, XY> ipos;
-          for(const auto& ip:doc.inputs){
-              ipos[ip.name] = XY((i+0.5f)/(doc.inputs.size())*nodeSize, - 0.5f*r);
-              i++;
-          }
-          inputPortPositions[m.name] = ipos;
-          i=0;
-          std::map<std::string, XY> opos;
-          for(const auto& op:doc.outputs){
-              opos[op.name] = XY((i+0.5f)/(doc.outputs.size())*nodeSize, nodeSize - 0.5f*r);
-              i++;
-          }
-          outputPortPositions[m.name] = opos;
+          buildPortPositions(inputPortPositions, outputPortPositions, m.name, doc, nodeSize, r);
+      }
+  }
+
+  std::vector< std::pair<std::string, std::string>> busModules;
+  busModules.push_back(inBus);
+  busModules.push_back(outBus);
+  for (const auto &p : busModules) {
+      if (docs.count(p.second)) {
+          const auto& doc = docs.at(p.second);
+          buildPortPositions(inputPortPositions, outputPortPositions, p.first, doc, nodeSize, r);
       }
   }
 

@@ -12,14 +12,14 @@ SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain, const Compon
     , samplesToProcess(0)
     , doTerminate(false)
 {
-    connectionGraph.registerModule("VOICEINPUT", &VoiceInputBus::factory);
-    connectionGraph.registerModule("STEREOBUS", &StereoBus::factory);
+    connectionGraph.registerModule("_VOICEINPUT", &VoiceInputBus::factory);
+    connectionGraph.registerModule("_VOICEOUTPUT", &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
     ConnectionGraphDescriptor graphDescriptor = voiceChain;
 
-    graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "VOICEINPUT" });
-    graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "STEREOBUS" });
+    graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "_VOICEINPUT" });
+    graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "_VOICEOUTPUT" });
 
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(

@@ -149,6 +149,8 @@ void GraphView::paint (Graphics& g){
 
     }
 
+    int numInPorts = 3;
+    int numOutPorts = 2;
     for(const auto &mp : modulePosition){
         float x = mp.second.x*gridSize;
         float y = mp.second.y*gridSize;
@@ -170,6 +172,16 @@ void GraphView::paint (Graphics& g){
         g.setColour(Colours::white);
         g.drawFittedText(mp.first, x, y, w, h, Justification::centred, 1);
 
+        g.setGradientFill(grad);
+        float r = 7.0f;
+        for(float i=0; i<numInPorts; ++i){
+            float x_ = x + ((i+.5f)/numInPorts) * nodeSize - r*.5f;
+            g.fillEllipse(x_, y-r*0.5, r, r);
+        }
+        for(float i=0; i<numOutPorts; ++i){
+            float x_ = x + ((i+0.5f)/numOutPorts) * nodeSize - r*.5f;;
+            g.fillEllipse(x_, y+nodeSize-r*0.5, r, r);
+        }
     }
 
 }

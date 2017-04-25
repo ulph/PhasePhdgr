@@ -187,10 +187,13 @@ static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float
 
     g.setColour(Colours::green);
     PathStrokeType strokeType(1);
+    strokeType.setStrokeThickness(1);
 
     path.startNewSubPath(x0, y0);
     if (wire) {
         path.lineTo(x1, y1);
+        strokeType.setStrokeThickness(2.5f);
+        strokeType.setEndStyle(PathStrokeType::rounded);
     }
     else if (y1 <= y0) {
         float dy = 0.25*nodeSize;
@@ -377,8 +380,8 @@ void GraphView::paint (Graphics& g){
             if (pp->at(m).count(p)) {
                 float x0 = modulePosition.at(m).x * gridSize + pp->at(m).at(p).x;
                 float y0 = modulePosition.at(m).y * gridSize + pp->at(m).at(p).y;
-                float x1 = lastMouse.x / scale;
-                float y1 = lastMouse.y / scale;
+                float x1 = lastMouse.x / scale - 0.5*r;
+                float y1 = lastMouse.y / scale - 0.5*r;
                 drawCable(g, x0, y0, x1, y1, r, nodeSize, scale, true);
             }
         }

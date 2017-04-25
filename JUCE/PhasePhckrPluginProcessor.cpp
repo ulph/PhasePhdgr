@@ -241,7 +241,7 @@ bool PhasePhckrAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
 {
-    return new PhasePhckrAudioProcessorEditor (*this);
+    return new PhasePhckrAudioProcessorEditor (*this, activeVoice, activeEffect);
 }
 
 //==============================================================================

@@ -84,7 +84,7 @@ public:
             pd.name = p.name;
             pd.unit = p.unit;
             pd.value = p.value;
-            doc.inputs.emplace_back(pd);
+            doc.inputs.push_back(pd);
         }
         std::vector<Pad> outputs = copyOutputPads();
         for (const auto p : outputs) {
@@ -92,7 +92,7 @@ public:
             pd.name = p.name;
             pd.unit = p.unit;
             pd.value = p.value;
-            doc.outputs.emplace_back(pd);
+            doc.outputs.push_back(pd);
         }
         return doc;
     }

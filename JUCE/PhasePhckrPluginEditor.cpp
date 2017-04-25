@@ -18,8 +18,14 @@ static json loadJson(const File & f) {
     return json::parse(s.toStdString().c_str());
 }
 
-PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioProcessor& p)
+PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
+        PhasePhckrAudioProcessor& p,
+        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeVoice_,
+        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeEffect_
+        )
     : AudioProcessorEditor (&p), processor (p)
+    , activeVoice(activeVoice_)
+    , activeEffect(activeEffect_)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
     , outputScopeL(processor.getSynth()->getOutputScope(0))
@@ -38,17 +44,17 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
 
     , activeVoiceSubscribeHandle(activeVoice.subscribe(
         [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
-            processor.setVoicePatch(v);
+            //
         }))
     , activeEffectSubscribeHandle(activeEffect.subscribe(
         [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
-            processor.setEffectPatch(v);
+            //
         }))
-    , voiceListListener([this](const File& f) { 
-            activeVoice.set(-1, loadJson(f));
+    , voiceListListener([this](const File& f) {
+            activeVoice.set(activeVoiceSubscribeHandle, loadJson(f));
         })
-    , effectListListener([this](const File& f) { 
-            activeEffect.set(-1, loadJson(f));
+    , effectListListener([this](const File& f) {
+            activeEffect.set(activeEffectSubscribeHandle, loadJson(f));
         })
 
     , voiceDoc(
@@ -90,13 +96,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
         std::make_pair("inBus", PhasePhckr::getEffectBusInputDoc().type), 
         std::make_pair("outBus", PhasePhckr::getEffectBusOutputDoc().type)
     )
-
+#if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
+#endif
 {
-
-    activeVoice.set(-1, processor.getVoicePatch());
-    activeEffect.set(-1, processor.getEffectPatch());
 
     setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
@@ -141,6 +145,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
     voiceDirectoryWatcher.setDirectory(PhasePhckrFileStuff::voicesDir, true, true);
     effectDirectoryWatcher.setDirectory(PhasePhckrFileStuff::effectsDir, true, true);
 
+#if INTERCEPT_STD_STREAMS
     mainFrame.addTab("debug", g_tabColor, &debugTab, false);
     debugTab.addComponent(&coutView);
     debugTab.addComponent(&cerrView);
@@ -159,13 +164,18 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (PhasePhckrAudioP
         }
     }));
     debugViewUpdateTimer->startTimer(1000);
-
+#endif
     resized();
 }
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
+    activeEffect.unsubscribe(activeEffectSubscribeHandle);
+    activeVoice.unsubscribe(activeVoiceSubscribeHandle);
+#if INTERCEPT_STD_STREAMS
+    debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;
+#endif
 }
 
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)

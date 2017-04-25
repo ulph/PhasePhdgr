@@ -6,9 +6,31 @@
 #include "design_json.hpp"
 #include "PhasePhckrGrid.h"
 #include "components.hpp"
+#include "Utils.hpp"
 
 class PhasePhckrAudioProcessor  : public AudioProcessor
 {
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
+    void setVoicePatch(const PhasePhckr::ConnectionGraphDescriptor &p) {
+        voiceChain = p;
+        applyVoiceChain();
+    }
+    void setEffectPatch(const PhasePhckr::ConnectionGraphDescriptor &p) {
+        effectChain = p;
+        applyEffectChain();
+    }
+    PhasePhckr::Synth* synth;
+    PhasePhckr::ConnectionGraphDescriptor voiceChain;
+    PhasePhckr::ConnectionGraphDescriptor effectChain;
+    int activeVoiceHandle;
+    int activeEffectHandle;
+    void applyVoiceChain();
+    void applyEffectChain();
+
+    std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
+
 public:
     PhasePhckrAudioProcessor();
     ~PhasePhckrAudioProcessor();
@@ -42,28 +64,10 @@ public:
 
     const PhasePhckr::Synth* getSynth() const;
 
-    const PhasePhckr::ConnectionGraphDescriptor &getVoicePatch() { return voiceChain; }
-    const PhasePhckr::ConnectionGraphDescriptor &getEffectPatch() { return effectChain; }
-    void setVoicePatch(const PhasePhckr::ConnectionGraphDescriptor &p) { 
-        voiceChain = p;
-        applyVoiceChain(); 
-    }
-    void setEffectPatch(const PhasePhckr::ConnectionGraphDescriptor &p) { 
-        effectChain = p;
-        applyEffectChain(); 
-    }
-
     PhasePhckr::ComponentRegister componentRegister;
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeVoice;
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeEffect;
 
-private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
-    PhasePhckr::Synth* synth;
-    PhasePhckr::ConnectionGraphDescriptor voiceChain;
-    PhasePhckr::ConnectionGraphDescriptor effectChain;
-    void applyVoiceChain();
-    void applyEffectChain();
-
-    std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

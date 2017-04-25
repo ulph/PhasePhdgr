@@ -58,6 +58,7 @@ public:
     }
     ~GraphView() {
         subscribedCGD->unsubscribe(subscribedCGDhandle);
+        delete connectionInProgress;
     }
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;

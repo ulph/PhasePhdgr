@@ -101,7 +101,11 @@ public:
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
-    PhasePhckrAudioProcessorEditor (PhasePhckrAudioProcessor&);
+    PhasePhckrAudioProcessorEditor (
+        PhasePhckrAudioProcessor&,
+        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeVoice,
+        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeEffect
+     );
     ~PhasePhckrAudioProcessorEditor();
 
     //==============================================================================
@@ -114,9 +118,8 @@ private:
     PhasePhckr::Doc voiceDoc;
     PhasePhckr::Doc effectDoc;
 
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeVoice;
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeEffect;
-
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeVoice;
+    SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeEffect;
     int activeVoiceSubscribeHandle;
     int activeEffectSubscribeHandle;
 
@@ -156,12 +159,14 @@ private:
     ListBox docList;
     DocListModel docListModel;
 
+#if INTERCEPT_STD_STREAMS
     InterceptStringStream coutIntercept;
     InterceptStringStream cerrIntercept;
     TextEditor coutView;
     TextEditor cerrView;
     PhasePhckrGrid debugTab;
     LambdaTimer* debugViewUpdateTimer;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };

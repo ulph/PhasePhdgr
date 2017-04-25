@@ -5,6 +5,7 @@
 #include <sstream>
 #include "design_json.hpp"
 
+#if INTERCEPT_STD_STREAMS
 struct InterceptStringStream {
     InterceptStringStream(std::ostream & stream)
         : oldBuf(stream.rdbuf(newBuf.rdbuf()))
@@ -24,7 +25,7 @@ private:
     std::streambuf * oldBuf;
     std::stringstream newBuf;
 };
-
+#endif
 
 template <class T>
 class SubValue {

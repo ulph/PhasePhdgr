@@ -274,7 +274,12 @@ static void drawModuleBundle(
     float s
 ) {
 
-    drawModule(g, x, y, w, h, name + "\n\n" + d.type, nodeSize, s);
+    std::string lbl = name;
+    if (s > 0.75) {
+        lbl += "\n\n" + d.type;
+    }
+
+    drawModule(g, x, y, w, h, lbl, nodeSize, s);
 
     x *= s;
     y *= s;

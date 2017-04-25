@@ -13,11 +13,11 @@ class PhasePhckrAudioProcessor  : public AudioProcessor
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
-    void setVoicePatch(const PhasePhckr::ConnectionGraphDescriptor &p) {
+    void setVoiceChain(const PhasePhckr::ConnectionGraphDescriptor &p) {
         voiceChain = p;
         applyVoiceChain();
     }
-    void setEffectPatch(const PhasePhckr::ConnectionGraphDescriptor &p) {
+    void setEffectChain(const PhasePhckr::ConnectionGraphDescriptor &p) {
         effectChain = p;
         applyEffectChain();
     }
@@ -67,6 +67,11 @@ public:
     PhasePhckr::ComponentRegister componentRegister;
     SubValue<PhasePhckr::ConnectionGraphDescriptor> activeVoice;
     SubValue<PhasePhckr::ConnectionGraphDescriptor> activeEffect;
+    void broadcastPatch(){
+        // editor should call this once after construction
+        activeVoice.set(activeVoiceHandle, voiceChain);
+        activeEffect.set(activeEffectHandle, effectChain);
+    }
 
 };
 

@@ -29,6 +29,9 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
 #endif
 {
 
+    activeVoiceHandle = activeVoice.subscribe([this](const PhasePhckr::ConnectionGraphDescriptor& v){setVoiceChain(v);});
+    activeEffectHandle = activeEffect.subscribe([this](const PhasePhckr::ConnectionGraphDescriptor& e){setEffectChain(e);});
+
     createDirIfNeeded(rootDir);
     createDirIfNeeded(effectsDir);
     createDirIfNeeded(voicesDir);

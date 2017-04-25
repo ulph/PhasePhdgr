@@ -65,10 +65,10 @@ void updateNodesY(
 void GraphView::mouseDown(const MouseEvent & event) {
     parent.setScrollOnDragEnabled(true);
     for (const auto & mp : modulePosition) {
-        float x1 = mp.second.x*gridSize;
-        float x2 = mp.second.x*gridSize + nodeSize;
-        float y1 = mp.second.y*gridSize;
-        float y2 = mp.second.y*gridSize + nodeSize;
+        float x1 = scale*mp.second.x*gridSize;
+        float x2 = scale*mp.second.x*gridSize + scale*nodeSize;
+        float y1 = scale*mp.second.y*gridSize;
+        float y2 = scale*mp.second.y*gridSize + scale*nodeSize;
         if ( (event.x >= x1 ) 
           && (event.x <= x2 )
           && (event.y >= y1 )
@@ -82,10 +82,18 @@ void GraphView::mouseDown(const MouseEvent & event) {
     }
 }
 
+void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
+    if(d.deltaY){
+        scale += d.deltaY>0?0.05:-0.05;
+        recalculateBounds(true);
+        repaint();
+    }
+}
+
 void GraphView::mouseDrag(const MouseEvent & event) {
     if (clickedComponent) {
-        modulePosition[*clickedComponent].x = (event.x - 0.5*nodeSize) / gridSize;
-        modulePosition[*clickedComponent].y = (event.y - 0.5*nodeSize) / gridSize;
+        modulePosition[*clickedComponent].x = (event.x/scale - 0.5*nodeSize) / gridSize;
+        modulePosition[*clickedComponent].y = (event.y/scale - 0.5*nodeSize) / gridSize;
         recalculateBounds();
         repaint();
     }
@@ -95,8 +103,14 @@ void GraphView::mouseUp(const MouseEvent & event) {
     clickedComponent = nullptr;
 }
 
-static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float nodeSize){
+static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float nodeSize, float s){
     Path path;
+
+    x0 *= s;
+    y0 *= s;
+    x1 *= s;
+    y1 *= s;
+    nodeSize *= s;
 
     path.startNewSubPath(x0, y0);
     if (y1 <= y0) {
@@ -142,7 +156,13 @@ static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float
 }
 
 
-static void drawModule(Graphics& g, float x, float y, float w, float h, std::string label, float nodeSize){
+static void drawModule(Graphics& g, float x, float y, float w, float h, std::string label, float nodeSize, float s){
+    x *= s;
+    y *= s;
+    w *= s;
+    h *= s;
+    nodeSize *= s;
+
     g.setColour(Colour((uint8_t)0, (uint8_t)0, (uint8_t)0, (float)0.5f));
     g.fillRoundedRectangle(x, y, w, h, 5.f);
 
@@ -171,24 +191,31 @@ static void drawModuleBundle(
     const std::string & name,
     const std::string & type,
     const std::map< std::string, std::map<std::string, XY>> & inputPortPositions,
-    const std::map< std::string, std::map<std::string, XY>> & outputPortPositions
+    const std::map< std::string, std::map<std::string, XY>> & outputPortPositions,
+    float s
 ) {
-    drawModule(g, x, y, w, h, name + "\n\n" + type, nodeSize);
+
+    drawModule(g, x, y, w, h, name + "\n\n" + type, nodeSize, s);
+
+    x *= s;
+    y *= s;
+    r *= s;
+
     if (inputPortPositions.count(name)) {
         for (const auto pp : inputPortPositions.at(name)) {
             g.setColour(Colours::black);
-            g.fillEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r);
+            g.fillEllipse(x + s*pp.second.x - 0.5f*r, y + s*pp.second.y, r, r);
             g.setColour(Colours::grey);
-            g.drawEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r, 1.0f);
+            g.drawEllipse(x + s*pp.second.x - 0.5f*r, y + s*pp.second.y, r, r, 1.0f);
             // draw label
         }
     }
     if (outputPortPositions.count(name)) {
         for (const auto pp : outputPortPositions.at(name)) {
             g.setColour(Colours::black);
-            g.fillEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r);
+            g.fillEllipse(x + s*pp.second.x - 0.5f*r, y + s*pp.second.y, r, r);
             g.setColour(Colours::grey);
-            g.drawEllipse(x + pp.second.x - 0.5f*r, y + pp.second.y, r, r, 1.0f);
+            g.drawEllipse(x + s*pp.second.x - 0.5f*r, y + s*pp.second.y, r, r, 1.0f);
             // draw label
         }
     }
@@ -210,7 +237,7 @@ void GraphView::paint (Graphics& g){
                 if(fromMap.count(mpc.source.port) && toMap.count(mpc.target.port)){
                     const auto& fromPos = fromMap.at(mpc.source.port);
                     const auto& toPos = toMap.at(mpc.target.port);
-                    drawCable(g, x0+fromPos.x, y0+fromPos.y, x1+toPos.x, y1+toPos.y, nodeSize);
+                    drawCable(g, x0+fromPos.x, y0+fromPos.y, x1+toPos.x, y1+toPos.y, nodeSize, scale);
                 }
             }
         }
@@ -221,7 +248,7 @@ void GraphView::paint (Graphics& g){
             const auto& pos = modulePosition.at(m.name);
             float x = pos.x*gridSize;
             float y = pos.y*gridSize;
-            drawModuleBundle(g, x, y, r, nodeSize, nodeSize, nodeSize, m.name, m.type, inputPortPositions, outputPortPositions);
+            drawModuleBundle(g, x, y, r, nodeSize, nodeSize, nodeSize, m.name, m.type, inputPortPositions, outputPortPositions, scale);
         }
     }
 
@@ -233,7 +260,7 @@ void GraphView::paint (Graphics& g){
             const auto& pos = modulePosition.at(p.first);
             float x = pos.x*gridSize;
             float y = pos.y*gridSize;
-            drawModuleBundle(g, x, y, r, 4*nodeSize, nodeSize, nodeSize, p.first, p.second, inputPortPositions, outputPortPositions);
+            drawModuleBundle(g, x, y, r, 4*nodeSize, nodeSize, nodeSize, p.first, p.second, inputPortPositions, outputPortPositions, scale);
         }
     }
 }
@@ -388,7 +415,7 @@ void GraphView::recalculateBounds(bool force) {
         for (auto &mp : modulePosition) {
             mp.second.x -= lowerBound.x;
         }
-        p.addXY(-gridSize*lowerBound.x, 0);
+        p.addXY(-gridSize*lowerBound.x*scale, 0);
         lowerBound.x = 0;
     }
 
@@ -396,16 +423,16 @@ void GraphView::recalculateBounds(bool force) {
         for (auto &mp : modulePosition) {
             mp.second.y -= lowerBound.y;
         }
-        p.addXY(0, -gridSize*lowerBound.y);
+        p.addXY(0, -gridSize*lowerBound.y*scale);
         lowerBound.y = 0;
     }
 
     if (boundChanged) {
         setBounds(
-            lowerBound.x*gridSize,
-            lowerBound.y*gridSize,
-            (upperBound.x + 4)*gridSize,
-            (upperBound.y + 1)*gridSize
+            lowerBound.x*gridSize*scale,
+            lowerBound.y*gridSize*scale,
+            (upperBound.x + 4)*gridSize*scale,
+            (upperBound.y + 1)*gridSize*scale
         );
     }
 

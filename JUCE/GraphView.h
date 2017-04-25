@@ -39,6 +39,7 @@ public:
         , inBus(inBus)
         , outBus(outBus)
         , parent(parent)
+        , scale(1.0f)
     {
         parent.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD->subscribe(
@@ -53,7 +54,7 @@ public:
     virtual void mouseUp(const MouseEvent & event) override;
     void paint (Graphics& g);
     void resized();
-
+    void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 private:
     void setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph);
     int subscribedCGDhandle;
@@ -64,6 +65,7 @@ private:
     Viewport& parent;
     XY upperBound;
     XY lowerBound;
+    float scale;
     float gridSize;
     float nodeSize;
     float r;

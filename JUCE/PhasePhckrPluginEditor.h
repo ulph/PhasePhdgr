@@ -91,6 +91,13 @@ public:
 };
 
 
+class GraphViewPort : public Viewport {
+public:
+    GraphViewPort() : Viewport("...") {}
+    void mouseWheelMove(const MouseEvent &, const MouseWheelDetails &) override {}
+};
+
+
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
@@ -138,8 +145,8 @@ private:
     FileListComponent effectDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
 
-    Viewport voiceGraphViewport;
-    Viewport effectGraphViewport;
+    GraphViewPort voiceGraphViewport;
+    GraphViewPort effectGraphViewport;
     GraphView voiceGraphView;    
     GraphView effectGraphView;
 

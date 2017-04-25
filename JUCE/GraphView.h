@@ -91,7 +91,7 @@ private:
     std::map<std::string, XY> modulePosition; // normalized
     std::map< std::string, std::map<std::string, XY>> inputPortPositions; // absolute
     std::map< std::string, std::map<std::string, XY>> outputPortPositions; // absolute
-    std::map< const PhasePhckr::ModulePortConnection*, Path> connectionPaths;
+    std::map< const PhasePhckr::ModulePortConnection*, std::pair<Path, ColourGradient>> connectionPaths;
     Wire* connectionInProgress;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

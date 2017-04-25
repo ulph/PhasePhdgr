@@ -256,14 +256,9 @@ void GraphView::paint (Graphics& g){
 
     for(const auto &kv : connectionPaths){
         if(modulePosition.count(kv.first->source.module) && modulePosition.count(kv.first->target.module)){
-            // for the gradient we need to figur out rough sorce and target indices
-            float x0 = modulePosition.at(kv.first->source.module).x * nodeSize * scale;
-            float y0 = modulePosition.at(kv.first->source.module).y * nodeSize * scale;
-            float x1 = modulePosition.at(kv.first->target.module).x * nodeSize * scale;
-            float y1 = modulePosition.at(kv.first->target.module).y * nodeSize * scale;
-            ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
-            g.setGradientFill(grad);
-            g.fillPath(kv.second);
+            const auto & p = kv.second.first;
+            g.setGradientFill(kv.second.second);
+            g.fillPath(p);
         }
     }
 
@@ -531,7 +526,16 @@ void GraphView::recalculatePaths(){
                     const auto& toPos = toMap.at(mpc.target.port);
                     Path p;
                     calcCable(p, x0+fromPos.x, y0+fromPos.y, x1+toPos.x, y1+toPos.y, r, nodeSize, scale);
-                    connectionPaths.emplace(&mpc, p);
+                    ColourGradient g(
+                        Colours::yellow,
+                        scale*(x0+fromPos.x),
+                        scale*(y0+fromPos.y),
+                        Colours::red,
+                        scale*(x1+toPos.x),
+                        scale*(y1+toPos.y),
+                        true
+                        );
+                    connectionPaths[&mpc] = std::make_pair(p, g);
                 }
             }
         }

@@ -83,8 +83,12 @@ static bool withinPort(float mx, float my, const std::map<std::string, XY>& port
 void GraphView::mouseDown(const MouseEvent & event) {
     parent.setScrollOnDragEnabled(true);
     for (const auto & mp : modulePosition) {
+
+        float ws = 1.0f;
+        if (moduleWidthScale.count(mp.first)) ws = moduleWidthScale.at(mp.first);
+
         float x1 = scale*(mp.second.x*gridSize - r);
-        float x2 = scale*(mp.second.x*gridSize + nodeSize + r);
+        float x2 = scale*(mp.second.x*gridSize + ws*nodeSize + r);
         float y1 = scale*(mp.second.y*gridSize - r);
         float y2 = scale*(mp.second.y*gridSize + nodeSize + r);
         if ( (event.x >= x1 ) 
@@ -144,7 +148,9 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         repaint();
     }
     else if (clickedComponent) {
-        modulePosition[*clickedComponent].x = (event.x/scale - 0.5*nodeSize) / gridSize;
+        float ws = 1.0f;
+        if (moduleWidthScale.count(*clickedComponent)) ws = moduleWidthScale.at(*clickedComponent);
+        modulePosition[*clickedComponent].x = (event.x/scale - 0.5*nodeSize*ws) / gridSize;
         modulePosition[*clickedComponent].y = (event.y/scale - 0.5*nodeSize) / gridSize;
         recalculateBounds();
         repaint();
@@ -315,28 +321,14 @@ void GraphView::paint (Graphics& g){
         }
     }
 
-    if (connectionInProgress) {
-        auto * pp = &outputPortPositions;
-        if (connectionInProgress->state == Wire::attachedToInput) pp = &inputPortPositions;
-        const auto &m = connectionInProgress->port.first;
-        const auto &p = connectionInProgress->port.second;
-        if (pp->count(m) && modulePosition.count(m)) {
-            if (pp->at(m).count(p)){
-                float x0 = modulePosition.at(m).x * gridSize + pp->at(m).at(p).x;
-                float y0 = modulePosition.at(m).y * gridSize + pp->at(m).at(p).y;
-                float x1 = lastMouse.x;
-                float y1 = lastMouse.y;
-                drawCable(g, x0, y0, x1, y1, r, nodeSize, scale, true);
-            }
-        }
-    }
-
     for(const auto &m : graphDescriptor.modules){
         if(modulePosition.count(m.name)){
             const auto& pos = modulePosition.at(m.name);
             float x = pos.x*gridSize;
             float y = pos.y*gridSize;
-            drawModuleBundle(g, x, y, r, nodeSize, nodeSize, nodeSize, m.name, m.type, inputPortPositions, outputPortPositions, scale);
+            float ws = 1.0f;
+            if (moduleWidthScale.count(m.name)) ws = moduleWidthScale.at(m.name);
+            drawModuleBundle(g, x, y, r, ws*nodeSize, nodeSize, nodeSize, m.name, m.type, inputPortPositions, outputPortPositions, scale);
         }
     }
 
@@ -348,9 +340,28 @@ void GraphView::paint (Graphics& g){
             const auto& pos = modulePosition.at(p.first);
             float x = pos.x*gridSize;
             float y = pos.y*gridSize;
-            drawModuleBundle(g, x, y, r, 4*nodeSize, nodeSize, nodeSize, p.first, p.second, inputPortPositions, outputPortPositions, scale);
+            float ws = 1.0f;
+            if (moduleWidthScale.count(p.first)) ws = moduleWidthScale.at(p.first);
+            drawModuleBundle(g, x, y, r, ws*nodeSize, nodeSize, nodeSize, p.first, p.second, inputPortPositions, outputPortPositions, scale);
         }
     }
+
+    if (connectionInProgress) {
+        auto * pp = &outputPortPositions;
+        if (connectionInProgress->state == Wire::attachedToInput) pp = &inputPortPositions;
+        const auto &m = connectionInProgress->port.first;
+        const auto &p = connectionInProgress->port.second;
+        if (pp->count(m) && modulePosition.count(m)) {
+            if (pp->at(m).count(p)) {
+                float x0 = modulePosition.at(m).x * gridSize + pp->at(m).at(p).x;
+                float y0 = modulePosition.at(m).y * gridSize + pp->at(m).at(p).y;
+                float x1 = lastMouse.x;
+                float y1 = lastMouse.y;
+                drawCable(g, x0, y0, x1, y1, r, nodeSize, scale, true);
+            }
+        }
+    }
+
 }
 
 
@@ -369,21 +380,22 @@ static void buildPortPositions(
     std::map< std::string, std::map<std::string, XY>> & outputPortPositions,
     const std::string & name,
     const ModuleDoc & doc,
-    float nodeSize,
+    float w,
+    float h,
     float r,
     bool busModule
     ) {
     float i = 0;
     std::map<std::string, XY> ipos;
     for (const auto& ip : doc.inputs) {
-        ipos[ip.name] = XY((i + 0.5f) / (doc.inputs.size())*nodeSize * (busModule ? 4 : 1) - 0.5f*r, -0.5f*r);
+        ipos[ip.name] = XY((i + 0.5f) / (doc.inputs.size())*w * (busModule ? 4 : 1) - 0.5f*r, -0.5f*r);
         i++;
     }
     inputPortPositions[name] = ipos;
     i = 0;
     std::map<std::string, XY> opos;
     for (const auto& op : doc.outputs) {
-        opos[op.name] = XY((i + 0.5f) / (doc.outputs.size())*nodeSize * (busModule ? 4 : 1) - 0.5f*r, nodeSize - 0.5f*r);
+        opos[op.name] = XY((i + 0.5f) / (doc.outputs.size())*w * (busModule ? 4 : 1) - 0.5f*r, h - 0.5f*r);
         i++;
     }
     outputPortPositions[name] = opos;
@@ -449,6 +461,10 @@ void GraphView::recalculate(){
      p.second.x += x_move;
   }
 
+  // scale the horizontal scale if needed
+  moduleWidthScale[inBus.first] = 4.0f;
+  moduleWidthScale[outBus.first] = 4.0f;
+
   // calculate the port positions
 
   const auto& docs = doc.get();
@@ -456,7 +472,7 @@ void GraphView::recalculate(){
   for(const auto &m : graphDescriptor.modules){
       if(docs.count(m.type)){
           const auto& doc = docs.at(m.type);
-          buildPortPositions(inputPortPositions, outputPortPositions, m.name, doc, nodeSize, r, false);
+          buildPortPositions(inputPortPositions, outputPortPositions, m.name, doc, nodeSize, nodeSize, r, false);
       }
   }
 
@@ -466,7 +482,7 @@ void GraphView::recalculate(){
   for (const auto &p : busModules) {
       if (docs.count(p.second)) {
           const auto& doc = docs.at(p.second);
-          buildPortPositions(inputPortPositions, outputPortPositions, p.first, doc, nodeSize, r, true);
+          buildPortPositions(inputPortPositions, outputPortPositions, p.first, doc, nodeSize, nodeSize, r, true);
       }
   }
 

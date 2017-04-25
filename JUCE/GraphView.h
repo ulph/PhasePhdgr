@@ -85,6 +85,7 @@ private:
     std::pair<std::string, std::string> outBus;
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;
     PhasePhckr::Doc doc;
+    std::map<std::string, float> moduleWidthScale;
     std::map<std::string, XY> modulePosition;
     std::map< std::string, std::map<std::string, XY>> inputPortPositions;
     std::map< std::string, std::map<std::string, XY>> outputPortPositions;

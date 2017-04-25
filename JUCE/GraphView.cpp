@@ -134,7 +134,8 @@ void GraphView::mouseDown(const MouseEvent & event) {
 
 void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
     if(d.deltaY){
-        scale += d.deltaY>0?0.05:-0.05;
+        float zoom = 1.05f;
+        scale *= d.deltaY>0?zoom:(1/zoom);
         recalculateBounds(true);
         repaint();
     }
@@ -267,34 +268,44 @@ static void drawModuleBundle(
     float h,
     float nodeSize,
     const std::string & name,
-    const std::string & type,
+    const ModuleDoc & d,
     const std::map< std::string, std::map<std::string, XY>> & inputPortPositions,
     const std::map< std::string, std::map<std::string, XY>> & outputPortPositions,
     float s
 ) {
 
-    drawModule(g, x, y, w, h, name + "\n\n" + type, nodeSize, s);
+    drawModule(g, x, y, w, h, name + "\n\n" + d.type, nodeSize, s);
 
     x *= s;
     y *= s;
     r *= s;
 
     if (inputPortPositions.count(name)) {
-        for (const auto pp : inputPortPositions.at(name)) {
+        for (const auto & pd : d.inputs) {
+            const auto & p = inputPortPositions.at(name).at(pd.name);
+            float x0 = x + s*p.x;
+            float y0 = y + s*p.y;
             g.setColour(Colours::black);
-            g.fillEllipse(x + s*pp.second.x, y + s*pp.second.y, r, r);
+            g.fillEllipse(x0, y0, r, r);
             g.setColour(Colours::grey);
-            g.drawEllipse(x + s*pp.second.x, y + s*pp.second.y, r, r, 1.0f);
-            // draw label
+            g.drawEllipse(x0, y0, r, r, 1.0f);
+            if (s >= 1.5) {
+                g.drawText(pd.name, x0-r, y0 + 1.5f*r, 3*r, r, Justification::centred);
+            }
         }
     }
     if (outputPortPositions.count(name)) {
-        for (const auto pp : outputPortPositions.at(name)) {
+        for (const auto & pd : d.outputs) {
+            const auto & p = outputPortPositions.at(name).at(pd.name);
+            float x0 = x + s*p.x;
+            float y0 = y + s*p.y;
             g.setColour(Colours::black);
-            g.fillEllipse(x + s*pp.second.x, y + s*pp.second.y, r, r);
+            g.fillEllipse(x0, y0, r, r);
             g.setColour(Colours::grey);
-            g.drawEllipse(x + s*pp.second.x, y + s*pp.second.y, r, r, 1.0f);
-            // draw label
+            g.drawEllipse(x0, y0, r, r, 1.0f);
+            if (s >= 1.5) {
+                g.drawText(pd.name, x0-r, y0 - 2*r, 3*r, r, Justification::centred);
+            }
         }
     }
 }
@@ -322,13 +333,16 @@ void GraphView::paint (Graphics& g){
     }
 
     for(const auto &m : graphDescriptor.modules){
-        if(modulePosition.count(m.name)){
-            const auto& pos = modulePosition.at(m.name);
-            float x = pos.x*gridSize;
-            float y = pos.y*gridSize;
-            float ws = 1.0f;
-            if (moduleWidthScale.count(m.name)) ws = moduleWidthScale.at(m.name);
-            drawModuleBundle(g, x, y, r, ws*nodeSize, nodeSize, nodeSize, m.name, m.type, inputPortPositions, outputPortPositions, scale);
+        if (doc.get().count(m.type)) {
+            const auto & d = doc.get().at(m.type);
+            if (modulePosition.count(m.name)) {
+                const auto& pos = modulePosition.at(m.name);
+                float x = pos.x*gridSize;
+                float y = pos.y*gridSize;
+                float ws = 1.0f;
+                if (moduleWidthScale.count(m.name)) ws = moduleWidthScale.at(m.name);
+                drawModuleBundle(g, x, y, r, ws*nodeSize, nodeSize, nodeSize, m.name, d, inputPortPositions, outputPortPositions, scale);
+            }
         }
     }
 
@@ -336,13 +350,16 @@ void GraphView::paint (Graphics& g){
     busModules.push_back(inBus);
     busModules.push_back(outBus);
     for (const auto &p : busModules) {
-        if (modulePosition.count(p.first)) {
-            const auto& pos = modulePosition.at(p.first);
-            float x = pos.x*gridSize;
-            float y = pos.y*gridSize;
-            float ws = 1.0f;
-            if (moduleWidthScale.count(p.first)) ws = moduleWidthScale.at(p.first);
-            drawModuleBundle(g, x, y, r, ws*nodeSize, nodeSize, nodeSize, p.first, p.second, inputPortPositions, outputPortPositions, scale);
+        if (doc.get().count(p.second)) {
+            const auto & d = doc.get().at(p.second);
+            if (modulePosition.count(p.first)) {
+                const auto& pos = modulePosition.at(p.first);
+                float x = pos.x*gridSize;
+                float y = pos.y*gridSize;
+                float ws = 1.0f;
+                if (moduleWidthScale.count(p.first)) ws = moduleWidthScale.at(p.first);
+                drawModuleBundle(g, x, y, r, ws*nodeSize, nodeSize, nodeSize, p.first, d, inputPortPositions, outputPortPositions, scale);
+            }
         }
     }
 
@@ -355,8 +372,8 @@ void GraphView::paint (Graphics& g){
             if (pp->at(m).count(p)) {
                 float x0 = modulePosition.at(m).x * gridSize + pp->at(m).at(p).x;
                 float y0 = modulePosition.at(m).y * gridSize + pp->at(m).at(p).y;
-                float x1 = lastMouse.x;
-                float y1 = lastMouse.y;
+                float x1 = lastMouse.x / scale;
+                float y1 = lastMouse.y / scale;
                 drawCable(g, x0, y0, x1, y1, r, nodeSize, scale, true);
             }
         }

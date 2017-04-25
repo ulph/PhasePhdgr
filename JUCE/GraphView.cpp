@@ -161,6 +161,47 @@ void GraphView::mouseDrag(const MouseEvent & event) {
 }
 
 void GraphView::mouseUp(const MouseEvent & event) {
+    if(connectionInProgress){
+        const auto * xpp = &inputPortPositions;
+        if(connectionInProgress->state == Wire::attachedToInput){xpp = &outputPortPositions;}
+        for (const auto & mp : modulePosition) {
+            float ws = 1.0f;
+            if (moduleWidthScale.count(mp.first)) ws = moduleWidthScale.at(mp.first);
+            float x1 = scale*(mp.second.x*gridSize - r);
+            float x2 = scale*(mp.second.x*gridSize + ws*nodeSize + r);
+            float y1 = scale*(mp.second.y*gridSize - r);
+            float y2 = scale*(mp.second.y*gridSize + nodeSize + r);
+            if ( (event.x >= x1 )
+              && (event.x <= x2 )
+              && (event.y >= y1 )
+              && (event.y <= y2 )
+                )
+            {
+                if (xpp->count(mp.first)){
+                    const auto & pp = xpp->at(mp.first);
+                    std::string portName;
+                    if (withinPort(event.x, event.y, pp, portName, x1+scale*r, y1+scale*r, r, scale)) {
+                        PhasePhckr::ModulePortConnection c;
+                        if(connectionInProgress->state == Wire::attachedToInput){
+                            c.source.module = mp.first;
+                            c.source.port = portName;
+                            c.target.module = connectionInProgress->port.first;
+                            c.target.port = connectionInProgress->port.second;
+                        }
+                        else{
+                            c.source.module = connectionInProgress->port.first;
+                            c.source.port = connectionInProgress->port.second;
+                            c.target.module = mp.first;
+                            c.target.port = portName;
+                        }
+                        graphDescriptor.connections.emplace_back(c);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    recalculatePaths();
     clickedComponent = nullptr;
     delete connectionInProgress;
     connectionInProgress = nullptr;
@@ -360,6 +401,7 @@ static void buildPortPositions(
     outputPortPositions[name] = opos;
 }
 
+
 void GraphView::initialize(){
   modulePosition.clear();
   connectionPaths.clear();
@@ -452,6 +494,7 @@ void GraphView::initialize(){
 
 }
 
+
 static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize, float s){
     x0 += 0.5f*r;
     y0 += 0.5f*r;
@@ -541,6 +584,7 @@ void GraphView::recalculatePaths(){
         }
     }
 }
+
 
 void GraphView::recalculateBounds(bool force) {
     bool boundChanged = force;

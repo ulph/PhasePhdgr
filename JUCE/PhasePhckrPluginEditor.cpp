@@ -165,6 +165,9 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     }));
     debugViewUpdateTimer->startTimer(1000);
 #endif
+
+    processor.broadcastPatch();
+
     resized();
 }
 

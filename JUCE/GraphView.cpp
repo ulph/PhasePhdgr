@@ -136,6 +136,7 @@ void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d
     if(d.deltaY){
         float zoom = 1.05f;
         scale *= d.deltaY>0?zoom:(1/zoom);
+        recalculatePaths();
         recalculateBounds(true);
         repaint();
     }
@@ -153,6 +154,7 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         if (moduleWidthScale.count(*clickedComponent)) ws = moduleWidthScale.at(*clickedComponent);
         modulePosition[*clickedComponent].x = (event.x/scale - 0.5*nodeSize*ws) / gridSize;
         modulePosition[*clickedComponent].y = (event.y/scale - 0.5*nodeSize) / gridSize;
+        recalculatePaths();
         recalculateBounds();
         repaint();
     }
@@ -169,74 +171,6 @@ void GraphView::mouseMove(const MouseEvent & event) {
     lastMouse.x = event.x;
     lastMouse.y = event.y;
 }
-
-static void drawCable(Graphics& g, float x0, float y0, float x1, float y1, float r, float nodeSize, float s, bool wire=false){
-    Path path;
-    
-    x0 += 0.5f*r;
-    y0 += 0.5f*r;
-    x1 += 0.5f*r;
-    y1 += 0.5f*r;
-
-    x0 *= s;
-    y0 *= s;
-    x1 *= s;
-    y1 *= s;
-
-    nodeSize *= s;
-
-    g.setColour(Colours::green);
-    PathStrokeType strokeType(1);
-    strokeType.setStrokeThickness(1);
-
-    path.startNewSubPath(x0, y0);
-    if (wire) {
-        path.lineTo(x1, y1);
-        strokeType.setStrokeThickness(2.5f);
-        strokeType.setEndStyle(PathStrokeType::rounded);
-    }
-    else if (y1 <= y0) {
-        float dy = 0.25*nodeSize;
-        float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1);
-        float s = x1 != x0 ? 1 : -1;
-        float x[7]{
-            x0+dx,
-            x0+2*dx,
-
-            x0+3*dx,
-            x1-3*dx*s,
-
-            x1-2*dx*s,
-            x1-dx*s,
-            x1
-        };
-        float y[7]{
-            y0+2*dy,
-            y0+dy,
-
-            y0,
-            y1,
-
-            y1-dy,
-            y1-2*dy,
-            y1
-        };
-        path.quadraticTo(x[0], y[0], x[1], y[1]);
-        path.cubicTo(x[2], y[2], x[3], y[3], x[4], y[4]);
-        path.quadraticTo(x[5], y[5], x[6], y[6]);
-    }
-    else {
-        float d = 0.5*nodeSize;
-        path.cubicTo( x0, y0+d, x1, y1-d, x1, y1 );
-    }
-    strokeType.createStrokedPath(path, path);
-    if (!wire) {
-        ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
-        g.setGradientFill(grad);
-    }
-    g.fillPath(path);
-}
-
 
 static void drawModule(Graphics& g, float x, float y, float w, float h, std::string label, float nodeSize, float s){
     x *= s;
@@ -320,23 +254,16 @@ static void drawModuleBundle(
 
 void GraphView::paint (Graphics& g){
 
-    for (const auto& mpc : graphDescriptor.connections) {
-        if(modulePosition.count(mpc.source.module) && modulePosition.count(mpc.target.module)){
-            const auto& from = mpc.source.module;
-            const auto& to = mpc.target.module;
-            float x0 = modulePosition.at(from).x * gridSize;
-            float y0 = modulePosition.at(from).y * gridSize;
-            float x1 = modulePosition.at(to).x * gridSize;
-            float y1 = modulePosition.at(to).y * gridSize;
-            if(outputPortPositions.count(from) && inputPortPositions.count(to)){
-                const auto& fromMap = outputPortPositions.at(from);
-                const auto& toMap = inputPortPositions.at(to);
-                if(fromMap.count(mpc.source.port) && toMap.count(mpc.target.port)){
-                    const auto& fromPos = fromMap.at(mpc.source.port);
-                    const auto& toPos = toMap.at(mpc.target.port);
-                    drawCable(g, x0+fromPos.x, y0+fromPos.y, x1+toPos.x, y1+toPos.y, r, nodeSize, scale);
-                }
-            }
+    for(const auto &kv : connectionPaths){
+        if(modulePosition.count(kv.first->source.module) && modulePosition.count(kv.first->target.module)){
+            // for the gradient we need to figur out rough sorce and target indices
+            float x0 = modulePosition.at(kv.first->source.module).x * nodeSize * scale;
+            float y0 = modulePosition.at(kv.first->source.module).y * nodeSize * scale;
+            float x1 = modulePosition.at(kv.first->target.module).x * nodeSize * scale;
+            float y1 = modulePosition.at(kv.first->target.module).y * nodeSize * scale;
+            ColourGradient grad(Colours::yellow, x0, y0, Colours::red, x1, y1, false);
+            g.setGradientFill(grad);
+            g.fillPath(kv.second);
         }
     }
 
@@ -380,9 +307,21 @@ void GraphView::paint (Graphics& g){
             if (pp->at(m).count(p)) {
                 float x0 = modulePosition.at(m).x * gridSize + pp->at(m).at(p).x;
                 float y0 = modulePosition.at(m).y * gridSize + pp->at(m).at(p).y;
-                float x1 = lastMouse.x / scale - 0.5*r;
-                float y1 = lastMouse.y / scale - 0.5*r;
-                drawCable(g, x0, y0, x1, y1, r, nodeSize, scale, true);
+                float x1 = lastMouse.x;
+                float y1 = lastMouse.y;
+                x0 += 0.5f*r;
+                y0 += 0.5f*r;
+                x0 *= scale;
+                y0 *= scale;
+                g.setColour(Colours::green);
+                Path p;
+                PathStrokeType strokeType(1);
+                strokeType.setStrokeThickness(2.5f);
+                strokeType.setEndStyle(PathStrokeType::rounded);
+                p.startNewSubPath(x0, y0);
+                p.lineTo(x1, y1);
+                strokeType.createStrokedPath(p, p);
+                g.fillPath(p);
             }
         }
     }
@@ -397,7 +336,7 @@ void GraphView::resized() {
 
 void GraphView::setGraph(const PhasePhckr::ConnectionGraphDescriptor& graph){
   graphDescriptor = graph;
-  recalculate();
+  initialize();
 }
 
 static void buildPortPositions(
@@ -426,8 +365,9 @@ static void buildPortPositions(
     outputPortPositions[name] = opos;
 }
 
-void GraphView::recalculate(){
+void GraphView::initialize(){
   modulePosition.clear();
+  connectionPaths.clear();
 
   // initial positions
   for(const auto &mv : graphDescriptor.modules){
@@ -513,8 +453,90 @@ void GraphView::recalculate(){
 
   recalculateBounds(true);
 
+  recalculatePaths();
+
 }
 
+static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize, float s){
+    x0 += 0.5f*r;
+    y0 += 0.5f*r;
+    x1 += 0.5f*r;
+    y1 += 0.5f*r;
+
+    x0 *= s;
+    y0 *= s;
+    x1 *= s;
+    y1 *= s;
+
+    nodeSize *= s;
+
+    PathStrokeType strokeType(1);
+    strokeType.setStrokeThickness(1);
+
+    path.startNewSubPath(x0, y0);
+
+    if (y1 <= y0) {
+        float dy = 0.25*nodeSize;
+        float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1);
+        float s = x1 != x0 ? 1 : -1;
+        float x[7]{
+            x0+dx,
+            x0+2*dx,
+
+            x0+3*dx,
+            x1-3*dx*s,
+
+            x1-2*dx*s,
+            x1-dx*s,
+            x1
+        };
+        float y[7]{
+            y0+2*dy,
+            y0+dy,
+
+            y0,
+            y1,
+
+            y1-dy,
+            y1-2*dy,
+            y1
+        };
+        path.quadraticTo(x[0], y[0], x[1], y[1]);
+        path.cubicTo(x[2], y[2], x[3], y[3], x[4], y[4]);
+        path.quadraticTo(x[5], y[5], x[6], y[6]);
+    }
+    else {
+        float d = 0.5*nodeSize;
+        path.cubicTo( x0, y0+d, x1, y1-d, x1, y1 );
+    }
+    strokeType.createStrokedPath(path, path);
+}
+
+
+void GraphView::recalculatePaths(){
+    connectionPaths.clear();
+    for (const auto& mpc : graphDescriptor.connections) {
+        if(modulePosition.count(mpc.source.module) && modulePosition.count(mpc.target.module)){
+            const auto& from = mpc.source.module;
+            const auto& to = mpc.target.module;
+            float x0 = modulePosition.at(from).x * gridSize;
+            float y0 = modulePosition.at(from).y * gridSize;
+            float x1 = modulePosition.at(to).x * gridSize;
+            float y1 = modulePosition.at(to).y * gridSize;
+            if(outputPortPositions.count(from) && inputPortPositions.count(to)){
+                const auto& fromMap = outputPortPositions.at(from);
+                const auto& toMap = inputPortPositions.at(to);
+                if(fromMap.count(mpc.source.port) && toMap.count(mpc.target.port)){
+                    const auto& fromPos = fromMap.at(mpc.source.port);
+                    const auto& toPos = toMap.at(mpc.target.port);
+                    Path p;
+                    calcCable(p, x0+fromPos.x, y0+fromPos.y, x1+toPos.x, y1+toPos.y, r, nodeSize, scale);
+                    connectionPaths.emplace(&mpc, p);
+                }
+            }
+        }
+    }
+}
 
 void GraphView::recalculateBounds(bool force) {
     bool boundChanged = force;

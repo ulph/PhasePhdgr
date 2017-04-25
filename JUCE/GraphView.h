@@ -72,8 +72,9 @@ private:
     int subscribedCGDhandle;
     SubValue<PhasePhckr::ConnectionGraphDescriptor> * subscribedCGD;
     const std::string *clickedComponent;
-    void recalculate();
+    void initialize();
     void recalculateBounds(bool force=false);
+    void recalculatePaths();
     Viewport& parent;
     XY upperBound;
     XY lowerBound;
@@ -87,9 +88,10 @@ private:
     PhasePhckr::ConnectionGraphDescriptor graphDescriptor;
     PhasePhckr::Doc doc;
     std::map<std::string, float> moduleWidthScale;
-    std::map<std::string, XY> modulePosition;
-    std::map< std::string, std::map<std::string, XY>> inputPortPositions;
-    std::map< std::string, std::map<std::string, XY>> outputPortPositions;
+    std::map<std::string, XY> modulePosition; // normalized
+    std::map< std::string, std::map<std::string, XY>> inputPortPositions; // absolute
+    std::map< std::string, std::map<std::string, XY>> outputPortPositions; // absolute
+    std::map< const PhasePhckr::ModulePortConnection*, Path> connectionPaths;
     Wire* connectionInProgress;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

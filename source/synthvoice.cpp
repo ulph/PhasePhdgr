@@ -12,14 +12,14 @@ SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain, const Compon
     , samplesToProcess(0)
     , doTerminate(false)
 {
-    connectionGraph.registerModule("_VOICEINPUT", &VoiceInputBus::factory);
-    connectionGraph.registerModule("_VOICEOUTPUT", &StereoBus::factory);
+    connectionGraph.registerModule(c_VoiceInput.type, &VoiceInputBus::factory);
+    connectionGraph.registerModule(c_VoiceOutput.type, &StereoBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
     ConnectionGraphDescriptor graphDescriptor = voiceChain;
 
-    graphDescriptor.modules.emplace_back(ModuleVariable{ "inBus", "_VOICEINPUT" });
-    graphDescriptor.modules.emplace_back(ModuleVariable{ "outBus", "_VOICEOUTPUT" });
+    graphDescriptor.modules.emplace_back(c_VoiceInput);
+    graphDescriptor.modules.emplace_back(c_VoiceOutput);
 
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(
@@ -29,8 +29,8 @@ SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain, const Compon
         cp
     );
 
-    inBus = moduleHandles["inBus"];
-    outBus = moduleHandles["outBus"];
+    inBus = moduleHandles[c_VoiceInput.name];
+    outBus = moduleHandles[c_VoiceOutput.name];
 
 #if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);

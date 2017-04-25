@@ -8,6 +8,7 @@ set(PH_SRC
     DirectoryWatcher.hpp
     GraphView.cpp
     GraphView.h
+    GraphViewGfx.hpp
     PhasePhckrGrid.cpp
     PhasePhckrGrid.h
     PhasePhckrPluginEditor.cpp

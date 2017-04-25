@@ -78,4 +78,10 @@ void designConnectionGraph(
     const ComponentRegister & cp
 );
 
+
+const ModuleVariable c_EffectInput = {"inBus", "_EFFECTINPUT"};
+const ModuleVariable c_EffectOutput = {"outBus", "_EFFECTOUTPUT"};
+const ModuleVariable c_VoiceInput = {"inBus", "_VOICEINPUT" };
+const ModuleVariable c_VoiceOutput = {"outBus", "_VOICEOUTPUT"};
+
 }

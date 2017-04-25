@@ -86,15 +86,15 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
         voiceGraphViewport,
         voiceDoc,
         &activeVoice,
-        std::make_pair("inBus", PhasePhckr::getVoiceBusInputDoc().type),
-        std::make_pair("outBus", PhasePhckr::getVoiceBusOutputDoc().type)
+        c_VoiceInput,
+        c_VoiceOutput
     )
     , effectGraphView(
         effectGraphViewport,
         effectDoc, 
         &activeEffect, 
-        std::make_pair("inBus", PhasePhckr::getEffectBusInputDoc().type), 
-        std::make_pair("outBus", PhasePhckr::getEffectBusOutputDoc().type)
+        c_EffectInput,
+        c_EffectOutput
     )
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)

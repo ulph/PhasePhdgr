@@ -21,13 +21,11 @@ struct XY {
 
 struct Wire {
     enum state_t {
-        dangling,
-        connected
+        attachedToInput,
+        attachedToOutput
     };
-    state_t fromState;
-    state_t toState;
-    std::pair<std::string, std::string> from;
-    std::pair<std::string, std::string> to;
+    state_t state;
+    std::pair<std::string, std::string> port;
 };
 
 class GraphView : public Component
@@ -44,6 +42,7 @@ public:
         : gridSize(200.0f)
         , nodeSize(100.0f)
         , clickedComponent(nullptr)
+        , connectionInProgress(nullptr)
         , doc(doc)
         , r(7.0f)
         , subscribedCGD(subscribedCGD)
@@ -63,6 +62,7 @@ public:
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;
     virtual void mouseUp(const MouseEvent & event) override;
+    virtual void mouseMove(const MouseEvent & event) override;
     void paint (Graphics& g);
     void resized();
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
@@ -76,6 +76,7 @@ private:
     Viewport& parent;
     XY upperBound;
     XY lowerBound;
+    XY lastMouse;
     float scale;
     float gridSize;
     float nodeSize;
@@ -87,7 +88,7 @@ private:
     std::map<std::string, XY> modulePosition;
     std::map< std::string, std::map<std::string, XY>> inputPortPositions;
     std::map< std::string, std::map<std::string, XY>> outputPortPositions;
-    std::vector<Wire> connectionsInProgress;
+    Wire* connectionInProgress;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };
 

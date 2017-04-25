@@ -19,6 +19,17 @@ struct XY {
     float y;
 };
 
+struct Wire {
+    enum state_t {
+        dangling,
+        connected
+    };
+    state_t fromState;
+    state_t toState;
+    std::pair<std::string, std::string> from;
+    std::pair<std::string, std::string> to;
+};
+
 class GraphView : public Component
 {
 
@@ -76,6 +87,7 @@ private:
     std::map<std::string, XY> modulePosition;
     std::map< std::string, std::map<std::string, XY>> inputPortPositions;
     std::map< std::string, std::map<std::string, XY>> outputPortPositions;
+    std::vector<Wire> connectionsInProgress;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };
 

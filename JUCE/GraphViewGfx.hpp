@@ -257,6 +257,7 @@ struct GfxModule {
 struct GfxWire {
 private:
     Path path;
+    ColourGradient grad;
 public:
     ModulePortConnection connection;
     XY position;
@@ -265,7 +266,7 @@ public:
         return false;
     }
     void draw(Graphics & g) const {
-        g.setColour(Colours::blue);
+        g.setGradientFill(grad);
         g.fillPath(path);
     }
     void calculatePath(const std::vector<GfxModule> & modules) {
@@ -290,6 +291,11 @@ public:
             }
         }
         calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);
+        grad = ColourGradient(
+            Colours::yellow, position.x, position.y,
+            Colours::red, destination.x, destination.y,
+            false
+        );
     }
 
     GfxWire(const ModulePortConnection &connection, const std::vector<GfxModule> & modules)

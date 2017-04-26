@@ -314,11 +314,11 @@ struct GfxGraph {
         XY min(FLT_MAX, FLT_MAX);
         XY max(FLT_MIN, FLT_MIN);
         for (auto &mb : modules) {
-            if ((mb.position.x + mb.size.x + c_NodeSize) > max.x) {
-                max.x = (mb.position.x + mb.size.x + c_NodeSize);
+            if ((mb.position.x + mb.size.x) > max.x) {
+                max.x = (mb.position.x + mb.size.x);
             }
-            if ((mb.position.y + mb.size.y + c_NodeSize) > max.y) {
-                max.y = (mb.position.y + mb.size.y + c_NodeSize);
+            if ((mb.position.y + mb.size.y) > max.y) {
+                max.y = (mb.position.y + mb.size.y);
             }
             if (mb.position.x < min.x) {
                 min.x = mb.position.x;

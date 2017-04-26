@@ -5,7 +5,7 @@
 #include "JuceLibraryCode/JuceHeader.h"
 #include "design.hpp"
 #include <math.h>
-
+#include <float.h>
 
 using namespace PhasePhckr;
 
@@ -311,9 +311,8 @@ struct GfxGraph {
     std::vector<GfxModule> modules;
     std::vector<GfxWire> wires;
     std::pair<XY, XY> getBounds() {
-        // BUGGY
-        XY min(0, 0);
-        XY max(0, 0);
+        XY min(FLT_MAX, FLT_MAX);
+        XY max(FLT_MIN, FLT_MIN);
         for (auto &mb : modules) {
             if ((mb.position.x + mb.size.x + c_NodeSize) > max.x) {
                 max.x = (mb.position.x + mb.size.x + c_NodeSize);
@@ -321,11 +320,11 @@ struct GfxGraph {
             if ((mb.position.y + mb.size.y + c_NodeSize) > max.y) {
                 max.y = (mb.position.y + mb.size.y + c_NodeSize);
             }
-            if ((mb.position.x - c_NodeSize) < min.x) {
-                min.x = mb.position.x - c_NodeSize;
+            if (mb.position.x < min.x) {
+                min.x = mb.position.x;
             }
-            if ((mb.position.y - c_NodeSize) < min.y) {
-                min.y = mb.position.y - c_NodeSize;
+            if (mb.position.y < min.y) {
+                min.y = mb.position.y;
             }
         }
         return std::make_pair(min, max);

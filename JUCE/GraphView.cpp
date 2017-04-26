@@ -54,17 +54,19 @@ void GraphView::mouseMove(const MouseEvent & event) {
     userActionLock.clear(std::memory_order_release);
 }
 
+
 void GraphView::updateBounds(const std::pair<XY, XY>& rectangle) {
     updateBounds(rectangle.first, rectangle.second);
 }
 
+
 void GraphView::updateBounds(const XY & position, const XY & size){
     auto bounds = getBounds();
-    if (bounds.getWidth() < size.x) {
-        bounds.setWidth(size.x);
+    if (bounds.getWidth() < (position.x + size.x)) {
+        bounds.setWidth(position.x + size.x);
     }
-    if (bounds.getHeight() < size.y) {
-        bounds.setHeight(size.y);
+    if (bounds.getHeight() < (position.y + size.y)) {
+        bounds.setHeight(position.y + size.y);
     }
     setBounds(bounds);
 }
@@ -114,6 +116,8 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
 
 
 void GraphView::prepareRenderComponents(){
+
+  float halfSreen = getWidth() * 0.5;
 
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   connectionGraphDescriptor.modules.push_back(inBus);

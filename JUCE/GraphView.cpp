@@ -6,10 +6,10 @@ typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
 
 using namespace PhasePhckr;
 
-
 void GraphView::mouseDown(const MouseEvent & event) {
     parent.setScrollOnDragEnabled(true);
-    for (const auto m : gfxGraph.modules) {
+    while (userActionLock.test_and_set(std::memory_order_acquire));
+    for (const auto m : gfxGraph_userActionCopy.modules) {
         if (m.within(XY(event.x, event.y))) {
             // do stuff
             return;
@@ -23,37 +23,42 @@ void GraphView::mouseDown(const MouseEvent & event) {
             return;
         }
     }
+    userActionLock.clear(std::memory_order_release);
 }
 
 
 void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
-    //
+    while (userActionLock.test_and_set(std::memory_order_acquire));
+    userActionLock.clear(std::memory_order_release);
 }
 
 
 void GraphView::mouseDrag(const MouseEvent & event) {
+    while (userActionLock.test_and_set(std::memory_order_acquire));
     lastMouse.x = event.x;
     lastMouse.y = event.y;
+    userActionLock.clear(std::memory_order_release);
 }
 
 
 void GraphView::mouseUp(const MouseEvent & event) {
-    //
+    while (userActionLock.test_and_set(std::memory_order_acquire));
+    userActionLock.clear(std::memory_order_release);
 }
 
 
 void GraphView::mouseMove(const MouseEvent & event) {
+    while (userActionLock.test_and_set(std::memory_order_acquire));
     lastMouse.x = event.x;
     lastMouse.y = event.y;
+    userActionLock.clear(std::memory_order_release);
 }
 
 
 void GraphView::updateBounds() {
-    // lock before calling
-
     XY min(0, 0);
     XY max(0, 0);
-    for (auto &mb : gfxGraph.modules) {
+    for (auto &mb : gfxGraph_renderCopy.modules) {
         if (mb.position.x+mb.size.x > max.x) {
             max.x = mb.position.x+c_GridSize;
         }
@@ -69,23 +74,25 @@ void GraphView::updateBounds() {
     }
 
     if (min.y < 0) {
-        for (auto &mb : gfxGraph.modules) {
+        for (auto &mb : gfxGraph_renderCopy.modules) {
             mb.position += XY(0, -min.y);
             mb.resizeAndRepositionPorts();
         }
-        for (auto &w : gfxGraph.wires) {
+        for (auto &w : gfxGraph_renderCopy.wires) {
             w.position += XY(0, -min.y);
+            w.destination += XY(0, -min.y);
         }
         max.y -= min.y;
     }
 
     if (min.x < 0) {
-        for (auto &mb : gfxGraph.modules) {
+        for (auto &mb : gfxGraph_renderCopy.modules) {
             mb.position += XY(-min.x, 0);
             mb.resizeAndRepositionPorts();
         }
-        for (auto &w : gfxGraph.wires) {
+        for (auto &w : gfxGraph_renderCopy.wires) {
             w.position += XY(-min.x, 0);
+            w.destination += XY(-min.x, 0);
         }
         max.x -= min.x;
     }
@@ -98,22 +105,23 @@ void GraphView::updateBounds() {
         bounds.setHeight(max.y);
     }
     setBounds(bounds);
-
 }
 
 
 void GraphView::paint (Graphics& g){
     while (renderLock.test_and_set(std::memory_order_acquire));
+
     updateBounds();
-    for(auto &w : gfxGraph.wires){
+    for(auto &w : gfxGraph_renderCopy.wires){
         w.draw(g);
     }
-    for (auto &mb : gfxGraph.modules) {
+    for (auto &mb : gfxGraph_renderCopy.modules) {
         mb.draw(g);
     }
     if (looseWire) {
         looseWire->draw(g);
     }
+
     renderLock.clear(std::memory_order_release);
 }
 
@@ -137,29 +145,32 @@ void updateNodesY(
 
 
 void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
-    while (dataLock.test_and_set(std::memory_order_acquire));
+    while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
     connectionGraphDescriptor = graph;
-    dataLock.clear(std::memory_order_release);
+    connectionGraphDescriptorLock.clear(std::memory_order_release);
     prepareRenderComponents();
 }
 
 
 void GraphView::prepareRenderComponents(){
 
-  while (dataLock.test_and_set(std::memory_order_acquire));
+  while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
+  connectionGraphDescriptor.modules.push_back(inBus);
+  connectionGraphDescriptor.modules.push_back(outBus);
+  auto cgd = connectionGraphDescriptor;
+  connectionGraphDescriptorLock.clear(std::memory_order_release);
 
-  std::map<std::string, XY> modulePositions;
-
-  // initial positions
-  for(const auto &mv : connectionGraphDescriptor.modules){
-    modulePositions[mv.name] = XY(0, INT_MIN);
+  // (convinience) store the connections between nodes
+  ConnectionsMap connections;
+  for (const auto &mpc : cgd.connections) {
+      connections[mpc.source.module].insert(mpc.target.module);
+      connections[mpc.target.module].insert(mpc.source.module);
   }
 
-  // store the connections between nodes
-  ConnectionsMap connections;
-  for(const auto &mpc : connectionGraphDescriptor.connections){
-    connections[mpc.source.module].insert(mpc.target.module);
-    connections[mpc.target.module].insert(mpc.source.module);
+  while (modulePositionsLock.test_and_set(std::memory_order_acquire));
+  // initial positions
+  for(const auto &mv : cgd.modules){
+    modulePositions[mv.name] = XY(0, INT_MIN);
   }
 
   const std::string start = inBus.name;
@@ -188,46 +199,45 @@ void GraphView::prepareRenderComponents(){
 
   // TODO -- traverse X as well
 
-  auto cgd = connectionGraphDescriptor;
+  auto mp = modulePositions;
+  modulePositionsLock.clear(std::memory_order_release);
 
-  dataLock.clear(std::memory_order_release);
-
-  createRenderComponents(modulePositions);
+  updateRenderComponents(cgd, mp);
 
 }
 
-void GraphView::createRenderComponents(const std::map<std::string, XY> & modulePositions) {
+
+void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy, const std::map<std::string, XY> & mp_copy) {
     // create the renderable structures
-    while (dataLock.test_and_set(std::memory_order_acquire));
-    while (renderLock.test_and_set(std::memory_order_acquire));
 
-    gfxGraph = GfxGraph();
+    GfxGraph gfxGraph = GfxGraph();
 
-    std::vector<ModuleVariable> modules = connectionGraphDescriptor.modules; 
-    modules.push_back(inBus);
-    modules.push_back(outBus);
-    for (const auto & m : modules) {
+    for (const auto & m : cgd_copy.modules) {
         gfxGraph.modules.emplace_back(
             GfxModule(
                 m, 
-                modulePositions.at(m.name).x, 
-                modulePositions.at(m.name).y, 
+                mp_copy.at(m.name).x,
+                mp_copy.at(m.name).y,
                 1.0, 
                 1.0, 
                 doc, 
-                connectionGraphDescriptor.values
+                cgd_copy.values
             )
         );
     }
 
-    for (const auto & m : connectionGraphDescriptor.connections) {
-        /*
+    for (const auto & c : cgd_copy.connections) {
         gfxGraph.wires.emplace_back(
-            GfxWire()
+            GfxWire(c, gfxGraph.modules)
         );
-        */
     }
 
+    while (renderLock.test_and_set(std::memory_order_acquire));
+    gfxGraph_renderCopy = gfxGraph;
     renderLock.clear(std::memory_order_release);
-    dataLock.clear(std::memory_order_release);
+
+    while (userActionLock.test_and_set(std::memory_order_acquire));
+    gfxGraph_userActionCopy = gfxGraph;
+    userActionLock.clear(std::memory_order_release);
+
 }

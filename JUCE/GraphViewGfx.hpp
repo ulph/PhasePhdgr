@@ -95,8 +95,8 @@ inline XY operator-(XY lhs, const XY& rhs)
     return lhs;
 }
 
-class GfxLooseWire {
-public:
+struct GfxLooseWire {
+
     bool attachedAtSource;
     XY position;
     XY destination;
@@ -106,33 +106,16 @@ public:
 };
 
 
-class GfxWire {
-private:
-    Path path;
-    ModulePortConnection connection;
-public:
-    XY position;
-    XY destination;
-    bool within(XY p, bool & nearSource) const {
-        return false;
-    }
-    void draw(Graphics & gl) const {
-        /* */
-    }
-    GfxWire() {
+struct GfxPort {
 
-    }
-};
-
-
-class GfxPort {
-private:
     std::string port;
+    std::string unit;
     bool connected;
     float value;
-public:
+    bool isInput;
     float size = c_PortSize;
     XY position;
+
     bool within(XY p) const {
         return (p.x > position.x
             && p.x < position.x + size
@@ -140,26 +123,27 @@ public:
             && p.y < position.y + size
             );
     }
+
     void draw(Graphics & g) const {
         g.setColour(Colours::black);
         g.fillEllipse(position.x, position.y, size, size);
         g.setColour(Colours::grey);
         g.drawEllipse(position.x, position.y, size, size, 1.0f);
-        g.drawText(port, position.x - size, position.y + 1.5f*size, 3 * size, size, Justification::centred);
+        g.drawText(port, position.x - size, position.y + (isInput?1:-2)*1.5f*size, 3 * size, size, Justification::centred);
     }
-    XY getPosition() const { return position; }
-    std::string getPort() const { return port; }
+
+    GfxPort(std::string port, const std::string unit, float value, bool isInput) 
+        : port(port), unit(unit), value(value), isInput(isInput)
+    {}
 };
 
 
-class GfxModule {
+struct GfxModule {
 
-private:
-    ModuleVariable module;
     std::vector<GfxPort> inputs;
     std::vector<GfxPort> outputs;
 
-public:
+    ModuleVariable module;
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
 
@@ -195,16 +179,16 @@ public:
     bool withinPort(XY p, XY& portPosition, std::string& portName, bool & inputPort) const {
         for (const auto & ip : inputs) {
             if (ip.within(p)) {
-                portPosition = ip.getPosition();
-                portName = ip.getPort();
+                portPosition = ip.position;
+                portName = ip.port;
                 inputPort = true;
                 return true;
             }
         }
         for (const auto & op : outputs) {
             if (op.within(p)) {
-                portPosition = op.getPosition();
-                portName = op.getPort();
+                portPosition = op.position;
+                portName = op.port;
                 inputPort = false;
                 return true;
             }
@@ -246,8 +230,9 @@ public:
         }
     }
 
-    GfxModule(const ModuleVariable & mv, int x, int y, float h, float w, const Doc & doc, const std::vector<ModulePortValue> &mpv) {
-        module = mv;
+    GfxModule(const ModuleVariable & mv, int x, int y, float h, float w, const Doc & doc, const std::vector<ModulePortValue> &mpv) 
+        : module(mv)
+    {
         size = XY(h*c_NodeSize, w*c_NodeSize);
         position.y = y * c_GridSize;
         position.x = x * c_GridSize;
@@ -255,13 +240,57 @@ public:
         if (d.count(mv.type)) {
             const auto & dd = d.at(mv.type);
             for (auto p : dd.inputs) {
-                inputs.emplace_back(GfxPort());
+                inputs.emplace_back(GfxPort(p.name, p.unit, p.value, true));
             }
             for (auto p : dd.outputs) {
-                outputs.emplace_back(GfxPort());
+                outputs.emplace_back(GfxPort(p.name, p.unit, p.value, false));
             }
         }
         resizeAndRepositionPorts();
+    }
+
+};
+
+
+struct GfxWire {
+private:
+    Path path;
+public:
+    ModulePortConnection connection;
+    XY position;
+    XY destination;
+    bool within(XY p, bool & nearSource) const {
+        return false;
+    }
+    void draw(Graphics & g) const {
+        g.setColour(Colours::blue);
+        g.fillPath(path);
+    }
+    void calculatePath(const std::vector<GfxModule> & modules) {
+        for (const auto & m : modules) {
+            if (m.module.name == connection.source.module) {
+                for (const auto & p : m.outputs) {
+                    if (p.port == connection.source.port) {
+                        position = p.position;
+                    }
+                }
+            }
+        }
+        for (const auto & m : modules) {
+            if (m.module.name == connection.target.module) {
+                for (const auto & p : m.inputs) {
+                    if (p.port == connection.target.port) {
+                        destination = p.position;
+                    }
+                }
+            }
+        }
+        calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);
+    }
+
+    GfxWire(const ModulePortConnection &connection, const std::vector<GfxModule> & modules)
+        : connection(connection) 
+    {
     }
 
 };

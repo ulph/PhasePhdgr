@@ -12,7 +12,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
     for (const auto m : gfxGraph_userActionCopy.modules) {
         if (m.within(XY(event.x, event.y))) {
             // do stuff
-            return;
+            break;
         }
 
         std::string name;
@@ -20,7 +20,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         XY position;
         if (m.withinPort(XY(event.x, event.y), position, name, inputPort)) {
             // do stuff
-            return;
+            break;
         }
     }
     userActionLock.clear(std::memory_order_release);
@@ -55,54 +55,13 @@ void GraphView::mouseMove(const MouseEvent & event) {
 }
 
 
-void GraphView::updateBounds() {
-    XY min(0, 0);
-    XY max(0, 0);
-    for (auto &mb : gfxGraph_renderCopy.modules) {
-        if (mb.position.x+mb.size.x > max.x) {
-            max.x = mb.position.x+c_GridSize;
-        }
-        if (mb.position.y+mb.size.y > max.y) {
-            max.y = mb.position.y+c_GridSize;
-        }
-        if (mb.position.x-c_NodeSize < min.x) {
-            min.x = mb.position.x-c_NodeSize;
-        }
-        if (mb.position.y-c_NodeSize < min.y) {
-            min.y = mb.position.y-c_NodeSize;
-        }
-    }
-
-    if (min.y < 0) {
-        for (auto &mb : gfxGraph_renderCopy.modules) {
-            mb.position += XY(0, -min.y);
-            mb.resizeAndRepositionPorts();
-        }
-        for (auto &w : gfxGraph_renderCopy.wires) {
-            w.position += XY(0, -min.y);
-            w.destination += XY(0, -min.y);
-        }
-        max.y -= min.y;
-    }
-
-    if (min.x < 0) {
-        for (auto &mb : gfxGraph_renderCopy.modules) {
-            mb.position += XY(-min.x, 0);
-            mb.resizeAndRepositionPorts();
-        }
-        for (auto &w : gfxGraph_renderCopy.wires) {
-            w.position += XY(-min.x, 0);
-            w.destination += XY(-min.x, 0);
-        }
-        max.x -= min.x;
-    }
-
+void GraphView::updateBounds(const XY & size){
     auto bounds = getBounds();
-    if (bounds.getWidth() < max.x) {
-        bounds.setWidth(max.x);
+    if (bounds.getWidth() < size.x) {
+        bounds.setWidth(size.x);
     }
-    if (bounds.getHeight() < max.y) {
-        bounds.setHeight(max.y);
+    if (bounds.getHeight() < size.y) {
+        bounds.setHeight(size.y);
     }
     setBounds(bounds);
 }
@@ -111,7 +70,6 @@ void GraphView::updateBounds() {
 void GraphView::paint (Graphics& g){
     while (renderLock.test_and_set(std::memory_order_acquire));
 
-    updateBounds();
     for(auto &w : gfxGraph_renderCopy.wires){
         w.draw(g);
     }
@@ -218,8 +176,6 @@ void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy
                 m, 
                 mp_copy.at(m.name).x,
                 mp_copy.at(m.name).y,
-                1.0, 
-                1.0, 
                 doc, 
                 cgd_copy.values
             )
@@ -230,6 +186,14 @@ void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy
         gfxGraph.wires.emplace_back(
             GfxWire(c, gfxGraph.modules)
         );
+    }
+
+    const auto& bounds = gfxGraph.getBounds();
+    XY delta(0, 0);
+    if (bounds.first.x < 0) delta.x = -bounds.first.x;
+    if (bounds.first.y < 0) delta.y = -bounds.first.y;
+    if (delta) {
+        gfxGraph.moveDelta(delta);
     }
 
     while (renderLock.test_and_set(std::memory_order_acquire));

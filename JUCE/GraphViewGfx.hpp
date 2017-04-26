@@ -80,6 +80,9 @@ struct XY {
         y -= rhs.y;
         return *this;
     }
+    operator bool() const {
+        return x == 0 && y == 0;
+    }
     operator Rectangle<float>() const {
         return Rectangle<float>(0, 0, x, y);
     }
@@ -147,12 +150,7 @@ struct GfxModule {
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
 
-    void resizeAndRepositionPorts() {
-        size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
-        if(max_p > 3.0f){
-            size.x += c_NodeSize*(max_p - 3.0f) / 6.0f;
-        }
-
+    void repositionPorts() {
         for (auto it = inputs.begin(); it != inputs.end(); ++it)
         {
             float n = std::distance(inputs.begin(), it);
@@ -230,10 +228,10 @@ struct GfxModule {
         }
     }
 
-    GfxModule(const ModuleVariable & mv, int x, int y, float h, float w, const Doc & doc, const std::vector<ModulePortValue> &mpv) 
+    GfxModule(const ModuleVariable & mv, int x, int y, const Doc & doc, const std::vector<ModulePortValue> &mpv) 
         : module(mv)
     {
-        size = XY(h*c_NodeSize, w*c_NodeSize);
+        size = XY(c_NodeSize, c_NodeSize);
         position.y = y * c_GridSize;
         position.x = x * c_GridSize;
         const auto d = doc.get();
@@ -246,7 +244,11 @@ struct GfxModule {
                 outputs.emplace_back(GfxPort(p.name, p.unit, p.value, false));
             }
         }
-        resizeAndRepositionPorts();
+        size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
+        if (max_p > 3.0f) {
+            size.x = c_NodeSize + c_NodeSize*(max_p - 3.0f) / 6.0f;
+        }
+        repositionPorts();
     }
 
 };
@@ -272,6 +274,7 @@ public:
                 for (const auto & p : m.outputs) {
                     if (p.port == connection.source.port) {
                         position = p.position;
+                        break;
                     }
                 }
             }
@@ -281,6 +284,7 @@ public:
                 for (const auto & p : m.inputs) {
                     if (p.port == connection.target.port) {
                         destination = p.position;
+                        break;
                     }
                 }
             }
@@ -291,6 +295,7 @@ public:
     GfxWire(const ModulePortConnection &connection, const std::vector<GfxModule> & modules)
         : connection(connection) 
     {
+        calculatePath(modules);
     }
 
 };
@@ -299,4 +304,34 @@ public:
 struct GfxGraph {
     std::vector<GfxModule> modules;
     std::vector<GfxWire> wires;
+    std::pair<XY, XY> getBounds() {
+        XY min(0, 0);
+        XY max(0, 0);
+        for (auto &mb : modules) {
+            if (mb.position.x + mb.size.x > max.x) {
+                max.x = mb.position.x + c_GridSize;
+            }
+            if (mb.position.y + mb.size.y > max.y) {
+                max.y = mb.position.y + c_GridSize;
+            }
+            if (mb.position.x - c_NodeSize < min.x) {
+                min.x = mb.position.x - c_NodeSize;
+            }
+            if (mb.position.y - c_NodeSize < min.y) {
+                min.y = mb.position.y - c_NodeSize;
+            }
+        }
+        return std::make_pair(min, max);
+    }
+    void moveDelta(XY delta) {
+        for (auto &mb : modules) {
+            mb.position += delta;
+            mb.repositionPorts();
+        }
+        for (auto &w : wires) {
+            w.position += delta;
+            w.destination += delta;
+            w.calculatePath(modules);
+        }
+    }
 };

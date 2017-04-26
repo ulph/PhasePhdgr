@@ -67,7 +67,8 @@ public:
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
 private:
-    void updateBounds(const XY & size);
+    void updateBounds(const std::pair<XY, XY>& rectange);
+    void updateBounds(const XY & position, const XY & size);
 
     void setGraph(const ConnectionGraphDescriptor& graph);
     void prepareRenderComponents(); // call _only_ from setGraph

@@ -311,19 +311,20 @@ struct GfxGraph {
     std::vector<GfxModule> modules;
     std::vector<GfxWire> wires;
     std::pair<XY, XY> getBounds() {
+        // BUGGY
         XY min(0, 0);
         XY max(0, 0);
         for (auto &mb : modules) {
-            if (mb.position.x + mb.size.x > max.x) {
-                max.x = mb.position.x + c_GridSize;
+            if ((mb.position.x + mb.size.x + c_NodeSize) > max.x) {
+                max.x = (mb.position.x + mb.size.x + c_NodeSize);
             }
-            if (mb.position.y + mb.size.y > max.y) {
-                max.y = mb.position.y + c_GridSize;
+            if ((mb.position.y + mb.size.y + c_NodeSize) > max.y) {
+                max.y = (mb.position.y + mb.size.y + c_NodeSize);
             }
-            if (mb.position.x - c_NodeSize < min.x) {
+            if ((mb.position.x - c_NodeSize) < min.x) {
                 min.x = mb.position.x - c_NodeSize;
             }
-            if (mb.position.y - c_NodeSize < min.y) {
+            if ((mb.position.y - c_NodeSize) < min.y) {
                 min.y = mb.position.y - c_NodeSize;
             }
         }

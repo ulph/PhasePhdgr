@@ -58,7 +58,7 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         draggedModule->position.y = event.y - draggedModule->size.y * 0.5;
         draggedModule->repositionPorts();
         auto mv = std::vector<GfxModule>{ *draggedModule };
-        for (auto w : gfxGraph.wires) {
+        for (auto &w : gfxGraph.wires) {
             w.calculatePath(mv);
         }
     }

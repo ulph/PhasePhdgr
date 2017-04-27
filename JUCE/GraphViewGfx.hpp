@@ -103,8 +103,15 @@ struct GfxLooseWire {
     bool attachedAtSource;
     XY position;
     XY destination;
-    void draw(Graphics & gl) const {
-        /* */
+    void draw(Graphics & g) const {
+        g.setColour(Colours::green);
+        g.drawLine(
+            position.x + c_PortSize*0.5,
+            position.y + c_PortSize*0.5,
+            destination.x + c_PortSize*0.5,
+            destination.y + c_PortSize*0.5,
+            c_PortSize * 0.5
+        );
     }
 };
 
@@ -113,26 +120,24 @@ struct GfxPort {
 
     std::string port;
     std::string unit;
-//    bool connected;
     float value;
     bool isInput;
-    float size = c_PortSize;
     XY position;
 
     bool within(XY p) const {
         return (p.x > position.x
-            && p.x < position.x + size
+            && p.x < position.x + c_PortSize
             && p.y > position.y
-            && p.y < position.y + size
+            && p.y < position.y + c_PortSize
             );
     }
 
     void draw(Graphics & g) const {
         g.setColour(Colours::black);
-        g.fillEllipse(position.x, position.y, size, size);
+        g.fillEllipse(position.x, position.y, c_PortSize, c_PortSize);
         g.setColour(Colours::grey);
-        g.drawEllipse(position.x, position.y, size, size, 1.0f);
-        g.drawText(port, position.x - size, position.y + (isInput?1:-2)*1.5f*size, 3 * size, size, Justification::centred);
+        g.drawEllipse(position.x, position.y, c_PortSize, c_PortSize, 1.0f);
+        g.drawText(port, position.x - c_PortSize, position.y + (isInput?1:-2)*1.5f*c_PortSize, 3 * c_PortSize, c_PortSize, Justification::centred);
     }
 
     GfxPort(std::string port, const std::string unit, float value, bool isInput) 
@@ -154,15 +159,15 @@ struct GfxModule {
         for (auto it = inputs.begin(); it != inputs.end(); ++it)
         {
             float n = std::distance(inputs.begin(), it);
-            it->position.x = position.x + (n + 0.5f) / inputs.size() * size.x - 0.5f*it->size;
-            it->position.y = position.y - 0.5*it->size;
+            it->position.x = position.x + (n + 0.5f) / inputs.size() * size.x - 0.5f*c_PortSize;
+            it->position.y = position.y - 0.5*c_PortSize;
         }
 
         for (auto it = outputs.begin(); it != outputs.end(); ++it)
         {
             float n = std::distance(outputs.begin(), it);
-            it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*it->size;
-            it->position.y = position.y + size.y - 0.5*it->size;
+            it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
+            it->position.y = position.y + size.y - 0.5*c_PortSize;
         }
     }
 
@@ -300,7 +305,7 @@ public:
             grad = ColourGradient(
                 Colours::yellow, position.x, position.y,
                 Colours::red, destination.x, destination.y,
-                false
+                true
             );
         }
     }

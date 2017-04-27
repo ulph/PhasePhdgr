@@ -294,14 +294,15 @@ public:
             if (foundTarget && foundSource) break;
         }
 
-        if (!foundSource && foundTarget) return;
-        path = Path();
-        calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);
-        grad = ColourGradient(
-            Colours::yellow, position.x, position.y,
-            Colours::red, destination.x, destination.y,
-            false
-        );
+        if (foundSource || foundTarget) {
+            path.clear();
+            calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);
+            grad = ColourGradient(
+                Colours::yellow, position.x, position.y,
+                Colours::red, destination.x, destination.y,
+                false
+            );
+        }
     }
 
     GfxWire(const ModulePortConnection &connection, const std::vector<GfxModule> & modules)

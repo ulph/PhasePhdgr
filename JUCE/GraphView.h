@@ -58,9 +58,9 @@ private:
     void updateBounds(const XY & position, const XY & size);
 
     void setGraph(const ConnectionGraphDescriptor& graph);
-    void prepareRenderComponents(); // call _only_ from setGraph
-
     void propagateUserModelChange();
+    std::atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
+    std::vector<ModulePortValue> valuesCopy; // TODO, figure out a better strategy like a map on GfxGraph
 
     // make a copy data structures before calling
     void updateRenderComponents(
@@ -76,9 +76,6 @@ private:
     const ModuleVariable inBus;
     const ModuleVariable outBus;
     const Doc doc;
-
-    std::atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
-    ConnectionGraphDescriptor connectionGraphDescriptor;
 
     std::atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
     GfxGraph gfxGraph;

@@ -8,8 +8,24 @@ using namespace PhasePhckr;
 
 
 void GraphView::propagateUserModelChange() {
-
     repaint();
+
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    GfxGraph gfxGraph_cpy = gfxGraph;
+    gfxGraphLock.clear(std::memory_order_release);
+
+    ConnectionGraphDescriptor graph;
+    for (const auto &m : gfxGraph_cpy.modules) {
+        if (m.module.name == inBus.name || m.module.name == outBus.name) continue;
+        graph.modules.emplace_back(m.module);
+    }
+    for (const auto &w : gfxGraph_cpy.wires) {
+        graph.connections.emplace_back(w.connection);
+    }
+
+    graph.values = valuesCopy;
+
+    subscribedCGD->set(subscribedCGDhandle, graph);
 }
 
 
@@ -170,23 +186,19 @@ void updateNodesY(
 
 
 void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
-    while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
-    connectionGraphDescriptor = graph;
-    connectionGraphDescriptorLock.clear(std::memory_order_release);
-    prepareRenderComponents();
-}
+  while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
+  ConnectionGraphDescriptor connectionGraphDescriptor = graph;
+  connectionGraphDescriptorLock.clear(std::memory_order_release);
 
+  valuesCopy = connectionGraphDescriptor.values;
 
-void GraphView::prepareRenderComponents(){
   std::map<std::string, XY> modulePositions;
 
   float halfSreen = getWidth() * 0.5;
 
-  while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   connectionGraphDescriptor.modules.push_back(inBus);
   connectionGraphDescriptor.modules.push_back(outBus);
   auto cgd = connectionGraphDescriptor;
-  connectionGraphDescriptorLock.clear(std::memory_order_release);
 
   // (convinience) store the connections between nodes
   ConnectionsMap connections;

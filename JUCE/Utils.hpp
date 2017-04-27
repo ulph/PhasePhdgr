@@ -30,7 +30,6 @@ private:
 template <class T>
 class SubValue {
 private:
-    T value;
     int ctr;
     std::map<int, std::function<void(const T&)>> listeners;
 public:
@@ -43,10 +42,9 @@ public:
         listeners.erase(handle);
     }
     void set(int handle, const T& newValue) {
-        value = newValue;
         for (const auto &l : listeners) {
             if (l.first != handle) {
-                l.second(value);
+                l.second(newValue);
             }
         }
     }

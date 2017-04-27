@@ -99,7 +99,7 @@ inline XY operator-(XY lhs, const XY& rhs)
 }
 
 struct GfxLooseWire {
-
+    ModulePort attachedPort;
     bool attachedAtSource;
     XY position;
     XY destination;
@@ -113,7 +113,7 @@ struct GfxPort {
 
     std::string port;
     std::string unit;
-    bool connected;
+//    bool connected;
     float value;
     bool isInput;
     float size = c_PortSize;
@@ -270,11 +270,14 @@ public:
         g.fillPath(path);
     }
     void calculatePath(const std::vector<GfxModule> & modules) {
+        bool foundSource = false;
+        bool foundTarget = false;
         for (const auto & m : modules) {
             if (m.module.name == connection.source.module) {
                 for (const auto & p : m.outputs) {
                     if (p.port == connection.source.port) {
                         position = p.position;
+                        foundSource = true;
                         break;
                     }
                 }
@@ -285,11 +288,14 @@ public:
                 for (const auto & p : m.inputs) {
                     if (p.port == connection.target.port) {
                         destination = p.position;
+                        foundTarget = true;
                         break;
                     }
                 }
             }
         }
+        if (!foundSource && foundTarget) return;
+        path = Path();
         calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);
         grad = ColourGradient(
             Colours::yellow, position.x, position.y,

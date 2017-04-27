@@ -6,52 +6,88 @@ typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
 
 using namespace PhasePhckr;
 
+
+void GraphView::propagateUserModelChange() {
+
+    repaint();
+}
+
+
 void GraphView::mouseDown(const MouseEvent & event) {
     parent.setScrollOnDragEnabled(true);
-    while (userActionLock.test_and_set(std::memory_order_acquire));
-    for (const auto m : gfxGraph_userActionCopy.modules) {
-        if (m.within(XY(event.x, event.y))) {
-            // do stuff
-            break;
-        }
-
-        std::string name;
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    for (auto & m : gfxGraph.modules) {
+        std::string port;
         bool inputPort;
         XY position;
-        if (m.withinPort(XY(event.x, event.y), position, name, inputPort)) {
-            // do stuff
+        if (m.withinPort(XY(event.x, event.y), position, port, inputPort)) {
+            delete looseWire;
+            looseWire = new GfxLooseWire();
+            looseWire->position = position;
+            looseWire->destination.x = event.x;
+            looseWire->destination.y = event.y;
+            looseWire->attachedAtSource = !inputPort;
+            looseWire->attachedPort = { m.module.name, port };
+            parent.setScrollOnDragEnabled(false);
+            break;
+        }
+        if (m.within(XY(event.x, event.y))) {
+            draggedModule = &m;
+            parent.setScrollOnDragEnabled(false);
             break;
         }
     }
-    userActionLock.clear(std::memory_order_release);
+    for (auto w : gfxGraph.wires) {
+        // TODO - grap a wire
+    }
+    gfxGraphLock.clear(std::memory_order_release);
 }
 
 
 void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
-    while (userActionLock.test_and_set(std::memory_order_acquire));
-    userActionLock.clear(std::memory_order_release);
+
 }
 
 
 void GraphView::mouseDrag(const MouseEvent & event) {
-    while (userActionLock.test_and_set(std::memory_order_acquire));
-    lastMouse.x = event.x;
-    lastMouse.y = event.y;
-    userActionLock.clear(std::memory_order_release);
+    bool modelChanged = false;
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    if (draggedModule) {
+        modelChanged = true;
+        draggedModule->position.x = event.x - draggedModule->size.x * 0.5;
+        draggedModule->position.y = event.y - draggedModule->size.y * 0.5;
+        draggedModule->repositionPorts();
+        auto mv = std::vector<GfxModule>{ *draggedModule };
+        for (auto w : gfxGraph.wires) {
+            w.calculatePath(mv);
+        }
+    }
+    if (looseWire) {
+        looseWire->destination.x = event.x;
+        looseWire->destination.y = event.y;
+    }
+    gfxGraphLock.clear(std::memory_order_release);
+    if (modelChanged) propagateUserModelChange();
 }
 
 
 void GraphView::mouseUp(const MouseEvent & event) {
-    while (userActionLock.test_and_set(std::memory_order_acquire));
-    userActionLock.clear(std::memory_order_release);
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    bool modelChanged = false;
+    draggedModule = nullptr;
+    if (looseWire) {
+        for (auto m : gfxGraph.modules) {
+            // do stuff
+        }
+    }
+    delete looseWire;
+    gfxGraphLock.clear(std::memory_order_release);
+    if (modelChanged) propagateUserModelChange();
 }
 
 
 void GraphView::mouseMove(const MouseEvent & event) {
-    while (userActionLock.test_and_set(std::memory_order_acquire));
-    lastMouse.x = event.x;
-    lastMouse.y = event.y;
-    userActionLock.clear(std::memory_order_release);
+
 }
 
 
@@ -73,19 +109,21 @@ void GraphView::updateBounds(const XY & position, const XY & size){
 
 
 void GraphView::paint (Graphics& g){
-    while (renderLock.test_and_set(std::memory_order_acquire));
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
 
-    for(auto &w : gfxGraph_renderCopy.wires){
+    g.fillAll(Colours::black);
+
+    for(auto &w : gfxGraph.wires){
         w.draw(g);
     }
-    for (auto &mb : gfxGraph_renderCopy.modules) {
+    for (auto &mb : gfxGraph.modules) {
         mb.draw(g);
     }
     if (looseWire) {
         looseWire->draw(g);
     }
 
-    renderLock.clear(std::memory_order_release);
+    gfxGraphLock.clear(std::memory_order_release);
 }
 
 
@@ -116,6 +154,7 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
 
 
 void GraphView::prepareRenderComponents(){
+  std::map<std::string, XY> modulePositions;
 
   float halfSreen = getWidth() * 0.5;
 
@@ -132,7 +171,6 @@ void GraphView::prepareRenderComponents(){
       connections[mpc.target.module].insert(mpc.source.module);
   }
 
-  while (modulePositionsLock.test_and_set(std::memory_order_acquire));
   // initial positions
   for(const auto &mv : cgd.modules){
     modulePositions[mv.name] = XY(0, INT_MIN);
@@ -164,25 +202,24 @@ void GraphView::prepareRenderComponents(){
 
   // TODO -- traverse X as well
 
-  auto mp = modulePositions;
-  modulePositionsLock.clear(std::memory_order_release);
-
-  updateRenderComponents(cgd, mp);
+  updateRenderComponents(cgd, modulePositions);
 
 }
 
 
-void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy, const std::map<std::string, XY> & mp_copy) {
+void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy, const std::map<std::string, XY> & mp) {
     // create the renderable structures
 
-    GfxGraph gfxGraph = GfxGraph();
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+
+    gfxGraph = GfxGraph();
 
     for (const auto & m : cgd_copy.modules) {
         gfxGraph.modules.emplace_back(
             GfxModule(
                 m, 
-                mp_copy.at(m.name).x,
-                mp_copy.at(m.name).y,
+                mp.at(m.name).x,
+                mp.at(m.name).y,
                 doc, 
                 cgd_copy.values
             )
@@ -203,14 +240,9 @@ void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy
         gfxGraph.moveDelta(delta);
         bounds = gfxGraph.getBounds();
     }
+
+    gfxGraphLock.clear(std::memory_order_release);
+
     updateBounds(bounds);
-
-    while (renderLock.test_and_set(std::memory_order_acquire));
-    gfxGraph_renderCopy = gfxGraph;
-    renderLock.clear(std::memory_order_release);
-
-    while (userActionLock.test_and_set(std::memory_order_acquire));
-    gfxGraph_userActionCopy = gfxGraph;
-    userActionLock.clear(std::memory_order_release);
 
 }

@@ -252,8 +252,6 @@ void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy
     gfxGraph = GfxGraph();
 
     for (const auto & m : cgd_copy.modules) {
-        if (m.name == inBus.name || m.name == outBus.name) continue;
-        if (m.type == inBus.type || m.type == outBus.type) continue;
         gfxGraph.modules.emplace_back(
             GfxModule(
                 m, 

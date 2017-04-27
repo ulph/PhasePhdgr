@@ -17,6 +17,7 @@ void GraphView::propagateUserModelChange() {
     ConnectionGraphDescriptor graph;
     for (const auto &m : gfxGraph_cpy.modules) {
         if (m.module.name == inBus.name || m.module.name == outBus.name) continue;
+        if (m.module.type == inBus.type || m.module.type == outBus.type) continue;
         graph.modules.emplace_back(m.module);
     }
     for (const auto &w : gfxGraph_cpy.wires) {
@@ -251,6 +252,8 @@ void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy
     gfxGraph = GfxGraph();
 
     for (const auto & m : cgd_copy.modules) {
+        if (m.name == inBus.name || m.name == outBus.name) continue;
+        if (m.type == inBus.type || m.type == outBus.type) continue;
         gfxGraph.modules.emplace_back(
             GfxModule(
                 m, 

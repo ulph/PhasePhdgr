@@ -273,7 +273,7 @@ public:
         bool foundSource = false;
         bool foundTarget = false;
         for (const auto & m : modules) {
-            if (m.module.name == connection.source.module) {
+            if (!foundSource && m.module.name == connection.source.module) {
                 for (const auto & p : m.outputs) {
                     if (p.port == connection.source.port) {
                         position = p.position;
@@ -282,9 +282,7 @@ public:
                     }
                 }
             }
-        }
-        for (const auto & m : modules) {
-            if (m.module.name == connection.target.module) {
+            if (!foundTarget && m.module.name == connection.target.module) {
                 for (const auto & p : m.inputs) {
                     if (p.port == connection.target.port) {
                         destination = p.position;
@@ -293,7 +291,9 @@ public:
                     }
                 }
             }
+            if (foundTarget && foundSource) break;
         }
+
         if (!foundSource && foundTarget) return;
         path = Path();
         calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);

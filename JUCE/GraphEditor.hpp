@@ -123,7 +123,7 @@ public:
         grid.addComponent(&textEditor);
         grid.addComponent(&viewPort);
         grid.addComponent(&docGrid);
-        grid.setColoumns({0.25f, 0.5f, 0.25f});
+        grid.setColoumns({0.125f, 0.75f, 0.125f});
         docGrid.addComponent(&docView);
         docGrid.addComponent(&docList);
         docGrid.setColoumns({1.0f});

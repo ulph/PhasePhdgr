@@ -99,7 +99,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     scopeGrid.addComponent(&outputScopeL);
     scopeGrid.addComponent(&outputScopeXY);
     scopeGrid.addComponent(&outputScopeR);
-    scopeGrid.setColoumns({1.0f, 1.0f, 1.0f});
+    scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
     mainFrame.addTab("perform", g_tabColor, &performGrid, false);
     mainFrame.addTab("voice", g_tabColor, &voiceEditor, false);

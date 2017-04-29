@@ -27,13 +27,15 @@ void PhasePhckrGrid::resized(){
   float x = 0;
   for(auto &c : gridComponents){
     //indices
+    if ((i % coloumnSizes.size()) == 0) { x = 0; }
     float w = coloumnSizes[i%coloumnSizes.size()];
     float y = i/coloumnSizes.size();
+
     // set positions/size
     c->setBoundsRelative(
       x + 0.001f,// x
       y/(float)numberOfRows + 0.001f,       // y
-      x+w - 0.002f,            // w
+      x + w - 0.002f,            // w
       1.f/(float)numberOfRows - 0.002f      // h
     );
     x += w;

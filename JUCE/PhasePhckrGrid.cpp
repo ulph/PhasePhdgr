@@ -40,7 +40,6 @@ void PhasePhckrGrid::resized(){
     );
     x += w;
     i++;
-    c->resized();
   }
   repaint();
 }

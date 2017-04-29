@@ -6,8 +6,10 @@
 #include "design.hpp"
 #include <math.h>
 #include <float.h>
+#include <list>
 
 using namespace PhasePhckr;
+using namespace std;
 
 const float c_GridSize = 200;
 const float c_NodeSize = 100;
@@ -98,38 +100,22 @@ inline XY operator-(XY lhs, const XY& rhs)
     return lhs;
 }
 
-struct GfxLooseWire {
-    ModulePort attachedPort;
-    bool attachedAtSource;
-    XY position;
-    XY destination;
-    void draw(Graphics & g) const {
-        g.setColour(Colours::green);
-        g.drawLine(
-            position.x + c_PortSize*0.5,
-            position.y + c_PortSize*0.5,
-            destination.x + c_PortSize*0.5,
-            destination.y + c_PortSize*0.5,
-            c_PortSize * 0.5
-        );
-    }
-};
-
 
 struct GfxPort {
 
-    std::string port;
-    std::string unit;
+    string port;
+    string unit;
     float value;
     bool isInput;
     XY position;
 
     bool within(XY p) const {
-        return (p.x > position.x
-            && p.x < position.x + c_PortSize
-            && p.y > position.y
-            && p.y < position.y + c_PortSize
-            );
+        return (
+           p.x > position.x - c_PortSize
+        && p.x < position.x + c_PortSize*2
+        && p.y > position.y - c_PortSize
+        && p.y < position.y + c_PortSize*2
+        );
     }
 
     void draw(Graphics & g) const {
@@ -140,7 +126,7 @@ struct GfxPort {
         g.drawText(port, position.x - c_PortSize, position.y + (isInput?1:-2)*1.5f*c_PortSize, 3 * c_PortSize, c_PortSize, Justification::centred);
     }
 
-    GfxPort(std::string port, const std::string unit, float value, bool isInput) 
+    GfxPort(string port, const string unit, float value, bool isInput) 
         : port(port), unit(unit), value(value), isInput(isInput)
     {}
 };
@@ -148,8 +134,8 @@ struct GfxPort {
 
 struct GfxModule {
 
-    std::vector<GfxPort> inputs;
-    std::vector<GfxPort> outputs;
+    vector<GfxPort> inputs;
+    vector<GfxPort> outputs;
 
     ModuleVariable module;
     XY position;
@@ -158,14 +144,14 @@ struct GfxModule {
     void repositionPorts() {
         for (auto it = inputs.begin(); it != inputs.end(); ++it)
         {
-            float n = std::distance(inputs.begin(), it);
+            float n = distance(inputs.begin(), it);
             it->position.x = position.x + (n + 0.5f) / inputs.size() * size.x - 0.5f*c_PortSize;
             it->position.y = position.y - 0.5*c_PortSize;
         }
 
         for (auto it = outputs.begin(); it != outputs.end(); ++it)
         {
-            float n = std::distance(outputs.begin(), it);
+            float n = distance(outputs.begin(), it);
             it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
             it->position.y = position.y + size.y - 0.5*c_PortSize;
         }
@@ -268,13 +254,25 @@ public:
     XY position;
     XY destination;
     bool within(XY p, bool & nearSource) const {
+        Point<float> p_ = Point<float>(p.x, p.y);
+        Point<float> pp;
+        path.getNearestPoint(p_, pp);
+        float distanceFromClick = pp.getDistanceFrom(p_);
+        float distanceFromPosition = pp.getDistanceFrom(Point<float>(position.x, position.y));
+        float distanceFromDestination = pp.getDistanceFrom(Point<float>(destination.x, destination.y));
+        if ( distanceFromClick < c_PortSize
+        && ( (distanceFromPosition < 3*c_PortSize) || (distanceFromDestination < 3*c_PortSize)))
+        {
+            nearSource = distanceFromPosition < distanceFromDestination;
+            return true;
+        }
         return false;
     }
     void draw(Graphics & g) const {
         g.setGradientFill(grad);
         g.fillPath(path);
     }
-    void calculatePath(const std::vector<GfxModule> & modules) {
+    void calculatePath(const vector<GfxModule> & modules) {
         bool foundSource = false;
         bool foundTarget = false;
         for (const auto & m : modules) {
@@ -310,7 +308,7 @@ public:
         }
     }
 
-    GfxWire(const ModulePortConnection &connection, const std::vector<GfxModule> & modules)
+    GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules)
         : connection(connection) 
     {
         calculatePath(modules);
@@ -320,9 +318,9 @@ public:
 
 
 struct GfxGraph {
-    std::vector<GfxModule> modules;
-    std::vector<GfxWire> wires;
-    std::pair<XY, XY> getBounds() {
+    vector<GfxModule> modules;
+    list<GfxWire> wires;
+    pair<XY, XY> getBounds() {
         XY min(FLT_MAX, FLT_MAX);
         XY max(FLT_MIN, FLT_MIN);
         for (auto &mb : modules) {
@@ -339,7 +337,7 @@ struct GfxGraph {
                 min.y = mb.position.y;
             }
         }
-        return std::make_pair(min, max);
+        return make_pair(min, max);
     }
     void moveDelta(XY delta) {
         for (auto &mb : modules) {
@@ -351,5 +349,24 @@ struct GfxGraph {
             w.destination += delta;
             w.calculatePath(modules);
         }
+    }
+};
+
+
+struct GfxLooseWire {
+    ModulePort attachedPort;
+    bool attachedAtSource;
+    XY position;
+    XY destination;
+    bool isValid = false;
+    void draw(Graphics & g) const {
+        g.setColour(Colours::green);
+        g.drawLine(
+            position.x + c_PortSize*0.5,
+            position.y + c_PortSize*0.5,
+            destination.x + c_PortSize*0.5,
+            destination.y + c_PortSize*0.5,
+            c_PortSize * 0.5
+        );
     }
 };

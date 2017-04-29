@@ -80,7 +80,7 @@ private:
     std::atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
     GfxGraph gfxGraph;
     GfxModule * draggedModule = nullptr;
-    GfxLooseWire * looseWire = nullptr;
+    GfxLooseWire looseWire;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

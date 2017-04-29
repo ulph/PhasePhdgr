@@ -32,32 +32,57 @@ void GraphView::propagateUserModelChange() {
 
 void GraphView::mouseDown(const MouseEvent & event) {
     parent.setScrollOnDragEnabled(true);
+    bool modelChanged = false;
+    XY mousePos(event.x, event.y);
+
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
     for (auto & m : gfxGraph.modules) {
         std::string port;
         bool inputPort;
         XY position;
-        if (m.withinPort(XY(event.x, event.y), position, port, inputPort)) {
-            delete looseWire;
-            looseWire = new GfxLooseWire();
-            looseWire->position = position;
-            looseWire->destination.x = event.x;
-            looseWire->destination.y = event.y;
-            looseWire->attachedAtSource = !inputPort;
-            looseWire->attachedPort = { m.module.name, port };
+        // drag wire between ports
+        if (m.withinPort(mousePos, position, port, inputPort)) {
+            looseWire.isValid = true;
+            looseWire.destination = mousePos;
+            looseWire.attachedAtSource = !inputPort;
+            looseWire.attachedPort = { m.module.name, port };
+            looseWire.position = position;
             parent.setScrollOnDragEnabled(false);
+            repaint();
             break;
         }
+        // move a module
         if (m.within(XY(event.x, event.y))) {
             draggedModule = &m;
             parent.setScrollOnDragEnabled(false);
+            repaint();
             break;
         }
     }
-    for (auto w : gfxGraph.wires) {
-        // TODO - grap a wire
+    for (auto wit = gfxGraph.wires.begin(); wit != gfxGraph.wires.end(); ++wit) {
+        bool nearestSource = false;
+        // disconnect a wire
+        if (wit->within(mousePos, nearestSource)) {
+            looseWire.isValid = true;
+            looseWire.destination = mousePos;
+            looseWire.attachedAtSource = !nearestSource;
+            if (looseWire.attachedAtSource) {
+                looseWire.attachedPort = wit->connection.source;
+                looseWire.position = wit->position;
+            }
+            else {
+                looseWire.attachedPort = wit->connection.target;
+                looseWire.position = wit->destination;
+            }
+            parent.setScrollOnDragEnabled(false);
+            gfxGraph.wires.erase(wit);
+            modelChanged = true;
+            repaint();
+            break;
+        }
     }
     gfxGraphLock.clear(std::memory_order_release);
+    if (modelChanged) propagateUserModelChange();
 }
 
 
@@ -79,9 +104,9 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         }
         repaint();
     }
-    if (looseWire) {
-        looseWire->destination.x = event.x;
-        looseWire->destination.y = event.y;
+    if (looseWire.isValid) {
+        looseWire.destination.x = event.x;
+        looseWire.destination.y = event.y;
         repaint();
     }
     gfxGraphLock.clear(std::memory_order_release);
@@ -93,13 +118,13 @@ void GraphView::mouseUp(const MouseEvent & event) {
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
     bool modelChanged = false;
     draggedModule = nullptr;
-    if (looseWire) {
+    if (looseWire.isValid) {
         for (auto &m : gfxGraph.modules) {
-            if (looseWire->attachedAtSource) {
+            if (looseWire.attachedAtSource) {
                 for (const auto& p : m.inputs) {
                     if (p.within(XY(event.x, event.y))) {
                         ModulePortConnection newCon;
-                        newCon.source = looseWire->attachedPort;
+                        newCon.source = looseWire.attachedPort;
                         newCon.target = ModulePort{ m.module.name, p.port };
                         gfxGraph.wires.emplace_back(GfxWire(newCon, gfxGraph.modules));
                         modelChanged = true;
@@ -111,7 +136,7 @@ void GraphView::mouseUp(const MouseEvent & event) {
                     if (p.within(XY(event.x, event.y))) {
                         ModulePortConnection newCon;
                         newCon.source = ModulePort{ m.module.name, p.port };
-                        newCon.target = looseWire->attachedPort;
+                        newCon.target = looseWire.attachedPort;
                         gfxGraph.wires.emplace_back(GfxWire(newCon, gfxGraph.modules));
                         modelChanged = true;
                     }
@@ -119,8 +144,7 @@ void GraphView::mouseUp(const MouseEvent & event) {
             }
         }
     }
-    delete looseWire;
-    looseWire = nullptr;
+    looseWire.isValid = false;
     repaint();
     gfxGraphLock.clear(std::memory_order_release);
     if (modelChanged) propagateUserModelChange();
@@ -160,8 +184,8 @@ void GraphView::paint (Graphics& g){
     for (auto &mb : gfxGraph.modules) {
         mb.draw(g);
     }
-    if (looseWire) {
-        looseWire->draw(g);
+    if (looseWire.isValid) {
+        looseWire.draw(g);
     }
 
     gfxGraphLock.clear(std::memory_order_release);

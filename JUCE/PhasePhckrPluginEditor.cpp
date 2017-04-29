@@ -101,13 +101,15 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     scopeGrid.addComponent(&outputScopeR);
     scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
-    mainFrame.addTab("perform", g_tabColor, &performGrid, false);
+    mainFrame.addTab("parameters", g_tabColor, &performGrid, false);
     mainFrame.addTab("voice", g_tabColor, &voiceEditor, false);
     mainFrame.addTab("effect", g_tabColor, &effectEditor, false);
 
+    mainFrame.addTab("files", g_tabColor, &filesGrid, false);
+    filesGrid.addComponent(&voiceDirectoryList);
+    filesGrid.addComponent(&effectDirectoryList);
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);
-
     voiceDirectoryWatcher.setDirectory(PhasePhckrFileStuff::voicesDir, true, true);
     effectDirectoryWatcher.setDirectory(PhasePhckrFileStuff::effectsDir, true, true);
 

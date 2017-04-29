@@ -48,10 +48,10 @@ private:
     DirectoryContentsList voiceDirectoryWatcher;
     FileListComponent voiceDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
-
     DirectoryContentsList effectDirectoryWatcher;
     FileListComponent effectDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
+    PhasePhckrGrid filesGrid;
 
     GraphEditor voiceEditor;
     GraphEditor effectEditor;

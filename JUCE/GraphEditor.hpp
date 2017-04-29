@@ -30,6 +30,9 @@ public:
         return rows.size();
     }
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected) {
+        g.setColour(Colours::black);
+        g.fillAll();
+        g.setColour(Colours::green);
         const auto &key = rows[rowNumber];
         const auto &doc = moduleDocs.at(key);
         g.drawFittedText(doc.type, 0, 0, width, height, Justification::centred, 1);
@@ -70,6 +73,13 @@ public:
             setText(json(g).dump(2));
         }
         );
+        setColour(TextEditor::backgroundColourId, Colours::black);
+        setColour(TextEditor::textColourId, Colours::green);
+        setColour(TextEditor::highlightColourId, Colours::darkgreen);
+        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
+        setColour(TextEditor::outlineColourId, Colours::black);
+        setColour(TextEditor::focusedOutlineColourId, Colours::black);
+        setColour(TextEditor::shadowColourId, Colours::black);
     }
     ~ConnectionGraphTextEditor() {
         sub.unsubscribe(handle);
@@ -127,6 +137,15 @@ public:
         docGrid.addComponent(&docView);
         docGrid.addComponent(&docList);
         docGrid.setColoumns({1.0f});
+        docList.updateContent();
+        docView.setMultiLine(true, true);
+        docView.setColour(TextEditor::backgroundColourId, Colours::black);
+        docView.setColour(TextEditor::textColourId, Colours::green);
+        docView.setColour(TextEditor::highlightColourId, Colours::darkgreen);
+        docView.setColour(TextEditor::highlightedTextColourId, Colours::yellow);
+        docView.setColour(TextEditor::outlineColourId, Colours::black);
+        docView.setColour(TextEditor::focusedOutlineColourId, Colours::black);
+        docView.setColour(TextEditor::shadowColourId, Colours::black);
         resized();
     }
 

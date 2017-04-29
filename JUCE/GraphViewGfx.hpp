@@ -111,10 +111,10 @@ struct GfxPort {
 
     bool within(XY p) const {
         return (
-           p.x > position.x - c_PortSize
-        && p.x < position.x + c_PortSize*2
-        && p.y > position.y - c_PortSize
-        && p.y < position.y + c_PortSize*2
+           p.x > (position.x - 0.5*c_PortSize)
+        && p.x < (position.x + c_PortSize*1.5)
+        && p.y > (position.y - 0.5*c_PortSize)
+        && p.y < (position.y + c_PortSize*1.5)
         );
     }
 

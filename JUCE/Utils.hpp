@@ -27,6 +27,22 @@ private:
 };
 #endif
 
+
+struct LambdaTimer : Timer {
+    LambdaTimer(std::function<void()> *callBack) {
+        cb = callBack;
+    }
+    virtual void timerCallback() {
+        (*cb)();
+    }
+    virtual ~LambdaTimer() {
+        delete cb;
+    }
+private:
+    const std::function<void(void)> *cb;
+};
+
+
 template <class T>
 class SubValue {
 private:

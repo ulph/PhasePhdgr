@@ -2,7 +2,7 @@
 #include "PhasePhckrGrid.h"
 
 void PhasePhckrGrid::paint(Graphics& g){
-  int numberOfRows = gridComponents.size()/numberOfColumns;
+  int numberOfRows = gridComponents.size()/coloumnSizes.size();
   float size_y = (float)this->getHeight();
   float size_x = (float)this->getWidth();
 
@@ -11,32 +11,32 @@ void PhasePhckrGrid::paint(Graphics& g){
   for(int i=0; i<numberOfRows; ++i){
     g.drawHorizontalLine(((float)i/(float)numberOfRows) * size_y, 0.0f, size_x);
   }
+  g.drawHorizontalLine(size_y, 0.0f, size_x);
 
-  for(int i=0; i<numberOfColumns; ++i){
-    g.drawVerticalLine(((float)i/(float)numberOfColumns) * size_x, 0.0f, size_y);
+  g.drawVerticalLine(0, 0.0f, size_y);
+  for(int i=0; i<coloumnSizes.size(); ++i){
+    g.drawVerticalLine(coloumnSizes[i] * size_x, 0.0f, size_y);
   }
 
-  g.drawVerticalLine(size_x, 0.0f, size_y);
-  g.drawHorizontalLine(size_y, 0.0f, size_x);
 }
 
 void PhasePhckrGrid::resized(){
-  if(numberOfColumns<1) return; // bail out
-  int numberOfRows = gridComponents.size()/numberOfColumns;
+  int numberOfRows = gridComponents.size()/coloumnSizes.size();
 
   int i=0;
+  float x = 0;
   for(auto &c : gridComponents){
     //indices
-    float x = i%numberOfColumns;
-    float y = i/numberOfColumns;
-
+    float w = coloumnSizes[i%coloumnSizes.size()];
+    float y = i/coloumnSizes.size();
     // set positions/size
     c->setBoundsRelative(
-      x/(float)numberOfColumns + 0.001f,   // x
-      y/(float)numberOfRows + 0.001f,      // y
-      1.f/(float)numberOfColumns - 0.002f, // w
-      1.f/(float)numberOfRows - 0.002f    // h
+      x + 0.001f,// x
+      y/(float)numberOfRows + 0.001f,       // y
+      x+w - 0.002f,            // w
+      1.f/(float)numberOfRows - 0.002f      // h
     );
+    x += w;
     i++;
   }
 
@@ -49,9 +49,15 @@ void PhasePhckrGrid::addComponent(Component* component){
   resized();
 }
 
-void PhasePhckrGrid::setNumberOfColumns(int n) {
-    if (n > 0) {
-        numberOfColumns = n;
-        resized();
+void PhasePhckrGrid::setColoumns(const std::vector<float> &sizes) {
+    coloumnSizes = sizes;
+    // normalize
+    float sum = 0;
+    for (const auto &s : coloumnSizes) {
+        sum += s;
     }
+    for (auto &s : coloumnSizes) {
+        s /= sum;
+    }
+    resized();
 }

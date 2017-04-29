@@ -25,9 +25,9 @@ public:
     GraphView(
         Viewport& parent,
         const Doc& doc,
-        SubValue<ConnectionGraphDescriptor> * subscribedCGD,
-        ModuleVariable inBus,
-        ModuleVariable outBus
+        SubValue<ConnectionGraphDescriptor> & subscribedCGD,
+        const ModuleVariable& inBus,
+        const ModuleVariable& outBus
     )
         : subscribedCGD(subscribedCGD)
         , parent(parent)
@@ -37,14 +37,14 @@ public:
     {
         setBoundsRelative(0, 0, 1, 1);
         parent.setScrollOnDragEnabled(true);
-        subscribedCGDhandle = subscribedCGD->subscribe(
+        subscribedCGDhandle = subscribedCGD.subscribe(
             [this](const PhasePhckr::ConnectionGraphDescriptor& g){
                 setGraph(g);
             }
         );
     }
     ~GraphView() {
-        subscribedCGD->unsubscribe(subscribedCGDhandle);
+        subscribedCGD.unsubscribe(subscribedCGDhandle);
     }
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;
@@ -69,13 +69,13 @@ private:
     );
 
     int subscribedCGDhandle;
-    SubValue<ConnectionGraphDescriptor> * subscribedCGD;
+    SubValue<ConnectionGraphDescriptor> & subscribedCGD;
 
     Viewport& parent;
 
-    const ModuleVariable inBus;
-    const ModuleVariable outBus;
-    const Doc doc;
+    ModuleVariable inBus;
+    ModuleVariable outBus;
+    Doc doc;
 
     std::atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
     GfxGraph gfxGraph;

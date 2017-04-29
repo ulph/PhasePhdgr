@@ -33,8 +33,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , voiceScopeXY(processor.getSynth()->getVoiceScope(0), processor.getSynth()->getVoiceScope(1))
     , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
-    , voiceGraphViewport()
-    , effectGraphViewport()
 
     , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
     , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
@@ -57,45 +55,30 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             activeEffect.set(activeEffectSubscribeHandle, loadJson(f));
         })
 
-    , voiceDoc(
-        [this]()->PhasePhckr::Doc {
-            PhasePhckr::Doc d(processor.componentRegister);
-            d.add(PhasePhckr::getVoiceBusInputDoc());
-            d.add(PhasePhckr::getVoiceBusOutputDoc());
-            return d;
-        }()
-    )
-
-    , effectDoc(
-        [this]()->PhasePhckr::Doc {
-            PhasePhckr::Doc d(processor.componentRegister);
-            d.add(PhasePhckr::getEffectBusInputDoc());
-            d.add(PhasePhckr::getEffectBusOutputDoc());
-            return d;
-        }()
-    )
-
-    , doc(processor.componentRegister)
-    , docListModel(doc.get(), docView)
-    , docList( "docList", &docListModel)
-
-    , voiceEditor(&activeVoice)
-    , effectEditor(&activeEffect)
-
-    , voiceGraphView(
-        voiceGraphViewport,
-        voiceDoc,
-        &activeVoice,
-        c_VoiceInput,
-        c_VoiceOutput
-    )
-    , effectGraphView(
-        effectGraphViewport,
-        effectDoc, 
-        &activeEffect, 
-        c_EffectInput,
-        c_EffectOutput
-    )
+    , voiceEditor(
+            [this]()->PhasePhckr::Doc 
+            {
+                PhasePhckr::Doc d(processor.componentRegister);
+                d.add(PhasePhckr::getVoiceBusInputDoc());
+                d.add(PhasePhckr::getVoiceBusOutputDoc());
+                return d;
+            }(),
+            activeVoice,
+            c_VoiceInput,
+            c_VoiceOutput
+        )
+    , effectEditor(
+            [this]()->PhasePhckr::Doc 
+            {
+                PhasePhckr::Doc d(processor.componentRegister);
+                d.add(PhasePhckr::getEffectBusInputDoc());
+                d.add(PhasePhckr::getEffectBusOutputDoc());
+                return d;
+            }(),
+            activeEffect,
+            c_EffectInput,
+            c_EffectOutput
+        )
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
@@ -116,28 +99,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     scopeGrid.addComponent(&outputScopeL);
     scopeGrid.addComponent(&outputScopeXY);
     scopeGrid.addComponent(&outputScopeR);
-    scopeGrid.setNumberOfColumns(3);
+    scopeGrid.setColoumns({1.0f, 1.0f, 1.0f});
 
     mainFrame.addTab("perform", g_tabColor, &performGrid, false);
-
-    mainFrame.addTab("voice graph", g_tabColor, &voiceGraphViewport, false);
-    voiceGraphViewport.setViewedComponent(&voiceGraphView, false);
-
-    mainFrame.addTab("effect graph", g_tabColor, &effectGraphViewport, false);
-    effectGraphViewport.setViewedComponent(&effectGraphView, false);
-
-    mainFrame.addTab("files", g_tabColor, &editorGrid, false);
-    editorGrid.addComponent(&voiceEditor);
-    editorGrid.addComponent(&editorMenu);
-    editorGrid.addComponent(&effectEditor);
-    editorGrid.setNumberOfColumns(3);
-    editorMenu.addComponent(&voiceDirectoryList);
-    editorMenu.addComponent(&effectDirectoryList);
-    editorMenu.addComponent(&docList);
-    editorMenu.addComponent(&docView);
-    editorMenu.setNumberOfColumns(2);
-    docList.updateContent();
-    docView.setMultiLine(true, true);
+    mainFrame.addTab("voice", g_tabColor, &voiceEditor, false);
+    mainFrame.addTab("effect", g_tabColor, &effectEditor, false);
 
     voiceDirectoryList.addListener(&voiceListListener);
     effectDirectoryList.addListener(&effectListListener);

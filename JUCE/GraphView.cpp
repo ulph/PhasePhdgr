@@ -26,7 +26,7 @@ void GraphView::propagateUserModelChange() {
 
     graph.values = valuesCopy;
 
-    subscribedCGD->set(subscribedCGDhandle, graph);
+    subscribedCGD.set(subscribedCGDhandle, graph);
 }
 
 

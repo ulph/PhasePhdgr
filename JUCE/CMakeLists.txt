@@ -9,6 +9,7 @@ set(PH_SRC
     GraphView.cpp
     GraphView.h
     GraphViewGfx.hpp
+    GraphEditor.hpp
     PhasePhckrGrid.cpp
     PhasePhckrGrid.h
     PhasePhckrPluginEditor.cpp

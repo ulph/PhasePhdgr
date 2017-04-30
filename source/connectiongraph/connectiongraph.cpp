@@ -176,7 +176,7 @@ void ConnectionGraph::process(int module, float fs)
     for(const Instruction &i : program) {
         switch(i.opcode) {
         case OP_PROCESS:
-            modules[i.param0]->process(fs);
+            modules[i.param0]->process((uint32_t)fs);
             break;
         case OP_RESET_INPUT:
             modules[i.param0]->setInput(i.param1, 0.0f);

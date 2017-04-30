@@ -16,9 +16,9 @@ void updateNodesY(
     const std::string & terminator
 )
 {
-    int currentDepth = positions[node].y;
+    int currentDepth = (int)positions[node].y;
     if (depth <= currentDepth) return;
-    positions[node].y = depth;
+    positions[node].y = (float)depth;
     if (node == terminator) return;
     for (const auto &c : connections.at(node)) {
         updateNodesY(c, positions, connections, depth - 1, terminator);
@@ -46,8 +46,47 @@ void setNodeY(
     }
 
     // and shift everything to positive
-    int y_bias = modulePositions[start].y;
+    float y_bias = modulePositions[start].y;
     for (auto &p : modulePositions) {
         p.second.y -= y_bias;
     }
+}
+
+
+void setNodeX(
+    map<string, XY> & modulePositions,
+    const ConnectionsMap & connections,
+    const string & start,
+    const string & stop
+) {
+
+}
+
+
+void setNodePositions(
+    const ConnectionGraphDescriptor& connectionGraphDescriptor,
+    map<string, XY> & modulePositions,
+    const string &start,
+    const string &stop
+) {
+    // (convinience) store the connections between nodes
+    ConnectionsMap connections;
+    for (const auto &mpc : connectionGraphDescriptor.connections) {
+        connections[mpc.source.module].insert(mpc.target.module);
+        connections[mpc.target.module].insert(mpc.source.module);
+    }
+
+    // initial positions
+    for (const auto &mv : connectionGraphDescriptor.modules) {
+        modulePositions[mv.name] = XY(0, INT_MIN);
+    }
+
+    modulePositions[start] = XY(0, INT_MIN);
+    modulePositions[stop] = XY(0, INT_MIN);
+
+    // find all y positions
+    setNodeY(modulePositions, connections, start, stop);
+
+    // find all x positions
+    setNodeX(modulePositions, connections, start, stop);
 }

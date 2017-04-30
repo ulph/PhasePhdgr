@@ -22,7 +22,7 @@ void FractionalSincTable::compute() {
         {
             int ni = i*N + n;
             float arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
-            float hamming = 0.54f + 0.46f*cosf((2.f*M_PI*arg) / (float)(N - 1));
+            float hamming = 0.54f + 0.46f*cosf((2.f*(float)M_PI*arg) / (float)(N - 1));
             coeffs[ni] = hamming*sincf(arg * normFreq);
             M += coeffs[ni];
         }

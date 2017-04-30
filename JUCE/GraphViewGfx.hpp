@@ -28,22 +28,22 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
     path.startNewSubPath(x0, y0);
 
     if (y1 <= y0) {
-        float dy = 0.25*nodeSize;
-        float dx = 0.25*nodeSize * (x1 >= x0 ? 1 : -1);
-        float s = x1 != x0 ? 1 : -1;
+        float dy = 0.25f*nodeSize;
+        float dx = 0.25f*nodeSize * (x1 >= x0 ? 1.f : -1.f);
+        float s = x1 != x0 ? 1.f : -1.f;
         float x[7]{
             x0 + dx,
-            x0 + 2 * dx,
+            x0 + 2.f * dx,
 
-            x0 + 3 * dx,
-            x1 - 3 * dx*s,
+            x0 + 3.f * dx,
+            x1 - 3.f * dx*s,
 
-            x1 - 2 * dx*s,
+            x1 - 2.f * dx*s,
             x1 - dx*s,
             x1
         };
         float y[7]{
-            y0 + 2 * dy,
+            y0 + 2.f * dy,
             y0 + dy,
 
             y0,
@@ -58,7 +58,7 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
         path.quadraticTo(x[5], y[5], x[6], y[6]);
     }
     else {
-        float d = 0.5*nodeSize;
+        float d = 0.5f*nodeSize;
         path.cubicTo(x0, y0 + d, x1, y1 - d, x1, y1);
     }
     strokeType.createStrokedPath(path, path);
@@ -111,10 +111,10 @@ struct GfxPort {
 
     bool within(XY p) const {
         return (
-           p.x > (position.x - 0.5*c_PortSize)
-        && p.x < (position.x + c_PortSize*1.5)
-        && p.y > (position.y - 0.5*c_PortSize)
-        && p.y < (position.y + c_PortSize*1.5)
+           p.x > (position.x - 0.5f*c_PortSize)
+        && p.x < (position.x + c_PortSize*1.5f)
+        && p.y > (position.y - 0.5f*c_PortSize)
+        && p.y < (position.y + c_PortSize*1.5f)
         );
     }
 
@@ -123,7 +123,14 @@ struct GfxPort {
         g.fillEllipse(position.x, position.y, c_PortSize, c_PortSize);
         g.setColour(Colours::grey);
         g.drawEllipse(position.x, position.y, c_PortSize, c_PortSize, 1.0f);
-        g.drawText(port, position.x - c_PortSize, position.y + (isInput?1:-2)*1.5f*c_PortSize, 3 * c_PortSize, c_PortSize, Justification::centred);
+        g.drawText(
+            port, 
+            (int)(position.x - c_PortSize), 
+            (int)(position.y + (isInput?1.f:-2.f)*1.5f*c_PortSize), 
+            (int)(3.f * c_PortSize), 
+            (int)c_PortSize, 
+            Justification::centred
+        );
     }
 
     GfxPort(string port, const string unit, float value, bool isInput) 
@@ -144,16 +151,16 @@ struct GfxModule {
     void repositionPorts() {
         for (auto it = inputs.begin(); it != inputs.end(); ++it)
         {
-            float n = distance(inputs.begin(), it);
+            float n = (float)distance(inputs.begin(), it);
             it->position.x = position.x + (n + 0.5f) / inputs.size() * size.x - 0.5f*c_PortSize;
-            it->position.y = position.y - 0.5*c_PortSize;
+            it->position.y = position.y - 0.5f*c_PortSize;
         }
 
         for (auto it = outputs.begin(); it != outputs.end(); ++it)
         {
-            float n = distance(outputs.begin(), it);
+            float n = (float)distance(outputs.begin(), it);
             it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
-            it->position.y = position.y + size.y - 0.5*c_PortSize;
+            it->position.y = position.y + size.y - 0.5f*c_PortSize;
         }
     }
 
@@ -194,6 +201,7 @@ struct GfxModule {
             size.y, 
             5.f
         );
+
         g.setColour(Colours::white); // restore trans
         Path path;
         path.addRoundedRectangle(
@@ -203,14 +211,33 @@ struct GfxModule {
             size.y,
             2.f
         );
+
         PathStrokeType strokeType(1);
         strokeType.createStrokedPath(path, path);
-        ColourGradient grad(Colours::white, position.x, position.y, Colours::grey, position.x, position.y + size.y, false);
+
+        ColourGradient grad(
+            Colours::white, 
+            position.x, 
+            position.y, 
+            Colours::grey, 
+            position.x, 
+            position.y + size.y, 
+            false
+        );
         g.setGradientFill(grad);
         g.fillPath(path);
         
         g.setColour(Colours::white);
-        g.drawFittedText(module.name, position.x, position.y, size.x, size.y, Justification::centred, 1);
+        g.drawFittedText(
+            module.name, 
+            (int)position.x, 
+            (int)position.y, 
+            (int)size.x, 
+            (int)size.y, 
+            Justification::centred, 
+            1
+        );
+
         for (const auto &i : inputs) {
             i.draw(g);
         }
@@ -219,7 +246,13 @@ struct GfxModule {
         }
     }
 
-    GfxModule(const ModuleVariable & mv, int x, int y, const Doc & doc, const std::vector<ModulePortValue> &mpv) 
+    GfxModule(
+        const ModuleVariable & mv, 
+        float x, 
+        float y, 
+        const Doc & doc, 
+        const std::vector<ModulePortValue> &mpv
+    )
         : module(mv)
     {
         size = XY(c_NodeSize, c_NodeSize);
@@ -299,10 +332,22 @@ public:
 
         if (foundSource || foundTarget) {
             path.clear();
-            calcCable(path, position.x, position.y, destination.x, destination.y, c_PortSize, c_NodeSize);
+            calcCable(
+                path, 
+                position.x, 
+                position.y, 
+                destination.x, 
+                destination.y, 
+                c_PortSize, 
+                c_NodeSize
+            );
             grad = ColourGradient(
-                Colours::yellow, position.x, position.y,
-                Colours::red, destination.x, destination.y,
+                Colours::yellow, 
+                position.x, 
+                position.y,
+                Colours::red, 
+                destination.x, 
+                destination.y,
                 true
             );
         }
@@ -362,11 +407,11 @@ struct GfxLooseWire {
     void draw(Graphics & g) const {
         g.setColour(Colours::green);
         g.drawLine(
-            position.x + c_PortSize*0.5,
-            position.y + c_PortSize*0.5,
-            destination.x + c_PortSize*0.5,
-            destination.y + c_PortSize*0.5,
-            c_PortSize * 0.5
+            position.x + c_PortSize*0.5f,
+            position.y + c_PortSize*0.5f,
+            destination.x + c_PortSize*0.5f,
+            destination.y + c_PortSize*0.5f,
+            c_PortSize * 0.5f
         );
     }
 };

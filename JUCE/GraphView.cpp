@@ -32,7 +32,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);
     bool modelChanged = false;
     bool userInteraction = false;
-    XY mousePos(event.x, event.y);
+    XY mousePos((float)event.x, (float)event.y);
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
     for (auto & m : gfxGraph.modules) {
         std::string port;
@@ -49,7 +49,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
             break;
         }
         // move a module
-        if (m.within(XY(event.x, event.y))) {
+        if (m.within(mousePos)) {
             draggedModule = &m;
             userInteraction = true;
             break;
@@ -96,8 +96,8 @@ void GraphView::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
     if (draggedModule) {
-        draggedModule->position.x = event.x - draggedModule->size.x * 0.5;
-        draggedModule->position.y = event.y - draggedModule->size.y * 0.5;
+        draggedModule->position.x = (float)event.x - draggedModule->size.x * 0.5f;
+        draggedModule->position.y = (float)event.y - draggedModule->size.y * 0.5f;
         draggedModule->repositionPorts();
         auto mv = std::vector<GfxModule>{ *draggedModule };
         for (auto &w : gfxGraph.wires) {
@@ -106,8 +106,8 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         repaint();
     }
     if (looseWire.isValid) {
-        looseWire.destination.x = event.x;
-        looseWire.destination.y = event.y;
+        looseWire.destination.x = (float)event.x;
+        looseWire.destination.y = (float)event.y;
         repaint();
     }
     gfxGraphLock.clear(std::memory_order_release);
@@ -117,13 +117,14 @@ void GraphView::mouseDrag(const MouseEvent & event) {
 
 void GraphView::mouseUp(const MouseEvent & event) {
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
     draggedModule = nullptr;
     if (looseWire.isValid) {
         for (auto &m : gfxGraph.modules) {
             if (looseWire.attachedAtSource) {
                 for (const auto& p : m.inputs) {
-                    if (p.within(XY(event.x, event.y))) {
+                    if (p.within(mousePos)) {
                         ModulePortConnection newCon;
                         newCon.source = looseWire.attachedPort;
                         newCon.target = ModulePort{ m.module.name, p.port };
@@ -134,7 +135,7 @@ void GraphView::mouseUp(const MouseEvent & event) {
             }
             else {
                 for (const auto& p : m.outputs) {
-                    if (p.within(XY(event.x, event.y))) {
+                    if (p.within(mousePos)) {
                         ModulePortConnection newCon;
                         newCon.source = ModulePort{ m.module.name, p.port };
                         newCon.target = looseWire.attachedPort;
@@ -165,10 +166,10 @@ void GraphView::updateBounds(const std::pair<XY, XY>& rectangle) {
 void GraphView::updateBounds(const XY & position, const XY & size){
     auto bounds = getBounds();
     if (bounds.getWidth() < (position.x + size.x)) {
-        bounds.setWidth(position.x + size.x);
+        bounds.setWidth((int)(position.x + size.x));
     }
     if (bounds.getHeight() < (position.y + size.y)) {
-        bounds.setHeight(position.y + size.y);
+        bounds.setHeight((int)(position.y + size.y));
     }
     setBounds(bounds);
 }
@@ -195,41 +196,21 @@ void GraphView::paint (Graphics& g){
 
 void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
-  ConnectionGraphDescriptor connectionGraphDescriptor = graph;
+  auto connectionGraphDescriptor = graph;
   connectionGraphDescriptorLock.clear(std::memory_order_release);
 
   valuesCopy = connectionGraphDescriptor.values;
-
-  std::map<std::string, XY> modulePositions;
-
-  float halfSreen = getWidth() * 0.5;
-
+  
   connectionGraphDescriptor.modules.push_back(inBus);
   connectionGraphDescriptor.modules.push_back(outBus);
-  auto cgd = connectionGraphDescriptor;
 
-  // (convinience) store the connections between nodes
-  ConnectionsMap connections;
-  for (const auto &mpc : cgd.connections) {
-      connections[mpc.source.module].insert(mpc.target.module);
-      connections[mpc.target.module].insert(mpc.source.module);
-  }
-
-  // initial positions
-  for(const auto &mv : cgd.modules){
-    modulePositions[mv.name] = XY(0, INT_MIN);
-  }
   const std::string start = inBus.name;
   const std::string stop = outBus.name;
-  modulePositions[start] = XY(0, INT_MIN);
-  modulePositions[stop] = XY(0, INT_MIN);
+  std::map<std::string, XY> modulePositions;
+  setNodePositions(connectionGraphDescriptor, modulePositions, start, stop);
 
-  // find all y positions
-  setNodeY(modulePositions, connections, start, stop);
-
-  // TODO -- traverse X as well
-
-  updateRenderComponents(cgd, modulePositions);
+  // build the render/user interaction model
+  updateRenderComponents(connectionGraphDescriptor, modulePositions);
 
 }
 

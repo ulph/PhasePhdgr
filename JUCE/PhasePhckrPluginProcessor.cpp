@@ -167,7 +167,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     const int numOutputChannels = getTotalNumOutputChannels();
     const int numMidiMessages = midiMessages.getNumEvents();
     const int blockSize = buffer.getNumSamples();
-    float sampleRate = getSampleRate();
+    float sampleRate = (float)getSampleRate();
 
     for (int i = 0; i < numOutputChannels; ++i) {
         buffer.clear(i, 0, blockSize);

@@ -68,14 +68,14 @@ LowPass::LowPass()
  */
 void LowPass::process(uint32_t fs)
 {
-  float w0 = 2 * M_PI * inputs[0].value / fs;
-  float alpha = sinf(w0) / (2.0 * inputs[1].value);
+  float w0 = 2.f * M_PI * inputs[0].value / fs;
+  float alpha = sinf(w0) / (2.0f * inputs[1].value);
 
-  float a0 = 1. + alpha;
+  float a0 = 1.f + alpha;
 
   outputs[0].value = -2.f * cosf(w0) / a0;
   outputs[1].value = (1.f - alpha) / a0;
-  outputs[2].value = (1.f - cosf(w0)) / (2. * a0);
+  outputs[2].value = (1.f - cosf(w0)) / (2.f * a0);
   outputs[3].value = 2.f * outputs[2].value;
   outputs[4].value = outputs[2].value;
 
@@ -108,16 +108,16 @@ PeakingEQ::PeakingEQ()
  */
 void PeakingEQ::process(uint32_t fs)
 {
-    float w0 = 2 * M_PI * inputs[0].value / fs;
-    float alpha = sinf(w0) / (2.0 * inputs[2].value);
-    float A = powf(10.f, inputs[1].value/40.);
+    float w0 = 2.f * (float)M_PI * inputs[0].value / fs;
+    float alpha = sinf(w0) / (2.0f * inputs[2].value);
+    float A = powf(10.f, inputs[1].value/40.f);
 
-    float a0 = (1. + alpha)/A;
+    float a0 = (1.f + alpha)/A;
     outputs[0].value = -2.f * cosf(w0);
     outputs[1].value = (1.f - alpha/A);
 
     outputs[2].value = 1.f + alpha * A;
-    outputs[3].value = -2.0 * cosf(w0);
+    outputs[3].value = -2.0f * cosf(w0);
     outputs[4].value = 1.f - alpha * A;
 
     // Normalization by a0

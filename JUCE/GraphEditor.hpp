@@ -28,7 +28,7 @@ public:
         }
     }
     virtual int getNumRows() {
-        return rows.size();
+        return (int)rows.size();
     }
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected) {
         g.setColour(Colours::black);

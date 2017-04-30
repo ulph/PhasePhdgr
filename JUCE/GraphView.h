@@ -16,6 +16,7 @@
 #include <math.h>
 #include <atomic>
 #include <deque>
+#include "GraphViewNodeStuff.hpp"
 
 class GraphEditor;
 
@@ -57,18 +58,18 @@ public:
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
 private:
-    void updateBounds(const std::pair<XY, XY>& rectange);
+    void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 
     void setGraph(const ConnectionGraphDescriptor& graph);
     void propagateUserModelChange();
-    std::atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
-    std::vector<ModulePortValue> valuesCopy; // TODO, figure out a better strategy like a map on GfxGraph
+    atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
+    vector<ModulePortValue> valuesCopy; // TODO, figure out a better strategy like a map on GfxGraph
 
     // make a copy data structures before calling
     void updateRenderComponents(
         const ConnectionGraphDescriptor & cgd,
-        const std::map<std::string, XY> & mp
+        const ModulePositionMap & mp
     );
 
     int subscribedCGDhandle;
@@ -81,7 +82,7 @@ private:
     ModuleVariable outBus;
     Doc doc;
 
-    std::atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
+    atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
     GfxGraph gfxGraph;
     GfxModule * draggedModule = nullptr;
     GfxLooseWire looseWire;

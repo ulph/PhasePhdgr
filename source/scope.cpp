@@ -45,7 +45,7 @@ void Scope::writeToBuffer(const float * sourceBuffer, int numSamples, float samp
 
 const float* Scope::getBuffer(int* size) const
 {
-    *size = scopeBufferSize;
+    *size = (int)scopeBufferSize;
     return &scopeBuffer[0];
 }
 

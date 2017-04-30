@@ -8,6 +8,7 @@ set(PH_SRC
     DirectoryWatcher.hpp
     GraphView.cpp
     GraphView.h
+    GraphViewNodeStuff.cpp
     GraphViewNodeStuff.hpp
     GraphViewGfx.hpp
     GraphEditor.hpp

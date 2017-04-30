@@ -1,7 +1,6 @@
 #include "GraphView.h"
 #include <algorithm>
 #include <utility>
-#include "GraphViewNodeStuff.hpp"
 
 using namespace PhasePhckr;
 
@@ -33,9 +32,9 @@ void GraphView::mouseDown(const MouseEvent & event) {
     bool modelChanged = false;
     bool userInteraction = false;
     XY mousePos((float)event.x, (float)event.y);
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    while (gfxGraphLock.test_and_set(memory_order_acquire));
     for (auto & m : gfxGraph.modules) {
-        std::string port;
+        string port;
         bool inputPort;
         XY position;
         // drag wire between ports
@@ -82,7 +81,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         viewPort.setScrollOnDragEnabled(false);
         repaint();
     }
-    gfxGraphLock.clear(std::memory_order_release);
+    gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }
 
@@ -94,12 +93,12 @@ void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d
 
 void GraphView::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    while (gfxGraphLock.test_and_set(memory_order_acquire));
     if (draggedModule) {
         draggedModule->position.x = (float)event.x - draggedModule->size.x * 0.5f;
         draggedModule->position.y = (float)event.y - draggedModule->size.y * 0.5f;
         draggedModule->repositionPorts();
-        auto mv = std::vector<GfxModule>{ *draggedModule };
+        auto mv = vector<GfxModule>{ *draggedModule };
         for (auto &w : gfxGraph.wires) {
             w.calculatePath(mv);
         }
@@ -110,13 +109,13 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         looseWire.destination.y = (float)event.y;
         repaint();
     }
-    gfxGraphLock.clear(std::memory_order_release);
+    gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }
 
 
 void GraphView::mouseUp(const MouseEvent & event) {
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    while (gfxGraphLock.test_and_set(memory_order_acquire));
     XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
     draggedModule = nullptr;
@@ -148,7 +147,7 @@ void GraphView::mouseUp(const MouseEvent & event) {
     }
     looseWire.isValid = false;
     repaint();
-    gfxGraphLock.clear(std::memory_order_release);
+    gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }
 
@@ -158,7 +157,7 @@ void GraphView::mouseMove(const MouseEvent & event) {
 }
 
 
-void GraphView::updateBounds(const std::pair<XY, XY>& rectangle) {
+void GraphView::updateBounds(const pair<XY, XY>& rectangle) {
     updateBounds(rectangle.first, rectangle.second);
 }
 
@@ -176,7 +175,7 @@ void GraphView::updateBounds(const XY & position, const XY & size){
 
 
 void GraphView::paint (Graphics& g){
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    while (gfxGraphLock.test_and_set(memory_order_acquire));
 
     g.fillAll(Colours::black);
 
@@ -204,9 +203,9 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
   connectionGraphDescriptor.modules.push_back(inBus);
   connectionGraphDescriptor.modules.push_back(outBus);
 
-  const std::string start = inBus.name;
-  const std::string stop = outBus.name;
-  std::map<std::string, XY> modulePositions;
+  const string start = inBus.name;
+  const string stop = outBus.name;
+  ModulePositionMap modulePositions;
   setNodePositions(connectionGraphDescriptor, modulePositions, start, stop);
 
   // build the render/user interaction model
@@ -215,7 +214,11 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
 }
 
 
-void GraphView::updateRenderComponents(const ConnectionGraphDescriptor &cgd_copy, const std::map<std::string, XY> & mp) {
+void GraphView::updateRenderComponents(
+    const ConnectionGraphDescriptor &cgd_copy, 
+    const ModulePositionMap & mp
+) 
+{
     // create the renderable structures
 
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));

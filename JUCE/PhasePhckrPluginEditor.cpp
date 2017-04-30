@@ -11,8 +11,6 @@ PhasePhckrLookAndFeel g_lookAndFeel;
 
 using namespace PhasePhckrFileStuff;
 
-const Font monoFont = Font(Font::getDefaultMonospacedFontName(), 14, 0);
-
 static json loadJson(const File & f) {
     String s = f.loadFileAsString();
     return json::parse(s.toStdString().c_str());

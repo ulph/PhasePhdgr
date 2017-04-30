@@ -10,6 +10,7 @@
 #include "GraphView.h"
 
 using namespace PhasePhckr;
+using namespace std;
 
 class DocListModel : public ListBoxModel {
 private:
@@ -93,20 +94,91 @@ public:
     void mouseWheelMove(const MouseEvent &, const MouseWheelDetails &) override {}
 };
 
+class GraphViewBundle : public Component {
+    GraphViewPort viewPort;
+    GraphView graphView;
+public:
+    GraphViewBundle(
+        GraphEditor& graphEditor,
+        const Doc& doc,
+        SubValue<ConnectionGraphDescriptor> & subscribedCGD,
+        const ModuleVariable& inBus,
+        const ModuleVariable& outBus
+    )
+    : graphView(
+        graphEditor
+        , viewPort
+        , doc
+        , subscribedCGD
+        , inBus
+        , outBus
+    )
+    {
+        addAndMakeVisible(viewPort);
+        viewPort.setViewedComponent(&graphView, false);
+        resized();
+    }
+    void paint(Graphics& g)
+    {
+        g.fillAll(Colours::black);
+    }
+    void resized()
+    {
+        viewPort.setBoundsRelative(0, 0, 1, 1);
+        repaint();
+    }
+};
 
 class GraphEditor : public Component
 {
     Doc doc;
     PhasePhckrGrid grid;
     PhasePhckrGrid docGrid;
-    GraphViewPort viewPort;
-    GraphView graphView;
+
+    GraphViewBundle rootView;
+
     ConnectionGraphTextEditor textEditor;
     TextEditor docView;
     ListBox docList;
     DocListModel docListModel;
     ModuleVariable inBus;
     ModuleVariable outBus;
+
+    vector<SubValue<PhasePhckr::ConnectionGraphDescriptor>> componentGraphs;
+    TabbedComponent editorStack;
+    friend class GraphView;
+
+    void push_tab(const string& componentName, const string& componentType) {
+        return;
+
+        // WIP - a graph view should be able to request a new tab for a _component_
+        // a bunch of mocking needs to be done, should be similar to what's 
+        // done for the root, so perhaps it can be conceptualized
+        const auto& d = doc.get();
+        auto dit = d.find(componentType);
+        if (dit != d.end()) {
+            assert(componentType == dit->second.type);
+            auto componentGraph = SubValue<PhasePhckr::ConnectionGraphDescriptor>();
+            // TODO, mock bus modules types - inBus shows component inputs as outputs ... outBus vice versa
+            // TODO, mock doc (inject the new module types)
+            // TODO, build graph - needs to _flatten_ before passing to design.cpp
+            ModuleVariable inBus = {componentName +" inBus", componentType };
+            ModuleVariable outBus = {componentName +" outBus", componentType };
+            editorStack.addTab(
+                componentName + " (" + componentType + ")",
+                Colours::black, new GraphViewBundle(
+                    *this,
+                    doc,
+                    componentGraph,
+                    inBus,
+                    outBus
+                ),
+                true
+            );
+            componentGraphs.emplace_back(componentGraph);
+        }
+    }
+
 public:
     GraphEditor(
         const Doc &doc,
@@ -120,20 +192,23 @@ public:
         , inBus(inBus)
         , outBus(outBus)
         , textEditor(subscribedCGD)
-        , graphView(
-            viewPort,
+        , rootView(
+            *this,
             doc,
             subscribedCGD,
             inBus,
             outBus
         )
+        , editorStack(TabbedButtonBar::TabsAtTop)
     {
-        viewPort.setViewedComponent(&graphView, false);
         addAndMakeVisible(grid);
         grid.addComponent(&textEditor);
-        grid.addComponent(&viewPort);
+        grid.addComponent(&editorStack);
         grid.addComponent(&docGrid);
         grid.setColoumns({0.125f, 0.75f, 0.125f});
+
+        editorStack.addTab("root", Colours::black, &rootView, false);
+
         docGrid.addComponent(&docView);
         docGrid.addComponent(&docList);
         docGrid.setColoumns({1.0f});

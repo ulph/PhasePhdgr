@@ -31,7 +31,7 @@ void GraphView::propagateUserModelChange() {
 
 
 void GraphView::mouseDown(const MouseEvent & event) {
-    parent.setScrollOnDragEnabled(true);
+    viewPort.setScrollOnDragEnabled(true);
     bool modelChanged = false;
     bool userInteraction = false;
     XY mousePos(event.x, event.y);
@@ -81,7 +81,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         }
     }
     if (userInteraction) {
-        parent.setScrollOnDragEnabled(false);
+        viewPort.setScrollOnDragEnabled(false);
         repaint();
     }
     gfxGraphLock.clear(std::memory_order_release);

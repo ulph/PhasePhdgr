@@ -17,26 +17,29 @@
 #include <atomic>
 #include <deque>
 
+class GraphEditor;
 
 class GraphView : public Component
 {
 
 public:
     GraphView(
-        Viewport& parent,
+        GraphEditor& graphEditor,
+        Viewport& viewPort,
         const Doc& doc,
         SubValue<ConnectionGraphDescriptor> & subscribedCGD,
         const ModuleVariable& inBus,
         const ModuleVariable& outBus
     )
         : subscribedCGD(subscribedCGD)
-        , parent(parent)
+        , graphEditor(graphEditor)
+        , viewPort(viewPort)
         , doc(doc)
         , inBus(inBus)
         , outBus(outBus)
     {
         setBoundsRelative(0, 0, 1, 1);
-        parent.setScrollOnDragEnabled(true);
+        viewPort.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD.subscribe(
             [this](const PhasePhckr::ConnectionGraphDescriptor& g){
                 setGraph(g);
@@ -71,7 +74,8 @@ private:
     int subscribedCGDhandle;
     SubValue<ConnectionGraphDescriptor> & subscribedCGD;
 
-    Viewport& parent;
+    GraphEditor& graphEditor;
+    Viewport& viewPort;
 
     ModuleVariable inBus;
     ModuleVariable outBus;

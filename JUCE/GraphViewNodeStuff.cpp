@@ -44,7 +44,7 @@ void BFSfindPathsY(
         auto n = p.first;
         auto d = p.second;
         if (d <= positions[n].y) continue;
-        positions[n].y = d;
+        positions[n].y = (float)d;
         if (n == terminator) continue;
         auto it = connections.find(n);
         if (it == connections.end()) continue;

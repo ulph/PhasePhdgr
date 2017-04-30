@@ -1,18 +1,19 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
 #include "GraphViewGfx.hpp"
 #include "design.hpp"
-#include <unordered_set>
 #include "GraphViewNodeStuff.hpp"
+#include <queue>
+#include <set>
+#include <assert.h>
 
 using namespace std;
 
-void updateNodesY(
-    const string & node,
+void DFSfindPathsY(
+    string node,
     ModulePositionMap & positions,
-    const ConnectionsMap & undirectedConnections,
+    const ConnectionsMap & connections,
     int depth,
     const std::string & terminator
 )
@@ -21,15 +22,44 @@ void updateNodesY(
     if (depth <= currentDepth) return;
     positions[node].y = (float)depth;
     if (node == terminator) return;
-    for (const auto &c : undirectedConnections.at(node)) {
-        updateNodesY(c, positions, undirectedConnections, depth - 1, terminator);
+    auto it = connections.find(node);
+    if (it == connections.end()) return;
+    for (const auto &c : it->second) {
+        DFSfindPathsY(c, positions, connections, depth - 1, terminator);
     }
 }
 
 
-void setNodeY(
+void BFSfindPathsY(
+    const string & n_init,
+    ModulePositionMap & positions,
+    const ConnectionsMap & connections,
+    const int d_init,
+    const string & terminator
+) {
+    queue<pair<string,int>> nextNodes;
+    nextNodes.push(make_pair(n_init, d_init));
+    while (nextNodes.size()) {
+        auto p = nextNodes.front(); nextNodes.pop();
+        auto n = p.first;
+        auto d = p.second;
+        if (d <= positions[n].y) continue;
+        positions[n].y = d;
+        if (n == terminator) continue;
+        auto it = connections.find(n);
+        if (it == connections.end()) continue;
+        for (const auto &c : it->second) {
+            nextNodes.push(make_pair(c, d - 1));
+        }
+    }
+}
+
+
+void findLongestPathY(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & undirectedConnections,
+    const ConnectionsMap & backwardsConnections,
+    const ConnectionsMap & forwardsConnections,
     const string & start,
     const string & stop
 ) {
@@ -37,9 +67,22 @@ void setNodeY(
     y coordinate for a node is defined as it's distance to 'stop'
     */
 
-    int depth = 0;
-    updateNodesY(
-        stop, modulePositions, undirectedConnections, depth, start
+    /*
+    DFSfindPathsY(
+        stop, 
+        modulePositions, 
+        undirectedConnections, 
+        0, 
+        start
+    );
+    */
+
+    BFSfindPathsY(
+        stop,
+        modulePositions, 
+        undirectedConnections,
+        0, 
+        start
     );
 
     // special case to make inBus always at the top
@@ -54,6 +97,7 @@ void setNodeY(
     for (auto &p : modulePositions) {
         p.second.y -= y_bias;
     }
+
 }
 
 
@@ -78,10 +122,12 @@ void setNodePositions(
     // (convinience) store the connections between nodes
     ConnectionsMap undirectedConnections;
     ConnectionsMap backwardsConnections;
+    ConnectionsMap forwardsConnections;
     for (const auto &mpc : connectionGraphDescriptor.connections) {
         undirectedConnections[mpc.source.module].insert(mpc.target.module);
         undirectedConnections[mpc.target.module].insert(mpc.source.module);
-        backwardsConnections[mpc.source.module].insert(mpc.target.module);
+        backwardsConnections[mpc.target.module].insert(mpc.source.module);
+        forwardsConnections[mpc.source.module].insert(mpc.target.module);
     }
 
     // initial positions
@@ -91,9 +137,11 @@ void setNodePositions(
     modulePositions[start] = XY(0, INT_MIN);
     modulePositions[stop] = XY(0, INT_MIN);
 
-    // find all y positions
-    setNodeY(modulePositions, undirectedConnections, start, stop);
+    // find all y positions and return the longest path
+    findLongestPathY(modulePositions, undirectedConnections, backwardsConnections, forwardsConnections, start, stop);
 
-    // find all x positions
+    // set all x along the longest path to 0
+
+    // find all other x positions
     setNodeX(modulePositions, backwardsConnections, start, stop);
 }

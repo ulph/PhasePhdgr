@@ -12,7 +12,7 @@ using namespace std;
 void updateNodesY(
     const string & node,
     ModulePositionMap & positions,
-    const ConnectionsMap & unirectedConnections,
+    const ConnectionsMap & undirectedConnections,
     int depth,
     const std::string & terminator
 )
@@ -21,15 +21,15 @@ void updateNodesY(
     if (depth <= currentDepth) return;
     positions[node].y = (float)depth;
     if (node == terminator) return;
-    for (const auto &c : unirectedConnections.at(node)) {
-        updateNodesY(c, positions, unirectedConnections, depth - 1, terminator);
+    for (const auto &c : undirectedConnections.at(node)) {
+        updateNodesY(c, positions, undirectedConnections, depth - 1, terminator);
     }
 }
 
 
 void setNodeY(
     ModulePositionMap & modulePositions,
-    const ConnectionsMap & unirectedConnections,
+    const ConnectionsMap & undirectedConnections,
     const string & start,
     const string & stop
 ) {
@@ -39,7 +39,7 @@ void setNodeY(
 
     int depth = 0;
     updateNodesY(
-        stop, modulePositions, unirectedConnections, depth, start
+        stop, modulePositions, undirectedConnections, depth, start
     );
 
     // special case to make inBus always at the top
@@ -66,8 +66,6 @@ void setNodeX(
     /*
     x coordinate for a node is defined as number of branches from the centre path
     */
-
-    // find centre path - this is any of the longest (start<-stop) paths, just pick one of them
 }
 
 
@@ -78,11 +76,11 @@ void setNodePositions(
     const string &stop
 ) {
     // (convinience) store the connections between nodes
-    ConnectionsMap unirectedConnections;
+    ConnectionsMap undirectedConnections;
     ConnectionsMap backwardsConnections;
     for (const auto &mpc : connectionGraphDescriptor.connections) {
-        unirectedConnections[mpc.source.module].insert(mpc.target.module);
-        unirectedConnections[mpc.target.module].insert(mpc.source.module);
+        undirectedConnections[mpc.source.module].insert(mpc.target.module);
+        undirectedConnections[mpc.target.module].insert(mpc.source.module);
         backwardsConnections[mpc.source.module].insert(mpc.target.module);
     }
 
@@ -94,7 +92,7 @@ void setNodePositions(
     modulePositions[stop] = XY(0, INT_MIN);
 
     // find all y positions
-    setNodeY(modulePositions, unirectedConnections, start, stop);
+    setNodeY(modulePositions, undirectedConnections, start, stop);
 
     // find all x positions
     setNodeX(modulePositions, backwardsConnections, start, stop);

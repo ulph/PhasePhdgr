@@ -1,11 +1,9 @@
 #include "GraphView.h"
 #include <algorithm>
 #include <utility>
-
-typedef std::map<std::string, std::set<std::string>> ConnectionsMap;
+#include "GraphViewNodeStuff.hpp"
 
 using namespace PhasePhckr;
-
 
 void GraphView::propagateUserModelChange() {
     repaint();
@@ -195,24 +193,6 @@ void GraphView::paint (Graphics& g){
 }
 
 
-void updateNodesY(
-    const std::string & node,
-    std::map<std::string, XY> & positions,
-    const ConnectionsMap & connections,
-    int depth,
-    const std::string & terminator
-)
-{
-    int currentDepth = positions[node].y;
-    if (depth <= currentDepth) return;
-    positions[node].y = depth;
-    if (node == terminator) return;
-    for (const auto &c : connections.at(node)) {
-        updateNodesY(c, positions, connections, depth - 1, terminator);
-    }
-}
-
-
 void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   ConnectionGraphDescriptor connectionGraphDescriptor = graph;
@@ -239,30 +219,13 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
   for(const auto &mv : cgd.modules){
     modulePositions[mv.name] = XY(0, INT_MIN);
   }
-
   const std::string start = inBus.name;
   const std::string stop = outBus.name;
   modulePositions[start] = XY(0, INT_MIN);
   modulePositions[stop] = XY(0, INT_MIN);
 
-  // find all paths starting from inBus
-  int depth = 0;
-  updateNodesY(
-      stop, modulePositions, connections, depth, start
-  );
-  
-  // special case to make inBus always at the top
-  for (auto const &p: modulePositions){
-      if(p.first != start && p.second.y <= modulePositions[start].y){
-          modulePositions[start].y = p.second.y - 1;
-      }
-  }
-
-  // and shift everything to positive
-  int y_bias = modulePositions[start].y;
-  for (auto &p: modulePositions){
-      p.second.y -= y_bias;
-  }
+  // find all y positions
+  setNodeY(modulePositions, connections, start, stop);
 
   // TODO -- traverse X as well
 

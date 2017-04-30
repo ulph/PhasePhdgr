@@ -88,10 +88,10 @@ void setNodePositions(
 
     // initial positions
     for (const auto &mv : connectionGraphDescriptor.modules) {
-        modulePositions[mv.name] = XY(INT_MIN, INT_MIN);
+        modulePositions[mv.name] = XY(0, INT_MIN);
     }
-    modulePositions[start] = XY(INT_MIN, INT_MIN);
-    modulePositions[stop] = XY(INT_MIN, INT_MIN);
+    modulePositions[start] = XY(0, INT_MIN);
+    modulePositions[stop] = XY(0, INT_MIN);
 
     // find all y positions
     setNodeY(modulePositions, unirectedConnections, start, stop);

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 #include <map>
 #include <set>
 #include "GraphViewGfx.hpp"
@@ -10,7 +8,7 @@
 
 using namespace std;
 
-typedef map<string, unordered_set<string>> ConnectionsMap;
+typedef map<string, set<string>> ConnectionsMap;
 typedef map<string, XY> ModulePositionMap;
 
 void updateNodesY(

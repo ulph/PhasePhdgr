@@ -149,17 +149,29 @@ void setNodePositions(
         forwardsConnections[mpc.source.module].insert(mpc.target.module);
     }
 
+    const float x_unset = 1.0f; // should be something else later on
+
     // initial positions
     for (const auto &mv : connectionGraphDescriptor.modules) {
-        modulePositions[mv.name] = XY(0, INT_MIN);
+        modulePositions[mv.name] = XY(x_unset, INT_MIN);
     }
-    modulePositions[start] = XY(0, INT_MIN);
-    modulePositions[stop] = XY(0, INT_MIN);
+    modulePositions[start] = XY(x_unset, INT_MIN);
+    modulePositions[stop] = XY(x_unset, INT_MIN);
 
     // find all y positions and return the longest path
-    auto path = findLongestPathY(modulePositions, undirectedConnections, backwardsConnections, forwardsConnections, start, stop);
+    auto path = findLongestPathY(
+        modulePositions, 
+        undirectedConnections, 
+        backwardsConnections, 
+        forwardsConnections, 
+        start, 
+        stop
+    );
 
     // set all x along the longest path to 0
+    for (const auto& m : path) {
+        modulePositions[m].x = 0;
+    }
 
     // find all other x positions
     setNodeX(modulePositions, backwardsConnections, start, stop);

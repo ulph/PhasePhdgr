@@ -11,9 +11,6 @@
 
 using namespace std;
 
-const float initial_x = 20; // cannot be infinite or JUCE gui craps out - need to fix algo first
-
-
 void DFSfindDepths(
     string node,
     ModulePositionMap & positions,
@@ -226,10 +223,10 @@ void setNodePositions(
 
     // initial positions
     for (const auto &mv : connectionGraphDescriptor.modules) {
-        modulePositions[mv.name] = XY(initial_x, INT_MIN);
+        modulePositions[mv.name] = XY(FLT_MAX, INT_MIN);
     }
-    modulePositions[start] = XY(initial_x, INT_MIN);
-    modulePositions[stop] = XY(initial_x, INT_MIN);
+    modulePositions[start] = XY(FLT_MAX, INT_MIN);
+    modulePositions[stop] = XY(FLT_MAX, INT_MIN);
 
     // find all y positions and return the longest path
     setNodePositionsInner(

@@ -63,14 +63,15 @@ void BFSfindDepths(
 }
 
 
-void initializeX(
+void fallDownX(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & connections,
-    const string & start
+    const string & start,
+    int iteration
 ) {
     string n = start;
     while (true) {
-        modulePositions[n].x = 0;
+        modulePositions[n].x = (float)(((iteration % 2) == 0) ? (-iteration/2) : (iteration/2+1));
         auto itn = connections.find(n);
         // check if we can continue (graph may be broken)
         if (itn == connections.end()) break;
@@ -147,9 +148,23 @@ void setNodePositionsInner(
     // Remember, start now has y 0!
 
     // Iterate from the top and find the longest path
-    initializeX(modulePositions, forwardsConnections, start);
+    fallDownX(modulePositions, forwardsConnections, start, 0);
+    int iteration = 1;
+    for (const auto &c : forwardsConnections.at(start)) {
+        fallDownX(modulePositions, forwardsConnections, c, iteration);
+        iteration++;
+    }
 
-    // use the longest path as starting point for finding branches
+    // and shift everything to positive
+    float x_bias = FLT_MAX;
+    for (auto &p : modulePositions) {
+        if (p.second.x < x_bias) {
+            x_bias = p.second.x;
+        }
+    }
+    for (auto &p : modulePositions) {
+        p.second.x -= x_bias;
+    }
 }
 
 

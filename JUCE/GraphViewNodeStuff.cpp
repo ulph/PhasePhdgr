@@ -82,14 +82,15 @@ void fallDownX(
         // find the next node which has the lowest y, 
         // while still larger or equal to current y
         // -> this favours the leg connection with most stuff on it, 
-        //    but does not guarantee no overlap...
+        //    but does not guarantee no overlap along that leg should
+        //    there be split/join stuff along it
         auto nn = n;
         float min_y = FLT_MAX;
         for (const auto & c : itn->second) {
             auto n_y = modulePositions[n].y; 
             auto c_y = modulePositions[c].y;
             if ((min_y >= c_y)
-            && (c_y > n_y)
+            && (c_y < n_y) // need some check in the event of feedback loop
             )
             {
                 min_y = c_y;
@@ -146,12 +147,20 @@ void setNodePositionsInner(
         p.second.y -= y_bias;
     }
 
+
+    // Let's do x
+
     // Remember, start now has y 0!
 
     set<string> xFellFrom;
     set<string> xFellTrough;
     queue<pair<string, int>> xQueue;
-    xQueue.push(make_pair(start, 0));
+
+    // for each node, starting from 'stop',
+    // bubble upwards and set x.
+    // queue all connections, first being zero
+    // -- this does not yeild a global solution but is decent
+    xQueue.push(make_pair(stop, 0));
     while (xQueue.size()) {
         auto p = xQueue.front(); xQueue.pop();
         auto m = p.first;
@@ -178,7 +187,7 @@ void setNodePositionsInner(
     for (auto &p : modulePositions) {
         p.second.x -= x_bias;
     }
-    modulePositions[stop].x = modulePositions[start].x;
+    modulePositions[start].x = modulePositions[stop].x;
 }
 
 

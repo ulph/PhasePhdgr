@@ -11,7 +11,7 @@
 
 using namespace std;
 
-const float initial_x = 5; // cannot be infinite or JUCE gui craps out - need to fix algo first
+const float initial_x = 10; // cannot be infinite or JUCE gui craps out - need to fix algo first
 
 
 void DFSfindDepths(
@@ -88,7 +88,6 @@ void fallDownX(
             auto c_x = modulePositions[c].x;
             if ((min_y >= c_y)
             && (c_y > n_y)
-            && (c_x > n_x) // was initialize to infinity
             )
             {
                 min_y = c_y;
@@ -168,8 +167,10 @@ void setNodePositionsInner(
         fallDownX(modulePositions, forwardsConnections, m, d);
         auto cit = forwardsConnections.find(m);
         if (cit == forwardsConnections.end()) continue;
+        int i = 0;
         for (const auto& c : cit->second) {
-            xQueue.push(make_pair(c, d + 1));
+            xQueue.push(make_pair(c, d+i));
+            i++;
         }
     }
 

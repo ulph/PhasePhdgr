@@ -7,10 +7,11 @@
 #include <queue>
 #include <set>
 #include <assert.h>
+#include <cfloat>
 
 using namespace std;
 
-void DFSfindPathsY(
+void DFSfindDepths(
     string node,
     ModulePositionMap & positions,
     const ConnectionsMap & connections,
@@ -25,12 +26,12 @@ void DFSfindPathsY(
     auto it = connections.find(node);
     if (it == connections.end()) return;
     for (const auto &c : it->second) {
-        DFSfindPathsY(c, positions, connections, depth - 1, terminator);
+        DFSfindDepths(c, positions, connections, depth - 1, terminator);
     }
 }
 
 
-void BFSfindPathsY(
+void BFSfindDepths(
     const string & n_init,
     ModulePositionMap & positions,
     const ConnectionsMap & connections,
@@ -55,7 +56,7 @@ void BFSfindPathsY(
 }
 
 
-void findLongestPathY(
+vector<string> findLongestPathY(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & undirectedConnections,
     const ConnectionsMap & backwardsConnections,
@@ -77,7 +78,7 @@ void findLongestPathY(
     );
     */
 
-    BFSfindPathsY(
+    BFSfindDepths(
         stop,
         modulePositions, 
         undirectedConnections,
@@ -98,6 +99,24 @@ void findLongestPathY(
         p.second.y -= y_bias;
     }
 
+    // now, we can iterate from the top
+    vector<string> path;
+    string n = start;
+    while (true) {
+        path.push_back(n);
+        float min_y = FLT_MAX;
+        auto itn = forwardsConnections.find(n);
+        // check if we can continue (graph may be broken)
+        if (itn == forwardsConnections.end()) break;
+        // find the next node which as the lowest y (utilizing the topology)
+        for (const auto & c : itn->second) {
+            if (min_y > modulePositions[c].y) {
+                min_y = modulePositions[c].y;
+                n = c;
+            }
+        }
+    }
+    return path;
 }
 
 
@@ -138,7 +157,7 @@ void setNodePositions(
     modulePositions[stop] = XY(0, INT_MIN);
 
     // find all y positions and return the longest path
-    findLongestPathY(modulePositions, undirectedConnections, backwardsConnections, forwardsConnections, start, stop);
+    auto path = findLongestPathY(modulePositions, undirectedConnections, backwardsConnections, forwardsConnections, start, stop);
 
     // set all x along the longest path to 0
 

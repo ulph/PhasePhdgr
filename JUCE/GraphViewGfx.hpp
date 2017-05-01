@@ -82,9 +82,6 @@ struct XY {
         y -= rhs.y;
         return *this;
     }
-    operator bool() const {
-        return x == 0 && y == 0;
-    }
     operator Rectangle<float>() const {
         return Rectangle<float>(0, 0, x, y);
     }

@@ -247,7 +247,7 @@ void GraphView::updateRenderComponents(
     XY delta(0, 0);
     if (bounds.first.x < 0) delta.x = -bounds.first.x;
     if (bounds.first.y < 0) delta.y = -bounds.first.y;
-    if (delta) {
+    if (delta.x && delta.y) {
         gfxGraph.moveDelta(delta);
         bounds = gfxGraph.getBounds();
     }

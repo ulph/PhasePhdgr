@@ -12,6 +12,7 @@ set(PH_SRC
     GraphViewNodeStuff.hpp
     GraphViewGfx.hpp
     GraphEditor.hpp
+    GraphEditor.cpp
     PhasePhckrGrid.cpp
     PhasePhckrGrid.h
     PhasePhckrPluginEditor.cpp

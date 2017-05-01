@@ -55,9 +55,9 @@ void PhasePhckrXYScope::paint (Graphics& g)
     g.setColour(Colours::brown);
     for (int i = 0; i < sourceSizeL-1; ++i) {
         g.drawLine(
-            0.5f*size_x*(lineScale*sourceBufferL[i]+0.5f),
+            size_x*(lineScale*sourceBufferL[i]+0.5f),
             size_y*(lineScale*sourceBufferR[i]+0.5f),
-            0.5f*size_x*(lineScale*sourceBufferL[i+1]+0.5f),
+            size_x*(lineScale*sourceBufferL[i+1]+0.5f),
             size_y*(lineScale*sourceBufferR[i+1]+0.5f),
             0.25f
         );
@@ -66,7 +66,7 @@ void PhasePhckrXYScope::paint (Graphics& g)
     g.setColour(Colours::yellow);
     for (int i = 0; i < sourceSizeL; ++i) {
         g.setPixel(
-            (int)(0.5f*size_x*(blitScale*sourceBufferL[i]+0.5f)),
+            (int)(size_x*(blitScale*sourceBufferL[i]+0.5f)),
             (int)(size_y*(blitScale*sourceBufferR[i]+0.5f))
         );
     }

@@ -35,7 +35,7 @@ void PhasePhckrGrid::resized(){
     c->setBoundsRelative(
       x + 0.001f,// x
       y/numberOfRows + 0.001f,       // y
-      x + w - 0.002f,            // w
+      w - 0.002f,            // w
       1.f/numberOfRows - 0.002f      // h
     );
     x += w;

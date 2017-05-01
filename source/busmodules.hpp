@@ -25,12 +25,17 @@ public:
             outputs[i] = inputs[i];
         }
     }
+    virtual ModuleDoc makeDoc() {
+        auto d = Module::makeDoc();
+        d.inputs.clear();
+        return d;
+    }
     static Module* factory() { return new VoiceInputBus(); }
 };
 
-class StereoBus : public Module {
+class StereoOutBus : public Module {
 public:
-    StereoBus() {
+    StereoOutBus() {
         inputs.push_back(Pad("left"      )); outputs.push_back(Pad("left"      ));
         inputs.push_back(Pad("right"     )); outputs.push_back(Pad("right"     ));
     }
@@ -40,7 +45,12 @@ public:
         outputs[0].value = inputs[0].value;
         outputs[1].value = inputs[1].value;
     }
-    static Module* factory() { return new StereoBus(); }
+    virtual ModuleDoc makeDoc() {
+        auto d = Module::makeDoc();
+        d.outputs.clear();
+        return d;
+    }
+    static Module* factory() { return new StereoOutBus(); }
 };
 
 class EffectInputBus : public Module {
@@ -60,6 +70,11 @@ public:
         outputs[2].value = inputs[2].value;
         outputs[3].value = inputs[3].value;
         outputs[4].value = inputs[4].value;
+    }
+    virtual ModuleDoc makeDoc() {
+        auto d = Module::makeDoc();
+        d.inputs.clear();
+        return d;
     }
     static Module* factory() { return new EffectInputBus(); }
 };

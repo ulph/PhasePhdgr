@@ -10,7 +10,7 @@ EffectChain::EffectChain(const ConnectionGraphDescriptor& fxChain, const Compone
     ConnectionGraphDescriptor graphDescriptor = fxChain;
 
     connectionGraph.registerModule(c_EffectInput.type, &EffectInputBus::factory);
-    connectionGraph.registerModule(c_EffectOutput.type, &StereoBus::factory);
+    connectionGraph.registerModule(c_EffectOutput.type, &StereoOutBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
     graphDescriptor.modules.emplace_back(c_EffectInput);

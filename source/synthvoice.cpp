@@ -13,7 +13,7 @@ SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain, const Compon
     , doTerminate(false)
 {
     connectionGraph.registerModule(c_VoiceInput.type, &VoiceInputBus::factory);
-    connectionGraph.registerModule(c_VoiceOutput.type, &StereoBus::factory);
+    connectionGraph.registerModule(c_VoiceOutput.type, &StereoOutBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
     ConnectionGraphDescriptor graphDescriptor = voiceChain;

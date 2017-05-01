@@ -36,7 +36,7 @@ namespace PhasePhckr {
     }
 
     ModuleDoc getVoiceBusOutputDoc() {
-        StereoBus m;
+        StereoOutBus m;
         m.setName(c_VoiceOutput.type);
         return m.makeDoc();
     }
@@ -48,7 +48,7 @@ namespace PhasePhckr {
     }
 
     ModuleDoc getEffectBusOutputDoc() {
-        StereoBus m;
+        StereoOutBus m;
         m.setName(c_EffectOutput.type);
         return m.makeDoc();
     }

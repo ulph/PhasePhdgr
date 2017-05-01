@@ -74,7 +74,7 @@ public:
         return outputs;
     }
 
-    ModuleDoc makeDoc() {
+    virtual ModuleDoc makeDoc() {
         ModuleDoc doc;
         doc.type = name;
         doc.docString = docString();

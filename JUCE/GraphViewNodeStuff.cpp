@@ -147,12 +147,30 @@ void setNodePositionsInner(
 
     // Remember, start now has y 0!
 
+    /*
     // Iterate from the top and find the longest path
     fallDownX(modulePositions, forwardsConnections, start, 0);
     int iteration = 1;
     for (const auto &c : forwardsConnections.at(start)) {
         fallDownX(modulePositions, forwardsConnections, c, iteration);
         iteration++;
+    }
+    */
+    set<string> xFellFrom;
+    queue<pair<string, int>> xQueue;
+    xQueue.push(make_pair(start, 0));
+    while (xQueue.size()) {
+        auto p = xQueue.front(); xQueue.pop();
+        auto m = p.first;
+        if (xFellFrom.count(m)) continue;
+        auto d = p.second;
+        xFellFrom.insert(m);
+        fallDownX(modulePositions, forwardsConnections, m, d);
+        auto cit = forwardsConnections.find(m);
+        if (cit == forwardsConnections.end()) continue;
+        for (const auto& c : cit->second) {
+            xQueue.push(make_pair(c, d + 1));
+        }
     }
 
     // and shift everything to positive
@@ -165,6 +183,7 @@ void setNodePositionsInner(
     for (auto &p : modulePositions) {
         p.second.x -= x_bias;
     }
+    modulePositions[stop].x = modulePositions[start].x;
 }
 
 

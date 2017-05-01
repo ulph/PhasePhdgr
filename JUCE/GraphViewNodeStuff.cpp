@@ -89,7 +89,7 @@ vector<string> findLongestPathY(
     // special case to make inBus always at the top
     for (auto const &p : modulePositions) {
         if (p.first != start && p.second.y <= modulePositions[start].y) {
-            modulePositions[start].y = p.second.y - 1;
+            modulePositions[start].y = p.second.y - 1.f;
         }
     }
 
@@ -99,7 +99,7 @@ vector<string> findLongestPathY(
         p.second.y -= y_bias;
     }
 
-    // now, we can iterate from the top
+    // now, we can iterate from the top and find the longest path
     vector<string> path;
     string n = start;
     while (true) {
@@ -108,7 +108,7 @@ vector<string> findLongestPathY(
         auto itn = forwardsConnections.find(n);
         // check if we can continue (graph may be broken)
         if (itn == forwardsConnections.end()) break;
-        // find the next node which as the lowest y (utilizing the topology)
+        // find the next node which has the lowest y (utilizing the topology)
         for (const auto & c : itn->second) {
             if (min_y > modulePositions[c].y) {
                 min_y = modulePositions[c].y;

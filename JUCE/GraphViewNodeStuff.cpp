@@ -66,12 +66,16 @@ void BFSfindDepths(
 void fallDownX(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & connections,
+    set<string> & xFellTrough,
     const string & start,
     int iteration
 ) {
     string n = start;
     while (true) {
-        modulePositions[n].x = (float)(((iteration % 2) == 0) ? (-iteration/2) : (iteration/2+1));
+        if (!xFellTrough.count(n)) {
+            modulePositions[n].x = (float)(((iteration % 2) == 0) ? (-iteration / 2) : (iteration / 2 + 1));
+        }
+        xFellTrough.insert(n);
         auto itn = connections.find(n);
         // check if we can continue (graph may be broken)
         if (itn == connections.end()) break;
@@ -84,8 +88,6 @@ void fallDownX(
         for (const auto & c : itn->second) {
             auto n_y = modulePositions[n].y; 
             auto c_y = modulePositions[c].y;
-            auto n_x = modulePositions[n].x;
-            auto c_x = modulePositions[c].x;
             if ((min_y >= c_y)
             && (c_y > n_y)
             )
@@ -146,16 +148,8 @@ void setNodePositionsInner(
 
     // Remember, start now has y 0!
 
-    /*
-    // Iterate from the top and find the longest path
-    fallDownX(modulePositions, forwardsConnections, start, 0);
-    int iteration = 1;
-    for (const auto &c : forwardsConnections.at(start)) {
-        fallDownX(modulePositions, forwardsConnections, c, iteration);
-        iteration++;
-    }
-    */
     set<string> xFellFrom;
+    set<string> xFellTrough;
     queue<pair<string, int>> xQueue;
     xQueue.push(make_pair(start, 0));
     while (xQueue.size()) {
@@ -164,7 +158,7 @@ void setNodePositionsInner(
         if (xFellFrom.count(m)) continue;
         auto d = p.second;
         xFellFrom.insert(m);
-        fallDownX(modulePositions, undirectedConnections, m, d);
+        fallDownX(modulePositions, undirectedConnections, xFellTrough, m, d);
         auto cit = undirectedConnections.find(m);
         if (cit == undirectedConnections.end()) continue;
         int i = 0;

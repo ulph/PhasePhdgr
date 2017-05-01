@@ -7,24 +7,36 @@ void PhasePhckrScope::paint (Graphics& g)
     float size_x = (float)this->getWidth();
     float yScale = size_y / (2.0f*1.0f + 0.75f);
 
-    g.setColour(Colours::brown);
+    int sourceSize = 0;
+    const float * sourceBuffer = source.getBuffer(&sourceSize);
+
+    g.setColour(Colour(0x22ff0000));
     g.drawLine(0.0f, (size_y*0.5f), size_x, (size_y*0.5f), 0.5f);
     g.drawLine(0.0f, (size_y*0.5f + yScale), size_x, (size_y*0.5f + yScale), 0.5f);
     g.drawLine(0.0f, (size_y*0.5f - yScale), size_x, (size_y*0.5f - yScale), 0.5f);
 
-    int sourceSize = 0;
-    const float * sourceBuffer = source.getBuffer(&sourceSize);
-
-    g.setColour(Colours::yellow);
     if (sourceSize > 1 && size_x > 1) {
         float xScale = size_x / (float)(sourceSize - 1);
+
+        g.setColour(Colour(0x66ffff00));
         for (int i = 0; i < (sourceSize - 1); ++i) {
             g.drawLine(
                 i*xScale,
                 size_y*0.5f + yScale*sourceBuffer[i],
                 (i + 1)*xScale,
                 size_y*0.5f + yScale*sourceBuffer[i + 1],
-                1.f
+                2.0f
+            );
+        }
+
+        g.setColour(Colour(0xffffff00));
+        for (int i = 0; i < (sourceSize - 1); ++i) {
+            g.drawLine(
+                i*xScale,
+                size_y*0.5f + yScale*sourceBuffer[i],
+                (i + 1)*xScale,
+                size_y*0.5f + yScale*sourceBuffer[i + 1],
+                1.0f
             );
         }
     }
@@ -52,22 +64,32 @@ void PhasePhckrXYScope::paint (Graphics& g)
     float blitScale = 0.5f;
     float lineScale = 0.75f;
 
-    g.setColour(Colours::brown);
+    g.setColour(Colour(0x22ff0000));
     for (int i = 0; i < sourceSizeL-1; ++i) {
         g.drawLine(
             size_x*(lineScale*sourceBufferL[i]+0.5f),
             size_y*(lineScale*sourceBufferR[i]+0.5f),
             size_x*(lineScale*sourceBufferL[i+1]+0.5f),
             size_y*(lineScale*sourceBufferR[i+1]+0.5f),
-            0.25f
+            0.5f
         );
     }
 
-    g.setColour(Colours::yellow);
+    g.setColour(Colour(0x66ffff00));
+    for (int i = 0; i < sourceSizeL; ++i) {
+        g.fillEllipse(
+            (size_x*(blitScale*sourceBufferL[i]+0.5f)),
+            (size_y*(blitScale*sourceBufferR[i]+0.5f)),
+            2.0f,
+            2.0f
+        );
+    }
+
+    g.setColour(Colour(0xffffff00));
     for (int i = 0; i < sourceSizeL; ++i) {
         g.setPixel(
-            (int)(size_x*(blitScale*sourceBufferL[i]+0.5f)),
-            (int)(size_y*(blitScale*sourceBufferR[i]+0.5f))
+            (size_x*(blitScale*sourceBufferL[i] + 0.5f)),
+            (size_y*(blitScale*sourceBufferR[i] + 0.5f))
         );
     }
 

@@ -96,6 +96,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
     mainFrame.addTab("parameters", Colours::black, &performGrid, false);
+    performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f });
+
     mainFrame.addTab("voice", Colours::black, &voiceEditor, false);
     mainFrame.addTab("effect", Colours::black, &effectEditor, false);
 

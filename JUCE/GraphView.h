@@ -39,7 +39,6 @@ public:
         , inBus(inBus)
         , outBus(outBus)
     {
-        setBoundsRelative(0, 0, 1, 1);
         viewPort.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD.subscribe(
             [this](const PhasePhckr::ConnectionGraphDescriptor& g){

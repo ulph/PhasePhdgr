@@ -7,7 +7,6 @@ void PhasePhckrGrid::paint(Graphics& g){
   float size_x = (float)this->getWidth();
 
   g.setColour(Colours::darkgrey);
-  /*
   for(float i=0; i<numberOfRows; ++i){
     g.drawHorizontalLine((int)((i/numberOfRows) * size_y), 0.0f, size_x);
   }
@@ -17,7 +16,6 @@ void PhasePhckrGrid::paint(Graphics& g){
   for(int i=0; i<coloumnSizes.size(); ++i){
     g.drawVerticalLine((int)(coloumnSizes[i] * size_x), 0.0f, size_y);
   }
-  */
 }
 
 void PhasePhckrGrid::resized(){

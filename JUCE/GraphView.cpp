@@ -102,11 +102,13 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         for (auto &w : gfxGraph.wires) {
             w.calculatePath(mv);
         }
+        updateBounds(gfxGraph.getBounds());
         repaint();
     }
     if (looseWire.isValid) {
         looseWire.destination.x = (float)event.x;
         looseWire.destination.y = (float)event.y;
+        updateBounds(gfxGraph.getBounds());
         repaint();
     }
     gfxGraphLock.clear(memory_order_release);
@@ -165,10 +167,10 @@ void GraphView::updateBounds(const pair<XY, XY>& rectangle) {
 void GraphView::updateBounds(const XY & position, const XY & size){
     auto bounds = getBounds();
     if (bounds.getWidth() < (position.x + size.x)) {
-        bounds.setWidth((int)(position.x + size.x));
+        bounds.setWidth((int)(position.x + size.x) + 10);
     }
     if (bounds.getHeight() < (position.y + size.y)) {
-        bounds.setHeight((int)(position.y + size.y));
+        bounds.setHeight((int)(position.y + size.y) + 10);
     }
     setBounds(bounds);
 }

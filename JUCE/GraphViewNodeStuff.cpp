@@ -67,12 +67,21 @@ void fallDownX(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & connections,
     set<string> & xFellTrough,
+    set<pair<int, int>> & gridOccupation,
     const string & start,
     int iteration
 ) {
     string n = start;
     while (true) {
         if (!xFellTrough.count(n)) {
+            auto position = make_pair(iteration, modulePositions[n].y);
+            while (gridOccupation.count(position)) {
+                // something is allready there, move in x momentarily
+                iteration += 2; // odd even thing below ...
+                position = make_pair(iteration, modulePositions[n].y);
+            }
+            gridOccupation.insert(position);
+            // place symmetric around 0!
             modulePositions[n].x = (float)(((iteration % 2) == 0) ? (-iteration / 2) : (iteration / 2 + 1));
         }
         xFellTrough.insert(n);
@@ -152,9 +161,10 @@ void setNodePositionsInner(
 
     // Remember, start now has y 0!
 
-    set<string> xFellFrom;
-    set<string> xFellTrough;
-    queue<pair<string, int>> xQueue;
+    set<string> xFellFrom; // track from where we started
+    set<string> xFellTrough; // track where we passed through
+    set<pair<int, int>> gridOccupation; // track where things are placed to mitigate overlap
+    queue<pair<string, int>> xQueue; // node + x position to work over (as we do breadth-first)
 
     // for each node, starting from 'stop',
     // bubble upwards and set x.
@@ -167,7 +177,13 @@ void setNodePositionsInner(
         if (xFellFrom.count(m)) continue;
         auto d = p.second;
         xFellFrom.insert(m);
-        fallDownX(modulePositions, undirectedConnections, xFellTrough, m, d);
+        fallDownX(modulePositions, 
+            undirectedConnections, 
+            xFellTrough, 
+            gridOccupation, 
+            m, 
+            d
+        );
         auto cit = undirectedConnections.find(m);
         if (cit == undirectedConnections.end()) continue;
         int i = 0;

@@ -54,6 +54,11 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     applyVoiceChain();
     applyEffectChain();
 
+    for (int i = 0; i < 8*32; i++) {
+        auto knb_ptr = new PhasePhckrParameter(i);
+        floatParameters.push_back(knb_ptr);
+        addParameter(knb_ptr);
+    }
 }
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()

@@ -7,6 +7,25 @@
 #include "PhasePhckrGrid.h"
 #include "components.hpp"
 #include "Utils.hpp"
+#include <list>
+
+using namespace std;
+
+class PhasePhckrParameter : public AudioParameterFloat {
+    int idx;
+public:
+    PhasePhckrParameter(int idx)
+        : AudioParameterFloat(
+            to_string(idx),
+            to_string(idx / 8) + "_" + to_string(idx % 8),
+            0.0f,
+            1.0f,
+            0.0f
+            )
+        , idx(idx)
+    {
+    }
+};
 
 class PhasePhckrAudioProcessor  : public AudioProcessor
 {
@@ -72,6 +91,9 @@ public:
         activeVoice.set(activeVoiceHandle, voiceChain);
         activeEffect.set(activeEffectHandle, effectChain);
     }
+
+    vector<AudioParameterFloat *> floatParameters;
+    vector<AudioParameterBool *> boolParameters;
 
 };
 

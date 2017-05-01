@@ -148,6 +148,7 @@ void GraphView::mouseUp(const MouseEvent & event) {
         }
     }
     looseWire.isValid = false;
+    gfxGraph.moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
     gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();

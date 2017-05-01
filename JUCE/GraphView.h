@@ -38,6 +38,7 @@ public:
         , doc(doc)
         , inBus(inBus)
         , outBus(outBus)
+        , scale(1.0f)
     {
         viewPort.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD.subscribe(
@@ -57,6 +58,8 @@ public:
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
 private:
+    float scale;
+
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 

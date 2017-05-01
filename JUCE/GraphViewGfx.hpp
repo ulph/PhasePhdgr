@@ -392,6 +392,19 @@ struct GfxGraph {
             w.calculatePath(modules);
         }
     }
+    void moveIntoView() {
+        XY delta = {0, 0};
+        auto b = getBounds();
+        if (b.first.x < 0) {
+            delta.x = -b.first.x;
+        }
+        if (b.first.y < 0) {
+            delta.y = -b.first.y;
+        }
+        if (delta.x || delta.y) {
+            moveDelta(delta);
+        }
+    }
 };
 
 

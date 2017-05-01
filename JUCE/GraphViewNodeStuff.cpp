@@ -74,11 +74,11 @@ void fallDownX(
     string n = start;
     while (true) {
         if (!xFellTrough.count(n)) {
-            auto position = make_pair(iteration, modulePositions[n].y);
+            auto position = make_pair(iteration, (int)modulePositions[n].y);
             while (gridOccupation.count(position)) {
                 // something is allready there, move in x momentarily
                 iteration += 1; // odd even thing below ... +1 or +2 depends on the graph I think
-                position = make_pair(iteration, modulePositions[n].y);
+                position = make_pair(iteration, (int)modulePositions[n].y);
             }
             gridOccupation.insert(position);
             // place symmetric around 0!

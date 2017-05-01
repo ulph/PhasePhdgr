@@ -14,7 +14,7 @@ using namespace std;
 
 void _stylize(TextEditor* t);
 void _stylize(ListBox* l);
-
+void _stylize(FileListComponent* l);
 
 class DocListModel : public ListBoxModel {
 private:

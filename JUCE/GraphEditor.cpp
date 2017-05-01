@@ -18,6 +18,14 @@ void _stylize(ListBox* l) {
     l->setColour(ListBox::outlineColourId, Colours::black);
 }
 
+void _stylize(FileListComponent* l) {
+    l->setMultipleSelectionEnabled(false);
+    l->setColour(FileListComponent::backgroundColourId, Colours::black);
+    l->setColour(FileListComponent::outlineColourId, Colours::black);
+    l->setColour(FileListComponent::highlightColourId, Colours::darkgreen);
+    l->setColour(DirectoryContentsDisplayComponent::textColourId, Colours::green);
+    l->setColour(DirectoryContentsDisplayComponent::highlightColourId, Colours::darkgreen);
+}
 
 DocListModel::DocListModel(const std::map<std::string, ModuleDoc> & moduleDocs, TextEditor & docView)
     : ListBoxModel()
@@ -143,7 +151,10 @@ GraphEditor::GraphEditor(
     docGrid.addComponent(&docList);
     docGrid.setColoumns({ 1.0f });
     docList.updateContent();
+
     _stylize(&docView);
+    _stylize(&docList);
+
     resized();
 }
 

@@ -108,6 +108,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     effectDirectoryList.addListener(&effectListListener);
     voiceDirectoryWatcher.setDirectory(PhasePhckrFileStuff::voicesDir, true, true);
     effectDirectoryWatcher.setDirectory(PhasePhckrFileStuff::effectsDir, true, true);
+    _stylize(&voiceDirectoryList);
+    _stylize(&effectDirectoryList);
 
 #if INTERCEPT_STD_STREAMS
     mainFrame.addTab("debug", g_tabColor, &debugTab, false);

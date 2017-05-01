@@ -11,14 +11,18 @@
 
 using namespace std;
 
+const float initial_x = 5; // cannot be infinite or JUCE gui craps out - need to fix algo first
+
+
 void DFSfindDepths(
     string node,
     ModulePositionMap & positions,
     const ConnectionsMap & connections,
     int depth,
-    const std::string & terminator
+    const string & terminator
 )
 {
+    // depth-first version
     int currentDepth = (int)positions[node].y;
     if (depth <= currentDepth) return;
     positions[node].y = (float)depth;
@@ -38,6 +42,9 @@ void BFSfindDepths(
     const int d_init,
     const string & terminator
 ) {
+    // breadth-first version
+    // Note - Djikstra won't do here actually, 
+    // as we _want_ to travel the graph in all directions
     queue<pair<string,int>> nextNodes;
     nextNodes.push(make_pair(n_init, d_init));
     while (nextNodes.size()) {
@@ -56,7 +63,45 @@ void BFSfindDepths(
 }
 
 
-vector<string> findLongestPathY(
+void initializeX(
+    ModulePositionMap & modulePositions,
+    const ConnectionsMap & connections,
+    const string & start
+) {
+    string n = start;
+    while (true) {
+        modulePositions[n].x = 0;
+        auto itn = connections.find(n);
+        // check if we can continue (graph may be broken)
+        if (itn == connections.end()) break;
+        // find the next node which has the lowest y, 
+        // while still larger or equal to current y
+        // -> this favours the leg connection with most stuff on it, 
+        //    but does not guarantee no overlap...
+        auto nn = n;
+        float min_y = FLT_MAX;
+        for (const auto & c : itn->second) {
+            auto n_y = modulePositions[n].y; 
+            auto c_y = modulePositions[c].y;
+            auto n_x = modulePositions[n].x;
+            auto c_x = modulePositions[c].x;
+            if ((min_y >= c_y)
+            && (c_y > n_y)
+            && (c_x > n_x) // was initialize to infinity
+            )
+            {
+                min_y = c_y;
+                nn = c;
+            }
+        }
+        if (nn == n) break; // nowhere to go
+        n = nn;
+    }
+    return;
+}
+
+
+void setNodePositionsInner(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & undirectedConnections,
     const ConnectionsMap & backwardsConnections,
@@ -99,36 +144,12 @@ vector<string> findLongestPathY(
         p.second.y -= y_bias;
     }
 
-    // now, we can iterate from the top and find the longest path
-    vector<string> path;
-    string n = start;
-    while (true) {
-        path.push_back(n);
-        float min_y = FLT_MAX;
-        auto itn = forwardsConnections.find(n);
-        // check if we can continue (graph may be broken)
-        if (itn == forwardsConnections.end()) break;
-        // find the next node which has the lowest y (utilizing the topology)
-        for (const auto & c : itn->second) {
-            if (min_y > modulePositions[c].y) {
-                min_y = modulePositions[c].y;
-                n = c;
-            }
-        }
-    }
-    return path;
-}
+    // Remember, start now has y 0!
 
+    // Iterate from the top and find the longest path
+    initializeX(modulePositions, forwardsConnections, start);
 
-void setNodeX(
-    ModulePositionMap & modulePositions,
-    const ConnectionsMap & backwardsConnections,
-    const string & start,
-    const string & stop
-) {
-    /*
-    x coordinate for a node is defined as number of branches from the centre path
-    */
+    // use the longest path as starting point for finding branches
 }
 
 
@@ -149,17 +170,15 @@ void setNodePositions(
         forwardsConnections[mpc.source.module].insert(mpc.target.module);
     }
 
-    const float x_unset = 1.0f; // should be something else later on
-
     // initial positions
     for (const auto &mv : connectionGraphDescriptor.modules) {
-        modulePositions[mv.name] = XY(x_unset, INT_MIN);
+        modulePositions[mv.name] = XY(initial_x, INT_MIN);
     }
-    modulePositions[start] = XY(x_unset, INT_MIN);
-    modulePositions[stop] = XY(x_unset, INT_MIN);
+    modulePositions[start] = XY(initial_x, INT_MIN);
+    modulePositions[stop] = XY(initial_x, INT_MIN);
 
     // find all y positions and return the longest path
-    auto path = findLongestPathY(
+    setNodePositionsInner(
         modulePositions, 
         undirectedConnections, 
         backwardsConnections, 
@@ -167,12 +186,4 @@ void setNodePositions(
         start, 
         stop
     );
-
-    // set all x along the longest path to 0
-    for (const auto& m : path) {
-        modulePositions[m].x = 0;
-    }
-
-    // find all other x positions
-    setNodeX(modulePositions, backwardsConnections, start, stop);
 }

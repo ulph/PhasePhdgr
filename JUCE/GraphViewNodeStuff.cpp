@@ -60,17 +60,17 @@ void BFSfindDepths(
 }
 
 
-void fallDownX(
+void bubbleUpSetX(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & connections,
-    set<string> & xFellTrough,
+    set<string> & bubbledThrough,
     set<pair<int, int>> & gridOccupation,
     const string & start,
     int iteration
 ) {
     string n = start;
     while (true) {
-        if (!xFellTrough.count(n)) {
+        if (!bubbledThrough.count(n)) {
             auto position = make_pair(iteration, (int)modulePositions[n].y);
             while (gridOccupation.count(position)) {
                 // something is allready there, move in x momentarily
@@ -81,7 +81,7 @@ void fallDownX(
             // place symmetric around 0!
             modulePositions[n].x = (float)(((iteration % 2) == 0) ? (-iteration / 2) : (iteration / 2 + 1));
         }
-        xFellTrough.insert(n);
+        bubbledThrough.insert(n);
         auto itn = connections.find(n);
         // check if we can continue (graph may be broken)
         if (itn == connections.end()) break;
@@ -158,8 +158,8 @@ void setNodePositionsInner(
 
     // Remember, start now has y 0!
 
-    set<string> xFellFrom; // track from where we started
-    set<string> xFellTrough; // track where we passed through
+    set<string> bubbledFrom; // track from where we started
+    set<string> bubbledThrough; // track where we passed through
     set<pair<int, int>> gridOccupation; // track where things are placed to mitigate overlap
     queue<pair<string, int>> xQueue; // node + x position to work over (as we do breadth-first)
 
@@ -171,12 +171,12 @@ void setNodePositionsInner(
     while (xQueue.size()) {
         auto p = xQueue.front(); xQueue.pop();
         auto m = p.first;
-        if (xFellFrom.count(m)) continue;
+        if (bubbledFrom.count(m)) continue;
         auto d = p.second;
-        xFellFrom.insert(m);
-        fallDownX(modulePositions, 
+        bubbledFrom.insert(m);
+        bubbleUpSetX(modulePositions,
             undirectedConnections, 
-            xFellTrough, 
+            bubbledThrough,
             gridOccupation, 
             m, 
             d

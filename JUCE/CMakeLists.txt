@@ -21,7 +21,6 @@ set(PH_SRC
     PhasePhckrPluginProcessor.h
     PhasePhckrScope.cpp
     PhasePhckrScope.h
-    Style.hpp
     Utils.hpp
 )
 

@@ -3,11 +3,8 @@
 #include "phasephckr.h"
 #include <cstring>
 #include "DirectoryWatcher.hpp"
-#include "Style.hpp"
 #include <typeinfo>
 #include "docs.hpp"
-
-PhasePhckrLookAndFeel g_lookAndFeel;
 
 using namespace PhasePhckrFileStuff;
 
@@ -83,14 +80,13 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
 #endif
 {
 
-    setLookAndFeel(&g_lookAndFeel);
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);
     setResizable(true, true);
     setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
     addAndMakeVisible(mainFrame);
 
-    mainFrame.addTab("scopes", g_tabColor, &scopeGrid, false);
+    mainFrame.addTab("scopes", Colours::black, &scopeGrid, false);
     scopeGrid.addComponent(&voiceScopeL);
     scopeGrid.addComponent(&voiceScopeXY);
     scopeGrid.addComponent(&voiceScopeR);
@@ -99,11 +95,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     scopeGrid.addComponent(&outputScopeR);
     scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
-    mainFrame.addTab("parameters", g_tabColor, &performGrid, false);
-    mainFrame.addTab("voice", g_tabColor, &voiceEditor, false);
-    mainFrame.addTab("effect", g_tabColor, &effectEditor, false);
+    mainFrame.addTab("parameters", Colours::black, &performGrid, false);
+    mainFrame.addTab("voice", Colours::black, &voiceEditor, false);
+    mainFrame.addTab("effect", Colours::black, &effectEditor, false);
 
-    mainFrame.addTab("files", g_tabColor, &filesGrid, false);
+    mainFrame.addTab("files", Colours::black, &filesGrid, false);
     filesGrid.addComponent(&voiceDirectoryList);
     filesGrid.addComponent(&effectDirectoryList);
     voiceDirectoryList.addListener(&voiceListListener);

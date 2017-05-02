@@ -12,8 +12,8 @@ using namespace PhasePhckr;
 using namespace std;
 
 const float c_GridSize = 200;
-const float c_NodeSize = 100;
-const float c_PortSize = 7;
+const float c_NodeSize = 125;
+const float c_PortSize = 10;
 
 
 static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize) {
@@ -23,7 +23,7 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
     y1 += 0.5f*r;
 
     PathStrokeType strokeType(1);
-    strokeType.setStrokeThickness(1);
+    strokeType.setStrokeThickness(1.5f);
 
     path.startNewSubPath(x0, y0);
 
@@ -115,18 +115,30 @@ struct GfxPort {
         );
     }
 
-    void draw(Graphics & g) const {
+    void draw(Graphics & g, int rowIndex=-1) const {
         g.setColour(Colours::black);
         g.fillEllipse(position.x, position.y, c_PortSize, c_PortSize);
         g.setColour(Colours::grey);
         g.drawEllipse(position.x, position.y, c_PortSize, c_PortSize, 1.0f);
-        g.drawText(
+
+        int textX = (int)(position.x - c_PortSize);
+        int textY = (int)(position.y + (isInput ? 1.f : -1.f)*1.5f*c_PortSize + (isInput ? 0 : -0.5*c_PortSize));
+        int textW = (int)(3.f * c_PortSize);
+        int textH = (int)c_PortSize;
+        if (rowIndex >= 0) {
+            textX -= (int)(1.5*c_PortSize);
+            textW *= 2;
+            textY += rowIndex*(int)((isInput ? 1.75 : -1.75)*c_PortSize);
+        }
+
+        g.drawFittedText(
             port, 
-            (int)(position.x - c_PortSize), 
-            (int)(position.y + (isInput?1.f:-2.f)*1.5f*c_PortSize), 
-            (int)(3.f * c_PortSize), 
-            (int)c_PortSize, 
-            Justification::centred
+            textX,
+            textY,
+            textW,
+            textH,
+            Justification::centred,
+            1
         );
     }
 
@@ -145,6 +157,9 @@ struct GfxModule {
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
 
+    XY deleteButtonPosition;
+    float deleteButtonRadius = c_PortSize;
+
     void repositionPorts() {
         for (auto it = inputs.begin(); it != inputs.end(); ++it)
         {
@@ -159,6 +174,10 @@ struct GfxModule {
             it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
             it->position.y = position.y + size.y - 0.5f*c_PortSize;
         }
+
+        deleteButtonPosition.y = position.y + 0.5f*size.y - 0.5f*deleteButtonRadius;
+        deleteButtonPosition.x = position.x + size.x - deleteButtonRadius;
+
     }
 
     bool within(XY p) const {
@@ -166,7 +185,7 @@ struct GfxModule {
             && p.x < position.x + size.x
             && p.y > position.y
             && p.y < position.y + size.y
-            );
+        );
     }
 
     bool withinPort(XY p, XY& portPosition, std::string& portName, bool & inputPort) const {
@@ -226,7 +245,7 @@ struct GfxModule {
         
         g.setColour(Colours::white);
         g.drawFittedText(
-            module.name, 
+            module.name + "\n" + module.type, 
             (int)position.x, 
             (int)position.y, 
             (int)size.x, 
@@ -235,12 +254,28 @@ struct GfxModule {
             1
         );
 
+        g.setColour(Colours::darkgrey);
+        g.drawRoundedRectangle(
+            deleteButtonPosition.x,
+            deleteButtonPosition.y,
+            deleteButtonRadius,
+            deleteButtonRadius,
+            1.f,
+            1.f
+        );
+
+        int row = 0;
+        int numRows = (inputs.size() > 4) ? 2 : 1;
         for (const auto &i : inputs) {
-            i.draw(g);
+            i.draw(g, (row++ % numRows));
         }
+
+        row = 0;
+        numRows = (outputs.size() > 4) ? 2 : 1;
         for (const auto &o : outputs) {
-            o.draw(g);
+            o.draw(g, (row++ % numRows));
         }
+
     }
 
     GfxModule(
@@ -267,7 +302,7 @@ struct GfxModule {
         }
         size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
         if (max_p > 3.0f) {
-            size.x = c_NodeSize + c_NodeSize*(max_p - 3.0f) / 6.0f;
+            size.x = c_NodeSize + c_NodeSize*(max_p - 3.0f) / 5.0f;
         }
         repositionPorts();
     }
@@ -433,11 +468,7 @@ struct GfxGraph {
             w.calculatePath(modules);
         }
     }
-
-    bool disconnect(const ModulePort &source, const ModulePort &target) {
-        // NYI
-    }
-
+    
     bool disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
         for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
             bool nearestSource = false;
@@ -531,5 +562,33 @@ struct GfxGraph {
         }
         return foundPort;
     }
+
+    bool remove(const string &module) {
+        bool foundModule = false;
+        int mIdx = 0;
+        for (const auto& m : modules) {
+            if (m.module.name == module) {
+                foundModule = true;
+                break;
+            }
+            else {
+                mIdx++;
+            }
+        }
+        if (foundModule) {
+            modules.erase(modules.begin() + mIdx);
+            auto wit = wires.begin();
+            while (wit != wires.end()) {
+                if (wit->connection.source.module == module || wit->connection.target.module == module) {
+                    wires.erase(wit++);
+                }
+                else {
+                    ++wit;
+                }
+            }
+        }
+        return foundModule;
+    }
+
 };
 

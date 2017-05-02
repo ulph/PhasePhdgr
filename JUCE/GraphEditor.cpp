@@ -187,7 +187,8 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         ModuleVariable outBus = { componentName + " outBus", componentType };
         editorStack.addTab(
             componentName + " (" + componentType + ")",
-            Colours::black, new GraphViewBundle(
+            Colours::black, 
+            new GraphViewBundle(
                 *this,
                 doc,
                 componentGraph,

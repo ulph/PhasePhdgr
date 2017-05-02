@@ -466,25 +466,36 @@ struct GfxGraph {
         auto d = doc.get();
         auto mIt = d.find(type);
         if (mIt != d.end()) {
+            vector<ModulePortValue> mpv;
             didAdd = add(
                 ModuleVariable{ "new_" + type, type },
                 doc,
-                pos
+                pos,
+                mpv
             );
         }
         return didAdd;
     }
 
-    bool add(const ModuleVariable& module, const Doc & doc, const XY &pos) {
-        vector<ModulePortValue> mpv;
+    bool add(const ModuleVariable& module, const Doc & doc, const XY &pos, const std::vector<ModulePortValue> &mpv, bool absolutPositions=true) {
+        auto position = pos;
+        if (absolutPositions) {
+            position.x = (position.x - 0.5f*c_NodeSize) / c_GridSize;
+            position.y = (position.y - 0.5f*c_NodeSize) / c_GridSize;
+        }
         auto gfxMv = GfxModule(
             module,
-            (pos.x - 0.5f*c_NodeSize) / c_GridSize,
-            (pos.y - 0.5f*c_NodeSize) / c_GridSize,
+            position.x,
+            position.y,
             doc,
             mpv
         );
-        modules.push_back(gfxMv);
+        modules.emplace_back(gfxMv);
+        return true;
+    }
+
+    bool connect(const ModulePortConnection &connection) {
+        wires.emplace_back(GfxWire(connection, modules));
         return true;
     }
 
@@ -492,8 +503,7 @@ struct GfxGraph {
         ModulePortConnection newCon;
         newCon.source = source;
         newCon.target = target;
-        wires.emplace_back(GfxWire(newCon, modules));
-        return true;
+        return connect(newCon);
     }
 
     bool connect(const GfxLooseWire &looseWire, const XY &mousePos) {

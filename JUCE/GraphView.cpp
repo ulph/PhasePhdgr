@@ -126,7 +126,11 @@ void GraphView::itemDropped(const SourceDetails & dragSourceDetails){
     while (gfxGraphLock.test_and_set(memory_order_acquire));
     auto thing = dragSourceDetails.description.toString().toStdString();
     auto dropPos = dragSourceDetails.localPosition;
-    bool modelChanged = gfxGraph.add(thing, doc, XY(dropPos.x, dropPos.y));
+    bool modelChanged = gfxGraph.add(
+        thing, 
+        doc, 
+        XY((float)dropPos.x, (float)dropPos.y)
+    );
     gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }
@@ -196,21 +200,17 @@ void GraphView::updateRenderComponents(
     gfxGraph = GfxGraph();
 
     for (const auto & m : cgd_copy.modules) {
-        gfxGraph.modules.emplace_back(
-            GfxModule(
-                m, 
-                mp.at(m.name).x,
-                mp.at(m.name).y,
-                doc, 
-                cgd_copy.values
-            )
+        gfxGraph.add(
+            m, 
+            doc, 
+            XY(mp.at(m.name).x, mp.at(m.name).y), 
+            cgd_copy.values,
+            false
         );
     }
 
     for (const auto & c : cgd_copy.connections) {
-        gfxGraph.wires.emplace_back(
-            GfxWire(c, gfxGraph.modules)
-        );
+        gfxGraph.connect(c);
     }
 
     auto bounds = gfxGraph.getBounds();

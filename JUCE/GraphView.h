@@ -20,26 +20,8 @@
 
 class GraphEditor;
 
-class GraphView : public Component, public DragAndDropContainer
+class GraphView : public Component, public DragAndDropTarget
 {
-protected:
-    virtual void dragOperationStarted (){
-
-    }
-
-    virtual void dragOperationEnded (){
-        auto juceThing = getCurrentDragDescription().toString();
-        auto thing = juceThing.toStdString();
-        auto d = doc.get();
-        auto mIt = d.find(thing);
-        if(mIt != d.end()){
-            auto mv = ModuleVariable{string("new "+thing), string(thing)};
-            vector<ModulePortValue> mpv;
-            auto gfxMv = GfxModule(mv, mousePosition.x, mousePosition.y, doc, mpv);
-            gfxGraph.modules.push_back(gfxMv);
-        }
-    }
-
 public:
     GraphView(
         GraphEditor& graphEditor,
@@ -71,6 +53,11 @@ public:
     virtual void mouseDrag(const MouseEvent & event) override;
     virtual void mouseUp(const MouseEvent & event) override;
     virtual void mouseMove(const MouseEvent & event) override;
+    virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails){
+        return true; // why not
+    }
+    virtual void itemDropped(const SourceDetails & dragSourceDetails) override;
+
     void paint (Graphics& g);
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 

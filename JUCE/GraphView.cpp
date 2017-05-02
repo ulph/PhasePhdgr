@@ -173,6 +173,25 @@ void GraphView::updateBounds(const pair<XY, XY>& rectangle) {
 }
 
 
+void GraphView::itemDropped(const SourceDetails & dragSourceDetails){
+    while (gfxGraphLock.test_and_set(memory_order_acquire));
+    bool modelChanged = false;
+    auto juceThing = dragSourceDetails.description;
+    auto thing = juceThing.toString().toStdString();
+    auto d = doc.get();
+    auto mIt = d.find(thing);
+    if(mIt != d.end()){
+        auto mv = ModuleVariable{string("new "+thing), string(thing)};
+        vector<ModulePortValue> mpv;
+        auto gfxMv = GfxModule(mv, mousePosition.x, mousePosition.y, doc, mpv);
+        gfxGraph.modules.push_back(gfxMv);
+        modelChanged = true;
+    }
+    gfxGraphLock.clear(memory_order_release);
+    if (modelChanged) propagateUserModelChange();
+}
+
+
 void GraphView::updateBounds(const XY & position, const XY & size){
     auto bounds = getBounds();
     if (bounds.getWidth() < (position.x + size.x)) {

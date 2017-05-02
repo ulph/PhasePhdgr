@@ -17,7 +17,7 @@ void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
 
-class EditorTabbedComponent : public TabbedComponent, public DragAndDropContainer{
+class EditorTabbedComponent : public TabbedComponent{
 public:
     EditorTabbedComponent(TabbedButtonBar::Orientation o)
         : TabbedComponent(o)
@@ -53,25 +53,17 @@ public:
 };
 
 
-class GraphViewPort : public Viewport, public DragAndDropContainer  {
-protected:
-    virtual void dragOperationStarted (){
-        cout << " wup " << endl;
-    }
+class GraphViewPort : public Viewport{
 public:
     GraphViewPort() : Viewport("...") {}
     void mouseWheelMove(const MouseEvent &, const MouseWheelDetails &) override {}
 };
 
 
-class GraphViewBundle : public Component, public DragAndDropContainer {
+class GraphViewBundle : public Component{
 private:
     GraphViewPort viewPort;
     GraphView graphView;
-protected:
-    virtual void dragOperationStarted (){
-        cout << " wee " << endl;
-    }
 public:
     GraphViewBundle(
         GraphEditor& graphEditor,

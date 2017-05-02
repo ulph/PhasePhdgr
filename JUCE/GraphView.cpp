@@ -163,8 +163,6 @@ void GraphView::mouseUp(const MouseEvent & event) {
 
 
 void GraphView::mouseMove(const MouseEvent & event) {
-    mousePosition.x = event.x;
-    mousePosition.y = event.y;
 }
 
 
@@ -177,13 +175,20 @@ void GraphView::itemDropped(const SourceDetails & dragSourceDetails){
     while (gfxGraphLock.test_and_set(memory_order_acquire));
     bool modelChanged = false;
     auto juceThing = dragSourceDetails.description;
+    auto dropPos = dragSourceDetails.localPosition;
     auto thing = juceThing.toString().toStdString();
     auto d = doc.get();
     auto mIt = d.find(thing);
     if(mIt != d.end()){
         auto mv = ModuleVariable{string("new "+thing), string(thing)};
         vector<ModulePortValue> mpv;
-        auto gfxMv = GfxModule(mv, mousePosition.x, mousePosition.y, doc, mpv);
+        auto gfxMv = GfxModule(
+            mv,
+            (dropPos.x - 0.5*c_NodeSize)/c_GridSize,
+            (dropPos.y - 0.5*c_NodeSize)/c_GridSize,
+            doc,
+            mpv
+        );
         gfxGraph.modules.push_back(gfxMv);
         modelChanged = true;
     }

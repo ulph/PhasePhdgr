@@ -32,7 +32,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
     bool modelChanged = false;
     bool userInteraction = false;
     XY mousePos((float)event.x, (float)event.y);
-    while (gfxGraphLock.test_and_set(memory_order_acquire));
+
     for (auto & m : gfxGraph.modules) {
         string port;
         bool inputPort;
@@ -47,24 +47,26 @@ void GraphView::mouseDown(const MouseEvent & event) {
             userInteraction = true;
             break;
         }
-        // move a module
-        if (m.within(mousePos)) {
+        // interract with a module
+        else if (m.within(mousePos)) {
             draggedModule = &m;
             userInteraction = true;
             break;
         }
     }
     if (!userInteraction) {
+        while (gfxGraphLock.test_and_set(memory_order_acquire));
         if (gfxGraph.disconnect(mousePos, looseWire)) {
             modelChanged = true;
             userInteraction = true;
         }
+        gfxGraphLock.clear(memory_order_release);
     }
     if (userInteraction) {
         viewPort.setScrollOnDragEnabled(false);
         repaint();
     }
-    gfxGraphLock.clear(memory_order_release);
+
     if (modelChanged) propagateUserModelChange();
 }
 

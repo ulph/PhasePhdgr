@@ -7,6 +7,24 @@
 #include <math.h>
 #include <float.h>
 #include <list>
+#include <random>
+
+/* stolen from http://stackoverflow.com/questions/180947/base64-decode-snippet-in-c */
+static std::string base64_encode(const std::string &in) {
+    std::string out;
+    int val = 0, valb = -6;
+    for (unsigned char c : in) {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (out.size() % 4) out.push_back('=');
+    return out;
+}
 
 using namespace PhasePhckr;
 using namespace std;
@@ -14,7 +32,6 @@ using namespace std;
 const float c_GridSize = 200;
 const float c_NodeSize = 125;
 const float c_PortSize = 10;
-
 
 static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize) {
     x0 += 0.5f*r;
@@ -157,9 +174,6 @@ struct GfxModule {
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
 
-    XY deleteButtonPosition;
-    float deleteButtonRadius = c_PortSize;
-
     void repositionPorts() {
         for (auto it = inputs.begin(); it != inputs.end(); ++it)
         {
@@ -174,10 +188,6 @@ struct GfxModule {
             it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
             it->position.y = position.y + size.y - 0.5f*c_PortSize;
         }
-
-        deleteButtonPosition.y = position.y + 0.5f*size.y - 0.5f*deleteButtonRadius;
-        deleteButtonPosition.x = position.x + size.x - deleteButtonRadius;
-
     }
 
     bool within(XY p) const {
@@ -188,11 +198,11 @@ struct GfxModule {
         );
     }
 
-    bool withinPort(XY p, XY& portPosition, std::string& portName, bool & inputPort) const {
+    bool withinPort(XY p, XY& portPosition, string& port, bool & inputPort) const {
         for (const auto & ip : inputs) {
             if (ip.within(p)) {
                 portPosition = ip.position;
-                portName = ip.port;
+                port = ip.port;
                 inputPort = true;
                 return true;
             }
@@ -200,7 +210,7 @@ struct GfxModule {
         for (const auto & op : outputs) {
             if (op.within(p)) {
                 portPosition = op.position;
-                portName = op.port;
+                port = op.port;
                 inputPort = false;
                 return true;
             }
@@ -252,16 +262,6 @@ struct GfxModule {
             (int)size.y, 
             Justification::centred, 
             1
-        );
-
-        g.setColour(Colours::darkgrey);
-        g.drawRoundedRectangle(
-            deleteButtonPosition.x,
-            deleteButtonPosition.y,
-            deleteButtonRadius,
-            deleteButtonRadius,
-            1.f,
-            1.f
         );
 
         int row = 0;
@@ -498,8 +498,9 @@ struct GfxGraph {
         auto mIt = d.find(type);
         if (mIt != d.end()) {
             vector<ModulePortValue> mpv;
+            string name = base64_encode(to_string(rand()));
             didAdd = add(
-                ModuleVariable{ "new_" + type, type },
+                ModuleVariable{ name, type },
                 doc,
                 pos,
                 mpv

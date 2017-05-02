@@ -17,6 +17,14 @@ void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
 
+class EditorTabbedComponent : public TabbedComponent, public DragAndDropContainer{
+public:
+    EditorTabbedComponent(TabbedButtonBar::Orientation o)
+        : TabbedComponent(o)
+    {}
+};
+
+
 class DocListModel : public ListBoxModel {
 private:
     std::map<std::string, ModuleDoc> moduleDocs;
@@ -45,7 +53,11 @@ public:
 };
 
 
-class GraphViewPort : public Viewport {
+class GraphViewPort : public Viewport, public DragAndDropContainer  {
+protected:
+    virtual void dragOperationStarted (){
+        cout << " wup " << endl;
+    }
 public:
     GraphViewPort() : Viewport("...") {}
     void mouseWheelMove(const MouseEvent &, const MouseWheelDetails &) override {}
@@ -53,8 +65,13 @@ public:
 
 
 class GraphViewBundle : public Component, public DragAndDropContainer {
+private:
     GraphViewPort viewPort;
     GraphView graphView;
+protected:
+    virtual void dragOperationStarted (){
+        cout << " wee " << endl;
+    }
 public:
     GraphViewBundle(
         GraphEditor& graphEditor,
@@ -85,7 +102,7 @@ class GraphEditor : public Component
     ModuleVariable outBus;
 
     vector<SubValue<PhasePhckr::ConnectionGraphDescriptor>> componentGraphs;
-    TabbedComponent editorStack;
+    EditorTabbedComponent editorStack;
     friend class GraphView;
 
     void push_tab(const string& componentName, const string& componentType);

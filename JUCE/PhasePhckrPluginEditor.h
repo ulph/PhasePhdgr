@@ -12,7 +12,7 @@
 #include "GraphEditor.hpp"
 
 
-class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor
+class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:
     PhasePhckrAudioProcessorEditor (
@@ -41,7 +41,7 @@ private:
     PhasePhckrScope outputScopeR;
     PhasePhckrXYScope outputScopeXY;
 
-    TabbedComponent mainFrame;
+    EditorTabbedComponent mainFrame;
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 

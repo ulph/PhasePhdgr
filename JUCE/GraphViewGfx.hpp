@@ -359,9 +359,29 @@ public:
 };
 
 
+struct GfxLooseWire {
+    ModulePort attachedPort;
+    bool attachedAtSource;
+    XY position;
+    XY destination;
+    bool isValid = false;
+    void draw(Graphics & g) const {
+        g.setColour(Colours::green);
+        g.drawLine(
+            position.x + c_PortSize*0.5f,
+            position.y + c_PortSize*0.5f,
+            destination.x + c_PortSize*0.5f,
+            destination.y + c_PortSize*0.5f,
+            c_PortSize * 0.5f
+        );
+    }
+};
+
+
 struct GfxGraph {
     vector<GfxModule> modules;
     list<GfxWire> wires;
+
     pair<XY, XY> getBounds() {
         XY min(FLT_MAX, FLT_MAX);
         XY max(FLT_MIN, FLT_MIN);
@@ -381,6 +401,7 @@ struct GfxGraph {
         }
         return make_pair(min, max);
     }
+
     void moveDelta(XY delta) {
         for (auto &mb : modules) {
             mb.position += delta;
@@ -392,6 +413,7 @@ struct GfxGraph {
             w.calculatePath(modules);
         }
     }
+
     void moveIntoView() {
         XY delta = {0, 0};
         auto b = getBounds();
@@ -405,23 +427,99 @@ struct GfxGraph {
             moveDelta(delta);
         }
     }
-};
+    
+    void recalculateWires(const vector<GfxModule>& modules) {
+        for (auto &w : wires) {
+            w.calculatePath(modules);
+        }
+    }
 
+    bool disconnect(const ModulePort &source, const ModulePort &target) {
+        // NYI
+    }
 
-struct GfxLooseWire {
-    ModulePort attachedPort;
-    bool attachedAtSource;
-    XY position;
-    XY destination;
-    bool isValid = false;
-    void draw(Graphics & g) const {
-        g.setColour(Colours::green);
-        g.drawLine(
-            position.x + c_PortSize*0.5f,
-            position.y + c_PortSize*0.5f,
-            destination.x + c_PortSize*0.5f,
-            destination.y + c_PortSize*0.5f,
-            c_PortSize * 0.5f
+    bool disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
+        for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
+            bool nearestSource = false;
+            // disconnect a wire
+            if (wit->within(mousePos, nearestSource)) {
+                looseWire.isValid = true;
+                looseWire.destination = mousePos;
+                looseWire.attachedAtSource = !nearestSource;
+                if (looseWire.attachedAtSource) {
+                    looseWire.attachedPort = wit->connection.source;
+                    looseWire.position = wit->position;
+                }
+                else {
+                    looseWire.attachedPort = wit->connection.target;
+                    looseWire.position = wit->destination;
+                }
+                wires.erase(wit);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool add(const string &type, const Doc & doc, const XY &pos) {
+        bool didAdd = false;
+        auto d = doc.get();
+        auto mIt = d.find(type);
+        if (mIt != d.end()) {
+            didAdd = add(
+                ModuleVariable{ "new_" + type, type },
+                doc,
+                pos
+            );
+        }
+        return didAdd;
+    }
+
+    bool add(const ModuleVariable& module, const Doc & doc, const XY &pos) {
+        vector<ModulePortValue> mpv;
+        auto gfxMv = GfxModule(
+            module,
+            (pos.x - 0.5f*c_NodeSize) / c_GridSize,
+            (pos.y - 0.5f*c_NodeSize) / c_GridSize,
+            doc,
+            mpv
         );
+        modules.push_back(gfxMv);
+        return true;
+    }
+
+    bool connect(const ModulePort &source, const ModulePort &target) {
+        ModulePortConnection newCon;
+        newCon.source = source;
+        newCon.target = target;
+        wires.emplace_back(GfxWire(newCon, modules));
+        return true;
+    }
+
+    bool connect(const GfxLooseWire &looseWire, const XY &mousePos) {
+        bool foundPort = false;
+        for (auto &m : modules) {
+            if (foundPort) break;
+            if (looseWire.attachedAtSource) {
+                for (const auto& p : m.inputs) {
+                    if (p.within(mousePos)) {
+                        connect(looseWire.attachedPort, ModulePort{ m.module.name, p.port });
+                        foundPort = true;
+                        break;
+                    }
+                }
+            }
+            else {
+                for (const auto& p : m.outputs) {
+                    if (p.within(mousePos)) {
+                        connect(ModulePort{ m.module.name, p.port }, looseWire.attachedPort);
+                        foundPort = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return foundPort;
     }
 };
+

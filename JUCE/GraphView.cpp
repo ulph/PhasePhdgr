@@ -55,26 +55,9 @@ void GraphView::mouseDown(const MouseEvent & event) {
         }
     }
     if (!userInteraction) {
-        for (auto wit = gfxGraph.wires.begin(); wit != gfxGraph.wires.end(); ++wit) {
-            bool nearestSource = false;
-            // disconnect a wire
-            if (wit->within(mousePos, nearestSource)) {
-                looseWire.isValid = true;
-                looseWire.destination = mousePos;
-                looseWire.attachedAtSource = !nearestSource;
-                if (looseWire.attachedAtSource) {
-                    looseWire.attachedPort = wit->connection.source;
-                    looseWire.position = wit->position;
-                }
-                else {
-                    looseWire.attachedPort = wit->connection.target;
-                    looseWire.position = wit->destination;
-                }
-                gfxGraph.wires.erase(wit);
-                userInteraction = true;
-                modelChanged = true;
-                break;
-            }
+        if (gfxGraph.disconnect(mousePos, looseWire)) {
+            modelChanged = true;
+            userInteraction = true;
         }
     }
     if (userInteraction) {
@@ -99,9 +82,7 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         draggedModule->position.y = (float)event.y - draggedModule->size.y * 0.5f;
         draggedModule->repositionPorts();
         auto mv = vector<GfxModule>{ *draggedModule };
-        for (auto &w : gfxGraph.wires) {
-            w.calculatePath(mv);
-        }
+        gfxGraph.recalculateWires(mv);
         updateBounds(gfxGraph.getBounds());
         repaint();
     }
@@ -121,39 +102,9 @@ void GraphView::mouseUp(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
     draggedModule = nullptr;
-    bool didAction = false;
     if (looseWire.isValid) {
-        for (auto &m : gfxGraph.modules) {
-            if(didAction) break;
-            if (looseWire.attachedAtSource) {
-                for (const auto& p : m.inputs) {
-                    if (p.within(mousePos)) {
-                        ModulePortConnection newCon;
-                        newCon.source = looseWire.attachedPort;
-                        newCon.target = ModulePort{ m.module.name, p.port };
-                        gfxGraph.wires.emplace_back(GfxWire(newCon, gfxGraph.modules));
-                        modelChanged = true;
-                        didAction = true;
-                        break;
-                    }
-                }
-            }
-            else {
-                for (const auto& p : m.outputs) {
-                    if (p.within(mousePos)) {
-                        ModulePortConnection newCon;
-                        newCon.source = ModulePort{ m.module.name, p.port };
-                        newCon.target = looseWire.attachedPort;
-                        gfxGraph.wires.emplace_back(GfxWire(newCon, gfxGraph.modules));
-                        modelChanged = true;
-                        didAction = true;
-                        break;
-                    }
-                }
-            }
-        }
+        modelChanged = gfxGraph.connect(looseWire, mousePos);
     }
-
     looseWire.isValid = false;
     gfxGraph.moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
@@ -173,25 +124,9 @@ void GraphView::updateBounds(const pair<XY, XY>& rectangle) {
 
 void GraphView::itemDropped(const SourceDetails & dragSourceDetails){
     while (gfxGraphLock.test_and_set(memory_order_acquire));
-    bool modelChanged = false;
-    auto juceThing = dragSourceDetails.description;
+    auto thing = dragSourceDetails.description.toString().toStdString();
     auto dropPos = dragSourceDetails.localPosition;
-    auto thing = juceThing.toString().toStdString();
-    auto d = doc.get();
-    auto mIt = d.find(thing);
-    if(mIt != d.end()){
-        auto mv = ModuleVariable{string("new "+thing), string(thing)};
-        vector<ModulePortValue> mpv;
-        auto gfxMv = GfxModule(
-            mv,
-            (dropPos.x - 0.5*c_NodeSize)/c_GridSize,
-            (dropPos.y - 0.5*c_NodeSize)/c_GridSize,
-            doc,
-            mpv
-        );
-        gfxGraph.modules.push_back(gfxMv);
-        modelChanged = true;
-    }
+    bool modelChanged = gfxGraph.add(thing, doc, XY(dropPos.x, dropPos.y));
     gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }

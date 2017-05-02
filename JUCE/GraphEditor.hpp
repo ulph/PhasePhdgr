@@ -16,6 +16,7 @@ void _stylize(TextEditor* t);
 void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
+
 class DocListModel : public ListBoxModel {
 private:
     std::map<std::string, ModuleDoc> moduleDocs;
@@ -26,6 +27,11 @@ public:
     virtual int getNumRows();
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected);
     virtual void listBoxItemClicked(int row, const MouseEvent &);
+    virtual var getDragSourceDescription (const SparseSet< int > &rowsToDescribe){
+        if(!rowsToDescribe.isEmpty()){
+            return String(rows[rowsToDescribe[0]]);
+        }
+    }
 };
 
 
@@ -46,7 +52,7 @@ public:
 };
 
 
-class GraphViewBundle : public Component {
+class GraphViewBundle : public Component, public DragAndDropContainer {
     GraphViewPort viewPort;
     GraphView graphView;
 public:

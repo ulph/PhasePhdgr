@@ -121,8 +121,10 @@ void GraphView::mouseUp(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
     draggedModule = nullptr;
+    bool didAction = false;
     if (looseWire.isValid) {
         for (auto &m : gfxGraph.modules) {
+            if(didAction) break;
             if (looseWire.attachedAtSource) {
                 for (const auto& p : m.inputs) {
                     if (p.within(mousePos)) {
@@ -131,6 +133,8 @@ void GraphView::mouseUp(const MouseEvent & event) {
                         newCon.target = ModulePort{ m.module.name, p.port };
                         gfxGraph.wires.emplace_back(GfxWire(newCon, gfxGraph.modules));
                         modelChanged = true;
+                        didAction = true;
+                        break;
                     }
                 }
             }
@@ -142,11 +146,14 @@ void GraphView::mouseUp(const MouseEvent & event) {
                         newCon.target = looseWire.attachedPort;
                         gfxGraph.wires.emplace_back(GfxWire(newCon, gfxGraph.modules));
                         modelChanged = true;
+                        didAction = true;
+                        break;
                     }
                 }
             }
         }
     }
+
     looseWire.isValid = false;
     gfxGraph.moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
@@ -156,7 +163,8 @@ void GraphView::mouseUp(const MouseEvent & event) {
 
 
 void GraphView::mouseMove(const MouseEvent & event) {
-
+    mousePosition.x = event.x;
+    mousePosition.y = event.y;
 }
 
 

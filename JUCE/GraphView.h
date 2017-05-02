@@ -20,8 +20,25 @@
 
 class GraphEditor;
 
-class GraphView : public Component
+class GraphView : public Component, public DragAndDropContainer
 {
+protected:
+    virtual void dragOperationStarted (){
+
+    }
+
+    virtual void dragOperationEnded (){
+        auto juceThing = getCurrentDragDescription().toString();
+        auto thing = juceThing.toStdString();
+        auto d = doc.get();
+        auto mIt = d.find(thing);
+        if(mIt != d.end()){
+            auto mv = ModuleVariable{string("new "+thing), string(thing)};
+            vector<ModulePortValue> mpv;
+            auto gfxMv = GfxModule(mv, mousePosition.x, mousePosition.y, doc, mpv);
+            gfxGraph.modules.push_back(gfxMv);
+        }
+    }
 
 public:
     GraphView(
@@ -59,7 +76,7 @@ public:
 
 private:
     float scale;
-
+    XY mousePosition;
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 

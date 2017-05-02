@@ -1,5 +1,3 @@
-#pragma once
-
 #include <string>
 #include "GraphViewGfx.hpp"
 #include "design.hpp"
@@ -8,6 +6,8 @@
 #include <set>
 #include <assert.h>
 #include <cfloat>
+#include <stdint.h>
+#include <limits.h>
 
 using namespace std;
 

@@ -3,7 +3,6 @@
 
 #include "connectiongraph.hpp"
 #include "phase.hpp"
-#include "square.hpp"
 #include "mul.hpp"
 #include "clamp.hpp"
 #include "quant8.hpp"
@@ -21,37 +20,56 @@
 #include "delay.hpp"
 #include "biquad.hpp"
 #include "bleposc.hpp"
+#include "chamberlin.hpp"
 
 class ModuleRegister {
 public:
     static void registerAllModules(ConnectionGraph &cg)
     {
-        cg.registerModule("PHASE", &(Phase::factory));
-        cg.registerModule("SQUARE", &(Square::factory));
+        /* logic */
         cg.registerModule("MUL", &(Mul::factory));
-        cg.registerModule("GAIN", &(Gain::factory));
+        cg.registerModule("ABS", &(Abs::factory));
+        cg.registerModule("CINV", &(ClampInv::factory));
+        cg.registerModule("SCLSHFT", &(ScaleShift::factory));
         cg.registerModule("CLAMP", &(Clamp::factory));
-        cg.registerModule("QUANT8", &(Quant8::factory));
+
+        /* generators */
+        cg.registerModule("PHASE", &(Phase::factory));
         cg.registerModule("NOISE", &(Noise::factory));
+
+        /* oscillators */
+        cg.registerModule("PBLOSC", &(PolyBlepOsc::factory));
         cg.registerModule("SINE", &(Sine::factory));
-        cg.registerModule("SATAN", &(SaturatorAtan::factory));
-        cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
-        cg.registerModule("ENV", &(CamelEnvelope::factory));
+
+        /* filters */
+        cg.registerModule("BIQUAD", &(Biquad::factory));
+        cg.registerModule("BQLPF", &(LowPass::factory));
+        cg.registerModule("BQPEAK", &(PeakingEQ::factory));
+        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory));
         cg.registerModule("RCHP", &(RcHp::factory));
         cg.registerModule("RCLP", &(RcLp::factory));
         cg.registerModule("ORCHP", &(OpenRcHp::factory));
         cg.registerModule("ORCLP", &(OpenRcLp::factory));
-        cg.registerModule("ABS", &(Abs::factory));
-        cg.registerModule("FOLD", &(FoldBack::factory));
-        cg.registerModule("XFADE", &(CrossFade::factory));
-        cg.registerModule("SPOW", &(SymPow::factory));
-        cg.registerModule("CINV", &(ClampInv::factory));
-        cg.registerModule("SCLSHFT", &(ScaleShift::factory));
+
+        /* envelopes */
+        cg.registerModule("ENV", &(CamelEnvelope::factory));
+
+        /* buffers */
         cg.registerModule("DELAY", &(Delay::factory));
-        cg.registerModule("BIQUAD", &(Biquad::factory));
-        cg.registerModule("LPF", &(LowPass::factory));
-        cg.registerModule("PEAKEQ", &(PeakingEQ::factory));
-        cg.registerModule("PBLOSC", &(PolyBlepOsc::factory));
+
+        /* shaping */
+        cg.registerModule("SPOW", &(SymPow::factory));
+        cg.registerModule("QUANT8", &(Quant8::factory));
+        cg.registerModule("SATAN", &(SaturatorAtan::factory));
+        cg.registerModule("FOLD", &(FoldBack::factory));
+
+        /* stereo */
+        cg.registerModule("GAIN", &(Gain::factory));
+        cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
+
+        /* convinience */
+        cg.registerModule("XFADE", &(CrossFade::factory));
+
     }
 };
 

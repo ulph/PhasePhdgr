@@ -7,6 +7,8 @@ set(SRC
     bleposc.hpp
     camelenvelope.cpp
     camelenvelope.hpp
+    chamberlin.cpp
+    chamberlin.hpp
     clamp.cpp
     clamp.hpp
     clampinv.cpp
@@ -34,8 +36,6 @@ set(SRC
     scaleshift.hpp
     sine.cpp
     sine.hpp
-    square.cpp
-    square.hpp
     sympow.cpp
     sympow.hpp
 )

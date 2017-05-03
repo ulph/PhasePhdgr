@@ -39,6 +39,7 @@ public:
         if(!rowsToDescribe.isEmpty()){
             return String(rows[rowsToDescribe[0]]);
         }
+        return var();
     }
 };
 

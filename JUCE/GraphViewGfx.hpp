@@ -139,7 +139,7 @@ struct GfxPort {
         assignedValue = false;
     }
 
-    float setValue(float v){
+    void setValue(float v){
         if(v!=value){
             assignedValue = true;
         }

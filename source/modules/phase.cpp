@@ -12,7 +12,7 @@ void Phase::process(uint32_t fs)
     float f = inputs[0].value;
     float p = outputs[0].value;
     float t = inputs[1].value;
-    if(t>=1.f && trig<1.f)
+    if(t>=0.f && trig<0.f)
         p = 0;
     else if(fs){
         p += 2 * f / (float)fs;

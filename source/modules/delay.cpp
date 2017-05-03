@@ -3,8 +3,8 @@
 #include "sinc.hpp"
 #include <assert.h>
 
-const int c_sincDelayN = 8;
-const int c_sincDelayNumFraction = 100;
+const int c_sincDelayN = 32;
+const int c_sincDelayNumFraction = 1000;
 const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction, (float)M_PI);
 const float max_delay_t = 5.f;
 
@@ -32,7 +32,7 @@ void Delay::process(uint32_t fs) {
 
     t = (t < 0.f) ? 0.f : ( t > max_delay_t ? max_delay_t : t);
 
-    const int N = c_delayFracSincTable.N;
+    const int N = c_sincDelayN; /*stupid msvcc */ //c_delayFracSincTable.N;
 
     // account for filter delay
     float tapeSamples = (t*fs)+N;
@@ -40,7 +40,7 @@ void Delay::process(uint32_t fs) {
 
     if(tapeSamples > bufferSize){
         delete[] buffer;
-        bufferSize = 2*tapeSamples;
+        bufferSize = 2*(int)tapeSamples;
         buffer = new float[bufferSize]();
     }
 

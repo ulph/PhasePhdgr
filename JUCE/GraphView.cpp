@@ -4,24 +4,61 @@
 
 using namespace PhasePhckr;
 
+
 bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gfxGraph){
     Label lbl(moduleName, moduleName);
     lbl.setEditable(true, true, false);
-    poop.addCustomItem(0, &lbl, 20, 20, true);
+    poop.addCustomItem(0, &lbl, 20, 20, false);
     poop.addItem(1, "delete");
-    int choice = poop.show(); // execution actually halts here, which is why this works
+    int choice = poop.show();
+    gfxGraph.rename(
+        moduleName,
+        lbl.getText().toStdString()
+    );
     switch (choice){
     case 0:
-        gfxGraph.rename(moduleName, lbl.getText().toStdString());
+        return true;
         break;
     case 1:
-        gfxGraph.remove(moduleName); return true;
+        gfxGraph.remove(moduleName);
+        return true;
         break;
     default:
         break;
     }
     return false;
 }
+
+
+bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port){
+    float value;
+    if(!gfxModule.getValue(port, value)) return false; // error
+    Label lbl(port, to_string(value));
+    lbl.setEditable(true, true, false);
+    poop.addItem(0, port);
+    poop.addCustomItem(1, &lbl, 20, 20, false);
+    poop.addItem(2, "clear");
+    int choice = poop.show();
+    gfxModule.setValue(
+        port,
+        lbl.getText().getFloatValue()
+    );
+    switch (choice){
+    case 0:
+        break;
+    case 1:
+        return true;
+        break;
+    case 2:
+        gfxModule.clearValue(port);
+        return true;
+        break;
+    default:
+        break;
+    }
+    return false;
+}
+
 
 void GraphView::propagateUserModelChange() {
     repaint();
@@ -61,11 +98,18 @@ void GraphView::mouseDown(const MouseEvent & event) {
         XY position;
         // drag wire between ports
         if (m.withinPort(mousePos, position, port, inputPort)) {
-            looseWire.isValid = true;
-            looseWire.destination = mousePos;
-            looseWire.attachedAtSource = !inputPort;
-            looseWire.attachedPort = { m.module.name, port };
-            looseWire.position = position;
+            if(event.mods.isRightButtonDown()){
+                PopupMenu poop;
+                makePortPoopUp(poop, m, port);
+                modelChanged = true;
+            }
+            else{
+                looseWire.isValid = true;
+                looseWire.destination = mousePos;
+                looseWire.attachedAtSource = !inputPort;
+                looseWire.attachedPort = { m.module.name, port };
+                looseWire.position = position;
+            }
             userInteraction = true;
             break;
         }

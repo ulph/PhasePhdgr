@@ -119,6 +119,7 @@ struct GfxPort {
 
     string port;
     string unit;
+    float defaultValue;
     float value;
     bool isInput;
     bool assignedValue = false;
@@ -131,6 +132,25 @@ struct GfxPort {
         && p.y > (position.y - 0.5f*c_PortSize)
         && p.y < (position.y + c_PortSize*1.5f)
         );
+    }
+
+    void clearValue(){
+        value = defaultValue;
+        assignedValue = false;
+    }
+
+    float setValue(float v){
+        if(v!=value){
+            assignedValue = true;
+        }
+        value = v;
+    }
+
+    float getValue(){
+        if(assignedValue){
+            return value;
+        }
+        return defaultValue;
     }
 
     void draw(Graphics & g, int rowIndex=-1) const {
@@ -163,8 +183,12 @@ struct GfxPort {
         );
     }
 
+    GfxPort()
+        : port("?"), unit("?"), value(13), defaultValue(42), isInput(false)
+    {}
+
     GfxPort(string port, const string unit, float value, bool isInput) 
-        : port(port), unit(unit), value(value), isInput(isInput)
+        : port(port), unit(unit), value(value), defaultValue(value), isInput(isInput)
     {}
 
     void updateValue(const string& module, const std::vector<ModulePortValue> &mpvs){
@@ -212,8 +236,8 @@ struct GfxModule {
         );
     }
 
-    bool withinPort(XY p, XY& portPosition, string& port, bool & inputPort) const {
-        for (const auto & ip : inputs) {
+    bool withinPort(XY p, XY& portPosition, string &port, bool & inputPort) {
+        for (auto & ip : inputs) {
             if (ip.within(p)) {
                 portPosition = ip.position;
                 port = ip.port;
@@ -221,7 +245,7 @@ struct GfxModule {
                 return true;
             }
         }
-        for (const auto & op : outputs) {
+        for (auto & op : outputs) {
             if (op.within(p)) {
                 portPosition = op.position;
                 port = op.port;
@@ -290,6 +314,34 @@ struct GfxModule {
             o.draw(g, (row++ % numRows));
         }
 
+    }
+
+    bool getValue(const string& port, float& value){
+        for(auto& ip:inputs){
+            if(ip.port == port){
+                value = ip.getValue();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void clearValue(const string& port){
+        for(auto& ip:inputs){
+            if(ip.port == port){
+                ip.clearValue();
+                return;
+            }
+        }
+    }
+
+    void setValue(const string& port, float value){
+        for(auto& ip:inputs){
+            if(ip.port == port){
+                ip.setValue(value);
+                return;
+            }
+        }
     }
 
     GfxModule(
@@ -638,6 +690,5 @@ struct GfxGraph {
         }
         return foundModule;
     }
-
 };
 

@@ -10,12 +10,12 @@ static inline float sincf(float x){
 struct FractionalSincTable
 {
 protected:
-    const int N;
     const int numFractions;
     float *coeffs;
     virtual void compute();
     float normFreq;
 public:
+    const int N;
     FractionalSincTable(): N(0), numFractions(0), coeffs(nullptr) {};
     FractionalSincTable(int N, int numFractions, float normFreq);
     virtual ~FractionalSincTable();

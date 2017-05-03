@@ -1,6 +1,7 @@
 #include <string.h>
 #include "delay.hpp"
 #include "sinc.hpp"
+#include <assert.h>
 
 const int c_sincDelayN = 128;
 const int c_sincDelayNumFraction = 1000;
@@ -28,11 +29,13 @@ void Delay::process(uint32_t fs) {
     float t = inputs[1].value;
     float g = inputs[2].value;
 
-    t = (t < 0.f) ? 0.f : ( t > max_delay_t ? max_delay_t : t); // max 10s
+    t = (t < 0.f) ? 0.f : ( t > max_delay_t ? max_delay_t : t);
+
+    const int N = c_delayFracSincTable.N;
 
     // account for filter delay
-    int tapeSamples = (int)(t*fs) - c_sincDelayN;
-    tapeSamples = tapeSamples < 0 ? 0 : tapeSamples;
+    int tapeSamples = (int)(t*fs)+N;
+    tapeSamples = tapeSamples < N ? N : tapeSamples;
 
     if(tapeSamples > bufferSize){
         delete[] buffer;
@@ -40,15 +43,17 @@ void Delay::process(uint32_t fs) {
         buffer = new float[bufferSize]();
     }
 
-    tapeSamples = ((tapeSamples+c_sincDelayN) > bufferSize) ? (bufferSize-c_sincDelayN) : tapeSamples;
+    tapeSamples = ((tapeSamples+N) > bufferSize) ? (bufferSize-N) : tapeSamples;
 
     const int writePosition = (readPosition + tapeSamples);
 
     const float frac = t*fs-(int)(t*fs);
 
     // ... (interpolated) impulse response from a precalcuated buffer
-    float coeffs[c_sincDelayN] = {0};
-    const int N = c_delayFracSincTable.getCoefficients(frac, &coeffs[0], c_sincDelayN);
+    float coeffs[N] = {0};
+    if(N != c_delayFracSincTable.getCoefficients(frac, &coeffs[0], N)){
+        assert(0);
+    }
 
     // apply it on to write buffer (running convolution)
     for(int n=0; n<N; n++){

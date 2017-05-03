@@ -4,6 +4,20 @@
 
 using namespace PhasePhckr;
 
+void makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gfxGraph){
+    poop.addItem(0, moduleName);
+    poop.addItem(1, "delete");
+    int choice = poop.show();
+    switch (choice){
+    case 0:
+        break;
+    case 1:
+        gfxGraph.remove(moduleName); break;
+    default:
+        break;
+    }
+}
+
 void GraphView::propagateUserModelChange() {
     repaint();
 
@@ -49,7 +63,14 @@ void GraphView::mouseDown(const MouseEvent & event) {
         }
         // interract with a module
         else if (m.within(mousePos)) {
-            draggedModule = &m;
+            if(event.mods.isRightButtonDown()){
+                PopupMenu poop;
+                makeModulePoopUp(poop, m.module.name, gfxGraph);
+                modelChanged = true;
+            }
+            else{
+                draggedModule = &m;
+            }
             userInteraction = true;
             break;
         }

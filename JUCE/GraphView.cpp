@@ -4,18 +4,23 @@
 
 using namespace PhasePhckr;
 
-void makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gfxGraph){
-    poop.addItem(0, moduleName);
+bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gfxGraph){
+    Label lbl(moduleName, moduleName);
+    lbl.setEditable(true, true, false);
+    poop.addCustomItem(0, &lbl, 20, 20, true);
     poop.addItem(1, "delete");
-    int choice = poop.show();
+    int choice = poop.show(); // execution actually halts here, which is why this works
     switch (choice){
     case 0:
+        gfxGraph.rename(moduleName, lbl.getText().toStdString());
         break;
     case 1:
-        gfxGraph.remove(moduleName); break;
+        gfxGraph.remove(moduleName); return true;
+        break;
     default:
         break;
     }
+    return false;
 }
 
 void GraphView::propagateUserModelChange() {

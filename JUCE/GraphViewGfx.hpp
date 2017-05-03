@@ -564,6 +564,37 @@ struct GfxGraph {
         return foundPort;
     }
 
+    bool rename(string module, string newName){
+        bool foundModule = false;
+        bool conflict = false;
+        int mIdx = 0;
+        int i=0;
+        for (const auto& m : modules) {
+            if (m.module.name == module) {
+                foundModule = true;
+                mIdx = i;
+            }
+            if (m.module.name == newName) {
+                conflict = true;
+            }
+            i++;
+        }
+        if (foundModule && !conflict) {
+            modules.at(mIdx).module.name = newName;
+            auto wit = wires.begin();
+            while (wit != wires.end()) {
+                if (wit->connection.source.module == module){
+                    wit->connection.source.module = newName;
+                }
+                else if(wit->connection.target.module == module) {
+                    wit->connection.target.module = newName;
+                }
+                wit++;
+            }
+        }
+        return foundModule && !conflict;
+    }
+
     bool remove(const string &module) {
         bool foundModule = false;
         int mIdx = 0;
@@ -577,16 +608,16 @@ struct GfxGraph {
             }
         }
         if (foundModule) {
-            modules.erase(modules.begin() + mIdx);
             auto wit = wires.begin();
             while (wit != wires.end()) {
                 if (wit->connection.source.module == module || wit->connection.target.module == module) {
-                    wires.erase(wit++);
+                    wit = wires.erase(wit);
                 }
                 else {
                     ++wit;
                 }
             }
+            modules.erase(modules.begin() + mIdx);
         }
         return foundModule;
     }

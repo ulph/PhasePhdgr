@@ -69,7 +69,6 @@ private:
     void setGraph(const ConnectionGraphDescriptor& graph);
     void propagateUserModelChange();
     atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
-    vector<ModulePortValue> valuesCopy; // TODO, figure out a better strategy like a map on GfxGraph
 
     // make a copy data structures before calling
     void updateRenderComponents(

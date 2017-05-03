@@ -35,12 +35,15 @@ void GraphView::propagateUserModelChange() {
         if (m.module.name == inBus.name || m.module.name == outBus.name) continue;
         if (m.module.type == inBus.type || m.module.type == outBus.type) continue;
         graph.modules.emplace_back(m.module);
+        for ( const auto &ip : m.inputs){
+            if(ip.assignedValue){
+                graph.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
+            }
+        }
     }
     for (const auto &w : gfxGraph_cpy.wires) {
         graph.connections.emplace_back(w.connection);
     }
-
-    graph.values = valuesCopy;
 
     subscribedCGD.set(subscribedCGDhandle, graph);
 }
@@ -200,8 +203,6 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
   auto connectionGraphDescriptor = graph;
   connectionGraphDescriptorLock.clear(std::memory_order_release);
 
-  valuesCopy = connectionGraphDescriptor.values;
-  
   connectionGraphDescriptor.modules.push_back(inBus);
   connectionGraphDescriptor.modules.push_back(outBus);
 

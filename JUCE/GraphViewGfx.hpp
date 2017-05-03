@@ -121,6 +121,7 @@ struct GfxPort {
     string unit;
     float value;
     bool isInput;
+    bool assignedValue = false;
     XY position;
 
     bool within(XY p) const {
@@ -134,6 +135,9 @@ struct GfxPort {
 
     void draw(Graphics & g, int rowIndex=-1) const {
         g.setColour(Colours::black);
+        if(assignedValue){
+            g.setColour(Colours::darkgrey);
+        }
         g.fillEllipse(position.x, position.y, c_PortSize, c_PortSize);
         g.setColour(Colours::grey);
         g.drawEllipse(position.x, position.y, c_PortSize, c_PortSize, 1.0f);
@@ -162,6 +166,16 @@ struct GfxPort {
     GfxPort(string port, const string unit, float value, bool isInput) 
         : port(port), unit(unit), value(value), isInput(isInput)
     {}
+
+    void updateValue(const string& module, const std::vector<ModulePortValue> &mpvs){
+        if(!isInput) return;
+        for(const auto &mpv:mpvs ){
+            if(mpv.target.module == module && mpv.target.port == port){
+                value = mpv.value;
+                assignedValue = true;
+            }
+        }
+    }
 };
 
 
@@ -283,7 +297,7 @@ struct GfxModule {
         float x, 
         float y, 
         const Doc & doc, 
-        const std::vector<ModulePortValue> &mpv
+        const std::vector<ModulePortValue> &mpvs
     )
         : module(mv)
     {
@@ -294,11 +308,14 @@ struct GfxModule {
         if (d.count(mv.type)) {
             const auto & dd = d.at(mv.type);
             for (auto p : dd.inputs) {
-                inputs.emplace_back(GfxPort(p.name, p.unit, p.value, true));
+                inputs.emplace_back(GfxPort(p.name, p.unit, p.value, true)); // set default values
             }
             for (auto p : dd.outputs) {
                 outputs.emplace_back(GfxPort(p.name, p.unit, p.value, false));
             }
+        }
+        for(auto &ip : inputs){
+            ip.updateValue(module.name, mpvs);
         }
         size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
         if (max_p > 3.0f) {

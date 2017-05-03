@@ -9,6 +9,7 @@ private:
     float *buffer;
     int bufferSize;
     int readPosition;
+    float lastDelayInSamples;
 public:
     Delay();
     virtual ~Delay();

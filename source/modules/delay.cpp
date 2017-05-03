@@ -3,8 +3,8 @@
 #include "sinc.hpp"
 #include <assert.h>
 
-const int c_sincDelayN = 128;
-const int c_sincDelayNumFraction = 1000;
+const int c_sincDelayN = 8;
+const int c_sincDelayNumFraction = 100;
 const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction, (float)M_PI);
 const float max_delay_t = 5.f;
 
@@ -12,6 +12,7 @@ Delay::Delay()
     : readPosition(0)
     , buffer(nullptr)
     , bufferSize(0)
+    , lastDelayInSamples(0)
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("time", 0.5f));
@@ -34,7 +35,7 @@ void Delay::process(uint32_t fs) {
     const int N = c_delayFracSincTable.N;
 
     // account for filter delay
-    int tapeSamples = (int)(t*fs)+N;
+    float tapeSamples = (t*fs)+N;
     tapeSamples = tapeSamples < N ? N : tapeSamples;
 
     if(tapeSamples > bufferSize){
@@ -44,10 +45,8 @@ void Delay::process(uint32_t fs) {
     }
 
     tapeSamples = ((tapeSamples+N) > bufferSize) ? (bufferSize-N) : tapeSamples;
-
-    const int writePosition = (readPosition + tapeSamples);
-
-    const float frac = t*fs-(int)(t*fs);
+    const int writePosition = (readPosition + (int)tapeSamples);
+    const float frac = tapeSamples-(int)(tapeSamples);
 
     // ... (interpolated) impulse response from a precalcuated buffer
     float coeffs[N] = {0};
@@ -64,4 +63,6 @@ void Delay::process(uint32_t fs) {
     buffer[readPosition] = 0;
     readPosition++;
     readPosition %= bufferSize;
+
+    lastDelayInSamples = tapeSamples;
 }

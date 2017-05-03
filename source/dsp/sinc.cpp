@@ -46,21 +46,15 @@ const int FractionalSincTable::getCoefficients(const float fraction, float* dest
     }
     assert(fraction < 1.0f && fraction >= 0.0f);
 
-    // linearly interpolate between neighbouring sets of coefficients
     const float softIdx = fraction * (float)numFractions;
     assert(softIdx < numFractions);
     const int tableIdx1 = (int)softIdx;
-    const int tableIdx2 = ((tableIdx1+1) < numFractions) ? (tableIdx1+1) : 0;
     assert(tableIdx1 < numFractions);
-    assert(tableIdx2 < numFractions);
-
-    const float ratio = softIdx - tableIdx1;
-    assert(ratio < 1.0f && ratio >= 0.0f);
+    // TODO - linearly interpolate between neighbouring sets of coefficients
 
     for(int n=0; n<N; n++){
         int ni_1 = tableIdx1*N + n;
-        int ni_2 = tableIdx2*N + n;
-        destinationBuffer[n] = (1 - ratio) * coeffs[ni_1] + ratio*coeffs[ni_2];
+        destinationBuffer[n] = coeffs[ni_1];
     }
 
     return N;

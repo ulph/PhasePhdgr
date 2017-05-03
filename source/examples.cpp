@@ -62,7 +62,7 @@ namespace PhasePhckr {
             {"sq1", "PBLOSC"},
             {"sq2", "PBLOSC"},
             {"vca", "GAIN"},
-            {"lpDesign", "LPF"},
+            {"lpDesign", "BQLPF"},
             {"wc", "SCLSHFT"},
             {"snap", "SCLSHFT"},
             {"flt1", "BIQUAD"},

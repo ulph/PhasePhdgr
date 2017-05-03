@@ -19,7 +19,7 @@ void ChamberlinFilter::process(uint32_t fs) {
     float q = inputs[2].value;
     float f = 2 * sinf((float)M_PI*wc / (float)fs);
     low += f * band;
-    high = q * x - low - q*band;
+    high = x - low - q*band;
     band += f*high;
     float notch = high + low;
     outputs[0].value = low;

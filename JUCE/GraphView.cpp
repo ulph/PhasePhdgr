@@ -110,7 +110,9 @@ void GraphView::mouseDown(const MouseEvent & event) {
         if (m.withinPort(mousePos, position, port, inputPort)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
+                while (gfxGraphLock.test_and_set(memory_order_acquire));
                 makePortPoopUp(poop, m, port);
+                gfxGraphLock.clear(memory_order_release);
                 modelChanged = true;
             }
             else{
@@ -127,7 +129,9 @@ void GraphView::mouseDown(const MouseEvent & event) {
         else if (m.within(mousePos)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
+                while (gfxGraphLock.test_and_set(memory_order_acquire));
                 makeModulePoopUp(poop, m.module.name, gfxGraph);
+                gfxGraphLock.clear(memory_order_release);
                 modelChanged = true;
             }
             else{
@@ -161,13 +165,14 @@ void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d
 
 void GraphView::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
-    while (gfxGraphLock.test_and_set(memory_order_acquire));
     if (draggedModule) {
         draggedModule->position.x = (float)event.x - draggedModule->size.x * 0.5f;
         draggedModule->position.y = (float)event.y - draggedModule->size.y * 0.5f;
         draggedModule->repositionPorts();
         auto mv = vector<GfxModule>{ *draggedModule };
+        while (gfxGraphLock.test_and_set(memory_order_acquire));
         gfxGraph.recalculateWires(mv);
+        gfxGraphLock.clear(memory_order_release);
         updateBounds(gfxGraph.getBounds());
         repaint();
     }
@@ -177,23 +182,22 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         updateBounds(gfxGraph.getBounds());
         repaint();
     }
-    gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }
 
 
 void GraphView::mouseUp(const MouseEvent & event) {
-    while (gfxGraphLock.test_and_set(memory_order_acquire));
     XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
     draggedModule = nullptr;
     if (looseWire.isValid) {
+        while (gfxGraphLock.test_and_set(memory_order_acquire));
         modelChanged = gfxGraph.connect(looseWire, mousePos);
+        gfxGraphLock.clear(memory_order_release);
     }
     looseWire.isValid = false;
     gfxGraph.moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
-    gfxGraphLock.clear(memory_order_release);
     if (modelChanged) propagateUserModelChange();
 }
 

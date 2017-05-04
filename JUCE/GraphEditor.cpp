@@ -204,7 +204,7 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             }
 
             for (const auto& ao : cmp.outputs) {
-                cmp.graph.connections.push_back({ ao.wrapped, ModulePort{ "outBus", ao.alias } });
+                cmp.graph.connections.push_back({ ao.wrapped, ModulePort{"outBus", ao.alias} });
             }
 
             editorStack.addTab(
@@ -221,6 +221,8 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             );
 
             cdg.set(-1, cmp.graph);
+
+            editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
 
         }
     }

@@ -41,7 +41,7 @@ private:
     PhasePhckrScope outputScopeR;
     PhasePhckrXYScope outputScopeXY;
 
-    EditorTabbedComponent mainFrame;
+    TabbedComponent mainFrame;
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 

@@ -138,7 +138,7 @@ GraphEditor::GraphEditor(
         inBus,
         outBus
     )
-    , editorStack(TabbedButtonBar::TabsAtTop)
+    , editorStack(componentGraphs)
 {
     addAndMakeVisible(grid);
     grid.addComponent(&textEditor);

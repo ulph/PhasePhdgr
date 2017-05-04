@@ -17,13 +17,6 @@ void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
 
-class EditorTabbedComponent : public TabbedComponent{
-public:
-    EditorTabbedComponent(TabbedButtonBar::Orientation o)
-        : TabbedComponent(o)
-    {}
-};
-
 
 class DocListModel : public ListBoxModel {
 private:
@@ -78,6 +71,24 @@ public:
 };
 
 
+class GraphEditorTabbedComponent : public TabbedComponent {
+private:
+    list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> & cdgs;
+public:
+    GraphEditorTabbedComponent(list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> & cdgs) 
+        : TabbedComponent(TabbedButtonBar::TabsAtTop)
+        , cdgs(cdgs)
+    {
+    }
+    virtual void currentTabChanged(int newCurrentTabIndex, const String& newCurrentTabName) {
+        while (newCurrentTabIndex + 1 != getNumTabs()) {
+            removeTab(getNumTabs() - 1);
+            cdgs.pop_back();
+        }
+    }
+};
+
+
 class GraphEditor : public Component
 {
     Doc doc;
@@ -96,7 +107,7 @@ class GraphEditor : public Component
     ModuleVariable outBus;
 
     list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> componentGraphs;
-    EditorTabbedComponent editorStack;
+    GraphEditorTabbedComponent editorStack;
     friend class GraphView;
     void push_tab(const string& componentName, const string& componentType);
 

@@ -154,6 +154,7 @@ const ComponentDescriptor chorus = {
             {"lfoR", "@LFO"},
             {"monoIn", "CONST"},
             {"lrDiff", "CONST"},
+            {"timeScale", "GAIN"},
             {"dl", "DELAY"},
             {"dr", "DELAY"},
             // todo, will need more stages -- or maybe a feedback loop would work?
@@ -168,16 +169,20 @@ const ComponentDescriptor chorus = {
             {"lfoHz", "value", "lfoL", "freq"},
             {"lfoHz", "value", "lfoR", "freq"},
             {"lrDiff", "value", "lfoR", "freq"},
+            
+            {"lfoL", "value", "timeScale", "left"},
+            {"lfoR", "value", "timeScale", "right"},
 
-            {"lfoL", "value", "dl", "time"},
-            {"lfoR", "value", "dr", "time"},
+            {"timeScale", "left", "dl", "time"},
+            {"timeScale", "right", "dr", "time"},
         },
         vector<ModulePortValue>{ 
+            {"timeScale", "gain", 0.01f},
             {"dl", "time", 0.0f},
             {"dr", "time", 0.0f},
-            {"lfo", "freq", 0.1f},
-            {"depth", "in1", 1.0f},
-            {"lrDiff", "in1", 0.1f},
+            {"lfoHz", "value", 0.1f},
+            {"lfoGain", "value", 1.0f},
+            {"lrDiff", "value", 0.1f},
         },
     },
     string("Simple chorus.")

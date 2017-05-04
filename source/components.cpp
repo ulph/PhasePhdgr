@@ -1,10 +1,12 @@
 #include "components.hpp"
 #include "design.hpp"
 
+using namespace std;
+
 namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
-    std::vector<ModulePortAlias>{
+    vector<ModulePortAlias>{
         {"left", {"leftDelay", "in"}},
         {"right", {"rightDelay", "in"}},
         {"leftTime", {"delayLeftTime", "shift"}},
@@ -19,12 +21,12 @@ const ComponentDescriptor stereoTape = {
         {"modHz", {"lfoPhase", "freq"}},
         {"saturation", {"saturation", "prescaler"}}
     },
-    std::vector<ModulePortAlias>{
+    vector<ModulePortAlias>{
         {"left", {"leftDelayLP", "y1"}},
         {"right", {"rightDelayLP", "y1"}}
     },
     ConnectionGraphDescriptor{
-        std::vector<ModuleVariable>{
+        vector<ModuleVariable>{
             {"leftDelay", "DELAY"},
             {"rightDelay", "DELAY"},
             {"lfoPhase", "PHASE"},
@@ -38,7 +40,7 @@ const ComponentDescriptor stereoTape = {
             {"rightDelayHP", "RCHP"},
             {"saturation", "SSATAN"},
         },
-        std::vector<ModulePortConnection>{
+        vector<ModulePortConnection>{
             {{"leftDelay", "out"}, {"saturation", "left"}},
             {{"rightDelay", "out"}, {"saturation", "right"}},
             {{"saturation", "left"}, {"leftDelayHP", "x1"}},
@@ -57,7 +59,7 @@ const ComponentDescriptor stereoTape = {
             {{"delayLeftTime", "output"}, {"leftDelay", "time"}},
             {{"delayRightTime", "output"}, {"rightDelay", "time"}}
         },
-        std::vector<ModulePortValue>{
+        vector<ModulePortValue>{
             {"lfoPhase", "freq", 2.0f},
             {"delayLeftTime", "shift", 0.22f},
             {"delayRightTime", "shift", 0.45f},
@@ -70,11 +72,42 @@ const ComponentDescriptor stereoTape = {
             {"feedbackGain", "gain", 0.5f},
         },
     },
-    std::string{"Time modulated stereo cross feedback delay with saturating filter stages."}
+    string{"Time modulated stereo cross feedback delay with saturating filter stages."}
 };
+
+
+const ComponentDescriptor adsr = {
+    vector<ModulePortAlias>{
+        {"gate", {"env", "gate"}},
+        {"A", {"env", "onAttackSpeed"}},
+        {"D", {"env", "onDecaySpeed"}},
+        {"S", {"env", "sustainHeight"}},
+        {"R", {"env", "offDecaySpeed"}},
+        {"APow", {"env", "onAttackPow"}},
+        {"DPow", {"env", "onDecayPow"}},
+        {"RPow", {"env", "offDecayPow"}},
+    },
+    vector<ModulePortAlias>{
+        {"value", {"env", "value"}}
+    },
+    ConnectionGraphDescriptor{
+        vector<ModuleVariable>{
+            {"env", "ENV"}
+        },
+        vector<ModulePortConnection>{},
+        vector<ModulePortValue>{
+            {"env", "onBumpHeight", 1.0f},
+            {"env", "offBumpHeight", 0.0f},
+            {"env", "offAttackSpeed", 0.0f},
+        }
+    },
+    string("ADSR envelope with shape control.\n(Simplification of ENV module)")
+};
+
 
 void ComponentRegister::registerFactoryComponents() {
     registerComponent("@STEREOTAPE", stereoTape);
+    registerComponent("@ADSR", adsr);
     // etc
 }
 
@@ -103,7 +136,7 @@ void ComponentRegister::makeComponentDocs(std::vector<ModuleDoc> &docList) const
                 if (mv.name == i.wrapped.module) {
                     for (const auto &d : docList) {
                         if (d.type == mv.type) {
-                            for (const auto &p : d.outputs) {
+                            for (const auto &p : d.inputs) {
                                 if (p.name == i.wrapped.port) {
                                     pd.unit = p.unit;
                                     pd.value = p.value;

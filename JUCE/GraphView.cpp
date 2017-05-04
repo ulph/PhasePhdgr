@@ -110,9 +110,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         if (m.withinPort(mousePos, position, port, inputPort)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                while (gfxGraphLock.test_and_set(memory_order_acquire));
                 makePortPoopUp(poop, m, port);
-                gfxGraphLock.clear(memory_order_release);
                 modelChanged = true;
             }
             else{
@@ -129,9 +127,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         else if (m.within(mousePos)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                while (gfxGraphLock.test_and_set(memory_order_acquire));
                 makeModulePoopUp(poop, m.module.name, gfxGraph);
-                gfxGraphLock.clear(memory_order_release);
                 modelChanged = true;
             }
             else{

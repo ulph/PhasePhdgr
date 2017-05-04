@@ -22,6 +22,22 @@
 #include "bleposc.hpp"
 #include "chamberlin.hpp"
 
+
+class Constant : public Module
+{
+public:
+    Constant() {
+        inputs.push_back(Pad("value"));
+        outputs.push_back(Pad("value"));
+    }
+    void process(uint32_t fs) {
+        outputs[0].value = inputs[0].value;
+    }
+    virtual std::string docString() { return "A 'constant' of questionable value."; };
+    static Module* factory() { return new Constant(); }
+};
+
+
 class ModuleRegister {
 public:
     static void registerAllModules(ConnectionGraph &cg)
@@ -68,6 +84,7 @@ public:
         cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
 
         /* convinience */
+        cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));
 
     }

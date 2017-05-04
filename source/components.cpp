@@ -108,27 +108,79 @@ const ComponentDescriptor adsr = {
 const ComponentDescriptor lfo = {
     vector<ModulePortAlias>{
         {"freq", {"phase", "freq"}},
+        {"gain", {"gain", "in2"}},
         {"trig", {"phase", "trig"}}
     },
     vector<ModulePortAlias>{
-        {"value", { "lin", "output"}}
+        {"value", { "gain", "prod"}}
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
             {"phase", "PHASE"},
             {"sine", "SINE"},
+            {"gain", "MUL"},
             {"lin", "SCLSHFT"}
         },
         vector<ModulePortConnection>{
             {"phase", "phase", "sine", "phase"},
-            {"sine", "sine", "lin", "input"}
+            {"sine", "sine", "lin", "input"},
+            {"lin", "output", "gain", "in1"},
         },
         vector<ModulePortValue>{
             {"lin", "scale", 0.5f},
-            {"lin", "shift", 0.5f}
+            {"lin", "shift", 0.5f},
+            {"gain", "in2", 1.0f},
         }
     },
     string("Convinience (simple sine) LFO bundle.")
+};
+
+
+const ComponentDescriptor chorus = {
+    vector<ModulePortAlias>{
+        {"mono", {"monoIn", "value"}},
+        {"freq", {"lfoHz", "value"}},
+        {"depth",{"lfoGain", "value"}},
+    },
+    vector<ModulePortAlias>{
+        {"left", {"dl", "out"}},
+        {"right",{"dr", "out"}}
+    },
+    ConnectionGraphDescriptor{
+        vector<ModuleVariable>{
+            {"lfoGain", "CONST"},
+            {"lfoHz", "CONST"},
+            {"lfoL", "@LFO"},
+            {"lfoR", "@LFO"},
+            {"monoIn", "CONST"},
+            {"lrDiff", "CONST"},
+            {"dl", "DELAY"},
+            {"dr", "DELAY"},
+            // todo, will need more stages -- or maybe a feedback loop would work?
+        },
+        vector<ModulePortConnection>{
+            {"monoIn", "value", "dl", "in"},
+            {"monoIn", "value", "dr", "in"},
+
+            {"lfoGain", "value", "lfoL", "gain"},
+            {"lfoGain", "value", "lfoR", "gain"},
+
+            {"lfoHz", "value", "lfoL", "freq"},
+            {"lfoHz", "value", "lfoR", "freq"},
+            {"lrDiff", "value", "lfoR", "freq"},
+
+            {"lfoL", "value", "dl", "time"},
+            {"lfoR", "value", "dr", "time"},
+        },
+        vector<ModulePortValue>{ 
+            {"dl", "time", 0.0f},
+            {"dr", "time", 0.0f},
+            {"lfo", "freq", 0.1f},
+            {"depth", "in1", 1.0f},
+            {"lrDiff", "in1", 0.1f},
+        },
+    },
+    string("Simple chorus.")
 };
 
 
@@ -136,6 +188,7 @@ void ComponentRegister::registerFactoryComponents() {
     registerComponent("@STEREOTAPE", stereoTape);
     registerComponent("@ADSR", adsr);
     registerComponent("@LFO", lfo);
+    registerComponent("@CHORUS", chorus);
     // etc
 }
 

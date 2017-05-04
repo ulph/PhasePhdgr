@@ -16,7 +16,7 @@ Delay::Delay()
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("time", 0.5f));
-    inputs.push_back(Pad("gain", 0.5f));
+    inputs.push_back(Pad("gain", 1.0f));
     outputs.push_back(Pad("out"));
 }
 

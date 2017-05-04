@@ -42,31 +42,16 @@ struct ConnectionGraphDescriptor {
 
 /* Component (subgraph) stuff */
 
-struct ModulePortInputAlias {
-    std::string alias;
-    std::vector<ModulePort> wrapped;
-};
-
-struct ModulePortOutputAlias {
+struct ModulePortAlias {
     std::string alias;
     ModulePort wrapped;
 };
 
 struct ComponentDescriptor {
-    std::vector<ModulePortInputAlias> inputs;
-    std::vector<ModulePortOutputAlias> outputs;
+    std::vector<ModulePortAlias> inputs;
+    std::vector<ModulePortAlias> outputs;
     ConnectionGraphDescriptor graph;
-    // TODO; values here ...
     std::string docString;
-};
-
-/* High level structure 
-TODO synths pass these down, so a file can be completely portable. Any conflicts of components with factory should be in favour of the patch...
-*/
-struct PatchDescriptor {
-    ConnectionGraphDescriptor graph;
-    std::vector<ComponentDescriptor> components; // optional
-    std::vector<ModulePortValue> values;
 };
 
 /* Functions and aux types */

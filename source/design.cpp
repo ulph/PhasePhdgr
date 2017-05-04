@@ -25,10 +25,8 @@ void applyComponent(
         if (c.target.module == name) {
             for (auto ai : cD.inputs) {
                 if (ai.alias == c.target.port) {
-                    for (auto &w : ai.wrapped) {
-                        c.target.module = w.module;
-                        c.target.port = w.port;
-                    }
+                    c.target.module = ai.wrapped.module;
+                    c.target.port = ai.wrapped.port;
                 }
             }
         }
@@ -39,10 +37,8 @@ void applyComponent(
         if (v.target.module == name) {
             for (auto ai : cD.inputs) {
                 if (ai.alias == v.target.port) {
-                    for (auto &w : ai.wrapped) {
-                        v.target.module = w.module;
-                        v.target.port = w.port;
-                    }
+                    v.target.module = ai.wrapped.module;
+                    v.target.port = ai.wrapped.port;
                 }
             }
         }
@@ -68,9 +64,7 @@ bool unpackComponent(
     // move component subgraph onto the mv's "scope"
     const std::string pfx = mv.name + ".";
     for (auto &i : cD.inputs) {
-        for (auto &w : i.wrapped) {
-            w.module = pfx + w.module;
-        }
+        i.wrapped.module = pfx + i.wrapped.module;
     }
     for (auto &o : cD.outputs) {
         o.wrapped.module = pfx + o.wrapped.module;
@@ -129,6 +123,7 @@ void designConnectionGraph(
     for (const auto &c : gDesc.connections) {
         int hFrom = handles.count(c.source.module) > 0 ? handles.at(c.source.module) : -2;
         int hTo = handles.count(c.target.module) > 0 ? handles.at(c.target.module) : -2;
+        std::cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << std::endl;
         if (hFrom < 0) {
             std::cerr << "Error: " << c.source.module << " not found! (connection source)" << std::endl;
         }
@@ -137,7 +132,6 @@ void designConnectionGraph(
         }
         else {
             g.connect(hFrom, c.source.port, hTo, c.target.port);
-            std::cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << std::endl;
         }
     }
 
@@ -145,12 +139,12 @@ void designConnectionGraph(
     for (const auto &v : gDesc.values) {
         if (skip.count(v.target.module)) continue;
         int h = handles.count(v.target.module) > 0 ? handles.at(v.target.module) : -2;
+        std::cout << v.target.module << ":" << v.target.port << " = " << v.value << std::endl;
         if (h < 0) {
             std::cerr << "Error: " << v.target.module << " not found! (values)" << std::endl;
         }
         else {
             g.setInput(h, v.target.port, v.value);
-            std::cout << v.target.module << ":" << v.target.port << " = " << v.value << std::endl;
         }
     }
 }

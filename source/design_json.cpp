@@ -62,4 +62,28 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
     cgd.values = j.at("values").get<std::vector<ModulePortValue>>();
 }
 
+void to_json(json& j, const ModulePortAlias& cgd) {
+    j["alias"] = cgd.alias;
+    j["wrapped"] = cgd.wrapped;
+}
+
+void from_json(const json& j, ModulePortAlias& cgd) {
+    cgd.alias = j.at("alias").get<std::string>();
+    cgd.wrapped = j.at("wrapped").get<ModulePort>();
+}
+
+void to_json(json& j, const ComponentDescriptor& cgd) {
+    j["inputs"] = cgd.inputs;
+    j["outputs"] = cgd.outputs;
+    j["graph"] = cgd.graph;
+    j["docString"] = cgd.docString;
+}
+
+void from_json(const json& j, ComponentDescriptor& cgd) {
+    cgd.inputs = j.at("inputs").get<std::vector<ModulePortAlias>>();
+    cgd.outputs = j.at("outputs").get<std::vector<ModulePortAlias>>();
+    cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
+    cgd.docString = j.at("docString").get<std::string>();
+}
+
 }

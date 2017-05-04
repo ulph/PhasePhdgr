@@ -4,22 +4,22 @@
 namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
-    std::vector<ModulePortInputAlias>{
-        {"left", {{"leftDelay", "in"}}},
-        {"right", {{"rightDelay", "in"}}},
-        {"leftTime", {{"delayLeftTime", "shift"}}},
-        {"rightTime", {{"delayRightTime", "shift"}}},
-        {"leftModDepth", {{"delayLeftTime", "scale"}}},
-        {"rightModDepth", {{"delayRightTime", "scale"}}},
-        {"feedback", {{"feedbackGain", "gain"}}},
-        {"leftHpHz", {{"leftDelayHP", "wc"}}},
-        {"rightHpHz", {{"rightDelayHP", "wc"}}},
-        {"leftLpHz", {{"leftDelayLP", "wc"}}},
-        {"rightLpHz", {{"rightDelayLP", "wc"}}},
-        {"modHz", {{"lfoPhase", "freq"}}},
-        {"saturation", {{"saturation", "prescaler"}}}
+    std::vector<ModulePortAlias>{
+        {"left", {"leftDelay", "in"}},
+        {"right", {"rightDelay", "in"}},
+        {"leftTime", {"delayLeftTime", "shift"}},
+        {"rightTime", {"delayRightTime", "shift"}},
+        {"leftModDepth", {"delayLeftTime", "scale"}},
+        {"rightModDepth", {"delayRightTime", "scale"}},
+        {"feedback", {"feedbackGain", "gain"}},
+        {"leftHpHz", {"leftDelayHP", "wc"}},
+        {"rightHpHz", {"rightDelayHP", "wc"}},
+        {"leftLpHz", {"leftDelayLP", "wc"}},
+        {"rightLpHz", {"rightDelayLP", "wc"}},
+        {"modHz", {"lfoPhase", "freq"}},
+        {"saturation", {"saturation", "prescaler"}}
     },
-    std::vector<ModulePortOutputAlias>{
+    std::vector<ModulePortAlias>{
         {"left", {"leftDelayLP", "y1"}},
         {"right", {"rightDelayLP", "y1"}}
     },
@@ -97,14 +97,11 @@ void ComponentRegister::makeComponentDocs(std::vector<ModuleDoc> &docList) const
         for (const auto i : kv.second.inputs) {
             PadDescription pd;
             pd.name = i.alias;
-            // TODO, unit/value
-            pd.value = 1337;
             doc.inputs.emplace_back(pd);
         }
         for (const auto o : kv.second.outputs) {
             PadDescription pd;
             pd.name = o.alias;
-            // TODO, unit
             doc.outputs.emplace_back(pd);
         }
         doc.docString = kv.second.docString;

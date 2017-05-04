@@ -112,7 +112,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     _stylize(&effectDirectoryList);
 
 #if INTERCEPT_STD_STREAMS
-    mainFrame.addTab("debug", g_tabColor, &debugTab, false);
+    mainFrame.addTab("debug", Colours::black, &debugTab, false);
     debugTab.addComponent(&coutView);
     debugTab.addComponent(&cerrView);
     coutView.setMultiLine(true, true);

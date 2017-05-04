@@ -105,9 +105,37 @@ const ComponentDescriptor adsr = {
 };
 
 
+const ComponentDescriptor lfo = {
+    vector<ModulePortAlias>{
+        {"freq", {"phase", "freq"}},
+        {"trig", {"phase", "trig"}}
+    },
+    vector<ModulePortAlias>{
+        {"value", { "lin", "output"}}
+    },
+    ConnectionGraphDescriptor{
+        vector<ModuleVariable>{
+            {"phase", "PHASE"},
+            {"sine", "SINE"},
+            {"lin", "SCLSHFT"}
+        },
+        vector<ModulePortConnection>{
+            {"phase", "phase", "sine", "phase"},
+            {"sine", "sine", "lin", "input"}
+        },
+        vector<ModulePortValue>{
+            {"lin", "scale", 0.5f},
+            {"lin", "shift", 0.5f}
+        }
+    },
+    string("Convinience (simple sine) LFO bundle.")
+};
+
+
 void ComponentRegister::registerFactoryComponents() {
     registerComponent("@STEREOTAPE", stereoTape);
     registerComponent("@ADSR", adsr);
+    registerComponent("@LFO", lfo);
     // etc
 }
 

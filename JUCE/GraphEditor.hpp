@@ -81,6 +81,7 @@ public:
 class GraphEditor : public Component
 {
     Doc doc;
+    PhasePhckr::ComponentRegister componentRegister;
     PhasePhckrGrid grid;
     PhasePhckrGrid docGrid;
 
@@ -98,7 +99,7 @@ class GraphEditor : public Component
     EditorTabbedComponent editorStack;
     friend class GraphView;
 
-    void push_tab(const string& componentName, const string& componentType);
+    void push_tab(const string& componentName, const string& componentType, const PhasePhckr::ComponentRegister& componentRegister);
 
 public:
     GraphEditor(

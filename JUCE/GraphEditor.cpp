@@ -1,4 +1,5 @@
 #include "GraphEditor.hpp"
+#include "components.hpp"
 
 void _stylize(TextEditor* t) {
     t->setMultiLine(true, true);
@@ -155,6 +156,8 @@ GraphEditor::GraphEditor(
     _stylize(&docView);
     _stylize(&docList);
 
+    push_tab("test", "@STEREOTAPE", componentRegister);
+
     resized();
 }
 
@@ -169,34 +172,58 @@ void GraphEditor::resized()
     repaint();
 }
 
-void GraphEditor::push_tab(const string& componentName, const string& componentType) {
-    return;
-
-    // WIP - a graph view should be able to request a new tab for a _component_
-    // a bunch of mocking needs to be done, should be similar to what's 
-    // done for the root, so perhaps it can be conceptualized
-    const auto& d = doc.get();
+void GraphEditor::push_tab(const string& componentName, const string& componentType, const PhasePhckr::ComponentRegister& componentRegister) {
+    auto docCopy = doc;
+    const auto& d = docCopy.get();
     auto dit = d.find(componentType);
     if (dit != d.end()) {
-        assert(componentType == dit->second.type);
-        auto componentGraph = SubValue<PhasePhckr::ConnectionGraphDescriptor>();
-        // TODO, mock bus modules types - inBus shows component inputs as outputs ... outBus vice versa
-        // TODO, mock doc (inject the new module types)
-        // TODO, build graph - needs to _flatten_ before passing to design.cpp
-        ModuleVariable inBus = { componentName + " inBus", componentType };
-        ModuleVariable outBus = { componentName + " outBus", componentType };
-        editorStack.addTab(
-            componentName + " (" + componentType + ")",
-            Colours::black, 
-            new GraphViewBundle(
-                *this,
-                doc,
-                componentGraph,
-                inBus,
-                outBus
-            ),
-            true
-        );
-        componentGraphs.emplace_back(componentGraph);
+        ComponentDescriptor cmp;
+        if (componentRegister.getComponent(componentType, cmp)) {
+            assert(componentType == dit->second.type);
+            componentGraphs.push_back(SubValue<PhasePhckr::ConnectionGraphDescriptor>());
+            auto &cdg = componentGraphs.back();
+
+            string inBusType = "_"+componentType + "INPUT";
+            string outBusType = "_"+componentType + "OUTPUT";
+
+            ModuleDoc inDoc = d.at(componentType);
+            inDoc.type = inBusType;
+            inDoc.outputs = inDoc.inputs;
+            inDoc.inputs.clear();
+            docCopy.add(inDoc);
+
+            ModuleDoc outDoc = d.at(componentType);
+            outDoc.type = outBusType;
+            outDoc.inputs = outDoc.outputs;
+            outDoc.outputs.clear();
+            docCopy.add(outDoc);
+
+            ModuleVariable inBus = {"inBus", inBusType};
+            ModuleVariable outBus = {"outBus", outBusType};
+
+            for (const auto& ai : cmp.inputs) {
+                cmp.graph.connections.push_back({ ModulePort{"inBus", ai.alias}, ai.wrapped });
+            }
+
+            for (const auto& ao : cmp.outputs) {
+                cmp.graph.connections.push_back({ ao.wrapped, ModulePort{ "outBus", ao.alias } });
+            }
+
+            editorStack.addTab(
+                componentName + " (" + componentType + ")",
+                Colours::black,
+                new GraphViewBundle(
+                    *this,
+                    docCopy,
+                    cdg,
+                    inBus,
+                    outBus
+                ),
+                true
+            );
+
+            cdg.set(-1, cmp.graph);
+
+        }
     }
 }

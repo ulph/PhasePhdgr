@@ -97,11 +97,48 @@ void ComponentRegister::makeComponentDocs(std::vector<ModuleDoc> &docList) const
         for (const auto i : kv.second.inputs) {
             PadDescription pd;
             pd.name = i.alias;
+            pd.unit = "";
+            pd.value = 0;
+            for (const auto &mv : kv.second.graph.modules) {
+                if (mv.name == i.wrapped.module) {
+                    for (const auto &d : docList) {
+                        if (d.type == mv.type) {
+                            for (const auto &p : d.outputs) {
+                                if (p.name == i.wrapped.port) {
+                                    pd.unit = p.unit;
+                                    pd.value = p.value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (const auto &v : kv.second.graph.values) {
+                if (v.target.module == i.wrapped.module) {
+                    if (v.target.port == i.wrapped.port) {
+                        pd.value = v.value;
+                    }
+                }
+            }
             doc.inputs.emplace_back(pd);
         }
         for (const auto o : kv.second.outputs) {
             PadDescription pd;
             pd.name = o.alias;
+            pd.unit = "";
+            for (const auto &mv : kv.second.graph.modules) {
+                if (mv.name == o.wrapped.module) {
+                    for (const auto &d : docList) {
+                        if (d.type == mv.type) {
+                            for (const auto &p : d.outputs) {
+                                if (p.name == o.wrapped.port) {
+                                    pd.unit = p.unit;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             doc.outputs.emplace_back(pd);
         }
         doc.docString = kv.second.docString;

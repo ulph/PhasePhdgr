@@ -156,8 +156,6 @@ GraphEditor::GraphEditor(
     _stylize(&docView);
     _stylize(&docList);
 
-    push_tab("test", "@STEREOTAPE", componentRegister);
-
     resized();
 }
 
@@ -172,7 +170,7 @@ void GraphEditor::resized()
     repaint();
 }
 
-void GraphEditor::push_tab(const string& componentName, const string& componentType, const PhasePhckr::ComponentRegister& componentRegister) {
+void GraphEditor::push_tab(const string& componentName, const string& componentType) {
     auto docCopy = doc;
     const auto& d = docCopy.get();
     auto dit = d.find(componentType);
@@ -183,8 +181,8 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             componentGraphs.push_back(SubValue<PhasePhckr::ConnectionGraphDescriptor>());
             auto &cdg = componentGraphs.back();
 
-            string inBusType = "_"+componentType + "INPUT";
-            string outBusType = "_"+componentType + "OUTPUT";
+            string inBusType = "_"+componentType+"_INPUT";
+            string outBusType = "_"+componentType+"_OUTPUT";
 
             ModuleDoc inDoc = d.at(componentType);
             inDoc.type = inBusType;
@@ -210,7 +208,7 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             }
 
             editorStack.addTab(
-                componentName + " (" + componentType + ")",
+                to_string(componentGraphs.size()) + " " + componentName + " (" + componentType + ") ",
                 Colours::black,
                 new GraphViewBundle(
                     *this,

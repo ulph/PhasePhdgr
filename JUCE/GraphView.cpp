@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <utility>
 
+#include "GraphEditor.hpp"
+
 using namespace PhasePhckr;
 
 
@@ -85,6 +87,14 @@ void GraphView::propagateUserModelChange() {
     subscribedCGD.set(subscribedCGDhandle, graph);
 }
 
+void GraphView::mouseDoubleClick(const MouseEvent & event) {
+    XY mousePos((float)event.x, (float)event.y);
+    for (auto & m : gfxGraph.modules) {
+        if (m.within(mousePos)) {
+            graphEditor.push_tab(m.module.name, m.module.type);
+        }
+    }
+}
 
 void GraphView::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);

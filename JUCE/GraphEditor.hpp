@@ -95,11 +95,10 @@ class GraphEditor : public Component
     ModuleVariable inBus;
     ModuleVariable outBus;
 
-    vector<SubValue<PhasePhckr::ConnectionGraphDescriptor>> componentGraphs;
+    list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> componentGraphs;
     EditorTabbedComponent editorStack;
     friend class GraphView;
-
-    void push_tab(const string& componentName, const string& componentType, const PhasePhckr::ComponentRegister& componentRegister);
+    void push_tab(const string& componentName, const string& componentType);
 
 public:
     GraphEditor(

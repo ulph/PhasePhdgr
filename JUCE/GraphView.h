@@ -50,6 +50,7 @@ public:
         subscribedCGD.unsubscribe(subscribedCGDhandle);
     }
     virtual void mouseDown(const MouseEvent & event) override;
+    virtual void mouseDoubleClick(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;
     virtual void mouseUp(const MouseEvent & event) override;
     virtual void mouseMove(const MouseEvent & event) override;

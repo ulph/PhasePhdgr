@@ -38,15 +38,23 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     createDirIfNeeded(componentsDir);
     createDirIfNeeded(patchesDir);
 
-    // load init patch, dump to disk otherwise
-    File initVoice = voicesDir.getFullPathName() + File::separator + "_init_voice.json";
-    File initEffect = effectsDir.getFullPathName() + File::separator + "_init_effect.json"; 
+    // load init patches and dump to disk
+    File initVoice = voicesDir.getFullPathName() + File::separator + "_init.json";
+    File initEffect = effectsDir.getFullPathName() + File::separator + "_init.json"; 
 
     voiceChain = PhasePhckr::getExampleVoiceChain();
     initVoice.replaceWithText(json(voiceChain).dump(2));
 
     effectChain = PhasePhckr::getExampleFxChain();
     initEffect.replaceWithText(json(effectChain).dump(2));
+
+    // dump all factory components to disk
+    for (const auto &kv : componentRegister.all()) {
+        const auto &type = kv.first;
+        const auto &body = kv.second;
+        File cmp = componentsDir.getFullPathName() + File::separator + type.substr(1) + ".json";
+        cmp.replaceWithText(json(body).dump(2));
+    }
 
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();

@@ -36,8 +36,8 @@ namespace PhasePhckr {
             { "outPreGain", "gain", 1.0f },
             { "outPostGain", "gain", 1.0f },
             // overriding component defaults ;)
-            { "stereoTape", "feedback", 1.0f },
-            { "stereoTape", "saturation", 1.5f },
+            { "stereoTape", "feedback", 0.75f },
+            { "stereoTape", "saturation", 1.0f },
             { "stereoTape", "leftModDepth", 0.002f },
             { "stereoTape", "rightModDepth", 0.002f },
         }

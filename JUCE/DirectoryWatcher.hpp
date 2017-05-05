@@ -20,7 +20,6 @@ namespace PhasePhckrFileStuff {
         }
     };
 
-    TimeSliceThread & getThread();
     const FileFilter * getFilter();
 
     const std::string phasePhkrDirName = "phasephkr";

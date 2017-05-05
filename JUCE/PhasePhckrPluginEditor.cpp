@@ -29,8 +29,9 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
 
-    , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
-    , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), PhasePhckrFileStuff::getThread())
+    , fileWatchThread("fileWatchThread")
+    , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), fileWatchThread)
+    , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), fileWatchThread)
     
     , voiceDirectoryList(voiceDirectoryWatcher)
     , effectDirectoryList(effectDirectoryWatcher)
@@ -74,11 +75,16 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             c_EffectInput,
             c_EffectOutput
         )
+     , fileUpdateTimer(new function<void()>(
+            [this](){updateFiles();}
+        ))
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 #endif
 {
+    fileWatchThread.startThread();
+    fileUpdateTimer.startTimer(1000);
 
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);

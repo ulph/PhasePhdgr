@@ -45,6 +45,7 @@ private:
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 
+    TimeSliceThread fileWatchThread;
     DirectoryContentsList voiceDirectoryWatcher;
     FileListComponent voiceDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
@@ -52,6 +53,11 @@ private:
     FileListComponent effectDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
     PhasePhckrGrid filesGrid;
+    LambdaTimer fileUpdateTimer;
+    void updateFiles() {
+        voiceDirectoryWatcher.refresh();
+        effectDirectoryWatcher.refresh();
+    }
 
     GraphEditor voiceEditor;
     GraphEditor effectEditor;

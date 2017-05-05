@@ -100,14 +100,14 @@ void GraphView::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);
     bool modelChanged = false;
     bool userInteraction = false;
-    XY mousePos((float)event.x, (float)event.y);
+    mouseDownPos = XY((float)event.x, (float)event.y);
 
     for (auto & m : gfxGraph.modules) {
         string port;
         bool inputPort;
         XY position;
         // drag wire between ports
-        if (m.withinPort(mousePos, position, port, inputPort)) {
+        if (m.withinPort(mouseDownPos, position, port, inputPort)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 makePortPoopUp(poop, m, port);
@@ -115,7 +115,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
             }
             else{
                 looseWire.isValid = true;
-                looseWire.destination = mousePos;
+                looseWire.destination = mouseDownPos;
                 looseWire.attachedAtSource = !inputPort;
                 looseWire.attachedPort = { m.module.name, port };
                 looseWire.position = position;
@@ -124,7 +124,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
             break;
         }
         // interract with a module
-        else if (m.within(mousePos)) {
+        else if (m.within(mouseDownPos)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 makeModulePoopUp(poop, m.module.name, gfxGraph);
@@ -147,13 +147,15 @@ void GraphView::mouseDown(const MouseEvent & event) {
     }
     if (!userInteraction) {
         while (gfxGraphLock.test_and_set(memory_order_acquire));
-        if (gfxGraph.disconnect(mousePos, looseWire)) {
+        // disconnect a wire
+        if (gfxGraph.disconnect(mouseDownPos, looseWire)) {
             modelChanged = true;
             userInteraction = true;
         }
         gfxGraphLock.clear(memory_order_release);
     }
     if (!userInteraction) {
+        // select region start/stop
         if (event.mods.isShiftDown()) {
             selecting = true;
             selectionStart = event.position;
@@ -182,8 +184,10 @@ void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d
 void GraphView::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
     if (draggedModule) {
-        draggedModule->position.x = (float)event.x - draggedModule->size.x * 0.5f;
-        draggedModule->position.y = (float)event.y - draggedModule->size.y * 0.5f;
+        auto mousePos = XY(event.x, event.y);
+        XY delta = mousePos - mouseDownPos;
+        mouseDownPos = mousePos;
+        draggedModule->position += delta;
         draggedModule->repositionPorts();
         auto mv = vector<GfxModule>{ *draggedModule };
         while (gfxGraphLock.test_and_set(memory_order_acquire));

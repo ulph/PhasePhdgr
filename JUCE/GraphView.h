@@ -98,6 +98,8 @@ private:
     bool selecting;
     set<const GfxModule*> selectedModules;
 
+    XY mouseDownPos;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };
 

@@ -58,6 +58,12 @@ class GraphViewBundle : public Component{
 private:
     GraphViewPort viewPort;
     GraphView graphView;
+    PhasePhckrGrid bottomRow;
+    TextButton resetLayoutButton;
+    Label fileName;
+    TextButton revertButton;
+    TextButton saveButton;
+    TextButton exportButton;
 public:
     GraphViewBundle(
         GraphEditor& graphEditor,

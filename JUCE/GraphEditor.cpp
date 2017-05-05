@@ -1,6 +1,16 @@
 #include "GraphEditor.hpp"
 #include "components.hpp"
 
+void _stylize(Label * l) {
+    l->setJustificationType(Justification::centred);
+    l->setColour(Label::backgroundColourId, Colours::darkgrey);
+    l->setColour(Label::backgroundWhenEditingColourId, Colours::white);
+    l->setColour(Label::textColourId, Colours::white);
+    l->setColour(Label::textWhenEditingColourId, Colours::black);
+    l->setColour(Label::outlineColourId, Colours::black);
+    l->setColour(Label::outlineWhenEditingColourId, Colours::black);
+}
+
 void _stylize(TextEditor* t) {
     t->setMultiLine(true, true);
     t->setColour(TextEditor::backgroundColourId, Colours::black);
@@ -105,16 +115,35 @@ GraphViewBundle::GraphViewBundle(
     )
 {
     addAndMakeVisible(viewPort);
+    addAndMakeVisible(bottomRow);
+    bottomRow.addComponent(&resetLayoutButton);
+    bottomRow.addComponent(&fileName);
+    bottomRow.addComponent(&revertButton);
+    bottomRow.addComponent(&saveButton);
+    bottomRow.addComponent(&exportButton);
+    bottomRow.setColoumns({0.1f, 0.8f, 0.1f, 0.1f, 0.1f});
+    fileName.setText("FILENAME HERE", NotificationType::sendNotificationSync);
+    _stylize(&fileName);
+    revertButton.setButtonText("revert");
+    saveButton.setButtonText("save");
+    exportButton.setButtonText("export");
+    resetLayoutButton.setButtonText("reset layout");
     viewPort.setViewedComponent(&graphView, false);
     resized();
 }
+
+
 void GraphViewBundle::paint(Graphics& g)
 {
     g.fillAll(Colours::black);
 }
+
+
 void GraphViewBundle::resized()
 {
-    viewPort.setBoundsRelative(0, 0, 1, 1);
+    const int buttonBarHeight = 20;
+    viewPort.setBounds(0, 0, getWidth(), getHeight() - buttonBarHeight);
+    bottomRow.setBounds(0, getHeight() - buttonBarHeight, getWidth(), buttonBarHeight);
     repaint();
 }
 
@@ -161,7 +190,7 @@ GraphEditor::GraphEditor(
 
 void GraphEditor::paint(Graphics& g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colours::darkgrey);
 }
 
 void GraphEditor::resized()

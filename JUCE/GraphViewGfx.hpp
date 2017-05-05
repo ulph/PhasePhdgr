@@ -256,8 +256,13 @@ struct GfxModule {
         return false;
     }
 
-    void draw(Graphics & g) const {
-        g.setColour(Colour((uint8_t)0, (uint8_t)0, (uint8_t)0, (float)0.5f));
+    void draw(Graphics & g, bool selected=false) const {
+        if (selected) {
+            g.setColour(Colour(0x88888888));
+        }
+        else {
+            g.setColour(Colour(0x88000000));
+        }
         g.fillRoundedRectangle(
             position.x, 
             position.y,

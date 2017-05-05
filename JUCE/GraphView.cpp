@@ -130,6 +130,14 @@ void GraphView::mouseDown(const MouseEvent & event) {
                 makeModulePoopUp(poop, m.module.name, gfxGraph);
                 modelChanged = true;
             }
+            else if (event.mods.isShiftDown()) {
+                if (selectedModules.count(&m)) {
+                    selectedModules.erase(&m);
+                }
+                else {
+                    selectedModules.insert(&m);
+                }
+            }
             else{
                 draggedModule = &m;
             }
@@ -152,6 +160,9 @@ void GraphView::mouseDown(const MouseEvent & event) {
             selectionStop = event.position;
             repaint();
             userInteraction = true;
+        }
+        else {
+            selectedModules.clear();
         }
     }
     if (userInteraction) {
@@ -205,7 +216,13 @@ void GraphView::mouseUp(const MouseEvent & event) {
         gfxGraphLock.clear(memory_order_release);
     }
     if (selecting) {
-        // do stuff
+        auto selectionRegion = Rectangle<float>(selectionStart, selectionStop);
+        for (const auto &m : gfxGraph.modules) {
+            Rectangle<float> mr(m.position.x, m.position.y, m.size.x, m.size.y);
+            if (selectionRegion.intersectRectangle(mr)){
+                selectedModules.insert(&m);
+            }
+        }
     }
     selecting = false;
     looseWire.isValid = false;
@@ -259,7 +276,7 @@ void GraphView::paint (Graphics& g){
         w.draw(g);
     }
     for (auto &mb : gfxGraph.modules) {
-        mb.draw(g);
+        mb.draw(g, selectedModules.count(&mb));
     }
     if (looseWire.isValid) {
         looseWire.draw(g);

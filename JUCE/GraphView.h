@@ -96,6 +96,7 @@ private:
     Point<float> selectionStart;
     Point<float> selectionStop;
     bool selecting;
+    set<const GfxModule*> selectedModules;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

@@ -38,6 +38,7 @@ public:
         , inBus(inBus)
         , outBus(outBus)
         , scale(1.0f)
+        , selecting(false)
     {
         viewPort.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD.subscribe(
@@ -91,6 +92,10 @@ private:
     GfxGraph gfxGraph;
     GfxModule * draggedModule = nullptr;
     GfxLooseWire looseWire;
+
+    Point<float> selectionStart;
+    Point<float> selectionStop;
+    bool selecting;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphView)
 };

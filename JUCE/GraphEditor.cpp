@@ -118,17 +118,16 @@ GraphViewBundle::GraphViewBundle(
     addAndMakeVisible(bottomRow);
     bottomRow.addComponent(&resetLayoutButton);
     bottomRow.addComponent(&fileName);
-    bottomRow.addComponent(&revertButton);
     bottomRow.addComponent(&saveButton);
-    bottomRow.addComponent(&exportButton);
-    bottomRow.setColoumns({0.1f, 0.8f, 0.1f, 0.1f, 0.1f});
-    fileName.setText("FILENAME HERE", NotificationType::sendNotificationSync);
+    bottomRow.setColoumns({0.1f, 0.8f, 0.1f});
     _stylize(&fileName);
-    revertButton.setButtonText("revert");
-    saveButton.setButtonText("save");
-    exportButton.setButtonText("export");
     resetLayoutButton.setButtonText("reset layout");
+    fileName.setText("FILENAME HERE", NotificationType::sendNotificationSync);
+    saveButton.setButtonText("save");
     viewPort.setViewedComponent(&graphView, false);
+
+//    saveButton.addListener() ... etc
+
     resized();
 }
 

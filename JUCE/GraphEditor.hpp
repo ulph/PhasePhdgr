@@ -61,9 +61,7 @@ private:
     PhasePhckrGrid bottomRow;
     TextButton resetLayoutButton;
     Label fileName;
-    TextButton revertButton;
     TextButton saveButton;
-    TextButton exportButton;
 public:
     GraphViewBundle(
         GraphEditor& graphEditor,

@@ -145,6 +145,15 @@ void GraphView::mouseDown(const MouseEvent & event) {
         }
         gfxGraphLock.clear(memory_order_release);
     }
+    if (!userInteraction) {
+        if (event.mods.isShiftDown()) {
+            selecting = true;
+            selectionStart = event.position;
+            selectionStop = event.position;
+            repaint();
+            userInteraction = true;
+        }
+    }
     if (userInteraction) {
         viewPort.setScrollOnDragEnabled(false);
         repaint();
@@ -178,6 +187,10 @@ void GraphView::mouseDrag(const MouseEvent & event) {
         updateBounds(gfxGraph.getBounds());
         repaint();
     }
+    if (selecting) {
+        selectionStop = event.position;
+        repaint();
+    }
     if (modelChanged) propagateUserModelChange();
 }
 
@@ -191,6 +204,10 @@ void GraphView::mouseUp(const MouseEvent & event) {
         modelChanged = gfxGraph.connect(looseWire, mousePos);
         gfxGraphLock.clear(memory_order_release);
     }
+    if (selecting) {
+        // do stuff
+    }
+    selecting = false;
     looseWire.isValid = false;
     gfxGraph.moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
@@ -246,6 +263,10 @@ void GraphView::paint (Graphics& g){
     }
     if (looseWire.isValid) {
         looseWire.draw(g);
+    }
+    if (selecting) {
+        g.setColour(Colour(0x44ffffff));
+        g.fillRect(Rectangle<float>(selectionStart, selectionStop));
     }
 
     gfxGraphLock.clear(std::memory_order_release);

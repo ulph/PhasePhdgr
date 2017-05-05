@@ -108,7 +108,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         XY position;
         // drag wire between ports
         if (m.withinPort(mouseDownPos, position, port, inputPort)) {
-            if(event.mods.isRightButtonDown()){
+            if(inputPort && event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 makePortPoopUp(poop, m, port);
                 modelChanged = true;
@@ -184,7 +184,7 @@ void GraphView::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d
 void GraphView::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
     if (draggedModule) {
-        auto mousePos = XY(event.x, event.y);
+        auto mousePos = XY((float)event.x, (float)event.y);
         XY delta = mousePos - mouseDownPos;
         mouseDownPos = mousePos;
         draggedModule->position += delta;

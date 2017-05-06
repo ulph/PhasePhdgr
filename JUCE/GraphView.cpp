@@ -87,7 +87,7 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
 
     ComponentDescriptor cmp;
     cmp.graph = cgd;
-    cmp.docString = "this is a new component";
+    cmp.docString = "";
     for (const auto i : inBusConnections) {        
         cmp.inputs.push_back(ModulePortAlias{ i.port, i });
     }

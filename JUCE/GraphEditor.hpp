@@ -16,8 +16,7 @@ void _stylize(TextEditor* t);
 void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
-typedef SubValue<PhasePhckr::PatchDescriptor> SubPatch;
-typedef SubValue<PhasePhckr::ComponentRegister> SubComponents;
+typedef SubValue<PatchDescriptor> SubPatch;
 
 class DocListModel : public ListBoxModel {
 private:
@@ -26,6 +25,7 @@ private:
     TextEditor & docView;
 public:
     DocListModel(const std::map<std::string, ModuleDoc> & moduleDocs, TextEditor & docView);
+    void setDocs(const std::map<std::string, ModuleDoc> & moduleDocs);
     virtual int getNumRows();
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected);
     virtual void listBoxItemClicked(int row, const MouseEvent &);
@@ -97,6 +97,9 @@ public:
 class GraphEditor : public Component
 {
     Doc doc;
+    SubPatch & patch;
+    int patchHandle;
+
     PhasePhckrGrid grid;
     PhasePhckrGrid docGrid;
 
@@ -122,6 +125,7 @@ public:
         const ModuleVariable &inBus,
         const ModuleVariable &outBus
     );
+    virtual ~GraphEditor();
     void paint(Graphics& g);
     void resized();
 };

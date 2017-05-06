@@ -48,6 +48,14 @@ DocListModel::DocListModel(const std::map<std::string, ModuleDoc> & moduleDocs, 
     }
 }
 
+void DocListModel::setDocs(const std::map<std::string, ModuleDoc> & moduleDocs_) {
+    moduleDocs = moduleDocs_;
+    rows.clear();
+    for (const auto &kv : moduleDocs) {
+        rows.push_back(kv.first);
+    }
+}
+
 int DocListModel::getNumRows() {
     return (int)rows.size();
 }
@@ -148,21 +156,22 @@ void GraphViewBundle::resized()
 
 
 GraphEditor::GraphEditor(
-    const Doc &doc,
-    SubPatch &subscribedCGD,
+    const Doc &doc_,
+    SubPatch &patch,
     const ModuleVariable &inBus,
     const ModuleVariable &outBus
 )
-    : doc(doc)
+    : doc(doc_)
+    , patch(patch)
     , docListModel(doc.get(), docView)
     , docList("docList", &docListModel)
     , inBus(inBus)
     , outBus(outBus)
-    , textEditor(subscribedCGD)
+    , textEditor(patch)
     , rootView(
         *this,
         doc,
-        subscribedCGD,
+        patch,
         inBus,
         outBus
     )
@@ -184,7 +193,23 @@ GraphEditor::GraphEditor(
     _stylize(&docView);
     _stylize(&docList);
 
+    patchHandle = patch.subscribe(
+        function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
+            for (const auto & c : desc.components) {
+                ModuleDoc d;
+                PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d, doc);
+                doc.add(d);
+            }
+            docListModel.setDocs(doc.get());
+            docList.repaint();
+        }
+    ));
+
     resized();
+}
+
+GraphEditor::~GraphEditor() {
+    patch.unsubscribe(patchHandle);
 }
 
 void GraphEditor::paint(Graphics& g)

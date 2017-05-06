@@ -198,6 +198,7 @@ void GraphEditor::resized()
     repaint();
 }
 
+/*
 void GraphEditor::push_tab(const string& componentName, const string& componentType) {
     auto docCopy = doc;
     const auto& d = docCopy.get();
@@ -259,3 +260,4 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         }
     }
 }
+*/

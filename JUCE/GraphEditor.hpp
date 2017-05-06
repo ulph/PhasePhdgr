@@ -17,6 +17,7 @@ void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
 typedef SubValue<PhasePhckr::PatchDescriptor> SubPatch;
+typedef SubValue<PhasePhckr::ComponentRegister> SubComponents;
 
 class DocListModel : public ListBoxModel {
 private:
@@ -96,7 +97,6 @@ public:
 class GraphEditor : public Component
 {
     Doc doc;
-    PhasePhckr::ComponentRegister componentRegister;
     PhasePhckrGrid grid;
     PhasePhckrGrid docGrid;
 
@@ -113,7 +113,7 @@ class GraphEditor : public Component
     list<SubPatch> componentGraphs;
     GraphEditorTabbedComponent editorStack;
     friend class GraphView;
-    void push_tab(const string& componentName, const string& componentType);
+//    void push_tab(const string& componentName, const string& componentType);
 
 public:
     GraphEditor(

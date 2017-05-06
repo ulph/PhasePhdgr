@@ -285,11 +285,11 @@ bool ComponentRegister::makeComponentDoc(const string &type, ModuleDoc &doc, con
     return true;
 }
 
-void ComponentRegister::makeComponentDocs(Doc& ref) const {
+void ComponentRegister::makeComponentDocs(Doc& doc) const {
     for (const auto kv : r) {
-        ModuleDoc doc;
-        if (makeComponentDoc(kv.first, doc, ref)) {
-            ref.add(doc);
+        ModuleDoc md;
+        if (makeComponentDoc(kv.first, md, doc)) {
+            doc.add(md);
         }
     }
 }

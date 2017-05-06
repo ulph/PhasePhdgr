@@ -8,6 +8,8 @@
 
 using namespace PhasePhckrFileStuff;
 
+using namespace std;
+
 static json loadJson(const File & f) {
     String s = f.loadFileAsString();
     return json::parse(s.toStdString().c_str());
@@ -37,11 +39,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , effectDirectoryList(effectDirectoryWatcher)
 
     , activeVoiceSubscribeHandle(activeVoice.subscribe(
-        [this](const PhasePhckr::PatchDescriptor & v) {
+        [this](const PatchDescriptor & v) {
             //
         }))
     , activeEffectSubscribeHandle(activeEffect.subscribe(
-        [this](const PhasePhckr::PatchDescriptor & v) {
+        [this](const PatchDescriptor & v) {
             //
         }))
     , voiceListListener([this](const File& f) {
@@ -52,9 +54,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
         })
 
     , voiceEditor(
-            [this]()->PhasePhckr::Doc 
+            [this]()->Doc 
             {
-                PhasePhckr::Doc d;
+                Doc d;
+                processor.componentRegister.makeComponentDocs(d);
                 d.add(PhasePhckr::getVoiceBusInputDoc());
                 d.add(PhasePhckr::getVoiceBusOutputDoc());
                 return d;
@@ -67,6 +70,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             [this]()->PhasePhckr::Doc 
             {
                 PhasePhckr::Doc d;
+                processor.componentRegister.makeComponentDocs(d);
                 d.add(PhasePhckr::getEffectBusInputDoc());
                 d.add(PhasePhckr::getEffectBusOutputDoc());
                 return d;

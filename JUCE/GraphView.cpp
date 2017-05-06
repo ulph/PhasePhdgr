@@ -6,22 +6,21 @@
 
 using namespace PhasePhckr;
 
-
 bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gfxGraph){
     Label lbl(moduleName, moduleName);
     lbl.setEditable(true, true, false);
-    poop.addCustomItem(0, &lbl, 20, 20, false);
-    poop.addItem(1, "delete");
+    poop.addCustomItem(1, &lbl, 20, 20, false);
+    poop.addItem(2, "delete");
     int choice = poop.show();
-    gfxGraph.rename(
-        moduleName,
-        lbl.getText().toStdString()
-    );
     switch (choice){
-    case 0:
+    case 1:
+        gfxGraph.rename(
+            moduleName,
+            lbl.getText().toStdString()
+        );
         return true;
         break;
-    case 1:
+    case 2:
         gfxGraph.remove(moduleName);
         return true;
         break;
@@ -86,7 +85,7 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         cmp.inputs.push_back(ModulePortAlias{ i.target.port, i.target });
     }
     for (const auto o : outBusConnections) {
-        cmp.inputs.push_back(ModulePortAlias{ o.source.port, o.source });
+        cmp.outputs.push_back(ModulePortAlias{ o.source.port, o.source });
     }
 
     // store it on model
@@ -113,15 +112,15 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
 
 
 bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc) {
-    poop.addItem(0, "make component");
-    poop.addItem(1, "delete");
+    poop.addItem(1, "make component");
+    poop.addItem(2, "delete");
     int choice = poop.show();
     switch (choice) {
-    case 0:
+    case 1:
         createComponent(selection, gfxGraph, doc);
         deleteSelectedModules(selection, gfxGraph);
         return true;
-    case 1:
+    case 2:
         deleteSelectedModules(selection, gfxGraph);
         return true;
     default:
@@ -136,21 +135,21 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
     if(!gfxModule.getValue(port, value)) return false; // error
     Label lbl(port, to_string(value));
     lbl.setEditable(true, true, false);
-    poop.addItem(0, port);
-    poop.addCustomItem(1, &lbl, 20, 20, false);
-    poop.addItem(2, "clear");
+    poop.addItem(1, port);
+    poop.addCustomItem(2, &lbl, 20, 20, false);
+    poop.addItem(3, "clear");
     int choice = poop.show();
-    gfxModule.setValue(
-        port,
-        lbl.getText().getFloatValue()
-    );
     switch (choice){
-    case 0:
-        break;
     case 1:
-        return true;
         break;
     case 2:
+        gfxModule.setValue(
+            port,
+            lbl.getText().getFloatValue()
+        );
+        return true;
+        break;
+    case 3:
         gfxModule.clearValue(port);
         return true;
         break;
@@ -209,8 +208,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
         if (m.withinPort(mouseDownPos, position, port, inputPort)) {
             if(inputPort && event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                makePortPoopUp(poop, m, port);
-                modelChanged = true;
+                modelChanged = makePortPoopUp(poop, m, port);
             }
             else{
                 looseWire.isValid = true;
@@ -227,12 +225,11 @@ void GraphView::mouseDown(const MouseEvent & event) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 if (selectedModules.count(&m)) {
-                    makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc);
+                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc);
                 }
                 else {
-                    makeModulePoopUp(poop, m.module.name, gfxGraph);
+                    modelChanged = makeModulePoopUp(poop, m.module.name, gfxGraph);
                 }
-                modelChanged = true;
             }
             else if (event.mods.isShiftDown()) {
                 if (selectedModules.count(&m)) {

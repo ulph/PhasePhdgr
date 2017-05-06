@@ -32,8 +32,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , mainFrame(TabbedButtonBar::TabsAtTop)
 
     , fileWatchThread("fileWatchThread")
-    , voiceDirectoryWatcher(PhasePhckrFileStuff::getFilter(), fileWatchThread)
-    , effectDirectoryWatcher(PhasePhckrFileStuff::getFilter(), fileWatchThread)
+    , voiceDirectoryWatcher(getFilter(), fileWatchThread)
+    , effectDirectoryWatcher(getFilter(), fileWatchThread)
     
     , voiceDirectoryList(voiceDirectoryWatcher)
     , effectDirectoryList(effectDirectoryWatcher)
@@ -58,8 +58,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             {
                 Doc d;
                 processor.componentRegister.makeComponentDocs(d);
-                d.add(PhasePhckr::getVoiceBusInputDoc());
-                d.add(PhasePhckr::getVoiceBusOutputDoc());
+                d.add(getVoiceBusInputDoc());
+                d.add(getVoiceBusOutputDoc());
                 return d;
             }(),
             activeVoice,
@@ -67,12 +67,12 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             c_VoiceOutput
         )
     , effectEditor(
-            [this]()->PhasePhckr::Doc 
+            [this]()->Doc 
             {
-                PhasePhckr::Doc d;
+                Doc d;
                 processor.componentRegister.makeComponentDocs(d);
-                d.add(PhasePhckr::getEffectBusInputDoc());
-                d.add(PhasePhckr::getEffectBusOutputDoc());
+                d.add(getEffectBusInputDoc());
+                d.add(getEffectBusOutputDoc());
                 return d;
             }(),
             activeEffect,

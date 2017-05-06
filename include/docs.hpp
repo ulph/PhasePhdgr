@@ -24,7 +24,6 @@ namespace PhasePhckr {
     class Doc {
     private:
         std::map<std::string, ModuleDoc> docs;
-        const ComponentRegister & cp;
     public:
         Doc(const ComponentRegister & cp);
         const std::map<std::string, ModuleDoc> & get() const;

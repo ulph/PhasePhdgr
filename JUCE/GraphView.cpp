@@ -32,6 +32,104 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gf
 }
 
 
+void deleteSelectedModules(set<const GfxModule *> & selection, GfxGraph & gfxGraph) {
+    list<string> wipe;
+    for (const auto s : selection) {
+        wipe.push_back(s->module.name);
+    }
+    selection.clear();
+    for (const auto &w : wipe) {
+        gfxGraph.remove(w);
+    }
+}
+
+
+void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc){
+    ConnectionGraphDescriptor cgd;
+    set<string> modules;
+
+    // copy over modules and any non-default values
+    for (const auto s : selection) {
+        cgd.modules.push_back(s->module);
+        for (const auto &p : s->inputs) {
+            if (p.assignedValue) {
+                cgd.values.push_back(ModulePortValue{ s->module.name, p.port, p.value });
+            }
+        }
+        modules.insert(s->module.name);
+    }
+
+    list<ModulePortConnection> inBusConnections;
+    list<ModulePortConnection> outBusConnections;
+
+    for (const auto &c : gfxGraph.wires) {
+        // copy any internal connections
+        if (modules.count(c.connection.source.module) && modules.count(c.connection.target.module)) {
+            cgd.connections.push_back(c.connection);
+        }
+        // store the external connections
+        else if (modules.count(c.connection.source.module)) {
+            outBusConnections.push_back(c.connection);
+        }
+        else if (modules.count(c.connection.target.module)) {
+            inBusConnections.push_back(c.connection);
+        }
+    }
+
+    // create a ComponentDescriptor
+    string name = "new component";
+    string type = "@INCOMPONENT";
+    ComponentDescriptor cmp;
+    cmp.graph = cgd;
+    cmp.docString = "this is a new component";
+    for (const auto i : inBusConnections) {        
+        cmp.inputs.push_back(ModulePortAlias{ i.target.port, i.target });
+    }
+    for (const auto o : outBusConnections) {
+        cmp.inputs.push_back(ModulePortAlias{ o.source.port, o.source });
+    }
+
+    // add it to docList
+    ModuleDoc cDoc;
+    vector<ModuleDoc> docList; // this is crap, need to rethink
+    PhasePhckr::ComponentRegister::makeComponentDoc(type, cmp, cDoc, docList);
+
+    doc.add(cDoc);
+
+    // add it to graph
+    vector<ModulePortValue> mpv;
+    gfxGraph.modules.push_back(GfxModule(
+        ModuleVariable{ name, type },
+        0,
+        0,
+        doc,
+        mpv
+    ));
+
+    // reroute gfxGraph
+
+}
+
+
+bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc) {
+    poop.addItem(0, "make component");
+    poop.addItem(1, "delete");
+    int choice = poop.show();
+    switch (choice) {
+    case 0:
+        createComponent(selection, gfxGraph, doc);
+        deleteSelectedModules(selection, gfxGraph);
+        return true;
+    case 1:
+        deleteSelectedModules(selection, gfxGraph);
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+
 bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port){
     float value;
     if(!gfxModule.getValue(port, value)) return false; // error
@@ -127,7 +225,12 @@ void GraphView::mouseDown(const MouseEvent & event) {
         else if (m.within(mouseDownPos)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                makeModulePoopUp(poop, m.module.name, gfxGraph);
+                if (selectedModules.count(&m)) {
+                    makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc);
+                }
+                else {
+                    makeModulePoopUp(poop, m.module.name, gfxGraph);
+                }
                 modelChanged = true;
             }
             else if (event.mods.isShiftDown()) {

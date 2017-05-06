@@ -195,6 +195,7 @@ GraphEditor::GraphEditor(
 
     patchHandle = patch.subscribe(
         function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
+            patchCopy = desc;
             for (const auto & c : desc.components) { // HAX
                 ModuleDoc d;
                 PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d, doc);
@@ -223,13 +224,16 @@ void GraphEditor::resized()
     repaint();
 }
 
-/*
 void GraphEditor::push_tab(const string& componentName, const string& componentType) {
     auto docCopy = doc;
     const auto& d = docCopy.get();
     auto dit = d.find(componentType);
     if (dit != d.end()) {
         ComponentDescriptor cmp;
+        PhasePhckr::ComponentRegister componentRegister;
+        for (const auto & c : patchCopy.components) { // HAX
+            componentRegister.registerComponent(c.first, c.second);
+        }
         if (componentRegister.getComponent(componentType, cmp)) {
             assert(componentType == dit->second.type);
             componentGraphs.push_back(SubPatch());
@@ -285,4 +289,3 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         }
     }
 }
-*/

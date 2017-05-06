@@ -98,6 +98,7 @@ class GraphEditor : public Component
 {
     Doc doc;
     SubPatch & patch;
+    PatchDescriptor patchCopy;
     int patchHandle;
 
     PhasePhckrGrid grid;
@@ -116,7 +117,7 @@ class GraphEditor : public Component
     list<SubPatch> componentGraphs;
     GraphEditorTabbedComponent editorStack;
     friend class GraphView;
-//    void push_tab(const string& componentName, const string& componentType);
+    void push_tab(const string& componentName, const string& componentType);
 
 public:
     GraphEditor(

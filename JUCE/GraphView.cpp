@@ -58,8 +58,8 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         modules.insert(s->module.name);
     }
 
-    list<ModulePortConnection> inBusConnections;
-    list<ModulePortConnection> outBusConnections;
+    list<ModulePort> inBusConnections;
+    list<ModulePort> outBusConnections;
 
     for (const auto &c : gfxGraph.wires) {
         // copy any internal connections
@@ -68,28 +68,35 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         }
         // store the external connections
         else if (modules.count(c.connection.source.module)) {
-            outBusConnections.push_back(c.connection);
+            outBusConnections.push_back(c.connection.source);
         }
         else if (modules.count(c.connection.target.module)) {
-            inBusConnections.push_back(c.connection);
+            inBusConnections.push_back(c.connection.target);
         }
     }
 
     // create a ComponentDescriptor
-    string name = "new component";
+
+    string name = "newComponent";
     string type = "@INCOMPONENT";
+    int ctr = 0;
+    while (gfxGraph.components.count(type + to_string(ctr))) {
+        ctr++;
+    }
+    type += to_string(ctr);
+
     ComponentDescriptor cmp;
     cmp.graph = cgd;
     cmp.docString = "this is a new component";
     for (const auto i : inBusConnections) {        
-        cmp.inputs.push_back(ModulePortAlias{ i.target.port, i.target });
+        cmp.inputs.push_back(ModulePortAlias{ i.port, i });
     }
     for (const auto o : outBusConnections) {
-        cmp.outputs.push_back(ModulePortAlias{ o.source.port, o.source });
+        cmp.outputs.push_back(ModulePortAlias{ o.port, o });
     }
 
     // store it on model
-    gfxGraph.components.emplace(type, cmp);
+    gfxGraph.components[type] = cmp;
 
     // add it to docList
     ModuleDoc cDoc;

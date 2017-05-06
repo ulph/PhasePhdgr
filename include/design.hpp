@@ -73,14 +73,6 @@ void designConnectionGraph(
     const ComponentRegister & cp
 );
 
-void designConnectionGraph(
-    // deprecated ... (as api)
-    ConnectionGraph &connectionGraph,
-    ConnectionGraphDescriptor &description,
-    std::map<std::string, int> &moduleHandles,
-    const ComponentRegister & cp
-);
-
 const ModuleVariable c_EffectInput = {"inBus", "_EFFECTINPUT"};
 const ModuleVariable c_EffectOutput = {"outBus", "_EFFECTOUTPUT"};
 const ModuleVariable c_VoiceInput = {"inBus", "_VOICEINPUT" };

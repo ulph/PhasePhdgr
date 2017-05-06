@@ -2,71 +2,44 @@
 #include "connectiongraph.hpp"
 #include "components.hpp"
 #include <set>
+#include <list>
 
 namespace PhasePhckr {
 
-void applyComponent(
+void designConnectionGraph(
+    ConnectionGraph &g,
     ConnectionGraphDescriptor& gDesc,
-    ComponentDescriptor &cD,
-    const std::string &name
-) {
-    // modify any connections involving components
-    for (auto &c : gDesc.connections) {
-        // from a component
-        if (c.source.module == name) {
-            for (auto ao : cD.outputs) {
-                if (ao.alias == c.source.port) {
-                    c.source.module = ao.wrapped.module;
-                    c.source.port = ao.wrapped.port;
-                }
-            }
-        }
-        // to a component
-        if (c.target.module == name) {
-            for (auto ai : cD.inputs) {
-                if (ai.alias == c.target.port) {
-                    c.target.module = ai.wrapped.module;
-                    c.target.port = ai.wrapped.port;
-                }
-            }
-        }
-    }
-
-    // modify any values involving components
-    for (auto &v : gDesc.values) {
-        if (v.target.module == name) {
-            for (auto ai : cD.inputs) {
-                if (ai.alias == v.target.port) {
-                    v.target.module = ai.wrapped.module;
-                    v.target.port = ai.wrapped.port;
-                }
-            }
-        }
-    }
-}
+    map<string, int>& handles,
+    const ComponentRegister & cp,
+    map<pair<string, string>, pair<string, string>> &componentInputMappings,
+    map<pair<string, string>, pair<string, string>> &componentOutputMappings
+);
 
 bool unpackComponent(
     ConnectionGraph &g,
-    ConnectionGraphDescriptor& gDesc,
     const ModuleVariable &mv, 
-    std::map<std::string, int>&handles,
-    const ComponentRegister & cp
+    map<string, int>&handles,
+    const ComponentRegister & cp,
+    map<pair<string, string>, pair<string, string>> &componentInputMappings,
+    map<pair<string, string>, pair<string, string>> &componentOutputMappings
 ) {
     ComponentDescriptor cD;
 
     // find the component definition
-    std::cout << "component " << mv.name << " " << mv.type << std::endl;
+    cout << "component " << mv.name << " " << mv.type << endl;
     if (!cp.getComponent(mv.type, cD)) {
-        std::cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << std::endl;
+        cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << endl;
         return false;
     }
 
     // move component subgraph onto the mv's "scope"
-    const std::string pfx = mv.name + ".";
+    const string pfx = mv.name + ".";
     for (auto &i : cD.inputs) {
+        componentInputMappings[make_pair( mv.name, i.alias )] = make_pair( pfx + i.wrapped.module, i.wrapped.port );
         i.wrapped.module = pfx + i.wrapped.module;
     }
     for (auto &o : cD.outputs) {
+        componentOutputMappings[make_pair( mv.name, o.alias )] = make_pair( pfx + o.wrapped.module, o.wrapped.port );
         o.wrapped.module = pfx + o.wrapped.module;
     }
     for (auto &m : cD.graph.modules) {
@@ -81,41 +54,96 @@ bool unpackComponent(
     }
 
     // parse the sub graph
-    designConnectionGraph(g, cD.graph, handles, cp);
-
-    // refresh the ConnectionGraphDescriptor with these new composite names
-    applyComponent(gDesc, cD, mv.name);
+    designConnectionGraph(g, cD.graph, handles, cp, componentInputMappings, componentOutputMappings);
 
     return true;
 }
 
+
+void mapComponentPorts(
+    ConnectionGraphDescriptor &gDesc,
+    set<string> components,
+    map<pair<string, string>, pair<string, string>> &componentInputMappings,
+    bool input
+) {
+
+    // deal with the remapped connections and values
+    list<pair<string, string>> componentPorts;
+    for (const auto &c : components) {
+        for (const auto& s : componentInputMappings) {
+            if (s.first.first == c) {
+                componentPorts.push_back(s.first);
+            }
+        }
+    }
+    while (componentPorts.size()) {
+        auto from = componentPorts.back(); componentPorts.pop_back();
+        auto to = from;
+        auto it = componentInputMappings.find(to);
+        while (it != componentInputMappings.end()) {
+            to = it->second;
+            it = componentInputMappings.find(to);
+        }
+        cout << (input ? "remap input: " : "remap output: ") << from.first << ":" << from.second << " => " << to.first << ":" << to.second;
+        for (auto &c : gDesc.connections) {
+            if (input && c.target.module == from.first && c.target.port == from.second) {
+                c.target.module = to.first;
+                c.target.port = to.second;
+                cout << " p";
+            }
+            else if (!input && c.source.module == from.first && c.source.port == from.second) {
+                c.source.module = to.first;
+                c.source.port = to.second;
+                cout << " p";
+            }
+        }
+        if (input) {
+            for (auto &v : gDesc.values) {
+                if (v.target.module == from.first && v.target.port == from.second) {
+                    v.target.module = to.first;
+                    v.target.port = to.second;
+                    cout << " v";
+                }
+            }
+        }
+        cout << endl;
+    }
+
+}
+
+
 void designConnectionGraph(
     ConnectionGraph &g,
-    ConnectionGraphDescriptor& gDesc,
-    std::map<std::string, int>& handles,
-    const ComponentRegister & cp
+    ConnectionGraphDescriptor &gDesc,
+    map<string, int> &handles,
+    const ComponentRegister &cp,
+    map<pair<string, string>, pair<string, string>> &componentInputMappings,
+    map<pair<string, string>, pair<string, string>> &componentOutputMappings
 ) {
-    std::set<std::string> skip;
+    set<string> components;
 
     // find any components (module bundles) and unpack them
     for (const auto &m : gDesc.modules) {
         if (m.type.front() == '@') {
-            if (unpackComponent(g, gDesc, m, handles, cp)) {
-                skip.insert(m.name);
+            if (unpackComponent(g, m, handles, cp, componentInputMappings, componentOutputMappings)) {
+                components.insert(m.name);
             }
         }
     }
 
+    mapComponentPorts(gDesc, components, componentInputMappings, true);
+    mapComponentPorts(gDesc, components, componentOutputMappings, false);
+
     // create the modules and store their handles
     for (const auto &m : gDesc.modules) {
-        if (skip.count(m.name)) continue;
+        if (components.count(m.name)) continue;
         if (handles.count(m.name) > 0) {
-            std::cerr << "Error: " << m.name << " name dupe! (modules)" << std::endl;
+            cerr << "Error: " << m.name << " name dupe! (modules)" << endl;
         }
         else {
             int handle = g.addModule(m.type);
             handles[m.name] = handle;
-            std::cout << handle << " : " << " " << m.name << std::endl;
+            cout << handle << " : " << " " << m.name << std::endl;
         }
     }
 
@@ -123,12 +151,16 @@ void designConnectionGraph(
     for (const auto &c : gDesc.connections) {
         int hFrom = handles.count(c.source.module) > 0 ? handles.at(c.source.module) : -2;
         int hTo = handles.count(c.target.module) > 0 ? handles.at(c.target.module) : -2;
-        std::cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << std::endl;
-        if (hFrom < 0) {
-            std::cerr << "Error: " << c.source.module << " not found! (connection source)" << std::endl;
-        }
-        else if (hTo < 0) {
-            std::cerr << "Error: " << c.target.module << " not found! (connection target)" << std::endl;
+        cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << endl;
+        if (hFrom < 0 || hTo < 0) {
+            cerr << "Error: \"" << c.source.module << " -> " << c.target.module << "\" invalid. ";
+            if (hFrom < 0) {
+                cerr << " \"" << c.source.module << "\" not found! ";
+            }
+            if (hTo < 0) {
+                cerr << " \"" << c.target.module << "\" not found! ";
+            }
+            cerr << endl;
         }
         else {
             g.connect(hFrom, c.source.port, hTo, c.target.port);
@@ -137,11 +169,11 @@ void designConnectionGraph(
 
     // set default values provided
     for (const auto &v : gDesc.values) {
-        if (skip.count(v.target.module)) continue;
+        if (components.count(v.target.module)) continue;
         int h = handles.count(v.target.module) > 0 ? handles.at(v.target.module) : -2;
-        std::cout << v.target.module << ":" << v.target.port << " = " << v.value << std::endl;
+        cout << v.target.module << ":" << v.target.port << " = " << v.value << endl;
         if (h < 0) {
-            std::cerr << "Error: " << v.target.module << " not found! (values)" << std::endl;
+            cerr << "Error: " << v.target.module << " not found! (values)" << endl;
         }
         else {
             g.setInput(h, v.target.port, v.value);
@@ -152,14 +184,16 @@ void designConnectionGraph(
 void designConnectionGraph(
     ConnectionGraph &connectionGraph,
     PatchDescriptor &description,
-    std::map<std::string, int> &moduleHandles,
+    map<string, int> &moduleHandles,
     const ComponentRegister & cpGlobal
 ) {
+    map<pair<string, string>, pair<string, string>> componentInputMappings;
+    map<pair<string, string>, pair<string, string>> componentOutputMappings;
     ComponentRegister cp = cpGlobal;
     for (const auto & c : description.components) {
         cp.registerComponent(c.first, c.second);
     }
-    designConnectionGraph(connectionGraph, description.root, moduleHandles, cp);
+    designConnectionGraph(connectionGraph, description.root, moduleHandles, cp, componentInputMappings, componentOutputMappings);
 }
 
 }

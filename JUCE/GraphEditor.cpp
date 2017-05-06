@@ -195,7 +195,7 @@ GraphEditor::GraphEditor(
 
     patchHandle = patch.subscribe(
         function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
-            for (const auto & c : desc.components) {
+            for (const auto & c : desc.components) { // HAX
                 ModuleDoc d;
                 PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d, doc);
                 doc.add(d);

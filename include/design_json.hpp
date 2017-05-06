@@ -27,5 +27,7 @@ namespace PhasePhckr {
 
     void to_json(json& j, const ComponentDescriptor& cgd);
     void from_json(const json& j, ComponentDescriptor& cgd);
-    
+
+    void to_json(json& j, const PatchDescriptor& cgd);
+    void from_json(const json& j, PatchDescriptor& cgd);
 }

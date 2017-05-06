@@ -8,6 +8,7 @@
 #include "components.hpp"
 #include "Utils.hpp"
 #include <list>
+#include "GraphEditor.hpp"
 
 using namespace std;
 
@@ -32,17 +33,17 @@ class PhasePhckrAudioProcessor  : public AudioProcessor
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
-    void setVoiceChain(const PhasePhckr::ConnectionGraphDescriptor &p) {
+    void setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
         voiceChain = p;
         applyVoiceChain();
     }
-    void setEffectChain(const PhasePhckr::ConnectionGraphDescriptor &p) {
+    void setEffectChain(const PhasePhckr::PatchDescriptor &p) {
         effectChain = p;
         applyEffectChain();
     }
     PhasePhckr::Synth* synth;
-    PhasePhckr::ConnectionGraphDescriptor voiceChain;
-    PhasePhckr::ConnectionGraphDescriptor effectChain;
+    PhasePhckr::PatchDescriptor voiceChain;
+    PhasePhckr::PatchDescriptor effectChain;
     int activeVoiceHandle;
     int activeEffectHandle;
     void applyVoiceChain();
@@ -84,8 +85,8 @@ public:
     const PhasePhckr::Synth* getSynth() const;
 
     PhasePhckr::ComponentRegister componentRegister;
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeVoice;
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> activeEffect;
+    SubPatch activeVoice;
+    SubPatch activeEffect;
     void broadcastPatch(){
         // editor should call this once after construction
         activeVoice.set(activeVoiceHandle, voiceChain);

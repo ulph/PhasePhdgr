@@ -81,13 +81,13 @@ void DocListModel::listBoxItemClicked(int row, const MouseEvent &) {
 }
 
 
-ConnectionGraphTextEditor::ConnectionGraphTextEditor(SubValue<PhasePhckr::ConnectionGraphDescriptor> & sub)
+ConnectionGraphTextEditor::ConnectionGraphTextEditor(SubPatch & sub)
     : TextEditor()
     , sub(sub)
 {
     setMultiLine(true, true);
     handle = sub.subscribe(
-        [this](const PhasePhckr::ConnectionGraphDescriptor g) {
+        [this](const PhasePhckr::PatchDescriptor g) {
         setText(json(g).dump(2));
     }
     );
@@ -101,7 +101,7 @@ ConnectionGraphTextEditor::~ConnectionGraphTextEditor() {
 GraphViewBundle::GraphViewBundle(
     GraphEditor& graphEditor,
     const Doc& doc,
-    SubValue<ConnectionGraphDescriptor> & subscribedCGD,
+    SubValue<PatchDescriptor> & subscribedCGD,
     const ModuleVariable& inBus,
     const ModuleVariable& outBus
 )
@@ -149,7 +149,7 @@ void GraphViewBundle::resized()
 
 GraphEditor::GraphEditor(
     const Doc &doc,
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> &subscribedCGD,
+    SubPatch &subscribedCGD,
     const ModuleVariable &inBus,
     const ModuleVariable &outBus
 )
@@ -206,8 +206,12 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         ComponentDescriptor cmp;
         if (componentRegister.getComponent(componentType, cmp)) {
             assert(componentType == dit->second.type);
-            componentGraphs.push_back(SubValue<PhasePhckr::ConnectionGraphDescriptor>());
+            componentGraphs.push_back(SubPatch());
             auto &cdg = componentGraphs.back();
+
+            PatchDescriptor p;
+            p.root = cmp.graph;
+            p.docString = cmp.docString;
 
             string inBusType = "_"+componentType+"_INPUT";
             string outBusType = "_"+componentType+"_OUTPUT";
@@ -228,11 +232,11 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             ModuleVariable outBus = {"outBus", outBusType};
 
             for (const auto& ai : cmp.inputs) {
-                cmp.graph.connections.push_back({ ModulePort{"inBus", ai.alias}, ai.wrapped });
+                p.root.connections.push_back({ ModulePort{"inBus", ai.alias}, ai.wrapped });
             }
 
             for (const auto& ao : cmp.outputs) {
-                cmp.graph.connections.push_back({ ao.wrapped, ModulePort{"outBus", ao.alias} });
+                p.root.connections.push_back({ ao.wrapped, ModulePort{"outBus", ao.alias} });
             }
 
             editorStack.addTab(
@@ -248,7 +252,7 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
                 true
             );
 
-            cdg.set(-1, cmp.graph);
+            cdg.set(-1, p);
 
             editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
 

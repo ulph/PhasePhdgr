@@ -6,20 +6,20 @@
 
 namespace PhasePhckr {
 
-EffectChain::EffectChain(const ConnectionGraphDescriptor& fxChain, const ComponentRegister & cp) {
-    ConnectionGraphDescriptor graphDescriptor = fxChain;
+EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
+    PatchDescriptor patchDescriptor = fxChain;
 
     connectionGraph.registerModule(c_EffectInput.type, &EffectInputBus::factory);
     connectionGraph.registerModule(c_EffectOutput.type, &StereoOutBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
-    graphDescriptor.modules.emplace_back(c_EffectInput);
-    graphDescriptor.modules.emplace_back(c_EffectOutput);
+    patchDescriptor.root.modules.emplace_back(c_EffectInput);
+    patchDescriptor.root.modules.emplace_back(c_EffectOutput);
 
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(
         connectionGraph,
-        graphDescriptor,
+        patchDescriptor,
         moduleHandles,
         cp
     );

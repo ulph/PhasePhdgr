@@ -16,7 +16,7 @@ void _stylize(TextEditor* t);
 void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
-
+typedef SubValue<PhasePhckr::PatchDescriptor> SubPatch;
 
 class DocListModel : public ListBoxModel {
 private:
@@ -40,9 +40,9 @@ public:
 class ConnectionGraphTextEditor : public TextEditor {
 private:
     int handle;
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> & sub;
+    SubPatch & sub;
 public:
-    ConnectionGraphTextEditor(SubValue<PhasePhckr::ConnectionGraphDescriptor> & sub);
+    ConnectionGraphTextEditor(SubPatch & sub);
     virtual ~ConnectionGraphTextEditor();
 };
 
@@ -66,7 +66,7 @@ public:
     GraphViewBundle(
         GraphEditor& graphEditor,
         const Doc& doc,
-        SubValue<ConnectionGraphDescriptor> & subscribedCGD,
+        SubValue<PatchDescriptor> & subscribedCGD,
         const ModuleVariable& inBus,
         const ModuleVariable& outBus
     );
@@ -77,9 +77,9 @@ public:
 
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
-    list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> & cdgs;
+    list<SubPatch> & cdgs;
 public:
-    GraphEditorTabbedComponent(list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> & cdgs) 
+    GraphEditorTabbedComponent(list<SubPatch> & cdgs)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , cdgs(cdgs)
     {
@@ -110,7 +110,7 @@ class GraphEditor : public Component
     ModuleVariable inBus;
     ModuleVariable outBus;
 
-    list<SubValue<PhasePhckr::ConnectionGraphDescriptor>> componentGraphs;
+    list<SubPatch> componentGraphs;
     GraphEditorTabbedComponent editorStack;
     friend class GraphView;
     void push_tab(const string& componentName, const string& componentType);
@@ -118,7 +118,7 @@ class GraphEditor : public Component
 public:
     GraphEditor(
         const Doc &doc,
-        SubValue<PhasePhckr::ConnectionGraphDescriptor> &subscribedCGD,
+        SubPatch &subscribedCGD,
         const ModuleVariable &inBus,
         const ModuleVariable &outBus
     );

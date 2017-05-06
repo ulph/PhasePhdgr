@@ -15,12 +15,11 @@ namespace PhasePhckr {
     class EffectChain;
     class VoiceBus;
     class GlobalData;
-    struct ConnectionGraphDescriptor;
-    struct ComponentDescriptor;
+    struct PatchDescriptor;
     class ComponentRegister;
 
-    const ConnectionGraphDescriptor& getExampleFxChain();
-    const ConnectionGraphDescriptor& getExampleVoiceChain();
+    PatchDescriptor getExampleFxChain();
+    PatchDescriptor getExampleVoiceChain();
 
     class Scope {
     private:
@@ -47,8 +46,8 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
-        void setFxChain(const ConnectionGraphDescriptor & fxChain, const ComponentRegister & cp);
-        void setVoiceChain(const ConnectionGraphDescriptor & fxChain, const ComponentRegister & cp);
+        void setFxChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
+        void setVoiceChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
         const Scope& getVoiceScope(int i) const {
             if(i==0)
                 return voiceScopeL;

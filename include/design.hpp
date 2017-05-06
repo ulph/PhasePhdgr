@@ -10,6 +10,8 @@
 class ConnectionGraph;
 class ComponentRegister;
 
+using namespace std;
+
 namespace PhasePhckr {
 
 /* Graph stuff */
@@ -54,15 +56,30 @@ struct ComponentDescriptor {
     std::string docString;
 };
 
+/* Patch (supergraph) */
+
+struct PatchDescriptor {
+    ConnectionGraphDescriptor root;
+    std::string docString;
+    map<string, ComponentDescriptor> components;
+};
+
 /* Functions and aux types */
 
 void designConnectionGraph(
+    ConnectionGraph &connectionGraph,
+    PatchDescriptor &description,
+    std::map<std::string, int> &moduleHandles,
+    const ComponentRegister & cp
+);
+
+void designConnectionGraph(
+    // deprecated ... (as api)
     ConnectionGraph &connectionGraph,
     ConnectionGraphDescriptor &description,
     std::map<std::string, int> &moduleHandles,
     const ComponentRegister & cp
 );
-
 
 const ModuleVariable c_EffectInput = {"inBus", "_EFFECTINPUT"};
 const ModuleVariable c_EffectOutput = {"outBus", "_EFFECTOUTPUT"};

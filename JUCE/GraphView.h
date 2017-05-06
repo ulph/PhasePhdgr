@@ -27,7 +27,7 @@ public:
         GraphEditor& graphEditor,
         Viewport& viewPort,
         const Doc& doc,
-        SubValue<ConnectionGraphDescriptor> & subscribedCGD,
+        SubValue<PatchDescriptor> & subscribedCGD,
         const ModuleVariable& inBus,
         const ModuleVariable& outBus
     )
@@ -42,8 +42,8 @@ public:
     {
         viewPort.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD.subscribe(
-            [this](const PhasePhckr::ConnectionGraphDescriptor& g){
-                setGraph(g);
+            [this](const PhasePhckr::PatchDescriptor& g){
+                setGraph(g.root);
             }
         );
     }
@@ -79,7 +79,7 @@ private:
     );
 
     int subscribedCGDhandle;
-    SubValue<ConnectionGraphDescriptor> & subscribedCGD;
+    SubValue<PatchDescriptor> & subscribedCGD;
 
     GraphEditor& graphEditor;
     Viewport& viewPort;

@@ -149,4 +149,17 @@ void designConnectionGraph(
     }
 }
 
+void designConnectionGraph(
+    ConnectionGraph &connectionGraph,
+    PatchDescriptor &description,
+    std::map<std::string, int> &moduleHandles,
+    const ComponentRegister & cpGlobal
+) {
+    ComponentRegister cp = cpGlobal;
+    for (const auto & c : description.components) {
+        cp.registerComponent(c.first, c.second);
+    }
+    designConnectionGraph(connectionGraph, description.root, moduleHandles, cp);
+}
+
 }

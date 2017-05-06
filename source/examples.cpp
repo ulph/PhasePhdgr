@@ -43,7 +43,11 @@ namespace PhasePhckr {
         }
     };
 
-    const ConnectionGraphDescriptor& getExampleFxChain() { return exFxChain; }
+    PatchDescriptor getExampleFxChain() { 
+        PatchDescriptor ex;
+        ex.root = exFxChain;
+        return ex;
+    }
 
     const ConnectionGraphDescriptor exVoiceChain = {
         std::vector<ModuleVariable>{
@@ -157,6 +161,10 @@ namespace PhasePhckr {
         }
     };
 
-    const ConnectionGraphDescriptor& getExampleVoiceChain() { return exVoiceChain; }
+    PatchDescriptor getExampleVoiceChain() { 
+        PatchDescriptor ex;
+        ex.root = exVoiceChain;
+        return ex;
+    }
 
 }

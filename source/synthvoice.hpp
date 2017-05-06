@@ -30,7 +30,7 @@ private:
     bool doTerminate;
 public:
     MPEVoice mpe;
-    SynthVoice(const ConnectionGraphDescriptor& voiceChain, const ComponentRegister & cp);
+    SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
     ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);

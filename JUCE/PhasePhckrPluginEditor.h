@@ -17,8 +17,8 @@ class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public Drag
 public:
     PhasePhckrAudioProcessorEditor (
         PhasePhckrAudioProcessor&,
-        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeVoice,
-        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeEffect
+        SubPatch &activeVoice,
+        SubPatch &activeEffect
      );
     ~PhasePhckrAudioProcessorEditor();
 
@@ -29,8 +29,8 @@ public:
 private:
     PhasePhckrAudioProcessor& processor;
 
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeVoice;
-    SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeEffect;
+    SubPatch &activeVoice;
+    SubPatch &activeEffect;
     int activeVoiceSubscribeHandle;
     int activeEffectSubscribeHandle;
 

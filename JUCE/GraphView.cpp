@@ -69,19 +69,19 @@ void GraphView::propagateUserModelChange() {
     GfxGraph gfxGraph_cpy = gfxGraph;
     gfxGraphLock.clear(std::memory_order_release);
 
-    ConnectionGraphDescriptor graph;
+    PatchDescriptor graph;
     for (const auto &m : gfxGraph_cpy.modules) {
         if (m.module.name == inBus.name || m.module.name == outBus.name) continue;
         if (m.module.type == inBus.type || m.module.type == outBus.type) continue;
-        graph.modules.emplace_back(m.module);
+        graph.root.modules.emplace_back(m.module);
         for ( const auto &ip : m.inputs){
             if(ip.assignedValue){
-                graph.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
+                graph.root.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
             }
         }
     }
     for (const auto &w : gfxGraph_cpy.wires) {
-        graph.connections.emplace_back(w.connection);
+        graph.root.connections.emplace_back(w.connection);
     }
 
     subscribedCGD.set(subscribedCGDhandle, graph);

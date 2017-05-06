@@ -15,8 +15,8 @@ static json loadJson(const File & f) {
 
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
         PhasePhckrAudioProcessor& p,
-        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeVoice_,
-        SubValue<PhasePhckr::ConnectionGraphDescriptor> &activeEffect_
+        SubPatch &activeVoice_,
+        SubPatch &activeEffect_
         )
     : AudioProcessorEditor (&p), processor (p)
     , activeVoice(activeVoice_)
@@ -37,11 +37,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , effectDirectoryList(effectDirectoryWatcher)
 
     , activeVoiceSubscribeHandle(activeVoice.subscribe(
-        [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
+        [this](const PhasePhckr::PatchDescriptor & v) {
             //
         }))
     , activeEffectSubscribeHandle(activeEffect.subscribe(
-        [this](const PhasePhckr::ConnectionGraphDescriptor & v) {
+        [this](const PhasePhckr::PatchDescriptor & v) {
             //
         }))
     , voiceListListener([this](const File& f) {

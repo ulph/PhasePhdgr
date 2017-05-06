@@ -5,7 +5,7 @@
 namespace PhasePhckr
 {
 
-SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain, const ComponentRegister & cp)
+SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp)
     : connectionGraph()
     , rms(0.0f)
     , rmsSlew(0.99f)
@@ -16,15 +16,15 @@ SynthVoice::SynthVoice(const ConnectionGraphDescriptor& voiceChain, const Compon
     connectionGraph.registerModule(c_VoiceOutput.type, &StereoOutBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
 
-    ConnectionGraphDescriptor graphDescriptor = voiceChain;
+    PatchDescriptor patchDescriptor = voiceChain;
 
-    graphDescriptor.modules.emplace_back(c_VoiceInput);
-    graphDescriptor.modules.emplace_back(c_VoiceOutput);
+    patchDescriptor.root.modules.emplace_back(c_VoiceInput);
+    patchDescriptor.root.modules.emplace_back(c_VoiceOutput);
 
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(
         connectionGraph,
-        graphDescriptor,
+        patchDescriptor,
         moduleHandles,
         cp
     );

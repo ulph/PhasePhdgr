@@ -24,12 +24,12 @@ Synth::~Synth(){
     delete globalData;
 }
 
-void Synth::setFxChain(const ConnectionGraphDescriptor& fxChain, const ComponentRegister & cp) {
+void Synth::setFxChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);
 }
 
-void Synth::setVoiceChain(const ConnectionGraphDescriptor& voiceChain, const ComponentRegister & cp){
+void Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
     delete voiceBus;
     voiceBus = new VoiceBus();
     for (SynthVoice *v : voices) {

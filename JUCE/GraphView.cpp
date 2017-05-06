@@ -182,6 +182,8 @@ void GraphView::propagateUserModelChange() {
         graph.root.connections.emplace_back(w.connection);
     }
 
+    graph.components = gfxGraph_cpy.components;
+
     subscribedCGD.set(subscribedCGDhandle, graph);
 }
 

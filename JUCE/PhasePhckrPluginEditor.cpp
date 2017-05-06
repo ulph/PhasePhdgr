@@ -54,7 +54,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , voiceEditor(
             [this]()->PhasePhckr::Doc 
             {
-                PhasePhckr::Doc d(processor.componentRegister);
+                PhasePhckr::Doc d;
                 d.add(PhasePhckr::getVoiceBusInputDoc());
                 d.add(PhasePhckr::getVoiceBusOutputDoc());
                 return d;
@@ -66,7 +66,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , effectEditor(
             [this]()->PhasePhckr::Doc 
             {
-                PhasePhckr::Doc d(processor.componentRegister);
+                PhasePhckr::Doc d;
                 d.add(PhasePhckr::getEffectBusInputDoc());
                 d.add(PhasePhckr::getEffectBusOutputDoc());
                 return d;

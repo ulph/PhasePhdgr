@@ -89,11 +89,12 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         cmp.inputs.push_back(ModulePortAlias{ o.source.port, o.source });
     }
 
+    // store it on model
+    gfxGraph.components.emplace(type, cmp);
+
     // add it to docList
     ModuleDoc cDoc;
-    vector<ModuleDoc> docList; // this is crap, need to rethink
-    PhasePhckr::ComponentRegister::makeComponentDoc(type, cmp, cDoc, docList);
-
+    PhasePhckr::ComponentRegister::makeComponentDoc(type, cmp, cDoc, doc);
     doc.add(cDoc);
 
     // add it to graph
@@ -107,7 +108,7 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     ));
 
     // reroute gfxGraph
-
+    // ...
 }
 
 

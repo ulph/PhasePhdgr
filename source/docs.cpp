@@ -7,14 +7,12 @@
 
 namespace PhasePhckr {
 
-    Doc::Doc(const ComponentRegister & cp)
+    Doc::Doc()
     {
         std::vector<ModuleDoc> newDoc;
         ConnectionGraph cg;
         ModuleRegister::registerAllModules(cg);
         cg.makeModuleDocs(newDoc);
-        cp.makeComponentDocs(newDoc);
-
         for(const auto &d : newDoc){
             docs[d.type] = d;
         }

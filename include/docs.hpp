@@ -19,13 +19,12 @@ struct ModuleDoc {
 };
 
 namespace PhasePhckr {
-    class ComponentRegister;
 
     class Doc {
     private:
         std::map<std::string, ModuleDoc> docs;
     public:
-        Doc(const ComponentRegister & cp);
+        Doc();
         const std::map<std::string, ModuleDoc> & get() const;
         void add(const ModuleDoc & d);
     };

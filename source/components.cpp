@@ -1,5 +1,6 @@
 #include "components.hpp"
 #include "design.hpp"
+#include <assert.h>
 
 using namespace std;
 
@@ -209,27 +210,35 @@ bool ComponentRegister::getComponent(string name, ComponentDescriptor & desc) co
     return true;
 }
 
-void ComponentRegister::makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc, const vector<ModuleDoc> &docList) {
+void ComponentRegister::makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc, const Doc& ref) {
     doc.type = type;
+
+    // bubble doc stuff for bus inputs
     for (const auto i : cmp.inputs) {
         PadDescription pd;
         pd.name = i.alias;
         pd.unit = "";
         pd.value = 0;
+
+        // find default value and unit
         for (const auto &mv : cmp.graph.modules) {
             if (mv.name == i.wrapped.module) {
-                for (const auto &d : docList) {
-                    if (d.type == mv.type) {
-                        for (const auto &p : d.inputs) {
-                            if (p.name == i.wrapped.port) {
-                                pd.unit = p.unit;
-                                pd.value = p.value;
-                            }
-                        }
+                if (!ref.get().count(mv.type)) {
+                    // a dependency we could not resolve, need to handle this eventually
+                    assert(0);
+                    continue;
+                }
+                const auto d = ref.get().at(mv.type);
+                for (const auto &dip : d.inputs) {
+                    if (dip.name == i.wrapped.port) {
+                        pd.unit = dip.unit;
+                        pd.value = dip.value;
                     }
                 }
             }
         }
+
+        // find any set value in the graph and use that instead
         for (const auto &v : cmp.graph.values) {
             if (v.target.module == i.wrapped.module) {
                 if (v.target.port == i.wrapped.port) {
@@ -239,41 +248,48 @@ void ComponentRegister::makeComponentDoc(const string &type, const ComponentDesc
         }
         doc.inputs.emplace_back(pd);
     }
+
+    // bubble doc stuff for bus outputs
     for (const auto o : cmp.outputs) {
         PadDescription pd;
         pd.name = o.alias;
         pd.unit = "";
+        // find unit
         for (const auto &mv : cmp.graph.modules) {
             if (mv.name == o.wrapped.module) {
-                for (const auto &d : docList) {
-                    if (d.type == mv.type) {
-                        for (const auto &p : d.outputs) {
-                            if (p.name == o.wrapped.port) {
-                                pd.unit = p.unit;
-                            }
-                        }
+                if (!ref.get().count(mv.type)) {
+                    // a dependency we could not resolve, need to handle this eventually
+                    assert(0);
+                    continue;
+                }
+                const auto d = ref.get().at(mv.type);
+                for (const auto &dip : d.outputs) {
+                    if (dip.name == o.wrapped.port) {
+                        pd.unit = dip.unit;
+                        pd.value = dip.value;
                     }
                 }
             }
         }
         doc.outputs.emplace_back(pd);
     }
+
     doc.docString = cmp.docString;
 }
 
-bool ComponentRegister::makeComponentDoc(const string &type, ModuleDoc &doc, const vector<ModuleDoc> &docList) const {
+bool ComponentRegister::makeComponentDoc(const string &type, ModuleDoc &doc, const Doc& ref) const {
     const auto it = r.find(type);
     if (it == r.end()) { return false; }
     const auto& cmp = it->second;
-    makeComponentDoc(type, cmp, doc, docList);
+    makeComponentDoc(type, cmp, doc, ref);
     return true;
 }
 
-void ComponentRegister::makeComponentDocs(vector<ModuleDoc> &docList) const {
+void ComponentRegister::makeComponentDocs(Doc& ref) const {
     for (const auto kv : r) {
         ModuleDoc doc;
-        if (makeComponentDoc(kv.first, doc, docList)) {
-            docList.emplace_back(doc);
+        if (makeComponentDoc(kv.first, doc, ref)) {
+            ref.add(doc);
         }
     }
 }

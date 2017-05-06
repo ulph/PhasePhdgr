@@ -294,18 +294,18 @@ void GraphView::paint (Graphics& g){
 }
 
 
-void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
+void GraphView::setGraph(const PatchDescriptor& graph) {
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   auto connectionGraphDescriptor = graph;
   connectionGraphDescriptorLock.clear(std::memory_order_release);
 
-  connectionGraphDescriptor.modules.push_back(inBus);
-  connectionGraphDescriptor.modules.push_back(outBus);
+  connectionGraphDescriptor.root.modules.push_back(inBus);
+  connectionGraphDescriptor.root.modules.push_back(outBus);
 
   const string start = inBus.name;
   const string stop = outBus.name;
   ModulePositionMap modulePositions;
-  setNodePositions(connectionGraphDescriptor, modulePositions, start, stop);
+  setNodePositions(connectionGraphDescriptor.root, modulePositions, start, stop);
 
   // build the render/user interaction model
   updateRenderComponents(connectionGraphDescriptor, modulePositions);
@@ -314,7 +314,7 @@ void GraphView::setGraph(const ConnectionGraphDescriptor& graph) {
 
 
 void GraphView::updateRenderComponents(
-    const ConnectionGraphDescriptor &cgd_copy, 
+    const PatchDescriptor &cgd_copy,
     const ModulePositionMap & mp
 ) 
 {
@@ -324,17 +324,19 @@ void GraphView::updateRenderComponents(
 
     gfxGraph = GfxGraph();
 
-    for (const auto & m : cgd_copy.modules) {
+    gfxGraph.components = cgd_copy.components;
+
+    for (const auto & m : cgd_copy.root.modules) {
         gfxGraph.add(
             m, 
             doc, 
             XY(mp.at(m.name).x, mp.at(m.name).y), 
-            cgd_copy.values,
+            cgd_copy.root.values,
             false
         );
     }
 
-    for (const auto & c : cgd_copy.connections) {
+    for (const auto & c : cgd_copy.root.connections) {
         gfxGraph.connect(c);
     }
 

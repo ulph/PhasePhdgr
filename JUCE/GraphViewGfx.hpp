@@ -490,6 +490,7 @@ struct GfxLooseWire {
 struct GfxGraph {
     vector<GfxModule> modules;
     list<GfxWire> wires;
+    map<string, ComponentDescriptor> components;
 
     pair<XY, XY> getBounds() {
         XY min(FLT_MAX, FLT_MAX);

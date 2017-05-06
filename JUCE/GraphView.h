@@ -43,7 +43,7 @@ public:
         viewPort.setScrollOnDragEnabled(true);
         subscribedCGDhandle = subscribedCGD.subscribe(
             [this](const PhasePhckr::PatchDescriptor& g){
-                setGraph(g.root);
+                setGraph(g);
             }
         );
     }
@@ -68,13 +68,13 @@ private:
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 
-    void setGraph(const ConnectionGraphDescriptor& graph);
+    void setGraph(const PatchDescriptor& graph);
     void propagateUserModelChange();
     atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
 
     // make a copy data structures before calling
     void updateRenderComponents(
-        const ConnectionGraphDescriptor & cgd,
+        const PatchDescriptor & cgd,
         const ModulePositionMap & mp
     );
 

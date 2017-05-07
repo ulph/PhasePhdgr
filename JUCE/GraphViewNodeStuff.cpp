@@ -74,7 +74,7 @@ void bubbleUpSetX(
             auto position = make_pair(iteration, (int)modulePositions[n].y);
             while (gridOccupation.count(position)) {
                 // something is allready there, move in x momentarily
-                iteration += 1; // odd even thing below ... +1 or +2 depends on the graph I think
+                iteration += 2; // odd even thing below ... +1 or +2 depends on the graph I think
                 position = make_pair(iteration, (int)modulePositions[n].y);
             }
             gridOccupation.insert(position);

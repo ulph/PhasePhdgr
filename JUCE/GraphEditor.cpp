@@ -236,8 +236,10 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         }
         if (componentRegister.getComponent(componentType, cmp)) {
             assert(componentType == dit->second.type);
-            componentGraphs.push_back(SubPatch());
-            auto &cdg = componentGraphs.back();
+            auto subP = SubPatch();
+            auto handle = subP.subscribe(function<void(const PatchDescriptor&)>()); // TODO, some smart callback here when subgraph changes!
+            componentGraphs.push_back(make_pair(handle, subP));
+            auto &cdg = componentGraphs.back().second; // TODO - will this way of referencing blow up?
 
             PatchDescriptor p;
             p.root = cmp.graph;

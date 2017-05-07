@@ -20,12 +20,12 @@ typedef SubValue<PatchDescriptor> SubPatch;
 
 class DocListModel : public ListBoxModel {
 private:
-    std::map<std::string, ModuleDoc> moduleDocs;
-    std::vector<std::string> rows;
+    map<string, ModuleDoc> moduleDocs;
+    vector<string> rows;
     TextEditor & docView;
 public:
-    DocListModel(const std::map<std::string, ModuleDoc> & moduleDocs, TextEditor & docView);
-    void setDocs(const std::map<std::string, ModuleDoc> & moduleDocs);
+    DocListModel(const map<string, ModuleDoc> & moduleDocs, TextEditor & docView);
+    void setDocs(const map<string, ModuleDoc> & moduleDocs);
     virtual int getNumRows();
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected);
     virtual void listBoxItemClicked(int row, const MouseEvent &);
@@ -67,7 +67,7 @@ public:
     GraphViewBundle(
         GraphEditor& graphEditor,
         const Doc& doc,
-        SubValue<PatchDescriptor> & subscribedCGD,
+        SubPatch & subscribedCGD,
         const ModuleVariable& inBus,
         const ModuleVariable& outBus
     );
@@ -78,9 +78,9 @@ public:
 
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
-    list<SubPatch> & cdgs;
+    list<pair<int, SubPatch>> & cdgs;
 public:
-    GraphEditorTabbedComponent(list<SubPatch> & cdgs)
+    GraphEditorTabbedComponent(list<pair<int, SubPatch>> & cdgs)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , cdgs(cdgs)
     {
@@ -88,6 +88,7 @@ public:
     virtual void currentTabChanged(int newCurrentTabIndex, const String& newCurrentTabName) {
         while (newCurrentTabIndex + 1 != getNumTabs()) {
             removeTab(getNumTabs() - 1);
+            cdgs.back().second.unsubscribe(cdgs.back().first);
             cdgs.pop_back();
         }
     }
@@ -114,7 +115,7 @@ class GraphEditor : public Component
     ModuleVariable inBus;
     ModuleVariable outBus;
 
-    list<SubPatch> componentGraphs;
+    list<pair<int, SubPatch>> componentGraphs;
     GraphEditorTabbedComponent editorStack;
     friend class GraphView;
     void push_tab(const string& componentName, const string& componentType);

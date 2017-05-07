@@ -58,6 +58,8 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         modules.insert(s->module.name);
     }
 
+    // TODO; track the external connections as well
+    // TODO; handle name collisions
     list<ModulePort> inBusConnections;
     list<ModulePort> outBusConnections;
 

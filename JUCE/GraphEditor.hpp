@@ -78,19 +78,23 @@ public:
 
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
-    list<pair<int, SubPatch>> & cdgs;
+    list<SubPatch> & subPatches;
+    list<int> & subPatchHandles;
 public:
-    GraphEditorTabbedComponent(list<pair<int, SubPatch>> & cdgs)
+    GraphEditorTabbedComponent(list<SubPatch> & subPatches, list<int> & subPatchHandles)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
-        , cdgs(cdgs)
+        , subPatches(subPatches)
+        , subPatchHandles(subPatchHandles)
     {
+        assert(subPatches.size() == subPatchHandles.size());
     }
     virtual void currentTabChanged(int newCurrentTabIndex, const String& newCurrentTabName) {
         while (newCurrentTabIndex + 1 != getNumTabs()) {
             removeTab(getNumTabs() - 1);
-            cdgs.back().second.unsubscribe(cdgs.back().first);
-            cdgs.pop_back();
+            auto h = subPatchHandles.back(); subPatchHandles.pop_back();
+            subPatches.back().unsubscribe(h); subPatches.pop_back();
         }
+        assert(subPatches.size() == subPatchHandles.size());
     }
 };
 
@@ -115,7 +119,8 @@ class GraphEditor : public Component
     ModuleVariable inBus;
     ModuleVariable outBus;
 
-    list<pair<int, SubPatch>> componentGraphs;
+    list<SubPatch> subPatches;
+    list<int> subPatchHandles;
     GraphEditorTabbedComponent editorStack;
     friend class GraphView;
     void push_tab(const string& componentName, const string& componentType);

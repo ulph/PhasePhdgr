@@ -175,7 +175,7 @@ GraphEditor::GraphEditor(
         inBus,
         outBus
     )
-    , editorStack(componentGraphs)
+    , editorStack(subPatches, subPatchHandles)
 {
     addAndMakeVisible(grid);
     grid.addComponent(&textEditor);
@@ -236,10 +236,12 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         }
         if (componentRegister.getComponent(componentType, cmp)) {
             assert(componentType == dit->second.type);
-            auto subP = SubPatch();
-            auto handle = subP.subscribe(function<void(const PatchDescriptor&)>()); // TODO, some smart callback here when subgraph changes!
-            componentGraphs.push_back(make_pair(handle, subP));
-            auto &cdg = componentGraphs.back().second; // TODO - will this way of referencing blow up?
+            subPatches.push_back(SubPatch());
+            auto &subP = subPatches.back(); // TODO - will this way of referencing blow up?
+            auto handle = subP.subscribe(function<void(const PatchDescriptor&)>(
+                [this](const PatchDescriptor& p){} // TODO, some smart callback here when subgraph changes!
+            )); 
+            subPatchHandles.push_back(handle);
 
             PatchDescriptor p;
             p.root = cmp.graph;
@@ -276,19 +278,19 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             }
 
             editorStack.addTab(
-                to_string(componentGraphs.size()) + " " + componentName + " (" + componentType + ") ",
+                to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",
                 Colours::black,
                 new GraphViewBundle(
                     *this,
                     docCopy,
-                    cdg,
+                    subP,
                     inBus,
                     outBus
                 ),
                 true
             );
 
-            cdg.set(-1, p);
+            subP.set(-1, p);
 
             editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
 

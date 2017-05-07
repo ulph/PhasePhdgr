@@ -196,6 +196,7 @@ void GraphView::propagateUserModelChange() {
     subscribedCGD.set(subscribedCGDhandle, graph);
 }
 
+
 void GraphView::mouseDoubleClick(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
     for (auto & m : gfxGraph.modules) {
@@ -204,6 +205,7 @@ void GraphView::mouseDoubleClick(const MouseEvent & event) {
         }
     }
 }
+
 
 void GraphView::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);

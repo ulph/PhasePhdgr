@@ -58,10 +58,10 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         modules.insert(s->module.name);
     }
 
-    // TODO; track the external connections as well
-    // TODO; handle name collisions
-    list<ModulePort> inBusConnections;
-    list<ModulePort> outBusConnections;
+    set<string> inAlias;
+    set<string> outAlias;
+    list<ModulePortAlias> inBusConnections;
+    list<ModulePortAlias> outBusConnections;
 
     for (const auto &c : gfxGraph.wires) {
         // copy any internal connections
@@ -69,16 +69,25 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
             cgd.connections.push_back(c.connection);
         }
         // store the external connections
-        else if (modules.count(c.connection.source.module)) {
-            outBusConnections.push_back(c.connection.source);
-        }
         else if (modules.count(c.connection.target.module)) {
-            inBusConnections.push_back(c.connection.target);
+            auto mp = c.connection.target;
+            string alias = mp.port;
+            while (inAlias.count(alias)) { alias += "_"; }
+            inAlias.insert(alias);
+            ModulePortAlias mpa = { alias,{ mp } };
+            inBusConnections.push_back(mpa);
+        }
+        else if (modules.count(c.connection.source.module)) {
+            auto mp = c.connection.source;
+            string alias = mp.port;
+            while (outAlias.count(alias)) { alias += "_"; }
+            outAlias.insert(alias);
+            ModulePortAlias mpa = { alias,{ mp } };
+            outBusConnections.push_back(mpa);
         }
     }
 
     // create a ComponentDescriptor
-
     string name = "newComponent";
     string type = "@INCOMPONENT";
     int ctr = 0;
@@ -91,10 +100,10 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     cmp.graph = cgd;
     cmp.docString = "";
     for (const auto i : inBusConnections) {        
-        cmp.inputs.push_back(ModulePortAlias{ i.port, {i} }); // TODO {i} is probably wrong
+        cmp.inputs.push_back(i);
     }
     for (const auto o : outBusConnections) {
-        cmp.outputs.push_back(ModulePortAlias{ o.port, {o} }); // TODO {o} is probably wrong
+        cmp.outputs.push_back(o);
     }
 
     // store it on model

@@ -91,10 +91,10 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     cmp.graph = cgd;
     cmp.docString = "";
     for (const auto i : inBusConnections) {        
-        cmp.inputs.push_back(ModulePortAlias{ i.port, i });
+        cmp.inputs.push_back(ModulePortAlias{ i.port, {i} }); // TODO {i} is probably wrong
     }
     for (const auto o : outBusConnections) {
-        cmp.outputs.push_back(ModulePortAlias{ o.port, o });
+        cmp.outputs.push_back(ModulePortAlias{ o.port, {o} }); // TODO {o} is probably wrong
     }
 
     // store it on model

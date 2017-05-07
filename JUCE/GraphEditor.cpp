@@ -264,11 +264,15 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             ModuleVariable outBus = {"outBus", outBusType};
 
             for (const auto& ai : cmp.inputs) {
-                p.root.connections.push_back({ ModulePort{"inBus", ai.alias}, ai.wrapped });
+                for (const auto &w : ai.wrapped) {
+                    p.root.connections.push_back({ ModulePort{ "inBus", ai.alias }, w });
+                }
             }
 
             for (const auto& ao : cmp.outputs) {
-                p.root.connections.push_back({ ao.wrapped, ModulePort{"outBus", ao.alias} });
+                for (const auto &w : ao.wrapped) {
+                    p.root.connections.push_back({ w, ModulePort{"outBus", ao.alias} });
+                }
             }
 
             editorStack.addTab(

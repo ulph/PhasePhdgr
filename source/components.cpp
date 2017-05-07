@@ -8,23 +8,23 @@ namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
     vector<ModulePortAlias>{
-        {"left", {"leftDelay", "in"}},
-        {"right", {"rightDelay", "in"}},
-        {"leftTime", {"delayLeftTime", "shift"}},
-        {"rightTime", {"delayRightTime", "shift"}},
-        {"leftModDepth", {"delayLeftTime", "scale"}},
-        {"rightModDepth", {"delayRightTime", "scale"}},
-        {"feedback", {"feedbackGain", "gain"}},
-        {"leftHpHz", {"leftDelayHP", "wc"}},
-        {"rightHpHz", {"rightDelayHP", "wc"}},
-        {"leftLpHz", {"leftDelayLP", "wc"}},
-        {"rightLpHz", {"rightDelayLP", "wc"}},
-        {"modHz", {"lfoPhase", "freq"}},
-        {"saturation", {"saturation", "prescaler"}}
+        {"left", {{"leftDelay", "in"}}},
+        {"right", {{"rightDelay", "in"}}},
+        {"leftTime", {{"delayLeftTime", "shift"}}},
+        {"rightTime", {{"delayRightTime", "shift"}}},
+        {"leftModDepth", {{"delayLeftTime", "scale"}}},
+        {"rightModDepth", {{"delayRightTime", "scale"}}},
+        {"feedback", {{"feedbackGain", "gain"}}},
+        {"leftHpHz", {{"leftDelayHP", "wc"}}},
+        {"rightHpHz", {{"rightDelayHP", "wc"}}},
+        {"leftLpHz", {{"leftDelayLP", "wc"}}},
+        {"rightLpHz", {{"rightDelayLP", "wc"}}},
+        {"modHz", {{"lfoPhase", "freq"}}},
+        {"saturation", {{"saturation", "prescaler"}}}
     },
     vector<ModulePortAlias>{
-        {"left", {"leftDelayLP", "y1"}},
-        {"right", {"rightDelayLP", "y1"}}
+        {"left", {{"leftDelayLP", "y1"}}},
+        {"right", {{"rightDelayLP", "y1"}}}
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
@@ -76,20 +76,19 @@ const ComponentDescriptor stereoTape = {
     string{"Time modulated stereo cross feedback delay with saturating filter stages."}
 };
 
-
 const ComponentDescriptor adsr = {
     vector<ModulePortAlias>{
-        {"gate", {"env", "gate"}},
-        {"A", {"env", "onAttackSpeed"}},
-        {"D", {"env", "onDecaySpeed"}},
-        {"S", {"env", "sustainHeight"}},
-        {"R", {"env", "offDecaySpeed"}},
-        {"APow", {"env", "onAttackPow"}},
-        {"DPow", {"env", "onDecayPow"}},
-        {"RPow", {"env", "offDecayPow"}},
+        {"gate", {{"env", "gate"}}},
+        {"A", {{"env", "onAttackSpeed"}}},
+        {"D", {{"env", "onDecaySpeed"}}},
+        {"S", {{"env", "sustainHeight"}}},
+        {"R", {{"env", "offDecaySpeed"}}},
+        {"APow", {{"env", "onAttackPow"}}},
+        {"DPow", {{"env", "onDecayPow"}}},
+        {"RPow", {{"env", "offDecayPow"}}},
     },
     vector<ModulePortAlias>{
-        {"value", {"env", "value"}}
+        {"value", {{"env", "value"}}}
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
@@ -105,15 +104,14 @@ const ComponentDescriptor adsr = {
     string("ADSR envelope with shape control.\n(Simplification of ENV module)")
 };
 
-
 const ComponentDescriptor lfo = {
     vector<ModulePortAlias>{
-        {"freq", {"phase", "freq"}},
-        {"gain", {"gain", "in2"}},
-        {"trig", {"phase", "trig"}}
+        {"freq", {{"phase", "freq"}}},
+        {"gain", {{"gain", "in2"}}},
+        {"trig", {{"phase", "trig"}}}
     },
     vector<ModulePortAlias>{
-        {"value", { "gain", "prod"}}
+        {"value", {{ "gain", "prod"}}}
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
@@ -139,13 +137,13 @@ const ComponentDescriptor lfo = {
 
 const ComponentDescriptor chorus = {
     vector<ModulePortAlias>{
-        {"mono", {"monoIn", "value"}},
-        {"freq", {"lfoHz", "value"}},
-        {"depth",{"lfoGain", "value"}},
+        {"mono", {{"monoIn", "value"}}},
+        {"freq", {{"lfoHz", "value"}}},
+        {"depth",{{"lfoGain", "value"}}},
     },
     vector<ModulePortAlias>{
-        {"left", {"dl", "out"}},
-        {"right",{"dr", "out"}}
+        {"left", {{"dl", "out"}}},
+        {"right",{{"dr", "out"}}}
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
@@ -189,7 +187,6 @@ const ComponentDescriptor chorus = {
     string("Simple chorus.")
 };
 
-
 void ComponentRegister::registerFactoryComponents() {
     registerComponent("@STEREOTAPE", stereoTape);
     registerComponent("@ADSR", adsr);
@@ -213,60 +210,58 @@ bool ComponentRegister::getComponent(string name, ComponentDescriptor & desc) co
 void ComponentRegister::makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc, const Doc& ref) {
     doc.type = type;
 
-    // bubble doc stuff for bus inputs
     for (const auto i : cmp.inputs) {
         PadDescription pd;
         pd.name = i.alias;
         pd.unit = "";
-        pd.value = 0;
-
-        // find default value and unit
-        for (const auto &mv : cmp.graph.modules) {
-            if (mv.name == i.wrapped.module) {
-                if (!ref.get().count(mv.type)) {
-                    // a dependency we could not resolve, need to handle this eventually
-                    assert(0);
-                    continue;
-                }
-                const auto d = ref.get().at(mv.type);
-                for (const auto &dip : d.inputs) {
-                    if (dip.name == i.wrapped.port) {
-                        pd.unit = dip.unit;
-                        pd.value = dip.value;
+        pd.value = 0.0f;
+        // find unit and value from doc if 1:1
+        if (i.wrapped.size() == 1) {
+            for (const auto &mv : cmp.graph.modules) {
+                if (mv.name == i.wrapped[0].module) {
+                    if (!ref.get().count(mv.type)) {
+                        assert(0);
+                        continue;
+                    }
+                    const auto d = ref.get().at(mv.type);
+                    for (const auto &dip : d.inputs) {
+                        if (dip.name == i.wrapped[0].port) {
+                            pd.unit = dip.unit;
+                            pd.value = dip.value;
+                        }
                     }
                 }
             }
-        }
-
-        // find any set value in the graph and use that instead
-        for (const auto &v : cmp.graph.values) {
-            if (v.target.module == i.wrapped.module) {
-                if (v.target.port == i.wrapped.port) {
-                    pd.value = v.value;
+            // if value is set in the graph, use that instead
+            for (const auto &v : cmp.graph.values) {
+                if (v.target.module == i.wrapped[0].module) {
+                    if (v.target.port == i.wrapped[0].port) {
+                        pd.value = v.value;
+                    }
                 }
             }
         }
         doc.inputs.emplace_back(pd);
     }
 
-    // bubble doc stuff for bus outputs
     for (const auto o : cmp.outputs) {
         PadDescription pd;
         pd.name = o.alias;
         pd.unit = "";
-        // find unit
-        for (const auto &mv : cmp.graph.modules) {
-            if (mv.name == o.wrapped.module) {
-                if (!ref.get().count(mv.type)) {
-                    // a dependency we could not resolve, need to handle this eventually
-                    assert(0);
-                    continue;
-                }
-                const auto d = ref.get().at(mv.type);
-                for (const auto &dip : d.outputs) {
-                    if (dip.name == o.wrapped.port) {
-                        pd.unit = dip.unit;
-                        pd.value = dip.value;
+        // find unit from doc if 1:1
+        if (o.wrapped.size() == 1) {
+            for (const auto &mv : cmp.graph.modules) {
+                if (mv.name == o.wrapped[0].module) {
+                    if (!ref.get().count(mv.type)) {
+                        assert(0);
+                        continue;
+                    }
+                    const auto d = ref.get().at(mv.type);
+                    for (const auto &dip : d.outputs) {
+                        if (dip.name == o.wrapped[0].port) {
+                            pd.unit = dip.unit;
+                            pd.value = dip.value;
+                        }
                     }
                 }
             }

@@ -85,7 +85,7 @@ void to_json(json& j, const ModulePortAlias& cgd) {
 
 void from_json(const json& j, ModulePortAlias& cgd) {
     cgd.alias = j.at("alias").get<std::string>();
-    cgd.wrapped = j.at("wrapped").get<ModulePort>();
+    cgd.wrapped = j.at("wrapped").get<vector<ModulePort>>();
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {

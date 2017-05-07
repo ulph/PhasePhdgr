@@ -17,13 +17,13 @@ namespace PhasePhckr {
 /* Graph stuff */
 
 struct ModuleVariable {
-    std::string name;
-    std::string type;
+    string name;
+    string type;
 };
 
 struct ModulePort {
-    std::string module;
-    std::string port;
+    string module;
+    string port;
 };
 
 struct ModulePortConnection {
@@ -37,30 +37,30 @@ struct ModulePortValue {
 };
 
 struct ConnectionGraphDescriptor {
-    std::vector<ModuleVariable> modules;
-    std::vector<ModulePortConnection> connections;
-    std::vector<ModulePortValue> values;
+    vector<ModuleVariable> modules;
+    vector<ModulePortConnection> connections;
+    vector<ModulePortValue> values;
 };
 
 /* Component (subgraph) stuff */
 
 struct ModulePortAlias {
-    std::string alias;
-    ModulePort wrapped;
+    string alias;
+    vector<ModulePort> wrapped;
 };
 
 struct ComponentDescriptor {
-    std::vector<ModulePortAlias> inputs;
-    std::vector<ModulePortAlias> outputs;
+    vector<ModulePortAlias> inputs;
+    vector<ModulePortAlias> outputs;
     ConnectionGraphDescriptor graph;
-    std::string docString;
+    string docString;
 };
 
 /* Patch (supergraph) */
 
 struct PatchDescriptor {
     ConnectionGraphDescriptor root;
-    std::string docString;
+    string docString;
     map<string, ComponentDescriptor> components;
 };
 
@@ -69,7 +69,7 @@ struct PatchDescriptor {
 void designConnectionGraph(
     ConnectionGraph &connectionGraph,
     PatchDescriptor &description,
-    std::map<std::string, int> &moduleHandles,
+    map<string, int> &moduleHandles,
     const ComponentRegister & cp
 );
 

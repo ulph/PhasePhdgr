@@ -62,20 +62,32 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
     cgd.values = j.at("values").get<vector<ModulePortValue>>();
 }
 
-void to_json(json& j, const PatchDescriptor& cgd) {
-    j["modules"] = cgd.root.modules;
-    j["connections"] = cgd.root.connections;
-    j["values"] = cgd.root.values;
-    j["docString"] = cgd.docString;
-    j["components"] = cgd.components;
+void to_json(json& j, const ModulePosition& xy) {
+    j[0] = xy.x;
+    j[1] = xy.y;
 }
 
-void from_json(const json& j, PatchDescriptor& cgd) {
-    cgd.root.modules = j.at("modules").get<vector<ModuleVariable>>();
-    cgd.root.connections = j.at("connections").get<vector<ModulePortConnection>>();
-    cgd.root.values = j.at("values").get<vector<ModulePortValue>>();
-    cgd.docString = j.at("docString").get<string>();
-    cgd.components = j.at("components").get<map<string, ComponentDescriptor>>();
+void from_json(const json& j, ModulePosition& xy) {
+    xy.x = j.at(0).get<int>();
+    xy.y = j.at(1).get<int>();
+}
+
+void to_json(json& j, const PatchDescriptor& p) {
+    j["modules"] = p.root.modules;
+    j["connections"] = p.root.connections;
+    j["values"] = p.root.values;
+    j["docString"] = p.docString;
+    j["components"] = p.components;
+    j["layout"] = p.layout;
+}
+
+void from_json(const json& j, PatchDescriptor& p) {
+    p.root.modules = j.at("modules").get<vector<ModuleVariable>>();
+    p.root.connections = j.at("connections").get<vector<ModulePortConnection>>();
+    p.root.values = j.at("values").get<vector<ModulePortValue>>();
+    p.docString = j.at("docString").get<string>();
+    p.components = j.at("components").get<map<string, ComponentDescriptor>>();
+    p.layout = j.at("layout").get<map<string, ModulePosition>>();
 }
 
 void to_json(json& j, const ModulePortAlias& cgd) {

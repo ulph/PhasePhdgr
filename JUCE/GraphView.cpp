@@ -207,6 +207,7 @@ void GraphView::propagateUserModelChange() {
                 graph.root.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
             }
         }
+        graph.layout.emplace(m.module.name, ModulePosition{(int)m.position.x, (int)m.position.y});
     }
     for (const auto &w : gfxGraph_cpy.wires) {
         graph.root.connections.emplace_back(w.connection);

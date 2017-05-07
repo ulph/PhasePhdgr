@@ -58,10 +58,16 @@ struct ComponentDescriptor {
 
 /* Patch (supergraph) */
 
+struct ModulePosition {
+    int x;
+    int y;
+};
+
 struct PatchDescriptor {
     ConnectionGraphDescriptor root;
     string docString;
     map<string, ComponentDescriptor> components;
+    map<string, ModulePosition> layout;
 };
 
 /* Functions and aux types */

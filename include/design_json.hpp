@@ -6,7 +6,6 @@
 using nlohmann::json;
 
 namespace PhasePhckr {
-
     void to_json(json& j, const ModuleVariable& mv);
     void from_json(const json& j, ModuleVariable& mv);
 

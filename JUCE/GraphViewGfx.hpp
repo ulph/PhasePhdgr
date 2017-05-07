@@ -8,6 +8,7 @@
 #include <float.h>
 #include <list>
 #include <random>
+#include <assert.h>
 
 using namespace PhasePhckr;
 using namespace std;
@@ -573,6 +574,10 @@ struct GfxGraph {
     }
 
     bool add(const ModuleVariable& module, const Doc & doc, const XY &pos, const std::vector<ModulePortValue> &mpv, bool absolutPositions=true) {
+        if (hasModuleName(module.name)) {
+            assert(0);
+            return false;
+        }
         auto position = pos;
         if (absolutPositions) {
             position.x = (position.x - 0.5f*c_NodeSize) / c_GridSize;

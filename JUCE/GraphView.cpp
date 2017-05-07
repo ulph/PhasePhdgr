@@ -43,7 +43,7 @@ void deleteSelectedModules(set<const GfxModule *> & selection, GfxGraph & gfxGra
 }
 
 
-void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc){
+void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc, XY& position){
     ConnectionGraphDescriptor cgd;
     set<string> modules;
 
@@ -63,34 +63,46 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     list<ModulePortAlias> inBusConnections;
     list<ModulePortAlias> outBusConnections;
 
-    for (const auto &c : gfxGraph.wires) {
+    string name = "newComponent";
+    int ctr = 0;
+    while (gfxGraph.hasModuleName(name + to_string(ctr))){
+        ctr++;
+    }
+    name += to_string(ctr);
+
+    for (auto &w : gfxGraph.wires) {
         // copy any internal connections
-        if (modules.count(c.connection.source.module) && modules.count(c.connection.target.module)) {
-            cgd.connections.push_back(c.connection);
+        if (modules.count(w.connection.source.module) && modules.count(w.connection.target.module)) {
+            cgd.connections.push_back(w.connection);
         }
         // store the external connections
-        else if (modules.count(c.connection.target.module)) {
-            auto mp = c.connection.target;
+        else if (modules.count(w.connection.target.module)) {
+            auto mp = w.connection.target;
             string alias = mp.port;
             while (inAlias.count(alias)) { alias += "_"; }
             inAlias.insert(alias);
-            ModulePortAlias mpa = { alias,{ mp } };
+            ModulePortAlias mpa = { alias, { mp } };
             inBusConnections.push_back(mpa);
+            // remap connection graph to the new place
+            w.connection.target.module = name;
+            w.connection.target.port = alias;
         }
-        else if (modules.count(c.connection.source.module)) {
-            auto mp = c.connection.source;
+        else if (modules.count(w.connection.source.module)) {
+            auto mp = w.connection.source;
             string alias = mp.port;
             while (outAlias.count(alias)) { alias += "_"; }
             outAlias.insert(alias);
             ModulePortAlias mpa = { alias,{ mp } };
             outBusConnections.push_back(mpa);
+            // remap connection graph to the new place
+            w.connection.source.module = name;
+            w.connection.source.port = alias;
         }
     }
 
     // create a ComponentDescriptor
-    string name = "newComponent";
     string type = "@INCOMPONENT";
-    int ctr = 0;
+    ctr = 0;
     while (gfxGraph.components.count(type + to_string(ctr))) {
         ctr++;
     }
@@ -118,24 +130,24 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     vector<ModulePortValue> mpv;
     gfxGraph.modules.push_back(GfxModule(
         ModuleVariable{ name, type },
-        0,
-        0,
+        (position.x - 0.5f*c_NodeSize) / c_GridSize,
+        (position.y - 0.5f*c_NodeSize) / c_GridSize,
         doc,
         mpv
     ));
 
-    // reroute gfxGraph
-    // ...
+    gfxGraph.recalculateWires(gfxGraph.modules);
+
 }
 
 
-bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc) {
+bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc, XY& position) {
     poop.addItem(1, "make component");
     poop.addItem(2, "delete");
     int choice = poop.show();
     switch (choice) {
     case 1:
-        createComponent(selection, gfxGraph, doc);
+        createComponent(selection, gfxGraph, doc, position);
         deleteSelectedModules(selection, gfxGraph);
         return true;
     case 2:
@@ -247,7 +259,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 if (selectedModules.count(&m)) {
-                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc);
+                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc, mouseDownPos);
                 }
                 else {
                     modelChanged = makeModulePoopUp(poop, m.module.name, gfxGraph);

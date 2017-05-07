@@ -9,23 +9,6 @@
 #include <list>
 #include <random>
 
-/* stolen from http://stackoverflow.com/questions/180947/base64-decode-snippet-in-c */
-static std::string base64_encode(const std::string &in) {
-    std::string out;
-    int val = 0, valb = -6;
-    for (unsigned char c : in) {
-        val = (val << 8) + c;
-        valb += 8;
-        while (valb >= 0) {
-            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
-            valb -= 6;
-        }
-    }
-    if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
-    while (out.size() % 4) out.push_back('=');
-    return out;
-}
-
 using namespace PhasePhckr;
 using namespace std;
 
@@ -573,7 +556,12 @@ struct GfxGraph {
         auto mIt = d.find(type);
         if (mIt != d.end()) {
             vector<ModulePortValue> mpv;
-            string name = base64_encode(to_string(rand()));
+            string name = "new" + type;
+            int ctr = 0;
+            while (hasModuleName(name + to_string(ctr))) {
+                ctr++;
+            }
+            name += to_string(ctr);
             didAdd = add(
                 ModuleVariable{ name, type },
                 doc,
@@ -696,5 +684,14 @@ struct GfxGraph {
         }
         return foundModule;
     }
-};
 
+    bool hasModuleName(string name) {
+        for (const auto &m : modules) {
+            if (m.module.name == name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+};

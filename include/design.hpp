@@ -50,8 +50,8 @@ struct ModulePortAlias {
 };
 
 struct ComponentDescriptor {
-    vector<ModulePortAlias> inputs;
-    vector<ModulePortAlias> outputs;
+    vector<PadDescription> inBus;
+    vector<PadDescription> outBus;
     ConnectionGraphDescriptor graph;
     string docString;
 };

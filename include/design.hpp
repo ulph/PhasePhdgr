@@ -64,7 +64,7 @@ struct ModulePosition {
 };
 
 struct PatchDescriptor {
-    ConnectionGraphDescriptor root;
+    ComponentDescriptor root;
     string docString;
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout;

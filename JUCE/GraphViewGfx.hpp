@@ -690,6 +690,16 @@ struct GfxGraph {
         return foundModule;
     }
 
+    bool getModule(string name, const GfxModule** module) {
+        for (const auto &m : modules) {
+            if (m.module.name == name) {
+                *module = &m;
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool hasModuleName(string name) {
         for (const auto &m : modules) {
             if (m.module.name == name) {

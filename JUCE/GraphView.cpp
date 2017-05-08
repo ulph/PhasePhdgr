@@ -461,35 +461,41 @@ void GraphView::updateRenderComponents(
 {
     // create the renderable structures
 
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    GfxGraph newGfxGraph = GfxGraph();
 
-    gfxGraph = GfxGraph();
-
-    gfxGraph.components = cgd_copy.components;
+    newGfxGraph.components = cgd_copy.components;
 
     for (const auto & m : cgd_copy.root.modules) {
-        gfxGraph.add(
+        XY xy(mp.at(m.name).x, mp.at(m.name).y);
+        if (cgd_copy.layout.count(m.name)) {
+            auto xy_ = cgd_copy.layout.at(m.name);
+            xy.x = (float)xy_.x / (float)c_GridSize;
+            xy.y = (float)xy_.y / (float)c_GridSize;
+        }
+        newGfxGraph.add(
             m, 
             doc, 
-            XY(mp.at(m.name).x, mp.at(m.name).y), 
+            xy, 
             cgd_copy.root.values,
             false
         );
     }
 
     for (const auto & c : cgd_copy.root.connections) {
-        gfxGraph.connect(c);
+        newGfxGraph.connect(c);
     }
 
-    auto bounds = gfxGraph.getBounds();
+    auto bounds = newGfxGraph.getBounds();
     XY delta(0, 0);
     if (bounds.first.x < 0) delta.x = -bounds.first.x;
     if (bounds.first.y < 0) delta.y = -bounds.first.y;
     if (delta.x && delta.y) {
-        gfxGraph.moveDelta(delta);
-        bounds = gfxGraph.getBounds();
+        newGfxGraph.moveDelta(delta);
+        bounds = newGfxGraph.getBounds();
     }
 
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    gfxGraph = newGfxGraph;
     gfxGraphLock.clear(std::memory_order_release);
 
     updateBounds(bounds);

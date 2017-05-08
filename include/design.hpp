@@ -44,11 +44,6 @@ struct ConnectionGraphDescriptor {
 
 /* Component (subgraph) stuff */
 
-struct ModulePortAlias {
-    string alias;
-    vector<ModulePort> wrapped;
-};
-
 struct ComponentDescriptor {
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;

@@ -90,16 +90,6 @@ void from_json(const json& j, PatchDescriptor& p) {
     p.layout = j.at("layout").get<map<string, ModulePosition>>();
 }
 
-void to_json(json& j, const ModulePortAlias& cgd) {
-    j["alias"] = cgd.alias;
-    j["wrapped"] = cgd.wrapped;
-}
-
-void from_json(const json& j, ModulePortAlias& cgd) {
-    cgd.alias = j.at("alias").get<string>();
-    cgd.wrapped = j.at("wrapped").get<vector<ModulePort>>();
-}
-
 void to_json(json& j, const ComponentDescriptor& cgd) {
     j["inputs"] = cgd.inputs;
     j["outputs"] = cgd.outputs;

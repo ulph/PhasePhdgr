@@ -13,24 +13,18 @@ namespace PhasePhckr {
 void designConnectionGraph(
     ConnectionGraph &g,
     ConnectionGraphDescriptor& gDesc,
-    map<string, int>& handles,
-    const ComponentRegister & cp
+    map<string, int>& handles
 );
 
 bool unpackComponent(
     ConnectionGraph &g,
     const ModuleVariable &mv, 
-    map<string, int>&handles,
-    const ComponentRegister & cp
+    map<string, int>&handles
 ) {
-    ComponentDescriptor cD;
+    ComponentDescriptor cD; // TODO, get from patch
 
     // find the component definition
     cout << "component " << mv.name << " " << mv.type << endl;
-    if (!cp.getComponent(mv.type, cD)) {
-        cerr << "Error: " << mv.name << " " << mv.type << " component unknown! (modules)" << endl;
-        return false;
-    }
 
     // move component subgraph onto the mv's "scope"
     const string pfx = mv.name + ".";
@@ -52,7 +46,7 @@ bool unpackComponent(
     }
 
     // parse the sub graph
-    designConnectionGraph(g, cD.graph, handles, cp);
+    designConnectionGraph(g, cD.graph, handles);
 
     return true;
 }
@@ -61,15 +55,14 @@ bool unpackComponent(
 void designConnectionGraph(
     ConnectionGraph &g,
     ConnectionGraphDescriptor &gDesc,
-    map<string, int> &handles,
-    const ComponentRegister &cp) {
+    map<string, int> &handles) {
 
     set<string> components;
 
     // find any components (module bundles) and unpack them
     for (const auto &m : gDesc.modules) {
         if (m.type.front() == '@') {
-            if(unpackComponent(g, m, handles, cp)){
+            if(unpackComponent(g, m, handles)){
                 components.insert(m.name);
             }
         }
@@ -131,14 +124,16 @@ void designPatch(
     const ComponentRegister & cpGlobal
 ) {
     ComponentRegister cp = cpGlobal;
+
+    // TODO, add to patch instead!
     for (const auto & c : description.components) {
         cp.registerComponent(c.first, c.second);
     }
+
     designConnectionGraph(
         connectionGraph, 
         description.root.graph,
-        moduleHandles, 
-        cp
+        moduleHandles
     );
 }
 

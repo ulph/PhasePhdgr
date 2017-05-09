@@ -8,9 +8,9 @@ namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
     vector<PadDescription>{
+        {"left", "", 0.f},
+        {"right", "", 0.f},
         /*
-        {"left", {{"leftDelay", "in"}}},
-        {"right", {{"rightDelay", "in"}}},
         {"leftTime", {{"delayLeftTime", "shift"}}},
         {"rightTime", {{"delayRightTime", "shift"}}},
         {"leftModDepth", {{"delayLeftTime", "scale"}}},
@@ -25,10 +25,8 @@ const ComponentDescriptor stereoTape = {
         */
     },
     vector<PadDescription>{
-        /*
-        {"left", {{"leftDelayLP", "y1"}}},
-        {"right", {{"rightDelayLP", "y1"}}}
-        */
+        {"left", "", 0.f},
+        {"right", "", 0.f},
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
@@ -46,6 +44,10 @@ const ComponentDescriptor stereoTape = {
             {"saturation", "SSATAN"},
         },
         vector<ModulePortConnection>{
+            {{"inBus", "left"}, {"leftDelay", "in"}},
+            {{"inBus", "right"}, {"rightDelay", "out"}},
+            // ...
+
             {{"leftDelay", "out"}, {"saturation", "left"}},
             {{"rightDelay", "out"}, {"saturation", "right"}},
             {{"saturation", "left"}, {"leftDelayHP", "x1"}},
@@ -62,7 +64,10 @@ const ComponentDescriptor stereoTape = {
             {{"lfo", "sine"}, {"delayLeftTime", "input"}},
             {{"lfo", "sine"}, {"delayRightTime", "input"}},
             {{"delayLeftTime", "output"}, {"leftDelay", "time"}},
-            {{"delayRightTime", "output"}, {"rightDelay", "time"}}
+            {{"delayRightTime", "output"}, {"rightDelay", "time"}},
+
+            {{"leftDelayLP", "y1"}, {"outBus", "left"}},
+            {{"rightDelayLP", "y1"}, {"outBus", "right"}},
         },
         vector<ModulePortValue>{
             {"lfoPhase", "freq", 2.0f},

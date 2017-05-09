@@ -35,6 +35,16 @@ bool unpackComponent(
     handles[pfx+"inBus"] = g.addCustomModule(inBus);
     handles[pfx+"outBus"] = g.addCustomModule(outBus);
 
+    // find any connections to and from this component and "re-route" to inBus/outBus
+    for(auto &c : pd.root.graph.connections){
+        if(c.source.module == mv.name){
+           c.source.module = pfx+"outBus";
+        }
+        if(c.target.module == mv.name){
+            c.target.module = pfx+"inBus";
+        }
+    }
+
     for (auto &m : cd.graph.modules) {
         m.name = pfx + m.name;
     }
@@ -46,7 +56,7 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
-    // parse the sub graph
+    // parse the component graph -- TODO, pass along a prefix, and/or a "parent" component to here?
     designChain(g, pd, cd, handles);
 
     return true;

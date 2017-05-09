@@ -6,11 +6,24 @@
 
 namespace PhasePhckr {
 
+const vector<PadDescription> effectChainInBus = {
+    {"left", "", 0},
+    {"right", "", 0},
+    {"mod", "", 0},
+    {"exp", "", 0},
+    {"brt", "", 0}
+};
+
+const vector<PadDescription> effectChainOutBus = {
+    {"left", "", 0},
+    {"right", "", 0},
+};
+
 EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     PatchDescriptor patchDescriptor = fxChain;
     ModuleRegister::registerAllModules(connectionGraph);
     std::map<std::string, int> moduleHandles;
-    designConnectionGraph(
+    designPatch(
         connectionGraph,
         patchDescriptor,
         moduleHandles,

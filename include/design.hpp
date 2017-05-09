@@ -67,7 +67,7 @@ struct PatchDescriptor {
 
 /* Functions and aux types */
 
-void designConnectionGraph(
+void designPatch(
     ConnectionGraph &connectionGraph,
     PatchDescriptor &description,
     map<string, int> &moduleHandles,

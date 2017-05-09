@@ -85,13 +85,15 @@ void from_json(const json& j, PadDescription& p){
 }
 
 void to_json(json& j, const PatchDescriptor& p) {
-    j["root"] = p.root;
+    j["graph"] = p.root.graph;
+    j["docString"] = p.root.docString;
     j["components"] = p.components;
     j["layout"] = p.layout;
 }
 
 void from_json(const json& j, PatchDescriptor& p) {
-    p.root = j.at("root").get<ComponentDescriptor>();
+    p.root.graph = j.at("graph").get<ConnectionGraphDescriptor>();
+    p.root.docString = j.at("docString");
     p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     p.layout = j.at("layout").get<map<string, ModulePosition>>();
 }

@@ -16,7 +16,7 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     PatchDescriptor patchDescriptor = voiceChain;
 
     std::map<std::string, int> moduleHandles;
-    designConnectionGraph(
+    designPatch(
         connectionGraph,
         patchDescriptor,
         moduleHandles,

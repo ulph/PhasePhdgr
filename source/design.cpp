@@ -122,7 +122,7 @@ void designConnectionGraph(
     }
 }
 
-void designConnectionGraph(
+void designPatch(
     ConnectionGraph &connectionGraph,
     PatchDescriptor &description,
     map<string, int> &moduleHandles,

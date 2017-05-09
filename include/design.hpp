@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "components.hpp"
+#include "docs.hpp"
 
 class ConnectionGraph;
 class ComponentRegister;
@@ -60,7 +61,6 @@ struct ModulePosition {
 
 struct PatchDescriptor {
     ComponentDescriptor root;
-    string docString;
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout;
 };

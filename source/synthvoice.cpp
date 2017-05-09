@@ -12,14 +12,8 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     , samplesToProcess(0)
     , doTerminate(false)
 {
-    connectionGraph.registerModule(c_VoiceInput.type, &VoiceInputBus::factory);
-    connectionGraph.registerModule(c_VoiceOutput.type, &StereoOutBus::factory);
     ModuleRegister::registerAllModules(connectionGraph);
-
     PatchDescriptor patchDescriptor = voiceChain;
-
-    patchDescriptor.root.modules.emplace_back(c_VoiceInput);
-    patchDescriptor.root.modules.emplace_back(c_VoiceOutput);
 
     std::map<std::string, int> moduleHandles;
     designConnectionGraph(
@@ -29,8 +23,8 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
         cp
     );
 
-    inBus = moduleHandles[c_VoiceInput.name];
-    outBus = moduleHandles[c_VoiceOutput.name];
+    inBus = moduleHandles["inBus"];
+    outBus = moduleHandles["outBus"];
 
 #if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);

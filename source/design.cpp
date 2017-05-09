@@ -4,30 +4,24 @@
 #include <set>
 #include <list>
 #include <queue>
+#include "busmodules.hpp"
 
 using namespace std;
 
 namespace PhasePhckr {
 
-typedef pair<string, string> ModulePortPair;
-typedef map<ModulePortPair, list<ModulePortPair>> AliasMap;
-
 void designConnectionGraph(
     ConnectionGraph &g,
     ConnectionGraphDescriptor& gDesc,
     map<string, int>& handles,
-    const ComponentRegister & cp,
-    AliasMap &componentInputMappings,
-    AliasMap &componentOutputMappings
+    const ComponentRegister & cp
 );
 
 bool unpackComponent(
     ConnectionGraph &g,
     const ModuleVariable &mv, 
     map<string, int>&handles,
-    const ComponentRegister & cp,
-    AliasMap &componentInputMappings,
-    AliasMap &componentOutputMappings
+    const ComponentRegister & cp
 ) {
     ComponentDescriptor cD;
 
@@ -40,22 +34,12 @@ bool unpackComponent(
 
     // move component subgraph onto the mv's "scope"
     const string pfx = mv.name + ".";
-    for (auto &i : cD.inputs) {
-        const auto k = make_pair(mv.name, i.alias);
-        componentInputMappings[k] = list<ModulePortPair>();
-        for (auto& w : i.wrapped) {
-            w.module = pfx + w.module;
-            componentInputMappings[k].push_back(make_pair(w.module, w.port));
-        }
-    }
-    for (auto &o : cD.outputs) {
-        const auto k = make_pair(mv.name, o.alias);
-        componentOutputMappings[k] = list<ModulePortPair>();
-        for (auto& w : o.wrapped) {
-            w.module = pfx + w.module;
-            componentOutputMappings[k].push_back(make_pair(w.module, w.port));
-        }
-    }
+
+    auto inBus = new BusModule(vector<Pad>(), true);
+    auto outBus = new BusModule(vector<Pad>(), false);
+    handles[pfx+"inBus"] = g.addCustomModule(inBus);
+    handles[pfx+"outBus"] = g.addCustomModule(outBus);
+
     for (auto &m : cD.graph.modules) {
         m.name = pfx + m.name;
     }
@@ -68,77 +52,9 @@ bool unpackComponent(
     }
 
     // parse the sub graph
-    designConnectionGraph(g, cD.graph, handles, cp, componentInputMappings, componentOutputMappings);
+    designConnectionGraph(g, cD.graph, handles, cp);
 
     return true;
-}
-
-
-void mapComponentPorts(
-    ConnectionGraphDescriptor &gDesc,
-    set<string> components,
-    AliasMap &componentInputMappings,
-    bool input
-) {
-
-    // deal with the remapped connections and values
-    // TODO, this must be possible some more elegant way ...
-
-    // first, find all the virtual ports that map to some place else
-    list<ModulePortPair> componentPorts;
-    for (const auto &c : components) {
-        for (const auto& s : componentInputMappings) {
-            if (s.first.first == c) {
-                componentPorts.push_back(s.first);
-            }
-        }
-    }
-
-    // then, track down to where they branch out
-    while (componentPorts.size()) {
-        auto from = componentPorts.back(); componentPorts.pop_back();
-        auto it = componentInputMappings.find(from);
-        if (it == componentInputMappings.end()) continue;
-        queue<ModulePortPair> traversalQueue;
-        for (auto &to : it->second) {
-            traversalQueue.emplace(to);
-        }
-        while (traversalQueue.size()) {
-            const auto n = traversalQueue.front(); traversalQueue.pop();
-            auto nit = componentInputMappings.find(n);
-            if (nit == componentInputMappings.end()) {
-                // we are done, do the remap using n
-                cout << (input ? "remap input: " : "remap output: ") << from.first << ":" << from.second << " => " << n.first << ":" << n.second;
-                for (auto &c : gDesc.connections) {
-                    if (input && c.target.module == from.first && c.target.port == from.second) {
-                        c.target.module = n.first;
-                        c.target.port = n.second;
-                        cout << " p";
-                    }
-                    else if (!input && c.source.module == from.first && c.source.port == from.second) {
-                        c.source.module = n.first;
-                        c.source.port = n.second;
-                        cout << " p";
-                    }
-                }
-                if (input) {
-                    for (auto &v : gDesc.values) {
-                        if (v.target.module == from.first && v.target.port == from.second) {
-                            v.target.module = n.first;
-                            v.target.port = n.second;
-                            cout << " v";
-                        }
-                    }
-                }
-                cout << endl;
-                continue;
-            };
-            // not done, continue branching out (potentially)
-            for (auto &to : nit->second) {
-                traversalQueue.emplace(to);
-            }
-        }
-    }
 }
 
 
@@ -146,23 +62,18 @@ void designConnectionGraph(
     ConnectionGraph &g,
     ConnectionGraphDescriptor &gDesc,
     map<string, int> &handles,
-    const ComponentRegister &cp,
-    AliasMap &componentInputMappings,
-    AliasMap &componentOutputMappings
-) {
+    const ComponentRegister &cp) {
+
     set<string> components;
 
     // find any components (module bundles) and unpack them
     for (const auto &m : gDesc.modules) {
         if (m.type.front() == '@') {
-            if (unpackComponent(g, m, handles, cp, componentInputMappings, componentOutputMappings)) {
+            if(unpackComponent(g, m, handles, cp)){
                 components.insert(m.name);
             }
         }
     }
-
-    mapComponentPorts(gDesc, components, componentInputMappings, true);
-    mapComponentPorts(gDesc, components, componentOutputMappings, false);
 
     // create the modules and store their handles
     for (const auto &m : gDesc.modules) {
@@ -217,19 +128,15 @@ void designConnectionGraph(
     map<string, int> &moduleHandles,
     const ComponentRegister & cpGlobal
 ) {
-    AliasMap componentInputMappings;
-    AliasMap componentOutputMappings;
     ComponentRegister cp = cpGlobal;
     for (const auto & c : description.components) {
         cp.registerComponent(c.first, c.second);
     }
     designConnectionGraph(
         connectionGraph, 
-        description.root, 
+        description.root.graph,
         moduleHandles, 
-        cp, 
-        componentInputMappings, 
-        componentOutputMappings
+        cp
     );
 }
 

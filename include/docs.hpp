@@ -6,9 +6,9 @@
 #include <map>
 
 struct PadDescription {
-    float value;
     std::string name;
     std::string unit;
+    float value;
 };
 
 struct ModuleDoc {
@@ -28,12 +28,6 @@ namespace PhasePhckr {
         const std::map<std::string, ModuleDoc> & get() const;
         void add(const ModuleDoc & d);
     };
-
-    ModuleDoc getVoiceBusInputDoc();
-    ModuleDoc getVoiceBusOutputDoc();
-    ModuleDoc getEffectBusInputDoc();
-    ModuleDoc getEffectBusOutputDoc();
-
 }
 
 #endif

@@ -7,7 +7,8 @@ using namespace std;
 namespace PhasePhckr{
 
 const ComponentDescriptor stereoTape = {
-    vector<ModulePortAlias>{
+    vector<PadDescription>{
+        /*
         {"left", {{"leftDelay", "in"}}},
         {"right", {{"rightDelay", "in"}}},
         {"leftTime", {{"delayLeftTime", "shift"}}},
@@ -21,10 +22,13 @@ const ComponentDescriptor stereoTape = {
         {"rightLpHz", {{"rightDelayLP", "wc"}}},
         {"modHz", {{"lfoPhase", "freq"}}},
         {"saturation", {{"saturation", "prescaler"}}}
+        */
     },
-    vector<ModulePortAlias>{
+    vector<PadDescription>{
+        /*
         {"left", {{"leftDelayLP", "y1"}}},
         {"right", {{"rightDelayLP", "y1"}}}
+        */
     },
     ConnectionGraphDescriptor{
         vector<ModuleVariable>{
@@ -76,6 +80,7 @@ const ComponentDescriptor stereoTape = {
     string{"Time modulated stereo cross feedback delay with saturating filter stages."}
 };
 
+/*
 const ComponentDescriptor adsr = {
     vector<ModulePortAlias>{
         {"gate", {{"env", "gate"}}},
@@ -186,12 +191,13 @@ const ComponentDescriptor chorus = {
     },
     string("Simple chorus.")
 };
+*/
 
 void ComponentRegister::registerFactoryComponents() {
     registerComponent("@STEREOTAPE", stereoTape);
-    registerComponent("@ADSR", adsr);
-    registerComponent("@LFO", lfo);
-    registerComponent("@CHORUS", chorus);
+//    registerComponent("@ADSR", adsr);
+//    registerComponent("@LFO", lfo);
+//    registerComponent("@CHORUS", chorus);
     // etc
 }
 
@@ -207,83 +213,25 @@ bool ComponentRegister::getComponent(string name, ComponentDescriptor & desc) co
     return true;
 }
 
-void ComponentRegister::makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc, const Doc& ref) {
+void ComponentRegister::makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc) {
     doc.type = type;
-
-    for (const auto i : cmp.inputs) {
-        PadDescription pd;
-        pd.name = i.alias;
-        pd.unit = "";
-        pd.value = 0.0f;
-        // find unit and value from doc if 1:1
-        if (i.wrapped.size() == 1) {
-            for (const auto &mv : cmp.graph.modules) {
-                if (mv.name == i.wrapped[0].module) {
-                    if (!ref.get().count(mv.type)) {
-                        assert(0);
-                        continue;
-                    }
-                    const auto d = ref.get().at(mv.type);
-                    for (const auto &dip : d.inputs) {
-                        if (dip.name == i.wrapped[0].port) {
-                            pd.unit = dip.unit;
-                            pd.value = dip.value;
-                        }
-                    }
-                }
-            }
-            // if value is set in the graph, use that instead
-            for (const auto &v : cmp.graph.values) {
-                if (v.target.module == i.wrapped[0].module) {
-                    if (v.target.port == i.wrapped[0].port) {
-                        pd.value = v.value;
-                    }
-                }
-            }
-        }
-        doc.inputs.emplace_back(pd);
-    }
-
-    for (const auto o : cmp.outputs) {
-        PadDescription pd;
-        pd.name = o.alias;
-        pd.unit = "";
-        // find unit from doc if 1:1
-        if (o.wrapped.size() == 1) {
-            for (const auto &mv : cmp.graph.modules) {
-                if (mv.name == o.wrapped[0].module) {
-                    if (!ref.get().count(mv.type)) {
-                        assert(0);
-                        continue;
-                    }
-                    const auto d = ref.get().at(mv.type);
-                    for (const auto &dip : d.outputs) {
-                        if (dip.name == o.wrapped[0].port) {
-                            pd.unit = dip.unit;
-                            pd.value = dip.value;
-                        }
-                    }
-                }
-            }
-        }
-        doc.outputs.emplace_back(pd);
-    }
-
+    doc.inputs = cmp.inBus;
+    doc.outputs = cmp.outBus;
     doc.docString = cmp.docString;
 }
 
-bool ComponentRegister::makeComponentDoc(const string &type, ModuleDoc &doc, const Doc& ref) const {
+bool ComponentRegister::makeComponentDoc(const string &type, ModuleDoc &doc) const {
     const auto it = r.find(type);
     if (it == r.end()) { return false; }
     const auto& cmp = it->second;
-    makeComponentDoc(type, cmp, doc, ref);
+    makeComponentDoc(type, cmp, doc);
     return true;
 }
 
 void ComponentRegister::makeComponentDocs(Doc& doc) const {
     for (const auto kv : r) {
         ModuleDoc md;
-        if (makeComponentDoc(kv.first, md, doc)) {
+        if (makeComponentDoc(kv.first, md)) {
             doc.add(md);
         }
     }

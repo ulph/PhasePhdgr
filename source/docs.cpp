@@ -26,28 +26,4 @@ namespace PhasePhckr {
         docs[d.type] = d;
     }
 
-    ModuleDoc getVoiceBusInputDoc() {
-        VoiceInputBus m;
-        m.setName(c_VoiceInput.type);
-        return m.makeDoc();
-    }
-
-    ModuleDoc getVoiceBusOutputDoc() {
-        StereoOutBus m;
-        m.setName(c_VoiceOutput.type);
-        return m.makeDoc();
-    }
-
-    ModuleDoc getEffectBusInputDoc() {
-        EffectInputBus m;
-        m.setName(c_EffectInput.type);
-        return m.makeDoc();
-    }
-
-    ModuleDoc getEffectBusOutputDoc() {
-        StereoOutBus m;
-        m.setName(c_EffectOutput.type);
-        return m.makeDoc();
-    }
-
 }

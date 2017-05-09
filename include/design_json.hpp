@@ -21,8 +21,8 @@ namespace PhasePhckr {
     void to_json(json& j, const ConnectionGraphDescriptor& cgd);
     void from_json(const json& j, ConnectionGraphDescriptor& cgd);
 
-    void to_json(json& j, const ModulePortAlias& cgd);
-    void from_json(const json& j, ModulePortAlias& cgd);
+    void to_json(json& j, const PadDescription& cgd);
+    void from_json(const json& j, PadDescription& cgd);
 
     void to_json(json& j, const ComponentDescriptor& cgd);
     void from_json(const json& j, ComponentDescriptor& cgd);

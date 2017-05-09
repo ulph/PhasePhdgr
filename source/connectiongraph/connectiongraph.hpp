@@ -25,6 +25,7 @@ public:
     ConnectionGraph();
     virtual ~ConnectionGraph();
     int addModule(std::string type);
+    int addCustomModule(Module* module);
     void registerModule(std::string name, Module* (*moduleFactory)());
     void connect(int fromModule, std::string fromPad, int toModule, std::string toPad);
     void connect(int fromModule, int fromPad, int toModule, int toPad);

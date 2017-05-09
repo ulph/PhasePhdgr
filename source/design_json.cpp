@@ -72,34 +72,40 @@ void from_json(const json& j, ModulePosition& xy) {
     xy.y = j.at(1).get<int>();
 }
 
+void to_json(json& j, const PadDescription& p){
+    j["name"] = p.name;
+    j["unit"] = p.unit;
+    j["value"] = p.value;
+}
+
+void from_json(const json& j, PadDescription& p){
+    p.name = j.at("name").get<string>();
+    p.unit = j.at("unit").get<string>();
+    p.value = j.at("value").get<float>();
+}
+
 void to_json(json& j, const PatchDescriptor& p) {
-    j["modules"] = p.root.modules;
-    j["connections"] = p.root.connections;
-    j["values"] = p.root.values;
-    j["docString"] = p.docString;
+    j["root"] = p.root;
     j["components"] = p.components;
     j["layout"] = p.layout;
 }
 
 void from_json(const json& j, PatchDescriptor& p) {
-    p.root.modules = j.at("modules").get<vector<ModuleVariable>>();
-    p.root.connections = j.at("connections").get<vector<ModulePortConnection>>();
-    p.root.values = j.at("values").get<vector<ModulePortValue>>();
-    p.docString = j.at("docString").get<string>();
+    p.root = j.at("root").get<ComponentDescriptor>();
     p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     p.layout = j.at("layout").get<map<string, ModulePosition>>();
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
-    j["inputs"] = cgd.inputs;
-    j["outputs"] = cgd.outputs;
+    j["inBus"] = cgd.inBus;
+    j["outBus"] = cgd.outBus;
     j["graph"] = cgd.graph;
     j["docString"] = cgd.docString;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
-    cgd.inputs = j.at("inputs").get<vector<ModulePortAlias>>();
-    cgd.outputs = j.at("outputs").get<vector<ModulePortAlias>>();
+    cgd.inBus = j.at("inBus").get<vector<PadDescription>>();
+    cgd.outBus = j.at("outBus").get<vector<PadDescription>>();
     cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
     cgd.docString = j.at("docString").get<string>();
 }

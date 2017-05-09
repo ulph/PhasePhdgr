@@ -45,7 +45,7 @@ namespace PhasePhckr {
 
     PatchDescriptor getExampleFxChain() { 
         PatchDescriptor ex;
-        ex.root = exFxChain;
+        ex.root.graph = exFxChain;
         return ex;
     }
 
@@ -163,7 +163,7 @@ namespace PhasePhckr {
 
     PatchDescriptor getExampleVoiceChain() { 
         PatchDescriptor ex;
-        ex.root = exVoiceChain;
+        ex.root.graph = exVoiceChain;
         return ex;
     }
 

@@ -76,6 +76,12 @@ int ConnectionGraph::addModule(std::string type)
     return id;
 }
 
+int ConnectionGraph::addCustomModule(Module* module){
+    int id = (int)modules.size();
+    modules.push_back(module);
+    return id;
+}
+
 void ConnectionGraph::registerModule(std::string name, Module* (*moduleFactory)())
 {
     moduleRegister.push_back(std::pair<std::string, Module* (*)()>(name, moduleFactory));

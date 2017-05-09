@@ -125,6 +125,8 @@ void designConnectionGraph(
 void designPatch(
     ConnectionGraph &connectionGraph,
     PatchDescriptor &description,
+    const vector<PadDescription>& inBus,
+    const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
     const ComponentRegister & cpGlobal
 ) {

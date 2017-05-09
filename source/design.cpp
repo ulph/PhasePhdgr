@@ -127,15 +127,26 @@ void designPatch(
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
-    const ComponentRegister & cpGlobal
+    const ComponentRegister & cp
 ) {
-    ComponentRegister cp = cpGlobal;
 
-    // TODO, add to patch instead!
-    for (const auto & c : p.components) {
-        cp.registerComponent(c.first, c.second);
+    // copy over all global components
+    for (const auto & kv : cp.all()){
+        if(!p.components.count(kv.first)){
+            p.components[kv.first] = kv.second;
+        }
+        else{
+            cerr << "Warning: Component " << kv.first << " is globally defined and in patch! Consider renaming the patch defined component." << endl;
+        }
     }
 
+    // create the special inBus and outBus modules
+    auto inBus_ = new BusModule(inBus, true);
+    auto outBus_ = new BusModule(outBus, false);
+    moduleHandles["inBus"] = connectionGraph.addCustomModule(inBus_);
+    moduleHandles["outBus"] = connectionGraph.addCustomModule(outBus_);
+
+    // begin parsing from root component
     designChain(
         connectionGraph,
         p,

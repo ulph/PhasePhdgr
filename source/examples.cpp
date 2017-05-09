@@ -22,7 +22,7 @@ namespace PhasePhckr {
             { { "stereoTape", "left" },{ "outPreGain", "left" } },
             { { "stereoTape", "right" },{ "outPreGain", "right" } },
             // scale the component output via modwheel
-            { { "inBus", "modwheel" },{ "delayAmount", "input" } },
+            { { "inBus", "mod" },{ "delayAmount", "input" } },
             { { "delayAmount", "output" },{ "delayGain", "gain" } },
             // saturating gain stage
             { { "outPreGain", "left" },{ "outSaturation", "left" } },

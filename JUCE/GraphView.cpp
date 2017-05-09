@@ -60,8 +60,8 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
 
     set<string> inAlias;
     set<string> outAlias;
-    list<ModulePortAlias> inBusConnections;
-    list<ModulePortAlias> outBusConnections;
+    vector<PadDescription> inBus;
+    vector<PadDescription> outBus;
 
     string name = "newComponent";
     int ctr = 0;
@@ -81,8 +81,8 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
             string alias = mp.port;
             while (inAlias.count(alias)) { alias += "_"; }
             inAlias.insert(alias);
-            ModulePortAlias mpa = { alias, { mp } };
-            inBusConnections.push_back(mpa);
+            PadDescription pd = { alias, "", 0};
+            inBus.push_back(pd);
             // remap connection graph to the new place
             w.connection.target.module = name;
             w.connection.target.port = alias;
@@ -92,8 +92,8 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
             string alias = mp.port;
             while (outAlias.count(alias)) { alias += "_"; }
             outAlias.insert(alias);
-            ModulePortAlias mpa = { alias,{ mp } };
-            outBusConnections.push_back(mpa);
+            PadDescription pd = { alias, "", 0};
+            outBus.push_back(pd);
             // remap connection graph to the new place
             w.connection.source.module = name;
             w.connection.source.port = alias;
@@ -111,19 +111,15 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     ComponentDescriptor cmp;
     cmp.graph = cgd;
     cmp.docString = "";
-    for (const auto i : inBusConnections) {        
-        cmp.inputs.push_back(i);
-    }
-    for (const auto o : outBusConnections) {
-        cmp.outputs.push_back(o);
-    }
+    cmp.inBus = inBus;
+    cmp.outBus = outBus;
 
     // store it on model
     gfxGraph.components[type] = cmp;
 
     // add it to docList
     ModuleDoc cDoc;
-    PhasePhckr::ComponentRegister::makeComponentDoc(type, cmp, cDoc, doc);
+    PhasePhckr::ComponentRegister::makeComponentDoc(type, cmp, cDoc);
     doc.add(cDoc);
 
     // add it to graph
@@ -201,16 +197,16 @@ void GraphView::propagateUserModelChange() {
     for (const auto &m : gfxGraph_cpy.modules) {
         if (m.module.name == inBus.name || m.module.name == outBus.name) continue;
         if (m.module.type == inBus.type || m.module.type == outBus.type) continue;
-        graph.root.modules.emplace_back(m.module);
+        graph.root.graph.modules.emplace_back(m.module);
         for ( const auto &ip : m.inputs){
             if(ip.assignedValue){
-                graph.root.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
+                graph.root.graph.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
             }
         }
         graph.layout.emplace(m.module.name, ModulePosition{(int)m.position.x, (int)m.position.y});
     }
     for (const auto &w : gfxGraph_cpy.wires) {
-        graph.root.connections.emplace_back(w.connection);
+        graph.root.graph.connections.emplace_back(w.connection);
     }
 
     graph.components = gfxGraph_cpy.components;
@@ -435,18 +431,19 @@ void GraphView::setGraph(const PatchDescriptor& graph) {
   auto connectionGraphDescriptor = graph;
   for (const auto & c : graph.components) { // HAX
       ModuleDoc d;
-      PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d, doc);
+      PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
       doc.add(d);
   }
   connectionGraphDescriptorLock.clear(std::memory_order_release);
 
-  connectionGraphDescriptor.root.modules.push_back(inBus);
-  connectionGraphDescriptor.root.modules.push_back(outBus);
+  // TODO ... something else here
+  connectionGraphDescriptor.root.graph.modules.push_back(inBus);
+  connectionGraphDescriptor.root.graph.modules.push_back(outBus);
 
   const string start = inBus.name;
   const string stop = outBus.name;
   ModulePositionMap modulePositions;
-  setNodePositions(connectionGraphDescriptor.root, modulePositions, start, stop);
+  setNodePositions(connectionGraphDescriptor.root.graph, modulePositions, start, stop);
 
   // build the render/user interaction model
   updateRenderComponents(connectionGraphDescriptor, modulePositions);
@@ -465,7 +462,7 @@ void GraphView::updateRenderComponents(
 
     newGfxGraph.components = cgd_copy.components;
 
-    for (const auto & m : cgd_copy.root.modules) {
+    for (const auto & m : cgd_copy.root.graph.modules) {
         XY xy(mp.at(m.name).x, mp.at(m.name).y);
         if (cgd_copy.layout.count(m.name)) {
             auto xy_ = cgd_copy.layout.at(m.name);
@@ -476,12 +473,12 @@ void GraphView::updateRenderComponents(
             m, 
             doc, 
             xy, 
-            cgd_copy.root.values,
+            cgd_copy.root.graph.values,
             false
         );
     }
 
-    for (const auto & c : cgd_copy.root.connections) {
+    for (const auto & c : cgd_copy.root.graph.connections) {
         newGfxGraph.connect(c);
     }
 

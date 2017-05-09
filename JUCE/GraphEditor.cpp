@@ -198,7 +198,7 @@ GraphEditor::GraphEditor(
             patchCopy = desc;
             for (const auto & c : desc.components) { // HAX
                 ModuleDoc d;
-                PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d, doc);
+                PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
                 doc.add(d);
             }
             docListModel.setDocs(doc.get());
@@ -244,8 +244,7 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             subPatchHandles.push_back(handle);
 
             PatchDescriptor p;
-            p.root = cmp.graph;
-            p.docString = cmp.docString;
+            p.root = cmp;
 
             string inBusType = "_"+componentType+"_INPUT";
             string outBusType = "_"+componentType+"_OUTPUT";
@@ -265,17 +264,7 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             ModuleVariable inBus = {"inBus", inBusType};
             ModuleVariable outBus = {"outBus", outBusType};
 
-            for (const auto& ai : cmp.inputs) {
-                for (const auto &w : ai.wrapped) {
-                    p.root.connections.push_back({ ModulePort{ "inBus", ai.alias }, w });
-                }
-            }
-
-            for (const auto& ao : cmp.outputs) {
-                for (const auto &w : ao.wrapped) {
-                    p.root.connections.push_back({ w, ModulePort{"outBus", ao.alias} });
-                }
-            }
+            // TODO, something for the inBus and outBus
 
             editorStack.addTab(
                 to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",

@@ -58,8 +58,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             {
                 Doc d;
                 processor.componentRegister.makeComponentDocs(d);
-                d.add(getVoiceBusInputDoc());
-                d.add(getVoiceBusOutputDoc());
+                // TODO, something for inBus and outBus
                 return d;
             }(),
             activeVoice,
@@ -71,8 +70,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
             {
                 Doc d;
                 processor.componentRegister.makeComponentDocs(d);
-                d.add(getEffectBusInputDoc());
-                d.add(getEffectBusOutputDoc());
+                // TODO, something for inBus and outBus
                 return d;
             }(),
             activeEffect,

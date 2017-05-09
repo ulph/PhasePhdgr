@@ -97,15 +97,15 @@ void from_json(const json& j, PatchDescriptor& p) {
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
-    j["inBus"] = cgd.inBus;
-    j["outBus"] = cgd.outBus;
+//    j["inBus"] = cgd.inBus;
+//    j["outBus"] = cgd.outBus;
     j["graph"] = cgd.graph;
     j["docString"] = cgd.docString;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
-    cgd.inBus = j.at("inBus").get<vector<PadDescription>>();
-    cgd.outBus = j.at("outBus").get<vector<PadDescription>>();
+//    cgd.inBus = j.at("inBus").get<vector<PadDescription>>();
+//    cgd.outBus = j.at("outBus").get<vector<PadDescription>>();
     cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
     cgd.docString = j.at("docString").get<string>();
 }

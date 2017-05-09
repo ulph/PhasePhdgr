@@ -10,66 +10,72 @@ using namespace std;
 
 namespace PhasePhckr {
 
-void designConnectionGraph(
+void designChain(
     ConnectionGraph &g,
-    ConnectionGraphDescriptor& gDesc,
+    PatchDescriptor &pd,
+    ComponentDescriptor &cd,
     map<string, int>& handles
 );
 
 bool unpackComponent(
     ConnectionGraph &g,
-    const ModuleVariable &mv, 
+    const ModuleVariable &mv,
+    PatchDescriptor &pd,
+    ComponentDescriptor &cd,
     map<string, int>&handles
 ) {
-    ComponentDescriptor cD; // TODO, get from patch
-
     // find the component definition
     cout << "component " << mv.name << " " << mv.type << endl;
 
     // move component subgraph onto the mv's "scope"
     const string pfx = mv.name + ".";
 
-    auto inBus = new BusModule(vector<Pad>(), true);
-    auto outBus = new BusModule(vector<Pad>(), false);
+    auto inBus = new BusModule(cd.inBus, true);
+    auto outBus = new BusModule(cd.outBus, false);
     handles[pfx+"inBus"] = g.addCustomModule(inBus);
     handles[pfx+"outBus"] = g.addCustomModule(outBus);
 
-    for (auto &m : cD.graph.modules) {
+    for (auto &m : cd.graph.modules) {
         m.name = pfx + m.name;
     }
-    for (auto &v : cD.graph.values) {
+    for (auto &v : cd.graph.values) {
         v.target.module = pfx + v.target.module;
     }
-    for (auto &c : cD.graph.connections) {
+    for (auto &c : cd.graph.connections) {
         c.source.module = pfx + c.source.module;
         c.target.module = pfx + c.target.module;
     }
 
     // parse the sub graph
-    designConnectionGraph(g, cD.graph, handles);
+    designChain(g, pd, cd, handles);
 
     return true;
 }
 
 
-void designConnectionGraph(
+void designChain(
     ConnectionGraph &g,
-    ConnectionGraphDescriptor &gDesc,
+    PatchDescriptor &pd,
+    ComponentDescriptor &cd,
     map<string, int> &handles) {
 
     set<string> components;
 
     // find any components (module bundles) and unpack them
-    for (const auto &m : gDesc.modules) {
+    for (const auto &m : cd.graph.modules) {
         if (m.type.front() == '@') {
-            if(unpackComponent(g, m, handles)){
+            if(!pd.components.count( m.type )){ // todo, substring pruning first char
+                cerr << "Error: " << m.type << " is unknown Component type!" << endl;
+                continue;
+            }
+            if(unpackComponent(g, m, pd, pd.components[m.type], handles)){
                 components.insert(m.name);
             }
         }
     }
 
     // create the modules and store their handles
-    for (const auto &m : gDesc.modules) {
+    for (const auto &m : cd.graph.modules) {
         if (components.count(m.name)) continue;
         if (handles.count(m.name) > 0) {
             cerr << "Error: " << m.name << " name dupe! (modules)" << endl;
@@ -82,7 +88,7 @@ void designConnectionGraph(
     }
 
     // iterate over the connections
-    for (const auto &c : gDesc.connections) {
+    for (const auto &c : cd.graph.connections) {
         int hFrom = handles.count(c.source.module) > 0 ? handles.at(c.source.module) : -2;
         int hTo = handles.count(c.target.module) > 0 ? handles.at(c.target.module) : -2;
         cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << endl;
@@ -102,7 +108,7 @@ void designConnectionGraph(
     }
 
     // set default values provided
-    for (const auto &v : gDesc.values) {
+    for (const auto &v : cd.graph.values) {
         if (components.count(v.target.module)) continue;
         int h = handles.count(v.target.module) > 0 ? handles.at(v.target.module) : -2;
         cout << v.target.module << ":" << v.target.port << " = " << v.value << endl;
@@ -117,7 +123,7 @@ void designConnectionGraph(
 
 void designPatch(
     ConnectionGraph &connectionGraph,
-    PatchDescriptor &description,
+    PatchDescriptor &p,
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
@@ -126,13 +132,14 @@ void designPatch(
     ComponentRegister cp = cpGlobal;
 
     // TODO, add to patch instead!
-    for (const auto & c : description.components) {
+    for (const auto & c : p.components) {
         cp.registerComponent(c.first, c.second);
     }
 
-    designConnectionGraph(
-        connectionGraph, 
-        description.root.graph,
+    designChain(
+        connectionGraph,
+        p,
+        p.root,
         moduleHandles
     );
 }

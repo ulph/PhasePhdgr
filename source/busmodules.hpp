@@ -7,11 +7,16 @@ class BusModule : public Module {
 private:
     bool isInput;
 public:
-    BusModule(const vector<Pad>& ports, bool isInput)
+    BusModule(const vector<PadDescription>& ports, bool isInput)
         : isInput(isInput)
     {
-        inputs = ports;
-        outputs = ports;
+        for(const auto &p : ports){
+            const char * name = p.name.c_str();
+            const char * unit = p.name.c_str();
+            Pad pad(name, p.value, unit);
+            inputs.push_back(pad);
+            outputs.push_back(pad);
+        }
     }
     virtual void process(uint32_t fs)
     {

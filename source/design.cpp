@@ -22,7 +22,8 @@ bool unpackComponent(
     ConnectionGraph &g,
     const ModuleVariable &mv,
     PatchDescriptor &pd,
-    ComponentDescriptor &cd,
+    ComponentDescriptor &parent,
+    ComponentDescriptor &current,
     map<string, int>&handles
 ) {
     // find the component definition
@@ -31,13 +32,13 @@ bool unpackComponent(
     // move component subgraph onto the mv's "scope"
     const string pfx = mv.name + ".";
 
-    auto inBus = new BusModule(cd.inBus, true);
-    auto outBus = new BusModule(cd.outBus, false);
+    auto inBus = new BusModule(current.inBus, true);
+    auto outBus = new BusModule(current.outBus, false);
     handles[pfx+c_inBus.name] = g.addCustomModule(inBus);
     handles[pfx+c_outBus.name] = g.addCustomModule(outBus);
 
     // find any connections to and from this component and "re-route" to inBus/outBus
-    for(auto &c : pd.root.graph.connections){
+    for(auto &c : parent.graph.connections){
         if(c.source.module == mv.name){
            c.source.module = pfx+c_outBus.name;
         }
@@ -47,23 +48,22 @@ bool unpackComponent(
     }
 
     // copy all values from inBus onto values
-    for(const auto &i : cd.inBus){
-        cd.graph.values.push_back(ModulePortValue{c_inBus.name, i.name, i.value});
+    for(const auto &i : current.inBus){
+        current.graph.values.push_back(ModulePortValue{c_inBus.name, i.name, i.value});
     }
 
-    for (auto &m : cd.graph.modules) {
+    for (auto &m : current.graph.modules) {
         m.name = pfx + m.name;
     }
-    for (auto &v : cd.graph.values) {
+    for (auto &v : current.graph.values) {
         v.target.module = pfx + v.target.module;
     }
-    for (auto &c : cd.graph.connections) {
+    for (auto &c : current.graph.connections) {
         c.source.module = pfx + c.source.module;
         c.target.module = pfx + c.target.module;
     }
 
-    // parse the component graph -- TODO, pass along a prefix, and/or a "parent" component to here?
-    designChain(g, pd, cd, handles);
+    designChain(g, pd, current, handles);
 
     return true;
 }
@@ -80,11 +80,11 @@ void designChain(
     // find any components (module bundles) and unpack them
     for (const auto &m : cd.graph.modules) {
         if (m.type.front() == '@') {
-            if(!pd.components.count( m.type )){ // todo, substring pruning first char
+            if(!pd.components.count( m.type )){
                 cerr << "Error: " << m.type << " is unknown Component type!" << endl;
                 continue;
             }
-            if(unpackComponent(g, m, pd, pd.components[m.type], handles)){
+            if(unpackComponent(g, m, pd, cd, pd.components[m.type], handles)){
                 components.insert(m.name);
             }
         }

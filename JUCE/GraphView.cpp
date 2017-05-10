@@ -76,7 +76,7 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     selection.clear();
 
     set<string> inAlias;
-    set<string> outAlias;
+    set<string> outAlias; // TODO, make this a map, so _same_ module/port can be merged...
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
 
@@ -375,6 +375,7 @@ void GraphView::mouseUp(const MouseEvent & event) {
     if (selecting) {
         auto selectionRegion = Rectangle<float>(selectionStart, selectionStop);
         for (const auto &m : gfxGraph.modules) {
+            if(m.module.name == c_inBus.name || m.module.name == c_outBus.name) continue;
             Rectangle<float> mr(m.position.x, m.position.y, m.size.x, m.size.y);
             if (selectionRegion.intersectRectangle(mr)){
                 selectedModules.insert(&m);

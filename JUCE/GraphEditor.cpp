@@ -227,66 +227,63 @@ void GraphEditor::resized()
 void GraphEditor::push_tab(const string& componentName, const string& componentType) {
     auto docCopy = doc;
     const auto& d = docCopy.get();
-    auto dit = d.find(componentType);
-    if (dit != d.end()) {
-        ComponentDescriptor cmp;
-        PhasePhckr::ComponentRegister componentRegister;
-        for (const auto & c : patchCopy.components) { // HAX
-            componentRegister.registerComponent(c.first, c.second);
-        }
-        if (componentRegister.getComponent(componentType, cmp)) {
-            assert(componentType == dit->second.type);
-            subPatches.push_back(SubPatch());
-            auto &subP = subPatches.back(); // TODO - will this way of referencing blow up?
-            auto handle = subP.subscribe(function<void(const PatchDescriptor&)>(
-                [this, cmp, componentType](const PatchDescriptor& p){
-                patchCopy.components[componentType] = cmp;
-                patchCopy.components[componentType].graph = p.root.graph;
-                patch.set(-1, patchCopy);
-            }
-            )); 
-            subPatchHandles.push_back(handle);
+    ComponentDescriptor cmp;
 
-            PatchDescriptor p;
-            p.root = cmp;
-
-            string inBusType = "_"+componentType+"_INPUT";
-            string outBusType = "_"+componentType+"_OUTPUT";
-
-            ModuleDoc inDoc = d.at(componentType);
-            inDoc.type = inBusType;
-            inDoc.outputs = inDoc.inputs;
-            inDoc.inputs.clear();
-            docCopy.add(inDoc);
-
-            ModuleDoc outDoc = d.at(componentType);
-            outDoc.type = outBusType;
-            outDoc.inputs = outDoc.outputs;
-            outDoc.outputs.clear();
-            docCopy.add(outDoc);
-
-            ModuleVariable inBus = {"inBus", inBusType};
-            ModuleVariable outBus = {"outBus", outBusType};
-
-            // TODO, something for the inBus and outBus
-
-            editorStack.addTab(
-                to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",
-                Colours::black,
-                new GraphViewBundle(
-                    *this,
-                    docCopy,
-                    subP,
-                    inBus,
-                    outBus
-                ),
-                true
-            );
-
-            subP.set(-1, p);
-
-            editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
-
-        }
+    if (!patchCopy.components.count(componentType)) {
+        // HAX, the component register needs to be passed here or onto this
+        PhasePhckr::ComponentRegister cr;
+        if(!cr.getComponent(componentType, cmp)) return;
+        patchCopy.components[componentType] = cmp;
     }
+
+    cmp = patchCopy.components.at(componentType);
+    subPatches.push_back(SubPatch());
+    auto &subP = subPatches.back();
+    auto handle = subP.subscribe(function<void(const PatchDescriptor&)>(
+        [this, cmp, componentType](const PatchDescriptor& p){
+        patchCopy.components[componentType] = cmp;
+        patchCopy.components[componentType].graph = p.root.graph;
+        patch.set(-1, patchCopy);
+    }
+    ));
+    subPatchHandles.push_back(handle);
+
+    PatchDescriptor p;
+    p.root = cmp;
+
+    string inBusType = "_"+componentType+"_INPUT";
+    string outBusType = "_"+componentType+"_OUTPUT";
+
+    ModuleDoc inDoc = d.at(componentType);
+    inDoc.type = inBusType;
+    inDoc.outputs = inDoc.inputs;
+    inDoc.inputs.clear();
+    docCopy.add(inDoc);
+
+    ModuleDoc outDoc = d.at(componentType);
+    outDoc.type = outBusType;
+    outDoc.inputs = outDoc.outputs;
+    outDoc.outputs.clear();
+    docCopy.add(outDoc);
+
+    ModuleVariable inBus = {"inBus", inBusType};
+    ModuleVariable outBus = {"outBus", outBusType};
+
+    editorStack.addTab(
+        to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",
+        Colours::black,
+        new GraphViewBundle(
+            *this,
+            docCopy,
+            subP,
+            inBus,
+            outBus
+        ),
+        true
+    );
+
+    subP.set(-1, p);
+
+    editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
+
 }

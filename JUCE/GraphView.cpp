@@ -75,8 +75,6 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     }
     selection.clear();
 
-    // TODO, from here on, move stuff onto gfxGraph instead.
-
     set<string> inAlias;
     set<string> outAlias;
     vector<PadDescription> inBus;

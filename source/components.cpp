@@ -10,19 +10,17 @@ const ComponentDescriptor stereoTape = {
     vector<PadDescription>{
         {"left", "", 0.f},
         {"right", "", 0.f},
-        /*
-        {"leftTime", {{"delayLeftTime", "shift"}}},
-        {"rightTime", {{"delayRightTime", "shift"}}},
-        {"leftModDepth", {{"delayLeftTime", "scale"}}},
-        {"rightModDepth", {{"delayRightTime", "scale"}}},
-        {"feedback", {{"feedbackGain", "gain"}}},
-        {"leftHpHz", {{"leftDelayHP", "wc"}}},
-        {"rightHpHz", {{"rightDelayHP", "wc"}}},
-        {"leftLpHz", {{"leftDelayLP", "wc"}}},
-        {"rightLpHz", {{"rightDelayLP", "wc"}}},
-        {"modHz", {{"lfoPhase", "freq"}}},
-        {"saturation", {{"saturation", "prescaler"}}}
-        */
+        {"leftTime", "", 0.22f},
+        {"rightTime", "", 0.45f},
+        {"leftModDepth", "", 0.001f},
+        {"rightModDepth", "", 0.001f},
+        {"feedback", "", 0.5f},
+        {"leftHpHz", "", 350.f},
+        {"rightHpHz", "", 450.f},
+        {"leftLpHz", "", 8500.f},
+        {"rightLpHz", "", 7500.f},
+        {"modHz", "", 2.f},
+        {"saturation", "", 0.f},
     },
     vector<PadDescription>{
         {"left", "", 0.f},
@@ -45,8 +43,21 @@ const ComponentDescriptor stereoTape = {
         },
         vector<ModulePortConnection>{
             {{"inBus", "left"}, {"leftDelay", "in"}},
-            {{"inBus", "right"}, {"rightDelay", "out"}},
-            // ...
+            {{"inBus", "right"}, {"rightDelay", "in"}},
+
+            {{"inBus", "leftTime"}, {"delayLeftTime", "shift"}},
+            {{"inBus", "rightTime"}, {"delayRightTime", "shift"}},
+            {{"inBus", "leftModDepth"}, {"delayLeftTime", "scale"}},
+            {{"inBus", "rightModDepth"}, {"delayRightTime", "scale"}},
+
+            {{"inBus", "leftHpHz"}, {"leftDelayHP", "wc"}},
+            {{"inBus", "rightHpHz"}, {"rightDelayHP", "wc"}},
+            {{"inBus", "leftLpHz"}, {"leftDelayLP", "wc"}},
+            {{"inBus", "rightLpHz"}, {"rightDelayLP", "wc"}},
+
+            {{"inBus", "feedback"}, {"feedbackGain", "gain"}},
+            {{"inBus", "modHz"}, {"lfoPhase", "freq"}},
+            {{"inBus", "saturation"}, {"saturation", "prescaler"}},
 
             {{"leftDelay", "out"}, {"saturation", "left"}},
             {{"rightDelay", "out"}, {"saturation", "right"}},
@@ -70,16 +81,7 @@ const ComponentDescriptor stereoTape = {
             {{"rightDelayLP", "y1"}, {"outBus", "right"}},
         },
         vector<ModulePortValue>{
-            {"lfoPhase", "freq", 2.0f},
-            {"delayLeftTime", "shift", 0.22f},
-            {"delayRightTime", "shift", 0.45f},
-            {"delayLeftTime", "scale", 0.001f},
-            {"delayRightTime", "scale", 0.001f},
-            {"leftDelayLP", "wc", 8500.0f},
-            {"rightDelayLP", "wc", 7500.0f},
-            {"leftDelayHP", "wc", 350.0f},
-            {"rightDelayHP", "wc", 450.0f},
-            {"feedbackGain", "gain", 0.5f},
+            // any "api"-facing values are better set on inBus
         },
     },
     string{"Time modulated stereo cross feedback delay with saturating filter stages."}

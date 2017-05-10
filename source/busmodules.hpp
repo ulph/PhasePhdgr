@@ -11,10 +11,10 @@ public:
         : isInput(isInput)
     {
         if(isInput){
-            name = "_INBUS";
+            name = PhasePhckr::c_inBus.type;
         }
         else {
-            name = "_OUTBUS";
+            name = PhasePhckr::c_outBus.type;
         }
         for(const auto &p : ports){
             const char * name = p.name.c_str();

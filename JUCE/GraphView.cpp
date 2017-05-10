@@ -440,12 +440,11 @@ void GraphView::setGraph(const PatchDescriptor& graph) {
   doc.add(inBus_);
   doc.add(outBus_);
 
-  // TODO ... something else here
-//  connectionGraphDescriptor.root.graph.modules.push_back(inBus);
-//  connectionGraphDescriptor.root.graph.modules.push_back(outBus);
+  connectionGraphDescriptor.root.graph.modules.push_back(c_inBus);
+  connectionGraphDescriptor.root.graph.modules.push_back(c_outBus);
 
-  const string start = "inBus";
-  const string stop = "outBus";
+  const string start = c_inBus.name;
+  const string stop = c_outBus.name;
   ModulePositionMap modulePositions;
   setNodePositions(connectionGraphDescriptor.root.graph, modulePositions, start, stop);
 

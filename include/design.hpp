@@ -107,4 +107,7 @@ const vector<PadDescription> c_voiceChainOutBus = {
     {"right", "", 0},
 };
 
+const ModuleVariable c_inBus = {"inBus", "_INBUS"};
+const ModuleVariable c_outBus = {"outBus", "_OUTBUS"};
+
 }

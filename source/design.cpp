@@ -5,6 +5,7 @@
 #include <list>
 #include <queue>
 #include "busmodules.hpp"
+#include "design.hpp"
 
 using namespace std;
 
@@ -32,22 +33,22 @@ bool unpackComponent(
 
     auto inBus = new BusModule(cd.inBus, true);
     auto outBus = new BusModule(cd.outBus, false);
-    handles[pfx+"inBus"] = g.addCustomModule(inBus);
-    handles[pfx+"outBus"] = g.addCustomModule(outBus);
+    handles[pfx+c_inBus.name] = g.addCustomModule(inBus);
+    handles[pfx+c_outBus.name] = g.addCustomModule(outBus);
 
     // find any connections to and from this component and "re-route" to inBus/outBus
     for(auto &c : pd.root.graph.connections){
         if(c.source.module == mv.name){
-           c.source.module = pfx+"outBus";
+           c.source.module = pfx+c_outBus.name;
         }
         if(c.target.module == mv.name){
-            c.target.module = pfx+"inBus";
+            c.target.module = pfx+c_inBus.name;
         }
     }
 
     // copy all values from inBus onto values
     for(const auto &i : cd.inBus){
-        cd.graph.values.push_back(ModulePortValue{"inBus", i.name, i.value});
+        cd.graph.values.push_back(ModulePortValue{c_inBus.name, i.name, i.value});
     }
 
     for (auto &m : cd.graph.modules) {
@@ -158,8 +159,8 @@ void designPatch(
     // create the special inBus and outBus modules
     auto inBus_ = new BusModule(inBus, true);
     auto outBus_ = new BusModule(outBus, false);
-    moduleHandles["inBus"] = connectionGraph.addCustomModule(inBus_);
-    moduleHandles["outBus"] = connectionGraph.addCustomModule(outBus_);
+    moduleHandles[c_inBus.name] = connectionGraph.addCustomModule(inBus_);
+    moduleHandles[c_outBus.name] = connectionGraph.addCustomModule(outBus_);
 
     // begin parsing from root component
     designChain(

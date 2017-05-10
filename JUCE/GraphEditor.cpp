@@ -260,7 +260,7 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
         true
     );
 
-    subP.set(-1, p);
+    subP.set(handle, p);
 
     editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
 

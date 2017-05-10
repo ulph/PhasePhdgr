@@ -12,12 +12,12 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gf
     poop.addCustomItem(1, &lbl, 20, 20, false);
     poop.addItem(2, "delete");
     int choice = poop.show();
+    gfxGraph.rename(
+        moduleName,
+        lbl.getText().toStdString()
+    );
     switch (choice){
     case 1:
-        gfxGraph.rename(
-            moduleName,
-            lbl.getText().toStdString()
-        );
         return true;
         break;
     case 2:
@@ -172,14 +172,14 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
     poop.addCustomItem(2, &lbl, 20, 20, false);
     poop.addItem(3, "clear");
     int choice = poop.show();
+    gfxModule.setValue(
+        port,
+        lbl.getText().getFloatValue()
+    );
     switch (choice){
     case 1:
         break;
     case 2:
-        gfxModule.setValue(
-            port,
-            lbl.getText().getFloatValue()
-        );
         return true;
         break;
     case 3:

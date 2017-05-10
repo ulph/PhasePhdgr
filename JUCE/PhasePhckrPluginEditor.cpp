@@ -54,28 +54,16 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
         })
 
     , voiceEditor(
-            [this]()->Doc 
-            {
-                Doc d;
-                processor.componentRegister.makeComponentDocs(d);
-                // TODO, something for inBus and outBus
-                return d;
-            }(),
+            Doc(),
             activeVoice,
-            c_VoiceInput,
-            c_VoiceOutput
+            c_voiceChainInBus,
+            c_voiceChainOutBus
         )
     , effectEditor(
-            [this]()->Doc 
-            {
-                Doc d;
-                processor.componentRegister.makeComponentDocs(d);
-                // TODO, something for inBus and outBus
-                return d;
-            }(),
+            Doc(),
             activeEffect,
-            c_EffectInput,
-            c_EffectOutput
+            c_effectChainInBus,
+            c_effectChainOutBus
         )
      , fileUpdateTimer(new function<void()>(
             [this](){updateFiles();}

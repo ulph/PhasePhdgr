@@ -110,8 +110,8 @@ GraphViewBundle::GraphViewBundle(
     GraphEditor& graphEditor,
     const Doc& doc,
     SubValue<PatchDescriptor> & subscribedCGD,
-    const ModuleVariable& inBus,
-    const ModuleVariable& outBus
+    const vector<PadDescription> &inBus,
+    const vector<PadDescription> &outBus
 )
     : graphView(
         graphEditor
@@ -158,15 +158,13 @@ void GraphViewBundle::resized()
 GraphEditor::GraphEditor(
     const Doc &doc_,
     SubPatch &patch,
-    const ModuleVariable &inBus,
-    const ModuleVariable &outBus
+    const vector<PadDescription> &inBus,
+    const vector<PadDescription> &outBus
 )
     : doc(doc_)
     , patch(patch)
     , docListModel(doc.get(), docView)
     , docList("docList", &docListModel)
-    , inBus(inBus)
-    , outBus(outBus)
     , textEditor(patch)
     , rootView(
         *this,
@@ -225,8 +223,6 @@ void GraphEditor::resized()
 }
 
 void GraphEditor::push_tab(const string& componentName, const string& componentType) {
-    auto docCopy = doc;
-    const auto& d = docCopy.get();
     ComponentDescriptor cmp;
 
     if (!patchCopy.components.count(componentType)) {
@@ -251,33 +247,15 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
     PatchDescriptor p;
     p.root = cmp;
 
-    string inBusType = "_"+componentType+"_INPUT";
-    string outBusType = "_"+componentType+"_OUTPUT";
-
-    ModuleDoc inDoc = d.at(componentType);
-    inDoc.type = inBusType;
-    inDoc.outputs = inDoc.inputs;
-    inDoc.inputs.clear();
-    docCopy.add(inDoc);
-
-    ModuleDoc outDoc = d.at(componentType);
-    outDoc.type = outBusType;
-    outDoc.inputs = outDoc.outputs;
-    outDoc.outputs.clear();
-    docCopy.add(outDoc);
-
-    ModuleVariable inBus = {"inBus", inBusType};
-    ModuleVariable outBus = {"outBus", outBusType};
-
     editorStack.addTab(
         to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",
         Colours::black,
         new GraphViewBundle(
             *this,
-            docCopy,
+            doc,
             subP,
-            inBus,
-            outBus
+            cmp.inBus,
+            cmp.outBus
         ),
         true
     );

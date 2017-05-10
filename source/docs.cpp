@@ -26,4 +26,9 @@ namespace PhasePhckr {
         docs[d.type] = d;
     }
 
+    ModuleDoc Doc::makeBusModuleDoc(const vector<PadDescription>& ports, bool isInput){
+        auto m = BusModule(ports, isInput);
+        return m.makeDoc();
+    }
+
 }

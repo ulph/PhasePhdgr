@@ -68,8 +68,8 @@ public:
         GraphEditor& graphEditor,
         const Doc& doc,
         SubPatch & subscribedCGD,
-        const ModuleVariable& inBus,
-        const ModuleVariable& outBus
+        const vector<PadDescription> &inBus,
+        const vector<PadDescription> &outBus
     );
     void paint(Graphics& g);
     void resized();
@@ -116,9 +116,6 @@ class GraphEditor : public Component
     ListBox docList;
     DocListModel docListModel;
 
-    ModuleVariable inBus;
-    ModuleVariable outBus;
-
     list<SubPatch> subPatches;
     list<int> subPatchHandles;
     GraphEditorTabbedComponent editorStack;
@@ -129,8 +126,8 @@ public:
     GraphEditor(
         const Doc &doc,
         SubPatch &subscribedCGD,
-        const ModuleVariable &inBus,
-        const ModuleVariable &outBus
+        const vector<PadDescription> &inBus,
+        const vector<PadDescription> &outBus
     );
     virtual ~GraphEditor();
     void paint(Graphics& g);

@@ -5,24 +5,6 @@
 namespace PhasePhckr
 {
 
-const vector<PadDescription> voiceChainInBus = {
-    {"gate", "", 0},
-    {"strike_z", "", 0},
-    {"lift_z", "", 0},
-    {"pitch_hz", "", 0},
-    {"glide_x", "", 0},
-    {"slide_y", "", 0},
-    {"press_z", "", 0},
-    {"mod", "", 0},
-    {"exp", "", 0},
-    {"brt", "", 0}
-};
-
-const vector<PadDescription> voiceChainOutBus = {
-    {"left", "", 0},
-    {"right", "", 0},
-};
-
 SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp)
     : connectionGraph()
     , rms(0.0f)
@@ -37,8 +19,8 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     designPatch(
         connectionGraph,
         patchDescriptor,
-        voiceChainInBus,
-        voiceChainOutBus,
+        c_voiceChainInBus,
+        c_voiceChainOutBus,
         moduleHandles,
         cp
     );

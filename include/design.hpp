@@ -76,9 +76,35 @@ void designPatch(
     const ComponentRegister & cp
 );
 
-const ModuleVariable c_EffectInput = {"inBus", "_EFFECTINPUT"};
-const ModuleVariable c_EffectOutput = {"outBus", "_EFFECTOUTPUT"};
-const ModuleVariable c_VoiceInput = {"inBus", "_VOICEINPUT" };
-const ModuleVariable c_VoiceOutput = {"outBus", "_VOICEOUTPUT"};
+const vector<PadDescription> c_effectChainInBus = {
+    {"left", "", 0},
+    {"right", "", 0},
+    {"mod", "", 0},
+    {"exp", "", 0},
+    {"brt", "", 0}
+};
+
+const vector<PadDescription> c_effectChainOutBus = {
+    {"left", "", 0},
+    {"right", "", 0},
+};
+
+const vector<PadDescription> c_voiceChainInBus = {
+    {"gate", "", 0},
+    {"strike_z", "", 0},
+    {"lift_z", "", 0},
+    {"pitch_hz", "", 0},
+    {"glide_x", "", 0},
+    {"slide_y", "", 0},
+    {"press_z", "", 0},
+    {"mod", "", 0},
+    {"exp", "", 0},
+    {"brt", "", 0}
+};
+
+const vector<PadDescription> c_voiceChainOutBus = {
+    {"left", "", 0},
+    {"right", "", 0},
+};
 
 }

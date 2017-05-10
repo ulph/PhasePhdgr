@@ -10,6 +10,12 @@ public:
     BusModule(const vector<PadDescription>& ports, bool isInput)
         : isInput(isInput)
     {
+        if(isInput){
+            name = "_INBUS";
+        }
+        else {
+            name = "_OUTBUS";
+        }
         for(const auto &p : ports){
             const char * name = p.name.c_str();
             const char * unit = p.name.c_str();

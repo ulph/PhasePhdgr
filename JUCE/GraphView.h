@@ -18,6 +18,8 @@
 #include <deque>
 #include "GraphViewNodeStuff.hpp"
 
+using namespace std;
+
 class GraphEditor;
 
 class GraphView : public Component, public DragAndDropTarget
@@ -28,8 +30,8 @@ public:
         Viewport& viewPort,
         const Doc& doc,
         SubValue<PatchDescriptor> & subscribedCGD,
-        const ModuleVariable& inBus,
-        const ModuleVariable& outBus
+        const vector<PadDescription> &inBus,
+        const vector<PadDescription> &outBus
     )
         : subscribedCGD(subscribedCGD)
         , graphEditor(graphEditor)
@@ -84,8 +86,8 @@ private:
     GraphEditor& graphEditor;
     Viewport& viewPort;
 
-    ModuleVariable inBus;
-    ModuleVariable outBus;
+    vector<PadDescription> inBus;
+    vector<PadDescription> outBus;
     Doc doc;
 
     atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;

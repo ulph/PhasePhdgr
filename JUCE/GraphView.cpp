@@ -195,8 +195,7 @@ void GraphView::propagateUserModelChange() {
 
     PatchDescriptor graph;
     for (const auto &m : gfxGraph_cpy.modules) {
-        if (m.module.name == inBus.name || m.module.name == outBus.name) continue;
-        if (m.module.type == inBus.type || m.module.type == outBus.type) continue;
+        if (m.module.name == "inBus" || m.module.name == "outBus") continue;
         graph.root.graph.modules.emplace_back(m.module);
         for ( const auto &ip : m.inputs){
             if(ip.assignedValue){
@@ -436,12 +435,17 @@ void GraphView::setGraph(const PatchDescriptor& graph) {
   }
   connectionGraphDescriptorLock.clear(std::memory_order_release);
 
-  // TODO ... something else here
-  connectionGraphDescriptor.root.graph.modules.push_back(inBus);
-  connectionGraphDescriptor.root.graph.modules.push_back(outBus);
+  auto inBus_ = Doc::makeBusModuleDoc(inBus, true);
+  auto outBus_ = Doc::makeBusModuleDoc(outBus, false);
+  doc.add(inBus_);
+  doc.add(outBus_);
 
-  const string start = inBus.name;
-  const string stop = outBus.name;
+  // TODO ... something else here
+//  connectionGraphDescriptor.root.graph.modules.push_back(inBus);
+//  connectionGraphDescriptor.root.graph.modules.push_back(outBus);
+
+  const string start = "inBus";
+  const string stop = "outBus";
   ModulePositionMap modulePositions;
   setNodePositions(connectionGraphDescriptor.root.graph, modulePositions, start, stop);
 

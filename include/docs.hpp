@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 
+using namespace std;
+
 struct PadDescription {
     std::string name;
     std::string unit;
@@ -26,7 +28,10 @@ namespace PhasePhckr {
         Doc();
         const std::map<std::string, ModuleDoc> & get() const;
         void add(const ModuleDoc & d);
+        static ModuleDoc makeBusModuleDoc(const vector<PadDescription>& ports, bool isInput);
     };
 }
+
+
 
 #endif

@@ -19,7 +19,6 @@ struct ModuleDoc {
 };
 
 namespace PhasePhckr {
-
     class Doc {
     private:
         std::map<std::string, ModuleDoc> docs;

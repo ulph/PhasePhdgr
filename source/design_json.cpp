@@ -2,6 +2,18 @@
 
 #include <sstream>
 
+void to_json(json& j, const PadDescription& p){
+    j[0] = p.name;
+    j[1] = p.unit;
+    j[2] = p.value;
+}
+
+void from_json(const json& j, PadDescription& p){
+    p.name = j.at(0).get<string>();
+    p.unit = j.at(1).get<string>();
+    p.value = j.at(2).get<float>();
+}
+
 namespace PhasePhckr{
 
 void to_json(json& j, const ModuleVariable& mv) {
@@ -72,18 +84,6 @@ void from_json(const json& j, ModulePosition& xy) {
     xy.y = j.at(1).get<int>();
 }
 
-void to_json(json& j, const PadDescription& p){
-    j["name"] = p.name;
-    j["unit"] = p.unit;
-    j["value"] = p.value;
-}
-
-void from_json(const json& j, PadDescription& p){
-    p.name = j.at("name").get<string>();
-    p.unit = j.at("unit").get<string>();
-    p.value = j.at("value").get<float>();
-}
-
 void to_json(json& j, const PatchDescriptor& p) {
     j["graph"] = p.root.graph;
     j["docString"] = p.root.docString;
@@ -99,15 +99,15 @@ void from_json(const json& j, PatchDescriptor& p) {
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
-//    j["inBus"] = cgd.inBus;
-//    j["outBus"] = cgd.outBus;
+    j["inBus"] = cgd.inBus;
+    j["outBus"] = cgd.outBus;
     j["graph"] = cgd.graph;
     j["docString"] = cgd.docString;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
-//    cgd.inBus = j.at("inBus").get<vector<PadDescription>>();
-//    cgd.outBus = j.at("outBus").get<vector<PadDescription>>();
+    cgd.inBus = j.at("inBus").get<vector<PadDescription>>();
+    cgd.outBus = j.at("outBus").get<vector<PadDescription>>();
     cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
     cgd.docString = j.at("docString").get<string>();
 }

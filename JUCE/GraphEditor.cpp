@@ -239,7 +239,11 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
             subPatches.push_back(SubPatch());
             auto &subP = subPatches.back(); // TODO - will this way of referencing blow up?
             auto handle = subP.subscribe(function<void(const PatchDescriptor&)>(
-                [this](const PatchDescriptor& p){} // TODO, some smart callback here when subgraph changes!
+                [this, cmp, componentType](const PatchDescriptor& p){
+                patchCopy.components[componentType] = cmp;
+                patchCopy.components[componentType].graph = p.root.graph;
+                patch.set(-1, patchCopy);
+            }
             )); 
             subPatchHandles.push_back(handle);
 

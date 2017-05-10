@@ -128,16 +128,20 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
 
     // add it to graph
     vector<ModulePortValue> mpv;
-    gfxGraph.modules.push_back(GfxModule(
-        ModuleVariable{ name, type },
-        (position.x - 0.5f*c_NodeSize) / c_GridSize,
-        (position.y - 0.5f*c_NodeSize) / c_GridSize,
-        doc,
-        mpv
-    ));
+    ModuleVariable mv{ name, type };
+    GfxModule gfxM(
+       mv,
+       (position.x - 0.5f*c_NodeSize) / c_GridSize,
+       (position.y - 0.5f*c_NodeSize) / c_GridSize,
+       doc,
+       mpv
+    );
+
+    deleteSelectedModules(selection, gfxGraph); // do this before adding or strange shit happens
+
+    gfxGraph.modules.push_back(gfxM);
 
     gfxGraph.recalculateWires(gfxGraph.modules);
-
 }
 
 
@@ -148,7 +152,6 @@ bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & select
     switch (choice) {
     case 1:
         createComponent(selection, gfxGraph, doc, position);
-        deleteSelectedModules(selection, gfxGraph);
         return true;
     case 2:
         deleteSelectedModules(selection, gfxGraph);

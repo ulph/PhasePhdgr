@@ -20,7 +20,7 @@ const ComponentDescriptor stereoTape = {
         {"leftLpHz", "", 8500.f},
         {"rightLpHz", "", 7500.f},
         {"modHz", "", 2.f},
-        {"saturation", "", 0.f},
+        {"saturation", "", 1.f},
     },
     vector<PadDescription>{
         {"left", "", 0.f},

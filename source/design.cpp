@@ -45,6 +45,11 @@ bool unpackComponent(
         }
     }
 
+    // copy all values from inBus onto values
+    for(const auto &i : cd.inBus){
+        cd.graph.values.push_back(ModulePortValue{"inBus", i.name, i.value});
+    }
+
     for (auto &m : cd.graph.modules) {
         m.name = pfx + m.name;
     }

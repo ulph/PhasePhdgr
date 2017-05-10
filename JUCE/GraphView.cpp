@@ -83,8 +83,10 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
             inAlias.insert(alias);
             PadDescription pd = { alias, "", 0};
             inBus.push_back(pd);
-            // remap connection graph to the new place
-            w.connection.target.module = name;
+            // store 'api' connection
+            cgd.connections.push_back(ModulePortConnection{c_inBus.name, alias, w.connection.target.module, w.connection.target.port});
+            // remap external connection graph
+            w.connection.target.module = name; // deliberately _not_ routing to .inBus
             w.connection.target.port = alias;
         }
         else if (modules.count(w.connection.source.module)) {
@@ -94,7 +96,9 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
             outAlias.insert(alias);
             PadDescription pd = { alias, "", 0};
             outBus.push_back(pd);
-            // remap connection graph to the new place
+            // store 'api' connectino
+            cgd.connections.push_back(ModulePortConnection{w.connection.source.module, w.connection.source.port, c_outBus.name, alias});
+            // remap external connection graph
             w.connection.source.module = name;
             w.connection.source.port = alias;
         }
@@ -428,10 +432,8 @@ void GraphView::paint (Graphics& g){
 void GraphView::setGraph(const PatchDescriptor& graph) {
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   auto connectionGraphDescriptor = graph;
-  // HAX 1
-  PhasePhckr::ComponentRegister().makeComponentDocs(doc);
-  // HAX-ish
-  for (const auto & c : graph.components) {
+  PhasePhckr::ComponentRegister().makeComponentDocs(doc); // HAX 1
+  for (const auto & c : graph.components) {   // HAX 2
       ModuleDoc d;
       PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
       doc.add(d);

@@ -6,27 +6,44 @@
 
 using namespace PhasePhckr;
 
-bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, GfxGraph & gfxGraph){
-    Label lbl(moduleName, moduleName);
-    lbl.setEditable(true, true, false);
-    poop.addCustomItem(1, &lbl, 20, 20, false);
-    poop.addItem(2, "delete");
+bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType, GfxGraph & gfxGraph){
+    Label nameLbl(moduleName, moduleName);
+    nameLbl.setEditable(true, true, false);
+
+    Label typeLbl(moduleType, moduleType);
+    typeLbl.setEditable(true, true, false);
+
+    int ctr=1;
+
+    const int nameMenuId = ctr++;
+    poop.addCustomItem(nameMenuId, &nameLbl, 20, 20, false);
+
+    int typeMenuId = 999;
+    if(moduleType.front() == '@'){
+        typeMenuId = ctr++;
+        poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
+    }
+
+    const int delMenuId = ctr++;
+    poop.addItem(delMenuId, "delete");
+
     int choice = poop.show();
+
     gfxGraph.rename(
         moduleName,
-        lbl.getText().toStdString()
+        nameLbl.getText().toStdString()
     );
-    switch (choice){
-    case 1:
+
+    // TODO, call function on gfxGraph to change the type to new type if unique
+
+    if(choice == nameMenuId || choice == typeMenuId){
         return true;
-        break;
-    case 2:
+    }
+    else if(choice == delMenuId){
         gfxGraph.remove(moduleName);
         return true;
-        break;
-    default:
-        break;
     }
+
     return false;
 }
 
@@ -57,6 +74,9 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
         }
         modules.insert(s->module.name);
     }
+    selection.clear();
+
+    // TODO, from here on, move stuff onto gfxGraph instead.
 
     set<string> inAlias;
     set<string> outAlias;
@@ -137,11 +157,14 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
        mpv
     );
 
-    deleteSelectedModules(selection, gfxGraph); // do this before adding or strange shit happens
-
     gfxGraph.modules.push_back(gfxM);
 
     gfxGraph.recalculateWires(gfxGraph.modules);
+
+    for (const auto &m : modules) {
+        gfxGraph.remove(m);
+    }
+
 }
 
 
@@ -265,7 +288,7 @@ void GraphView::mouseDown(const MouseEvent & event) {
                     modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc, mouseDownPos);
                 }
                 else {
-                    modelChanged = makeModulePoopUp(poop, m.module.name, gfxGraph);
+                    modelChanged = makeModulePoopUp(poop, m.module.name, m.module.type, gfxGraph);
                 }
             }
             else if (event.mods.isShiftDown()) {

@@ -428,7 +428,10 @@ void GraphView::paint (Graphics& g){
 void GraphView::setGraph(const PatchDescriptor& graph) {
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   auto connectionGraphDescriptor = graph;
-  for (const auto & c : graph.components) { // HAX
+  // HAX 1
+  PhasePhckr::ComponentRegister().makeComponentDocs(doc);
+  // HAX-ish
+  for (const auto & c : graph.components) {
       ModuleDoc d;
       PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
       doc.add(d);

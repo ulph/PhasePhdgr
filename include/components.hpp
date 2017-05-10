@@ -24,7 +24,7 @@ namespace PhasePhckr {
         bool getComponent(std::string name, ComponentDescriptor & desc) const;
         static void makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc);
         bool makeComponentDoc(const string &name, ModuleDoc &doc) const;
-        void makeComponentDocs(Doc &ref) const;
+        void makeComponentDocs(Doc &doc) const;
         const map<std::string, ComponentDescriptor> & all() const {
             return r;
         }

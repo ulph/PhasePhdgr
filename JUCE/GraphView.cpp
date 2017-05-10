@@ -28,20 +28,19 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
     poop.addItem(delMenuId, "delete");
 
     int choice = poop.show();
-
-    gfxGraph.rename(
-        moduleName,
-        nameLbl.getText().toStdString()
-    );
-
-    // TODO, call function on gfxGraph to change the type to new type if unique
-
-    if(choice == nameMenuId || choice == typeMenuId){
-        return true;
-    }
-    else if(choice == delMenuId){
+    if(choice == delMenuId){
         gfxGraph.remove(moduleName);
         return true;
+    }
+
+    if(moduleName != nameLbl.getText().toStdString()){
+        return gfxGraph.rename(
+            moduleName,
+            nameLbl.getText().toStdString()
+        );
+    }
+    else if(moduleType != typeLbl.getText().toStdString()){
+        // TODO, call function on gfxGraph to change the type to new type if unique
     }
 
     return false;
@@ -195,23 +194,18 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
     poop.addCustomItem(2, &lbl, 20, 20, false);
     poop.addItem(3, "clear");
     int choice = poop.show();
-    gfxModule.setValue(
-        port,
-        lbl.getText().getFloatValue()
-    );
-    switch (choice){
-    case 1:
-        break;
-    case 2:
-        return true;
-        break;
-    case 3:
+    if(choice == 3){
         gfxModule.clearValue(port);
         return true;
-        break;
-    default:
-        break;
     }
+
+    if(value != lbl.getText().getFloatValue()){
+        return gfxModule.setValue(
+            port,
+            lbl.getText().getFloatValue()
+        );
+    }
+
     return false;
 }
 

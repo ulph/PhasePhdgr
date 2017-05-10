@@ -324,13 +324,14 @@ struct GfxModule {
         }
     }
 
-    void setValue(const string& port, float value){
+    bool setValue(const string& port, float value){
         for(auto& ip:inputs){
             if(ip.port == port){
                 ip.setValue(value);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     GfxModule(

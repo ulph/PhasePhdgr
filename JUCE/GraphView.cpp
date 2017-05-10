@@ -87,6 +87,7 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     }
     name += to_string(ctr);
 
+    // TODO - expose any unconnected ports with set values ... chances are quite good that a user wants to at least set them per instance of component
     for (auto &w : gfxGraph.wires) {
         // copy any internal connections
         if (modules.count(w.connection.source.module) && modules.count(w.connection.target.module)) {
@@ -103,7 +104,7 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
             // store 'api' connection
             cgd.connections.push_back(ModulePortConnection{c_inBus.name, alias, w.connection.target.module, w.connection.target.port});
             // remap external connection graph
-            w.connection.target.module = name; // deliberately _not_ routing to .inBus
+            w.connection.target.module = name;
             w.connection.target.port = alias;
         }
         else if (modules.count(w.connection.source.module)) {

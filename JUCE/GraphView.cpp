@@ -139,11 +139,6 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     // store it on model
     gfxGraph.components[type] = cmp;
 
-    // add it to docList
-    ModuleDoc cDoc;
-    PhasePhckr::ComponentRegister::makeComponentDoc(type, cmp, cDoc);
-    doc.add(cDoc);
-
     // add it to graph
     vector<ModulePortValue> mpv;
     ModuleVariable mv{ name, type };
@@ -156,8 +151,6 @@ void createComponent(set<const GfxModule *> & selection, GfxGraph & gfxGraph, Do
     );
 
     gfxGraph.modules.push_back(gfxM);
-
-    gfxGraph.recalculateWires(gfxGraph.modules);
 
     for (const auto &m : modules) {
         gfxGraph.remove(m);
@@ -452,12 +445,6 @@ void GraphView::paint(Graphics& g){
 void GraphView::setGraph(const PatchDescriptor& graph) {
   while (connectionGraphDescriptorLock.test_and_set(std::memory_order_acquire));
   auto connectionGraphDescriptor = graph;
-  PhasePhckr::ComponentRegister().makeComponentDocs(doc); // HAX 1
-  for (const auto & c : graph.components) {   // HAX 2
-      ModuleDoc d;
-      PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
-      doc.add(d);
-  }
   connectionGraphDescriptorLock.clear(std::memory_order_release);
 
   auto inBus_ = Doc::makeBusModuleDoc(inBus, true);

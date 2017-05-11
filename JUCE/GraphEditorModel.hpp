@@ -9,6 +9,7 @@
 #include <list>
 #include <random>
 #include <assert.h>
+#include <set>
 
 using namespace PhasePhckr;
 using namespace std;
@@ -153,5 +154,7 @@ struct GfxGraph {
     bool getModule(string name, const GfxModule** module);
     bool hasModuleName(string name);
     void designPorts(const Doc &doc);
+    void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
+    PatchDescriptor exportModelData();
 
 };

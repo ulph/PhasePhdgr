@@ -636,3 +636,125 @@ void GfxGraph::designPorts(const Doc &doc){
         m.designPorts(doc, mpvs);
     }
 }
+
+void GfxGraph::createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position){
+    ConnectionGraphDescriptor cgd;
+
+    // copy over modules and any non-default values
+    for (const auto name : selectedModules) {
+        const GfxModule * m;
+        if(getModule(name, &m)){
+            cgd.modules.push_back(m->module);
+            for (const auto &ip : m->inputs) {
+                if (ip.assignedValue) {
+                    cgd.values.push_back(ModulePortValue{ m->module.name, ip.port, ip.value });
+                }
+            }
+        }
+    }
+
+    set<string> inAlias;
+    set<string> outAlias; // TODO, make this a map, so _same_ module/port can be merged...
+    vector<PadDescription> inBus;
+    vector<PadDescription> outBus;
+
+    string name = "newComponent";
+    int ctr = 0;
+    while (hasModuleName(name + to_string(ctr))){
+        ctr++;
+    }
+    name += to_string(ctr);
+
+    // TODO - expose any unconnected ports with set values ... chances are quite good that a user wants to at least set them per instance of component
+    for (auto &w : wires) {
+        // copy any internal connections
+        if (selectedModules.count(w.connection.source.module) && selectedModules.count(w.connection.target.module)) {
+            cgd.connections.push_back(w.connection);
+        }
+        // store the external connections
+        else if (selectedModules.count(w.connection.target.module)) {
+            auto mp = w.connection.target;
+            string alias = mp.port;
+            while (inAlias.count(alias)) { alias += "_"; }
+            inAlias.insert(alias);
+            PadDescription pd = { alias, "", 0};
+            inBus.push_back(pd);
+            // store 'api' connection
+            cgd.connections.push_back(ModulePortConnection{c_inBus.name, alias, w.connection.target.module, w.connection.target.port});
+            // remap external connection graph
+            w.connection.target.module = name;
+            w.connection.target.port = alias;
+        }
+        else if (selectedModules.count(w.connection.source.module)) {
+            auto mp = w.connection.source;
+            string alias = mp.port;
+            while (outAlias.count(alias)) { alias += "_"; }
+            outAlias.insert(alias);
+            PadDescription pd = { alias, "", 0};
+            outBus.push_back(pd);
+            // store 'api' connectino
+            cgd.connections.push_back(ModulePortConnection{w.connection.source.module, w.connection.source.port, c_outBus.name, alias});
+            // remap external connection graph
+            w.connection.source.module = name;
+            w.connection.source.port = alias;
+        }
+    }
+
+    // create a ComponentDescriptor
+    string type = "@INCOMPONENT";
+    ctr = 0;
+    while (components.count(type + to_string(ctr))) {
+        ctr++;
+    }
+    type += to_string(ctr);
+
+    ComponentDescriptor cmp;
+    cmp.graph = cgd;
+    cmp.docString = "";
+    cmp.inBus = inBus;
+    cmp.outBus = outBus;
+
+    // store it on model
+    components[type] = cmp;
+
+    // add it to graph
+    vector<ModulePortValue> mpv;
+    ModuleVariable mv{ name, type };
+    GfxModule gfxM(
+       mv,
+       (position.x - 0.5f*c_NodeSize) / c_GridSize,
+       (position.y - 0.5f*c_NodeSize) / c_GridSize,
+       doc,
+       mpv
+    );
+
+    modules.push_back(gfxM);
+
+    for (const auto &m : selectedModules) {
+        remove(m);
+    }
+
+}
+
+PatchDescriptor GfxGraph::exportModelData(){
+    PatchDescriptor graph;
+    for (const auto &m :modules) {
+        if (m.module.name == "inBus" || m.module.name == "outBus") continue;
+        graph.root.graph.modules.emplace_back(m.module);
+        for ( const auto &ip : m.inputs){
+            if(ip.assignedValue){
+                graph.root.graph.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
+            }
+        }
+        graph.layout.emplace(m.module.name, ModulePosition{(int)m.position.x, (int)m.position.y});
+    }
+    for (const auto &w : wires) {
+        graph.root.graph.connections.emplace_back(w.connection);
+    }
+
+    graph.components = components;
+
+    return graph;
+}
+
+

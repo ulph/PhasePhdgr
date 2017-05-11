@@ -121,6 +121,7 @@ void PatchEditor::refreshAndBroadcastDoc(){
     populateDocWithComponents(doc, cmpReg, patchCopy);
     docListModel.setDocs(doc.get());
     docList.repaint();
+    subDoc.set(docHandle, doc);
 }
 
 PatchEditor::PatchEditor(

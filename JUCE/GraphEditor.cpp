@@ -259,11 +259,18 @@ GraphEditor::GraphEditor(
             setGraph(g);
         }
     );
+
+    docHandle = subDoc.subscribe(
+        [this](const Doc& doc_){
+            doc = doc_;
+        }
+    );
 }
 
 
 GraphEditor::~GraphEditor() {
     subPatch.unsubscribe(subPatchHandle);
+    subDoc.unsubscribe(docHandle);
 }
 
 

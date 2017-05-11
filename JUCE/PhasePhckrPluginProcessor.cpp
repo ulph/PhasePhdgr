@@ -13,6 +13,8 @@
 #include "design_json.hpp"
 #include "DirectoryWatcher.hpp"
 
+#include <xmmintrin.h>
+
 using namespace PhasePhckrFileStuff;
 
 //==============================================================================
@@ -179,6 +181,14 @@ bool PhasePhckrAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+#if FORCE_FTZ_DAZ
+//    _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+//    _MM_SET_ROUNDING_MODE(_MM_ROUND_TOWARD_ZERO);
+    int oldMXCSR = _mm_getcsr(); /*read the old MXCSR setting */ \
+    int newMXCSR = oldMXCSR | 0x8040; /* set DAZ and FZ bits */ \
+    _mm_setcsr( newMXCSR); /*write the new MXCSR setting to the MXCSR */
+#endif
+
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
 
     const int numOutputChannels = getTotalNumOutputChannels();
@@ -251,6 +261,10 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
 
     synthUpdateLock.clear(std::memory_order_release);
+
+#if FORCE_FTZ_DAZ
+    _mm_setcsr( oldMXCSR );
+#endif
 }
 
 //==============================================================================

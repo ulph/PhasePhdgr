@@ -11,6 +11,7 @@ set(PH_SRC
     GraphEditorPositions.cpp
     GraphEditorPositions.hpp
     GraphEditorModel.hpp
+    GraphEditorModel.cpp
     PatchEditor.hpp
     PatchEditor.cpp
     PhasePhckrGrid.cpp

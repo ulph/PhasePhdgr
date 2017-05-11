@@ -32,25 +32,8 @@ public:
         SubValue<PatchDescriptor> & subPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
-    )
-        : subPatch(subPatch)
-        , patchEditor(patchEditor)
-        , viewPort(viewPort)
-        , doc(doc)
-        , inBus(inBus)
-        , outBus(outBus)
-        , scale(1.0f)
-        , selecting(false)
-    {
-        subPatchHandle = subPatch.subscribe(
-            [this](const PhasePhckr::PatchDescriptor& g){
-                setGraph(g);
-            }
-        );
-    }
-    ~GraphEditor() {
-        subPatch.unsubscribe(subPatchHandle);
-    }
+    );
+    ~GraphEditor();
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDoubleClick(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;
@@ -65,7 +48,6 @@ public:
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
 private:
-    float scale;
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 

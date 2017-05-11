@@ -238,6 +238,35 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 }
 
 
+GraphEditor::GraphEditor(
+    PatchEditor& patchEditor,
+    Viewport& viewPort,
+    const Doc& doc,
+    SubValue<PatchDescriptor> & subPatch,
+    const vector<PadDescription> &inBus,
+    const vector<PadDescription> &outBus
+)
+    : subPatch(subPatch)
+    , patchEditor(patchEditor)
+    , viewPort(viewPort)
+    , doc(doc)
+    , inBus(inBus)
+    , outBus(outBus)
+    , selecting(false)
+{
+    subPatchHandle = subPatch.subscribe(
+        [this](const PhasePhckr::PatchDescriptor& g){
+            setGraph(g);
+        }
+    );
+}
+
+
+GraphEditor::~GraphEditor() {
+    subPatch.unsubscribe(subPatchHandle);
+}
+
+
 void GraphEditor::propagateUserModelChange() {
     repaint();
 

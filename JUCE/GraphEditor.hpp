@@ -51,8 +51,10 @@ private:
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 
-    void setGraph(const PatchDescriptor& graph);
+    void setGraph(const PatchDescriptor& patch);
     void propagateUserModelChange();
+
+    void setDoc(const Doc& newDoc);
 
     // make a copy data structures before calling
     void updateRenderComponents(
@@ -75,12 +77,12 @@ private:
 
     atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
     GfxGraph gfxGraph;
-    GfxModule * draggedModule = nullptr;
+    GfxModule *draggedModule = nullptr;
     GfxLooseWire looseWire;
 
+    bool selecting;
     Point<float> selectionStart;
     Point<float> selectionStop;
-    bool selecting;
     set<const GfxModule*> selectedModules;
 
     XY mouseDownPos;

@@ -265,21 +265,13 @@ bool GfxModule::setValue(const string& port, float value){
     return false;
 }
 
-GfxModule::GfxModule(
-    const ModuleVariable & mv,
-    float x,
-    float y,
-    const Doc & doc,
-    const std::vector<ModulePortValue> &mpvs
-)
-    : module(mv)
-{
-    size = XY(c_NodeSize, c_NodeSize);
-    position.y = y * c_GridSize;
-    position.x = x * c_GridSize;
+
+void GfxModule::designPorts(const Doc &doc, const std::vector<ModulePortValue> &mpvs){
+    inputs.clear();
+    outputs.clear();
     const auto d = doc.get();
-    if (d.count(mv.type)) {
-        const auto & dd = d.at(mv.type);
+    if (d.count(module.type)) {
+        const auto & dd = d.at(module.type);
         for (auto p : dd.inputs) {
             inputs.emplace_back(GfxPort(p.name, p.unit, p.value, true)); // set default values
         }
@@ -295,6 +287,22 @@ GfxModule::GfxModule(
         size.x = c_NodeSize + c_NodeSize*(max_p - 3.0f) / 5.0f;
     }
     repositionPorts();
+}
+
+
+GfxModule::GfxModule(
+    const ModuleVariable & mv,
+    float x,
+    float y,
+    const Doc & doc,
+    const std::vector<ModulePortValue> &mpvs
+)
+    : module(mv)
+{
+    size = XY(c_NodeSize, c_NodeSize);
+    position.y = y * c_GridSize;
+    position.x = x * c_GridSize;
+    designPorts(doc, mpvs);
 }
 
 
@@ -615,4 +623,16 @@ bool GfxGraph::hasModuleName(string name) {
         }
     }
     return false;
+}
+
+void GfxGraph::designPorts(const Doc &doc){
+    for(auto& m : modules){
+        std::vector<ModulePortValue> mpvs;
+        for(const auto& ip: m.inputs){
+            if(ip.assignedValue){
+                mpvs.push_back(ModulePortValue{m.module.name, ip.port, ip.value});
+            }
+        }
+        m.designPorts(doc, mpvs);
+    }
 }

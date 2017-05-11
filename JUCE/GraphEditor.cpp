@@ -262,7 +262,7 @@ GraphEditor::GraphEditor(
 
     docHandle = subDoc.subscribe(
         [this](const Doc& doc_){
-            doc = doc_;
+            setDoc(doc_);
         }
     );
 }
@@ -514,13 +514,21 @@ void GraphEditor::paint(Graphics& g){
 }
 
 
+void GraphEditor::setDoc(const Doc& newDoc){
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    doc = newDoc;
+    auto inBus_ = Doc::makeBusModuleDoc(inBus, true);
+    auto outBus_ = Doc::makeBusModuleDoc(outBus, false);
+    doc.add(inBus_);
+    doc.add(outBus_);
+    gfxGraph.designPorts(doc);
+    gfxGraph.recalculateWires(gfxGraph.modules);
+    gfxGraphLock.clear(std::memory_order_release);
+}
+
+
 void GraphEditor::setGraph(const PatchDescriptor& patch) {
   PatchDescriptor patchCopy = patch;
-
-  auto inBus_ = Doc::makeBusModuleDoc(inBus, true);
-  auto outBus_ = Doc::makeBusModuleDoc(outBus, false);
-  doc.add(inBus_);
-  doc.add(outBus_);
 
   patchCopy.root.graph.modules.push_back(c_inBus);
   patchCopy.root.graph.modules.push_back(c_outBus);
@@ -534,7 +542,6 @@ void GraphEditor::setGraph(const PatchDescriptor& patch) {
   updateRenderComponents(patchCopy, modulePositions);
 
   repaint();
-
 }
 
 
@@ -544,6 +551,16 @@ void GraphEditor::updateRenderComponents(
 ) 
 {
     // create the renderable structures
+
+    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+
+    gfxGraph.components.clear();
+    gfxGraph.modules.clear();
+    gfxGraph.wires.clear();
+
+    gfxGraphLock.clear(std::memory_order_release);
+
+    setDoc(doc);
 
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
 

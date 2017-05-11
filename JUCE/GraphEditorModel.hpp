@@ -83,6 +83,11 @@ struct GfxModule {
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
 
+    void designPorts(
+        const Doc &doc,
+        const std::vector<ModulePortValue> &mpvs
+    );
+
     void repositionPorts();
     bool within(XY p) const;
     bool withinPort(XY p, XY& portPosition, string &port, bool & inputPort);
@@ -92,7 +97,7 @@ struct GfxModule {
     bool setValue(const string& port, float value);
 
     GfxModule(
-        const ModuleVariable & mv, 
+        const ModuleVariable & mv,
         float x, 
         float y, 
         const Doc & doc, 
@@ -147,4 +152,6 @@ struct GfxGraph {
     bool remove(const string &module);
     bool getModule(string name, const GfxModule** module);
     bool hasModuleName(string name);
+    void designPorts(const Doc &doc);
+
 };

@@ -42,7 +42,6 @@ public:
         , scale(1.0f)
         , selecting(false)
     {
-        viewPort.setScrollOnDragEnabled(true);
         subPatchHandle = subPatch.subscribe(
             [this](const PhasePhckr::PatchDescriptor& g){
                 setGraph(g);
@@ -107,7 +106,10 @@ private:
 
 class GraphViewPort : public Viewport{
 public:
-    GraphViewPort() : Viewport("...") {}
+    GraphViewPort() : Viewport("...") {
+        setScrollOnDragEnabled(true);
+        setScrollBarsShown(true, true, true, true);
+    }
 };
 
 

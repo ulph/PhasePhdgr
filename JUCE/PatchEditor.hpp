@@ -72,9 +72,16 @@ public:
 class PatchEditor : public Component
 {
     Doc doc;
-    SubValue<PatchDescriptor> & subPatch;
+    SubValue<Doc> subDoc;
+    int docHandle;
+
+    SubValue<PatchDescriptor> &subPatch;
     PatchDescriptor patchCopy;
     int patchHandle;
+
+    PhasePhckr::ComponentRegister cmpReg;
+    SubValue<PhasePhckr::ComponentRegister> &subCmpReg;
+    int cmpRegHandle;
 
     PhasePhckrGrid grid;
     PhasePhckrGrid docGrid;
@@ -89,13 +96,14 @@ class PatchEditor : public Component
     list<SubValue<PatchDescriptor>> subPatches;
     list<int> subPatchHandles;
     GraphEditorTabbedComponent editorStack;
+    void refreshAndBroadcastDoc();
     friend class GraphEditor;
     void push_tab(const string& componentName, const string& componentType);
 
 public:
     PatchEditor(
-        const Doc &doc,
         SubValue<PatchDescriptor> &subPatch,
+        SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     );

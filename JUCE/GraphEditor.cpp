@@ -9,7 +9,7 @@ using namespace PhasePhckr;
 
 GraphEditorBundle::GraphEditorBundle(
     PatchEditor& graphEditor,
-    const Doc& doc,
+    SubValue<Doc> &subDoc,
     SubValue<PatchDescriptor> & subPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
@@ -17,7 +17,7 @@ GraphEditorBundle::GraphEditorBundle(
     : graphView(
         graphEditor
         , viewPort
-        , doc
+        , subDoc
         , subPatch
         , inBus
         , outBus
@@ -239,17 +239,17 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 
 
 GraphEditor::GraphEditor(
-    PatchEditor& patchEditor,
-    Viewport& viewPort,
-    const Doc& doc,
-    SubValue<PatchDescriptor> & subPatch,
+    PatchEditor &patchEditor,
+    Viewport &viewPort,
+    SubValue<Doc> &subDoc,
+    SubValue<PatchDescriptor> &subPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
     : subPatch(subPatch)
     , patchEditor(patchEditor)
     , viewPort(viewPort)
-    , doc(doc)
+    , subDoc(subDoc)
     , inBus(inBus)
     , outBus(outBus)
     , selecting(false)

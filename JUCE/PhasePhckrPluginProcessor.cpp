@@ -31,6 +31,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
 
     activeVoiceHandle = activeVoice.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
     activeEffectHandle = activeEffect.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
+    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
 
     createDirIfNeeded(rootDir);
     createDirIfNeeded(effectsDir);
@@ -71,6 +72,9 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 {
+    activeVoice.unsubscribe(activeVoiceHandle);
+    activeEffect.unsubscribe(activeEffectHandle);
+    subComponentRegister.unsubscribe(componentRegisterHandle);
     delete synth;
 }
 
@@ -257,7 +261,7 @@ bool PhasePhckrAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
 {
-    return new PhasePhckrAudioProcessorEditor (*this, activeVoice, activeEffect);
+    return new PhasePhckrAudioProcessorEditor (*this);
 }
 
 //==============================================================================

@@ -28,8 +28,8 @@ public:
     GraphEditor(
         PatchEditor& patchEditor,
         Viewport& viewPort,
-        const Doc& doc,
-        SubValue<PatchDescriptor> & subPatch,
+        SubValue<Doc> &subDoc,
+        SubValue<PatchDescriptor> &subPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     );
@@ -61,14 +61,17 @@ private:
     );
 
     int subPatchHandle;
-    SubValue<PatchDescriptor> & subPatch;
+    SubValue<PatchDescriptor> &subPatch;
+
+    Doc doc;
+    SubValue<Doc> &subDoc;
+    int docHandle;
 
     PatchEditor& patchEditor;
     Viewport& viewPort;
 
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
-    Doc doc;
 
     atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
     GfxGraph gfxGraph;
@@ -102,7 +105,7 @@ private:
 public:
     GraphEditorBundle(
         PatchEditor& graphEditor,
-        const Doc& doc,
+        SubValue<Doc> &subDoc,
         SubValue<PatchDescriptor> & subscribedCGD,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus

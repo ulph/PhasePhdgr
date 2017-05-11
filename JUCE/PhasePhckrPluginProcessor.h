@@ -42,10 +42,16 @@ private:
         applyEffectChain();
     }
     PhasePhckr::Synth* synth;
+
     PhasePhckr::PatchDescriptor voiceChain;
-    PhasePhckr::PatchDescriptor effectChain;
     int activeVoiceHandle;
+
+    PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;
+
+    PhasePhckr::ComponentRegister componentRegister;
+    int componentRegisterHandle;
+
     void applyVoiceChain();
     void applyEffectChain();
 
@@ -84,11 +90,13 @@ public:
 
     const PhasePhckr::Synth* getSynth() const;
 
-    PhasePhckr::ComponentRegister componentRegister;
+    SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
+
     SubValue<PatchDescriptor> activeVoice;
     SubValue<PatchDescriptor> activeEffect;
     void broadcastPatch(){
         // editor should call this once after construction
+        subComponentRegister.set(componentRegisterHandle, componentRegister);
         activeVoice.set(activeVoiceHandle, voiceChain);
         activeEffect.set(activeEffectHandle, effectChain);
     }

@@ -16,13 +16,9 @@ static json loadJson(const File & f) {
 }
 
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
-        PhasePhckrAudioProcessor& p,
-        SubValue<PatchDescriptor> &activeVoice_,
-        SubValue<PatchDescriptor> &activeEffect_
+        PhasePhckrAudioProcessor& p
         )
     : AudioProcessorEditor (&p), processor (p)
-    , activeVoice(activeVoice_)
-    , activeEffect(activeEffect_)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
     , outputScopeL(processor.getSynth()->getOutputScope(0))
@@ -38,30 +34,29 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , voiceDirectoryList(voiceDirectoryWatcher)
     , effectDirectoryList(effectDirectoryWatcher)
 
-    , activeVoiceSubscribeHandle(activeVoice.subscribe(
+    , activeVoiceSubscribeHandle(processor.activeVoice.subscribe(
         [this](const PatchDescriptor & v) {
             //
         }))
-    , activeEffectSubscribeHandle(activeEffect.subscribe(
+    , activeEffectSubscribeHandle(processor.activeEffect.subscribe(
         [this](const PatchDescriptor & v) {
             //
         }))
     , voiceListListener([this](const File& f) {
-            activeVoice.set(activeVoiceSubscribeHandle, loadJson(f));
+            processor.activeVoice.set(activeVoiceSubscribeHandle, loadJson(f));
         })
     , effectListListener([this](const File& f) {
-            activeEffect.set(activeEffectSubscribeHandle, loadJson(f));
+            processor.activeEffect.set(activeEffectSubscribeHandle, loadJson(f));
         })
-
     , voiceEditor(
-            Doc(),
-            activeVoice,
+            processor.activeVoice,
+            processor.subComponentRegister,
             c_voiceChainInBus,
             c_voiceChainOutBus
         )
     , effectEditor(
-            Doc(),
-            activeEffect,
+            processor.activeEffect,
+            processor.subComponentRegister,
             c_effectChainInBus,
             c_effectChainOutBus
         )
@@ -135,8 +130,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
-    activeEffect.unsubscribe(activeEffectSubscribeHandle);
-    activeVoice.unsubscribe(activeVoiceSubscribeHandle);
+    processor.activeEffect.unsubscribe(activeEffectSubscribeHandle);
+    processor.activeVoice.unsubscribe(activeVoiceSubscribeHandle);
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;

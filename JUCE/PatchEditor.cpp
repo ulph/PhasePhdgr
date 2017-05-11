@@ -1,6 +1,9 @@
 #include "PatchEditor.hpp"
 #include "components.hpp"
 
+using namespace std;
+using namespace PhasePhckr;
+
 void _stylize(Label * l) {
     l->setJustificationType(Justification::centred);
     l->setColour(Label::backgroundColourId, Colours::darkgrey);
@@ -105,20 +108,35 @@ PatchTextEditor::~PatchTextEditor() {
     sub.unsubscribe(handle);
 }
 
+void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr, const PatchDescriptor pd){
+    cr.makeComponentDocs(doc);
+    for (const auto & c : pd.components) {
+        ModuleDoc d;
+        PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
+        doc.add(d);
+    }
+}
+
+void PatchEditor::refreshAndBroadcastDoc(){
+    populateDocWithComponents(doc, cmpReg, patchCopy);
+    docListModel.setDocs(doc.get());
+    docList.repaint();
+}
+
 PatchEditor::PatchEditor(
-    const Doc &doc_,
     SubValue<PatchDescriptor> &subPatch,
+    SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
-    : doc(doc_)
-    , subPatch(subPatch)
+    : subPatch(subPatch)
+    , subCmpReg(subCmpReg)
     , docListModel(doc.get(), docView)
     , docList("docList", &docListModel)
     , textEditor(subPatch)
     , rootView(
         *this,
-        doc,
+        subDoc,
         subPatch,
         inBus,
         outBus
@@ -144,14 +162,20 @@ PatchEditor::PatchEditor(
     patchHandle = subPatch.subscribe(
         function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
             patchCopy = desc;
-            PhasePhckr::ComponentRegister().makeComponentDocs(doc); // HAX 1
-            for (const auto & c : desc.components) { // HAX 2
-                ModuleDoc d;
-                PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
-                doc.add(d);
-            }
-            docListModel.setDocs(doc.get());
-            docList.repaint();
+            refreshAndBroadcastDoc();
+        }
+    ));
+
+    docHandle = subDoc.subscribe(
+        function<void(const Doc&)>([this](const Doc& doc_){
+            assert(0); // nobody else should be able to do this ... TODO, better solution :P
+        }
+    ));
+
+    cmpRegHandle = subCmpReg.subscribe(
+        function<void(const PhasePhckr::ComponentRegister&)>([this](const PhasePhckr::ComponentRegister& cmpReg_){
+            cmpReg = cmpReg_;
+            refreshAndBroadcastDoc();
         }
     ));
 
@@ -160,6 +184,8 @@ PatchEditor::PatchEditor(
 
 PatchEditor::~PatchEditor() {
     subPatch.unsubscribe(patchHandle);
+    subCmpReg.unsubscribe(cmpRegHandle);
+    subDoc.unsubscribe(docHandle);
 }
 
 void PatchEditor::paint(Graphics& g)
@@ -203,7 +229,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
         Colours::black,
         new GraphEditorBundle(
             *this,
-            doc,
+            subDoc,
             subP,
             cmp.inBus,
             cmp.outBus

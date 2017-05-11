@@ -8,7 +8,7 @@
 #include "components.hpp"
 #include "Utils.hpp"
 #include <list>
-#include "GraphEditor.hpp"
+#include "PatchEditor.hpp"
 
 using namespace std;
 

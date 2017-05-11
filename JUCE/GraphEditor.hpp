@@ -1,48 +1,108 @@
-#pragma once
+#ifndef GRAPHVIEW_H_INCLUDED
+#define GRAPHVIEW_H_INCLUDED
+
+#include "GraphEditorModel.hpp"
+#include "GraphEditorPositions.hpp"
 
 #include "JuceLibraryCode/JuceHeader.h"
-#include "PhasePhckrGrid.h"
-#include <map>
-#include <vector>
-#include "docs.hpp"
 #include "design.hpp"
+#include <iostream>
+#include <set>
+#include <algorithm>
+#include <vector>
+#include <assert.h>
+#include <climits>
+#include "docs.hpp"
 #include "Utils.hpp"
-#include "GraphView.h"
+#include <math.h>
+#include <atomic>
+#include <deque>
 
-using namespace PhasePhckr;
 using namespace std;
 
-void _stylize(TextEditor* t);
-void _stylize(ListBox* l);
-void _stylize(FileListComponent* l);
+class PatchEditor;
 
-class DocListModel : public ListBoxModel {
-private:
-    map<string, ModuleDoc> moduleDocs;
-    vector<string> rows;
-    TextEditor & docView;
+class GraphEditor : public Component, public DragAndDropTarget
+{
 public:
-    DocListModel(const map<string, ModuleDoc> & moduleDocs, TextEditor & docView);
-    void setDocs(const map<string, ModuleDoc> & moduleDocs);
-    virtual int getNumRows();
-    virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected);
-    virtual void listBoxItemClicked(int row, const MouseEvent &);
-    virtual var getDragSourceDescription (const SparseSet< int > &rowsToDescribe){
-        if(!rowsToDescribe.isEmpty()){
-            return String(rows[rowsToDescribe[0]]);
-        }
-        return var();
+    GraphEditor(
+        PatchEditor& graphEditor,
+        Viewport& viewPort,
+        const Doc& doc,
+        SubValue<PatchDescriptor> & subPatch,
+        const vector<PadDescription> &inBus,
+        const vector<PadDescription> &outBus
+    )
+        : subPatch(subPatch)
+        , graphEditor(graphEditor)
+        , viewPort(viewPort)
+        , doc(doc)
+        , inBus(inBus)
+        , outBus(outBus)
+        , scale(1.0f)
+        , selecting(false)
+    {
+        viewPort.setScrollOnDragEnabled(true);
+        subPatchHandle = subPatch.subscribe(
+            [this](const PhasePhckr::PatchDescriptor& g){
+                setGraph(g);
+            }
+        );
     }
-};
+    ~GraphEditor() {
+        subPatch.unsubscribe(subPatchHandle);
+    }
+    virtual void mouseDown(const MouseEvent & event) override;
+    virtual void mouseDoubleClick(const MouseEvent & event) override;
+    virtual void mouseDrag(const MouseEvent & event) override;
+    virtual void mouseUp(const MouseEvent & event) override;
+    virtual void mouseMove(const MouseEvent & event) override;
+    virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails){
+        return true; // why not
+    }
+    virtual void itemDropped(const SourceDetails & dragSourceDetails) override;
 
+    void paint (Graphics& g);
+    void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
-class ConnectionGraphTextEditor : public TextEditor {
 private:
-    int handle;
-    SubValue<PatchDescriptor> & sub;
-public:
-    ConnectionGraphTextEditor(SubValue<PatchDescriptor> & sub);
-    virtual ~ConnectionGraphTextEditor();
+    float scale;
+    void updateBounds(const pair<XY, XY>& rectange);
+    void updateBounds(const XY & position, const XY & size);
+
+    void setGraph(const PatchDescriptor& graph);
+    void propagateUserModelChange();
+    atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
+
+    // make a copy data structures before calling
+    void updateRenderComponents(
+        const PatchDescriptor & cgd,
+        const ModulePositionMap & mp
+    );
+
+    int subPatchHandle;
+    SubValue<PatchDescriptor> & subPatch;
+
+    PatchEditor& graphEditor;
+    Viewport& viewPort;
+
+    vector<PadDescription> inBus;
+    vector<PadDescription> outBus;
+    Doc doc;
+
+    atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
+    GfxGraph gfxGraph;
+    GfxModule * draggedModule = nullptr;
+    GfxLooseWire looseWire;
+
+    Point<float> selectionStart;
+    Point<float> selectionStop;
+    bool selecting;
+    set<const GfxModule*> selectedModules;
+
+    XY mouseDownPos;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphEditor)
 };
 
 
@@ -55,14 +115,10 @@ public:
 class GraphViewBundle : public Component{
 private:
     GraphViewPort viewPort;
-    GraphView graphView;
-    PhasePhckrGrid bottomRow;
-    TextButton resetLayoutButton;
-    Label fileName;
-    TextButton saveButton;
+    GraphEditor graphView;
 public:
     GraphViewBundle(
-        GraphEditor& graphEditor,
+        PatchEditor& graphEditor,
         const Doc& doc,
         SubValue<PatchDescriptor> & subscribedCGD,
         const vector<PadDescription> &inBus,
@@ -73,60 +129,4 @@ public:
 };
 
 
-class GraphEditorTabbedComponent : public TabbedComponent {
-private:
-    list<SubValue<PatchDescriptor>> & subPatches;
-    list<int> & subPatchHandles;
-public:
-    GraphEditorTabbedComponent(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
-        : TabbedComponent(TabbedButtonBar::TabsAtTop)
-        , subPatches(subPatches)
-        , subPatchHandles(subPatchHandles)
-    {
-        assert(subPatches.size() == subPatchHandles.size());
-    }
-    virtual void currentTabChanged(int newCurrentTabIndex, const String& newCurrentTabName) {
-        while (newCurrentTabIndex + 1 != getNumTabs()) {
-            removeTab(getNumTabs() - 1);
-            auto h = subPatchHandles.back(); subPatchHandles.pop_back();
-            subPatches.back().unsubscribe(h); subPatches.pop_back();
-        }
-        assert(subPatches.size() == subPatchHandles.size());
-    }
-};
-
-
-class GraphEditor : public Component
-{
-    Doc doc;
-    SubValue<PatchDescriptor> & subPatch;
-    PatchDescriptor patchCopy;
-    int patchHandle;
-
-    PhasePhckrGrid grid;
-    PhasePhckrGrid docGrid;
-
-    GraphViewBundle rootView;
-
-    ConnectionGraphTextEditor textEditor;
-    TextEditor docView;
-    ListBox docList;
-    DocListModel docListModel;
-
-    list<SubValue<PatchDescriptor>> subPatches;
-    list<int> subPatchHandles;
-    GraphEditorTabbedComponent editorStack;
-    friend class GraphView;
-    void push_tab(const string& componentName, const string& componentType);
-
-public:
-    GraphEditor(
-        const Doc &doc,
-        SubValue<PatchDescriptor> &subPatch,
-        const vector<PadDescription> &inBus,
-        const vector<PadDescription> &outBus
-    );
-    virtual ~GraphEditor();
-    void paint(Graphics& g);
-    void resized();
-};
+#endif  // GRAPHVIEW_H_INCLUDED

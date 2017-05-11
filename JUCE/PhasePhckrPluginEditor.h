@@ -5,11 +5,11 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"
-#include "GraphView.h"
+#include "GraphEditor.hpp"
 #include "docs.hpp"
 #include <vector>
 #include "Utils.hpp"
-#include "GraphEditor.hpp"
+#include "PatchEditor.hpp"
 
 
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public DragAndDropContainer
@@ -59,8 +59,8 @@ private:
         effectDirectoryWatcher.refresh();
     }
 
-    GraphEditor voiceEditor;
-    GraphEditor effectEditor;
+    PatchEditor voiceEditor;
+    PatchEditor effectEditor;
 
 #if INTERCEPT_STD_STREAMS
     InterceptStringStream coutIntercept;

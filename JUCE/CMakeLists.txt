@@ -6,13 +6,13 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 set(PH_SRC
     DirectoryWatcher.cpp
     DirectoryWatcher.hpp
-    GraphView.cpp
-    GraphView.h
-    GraphViewNodeStuff.cpp
-    GraphViewNodeStuff.hpp
-    GraphViewGfx.hpp
-    GraphEditor.hpp
     GraphEditor.cpp
+    GraphEditor.hpp
+    GraphEditorPositions.cpp
+    GraphEditorPositions.hpp
+    GraphEditorModel.hpp
+    PatchEditor.hpp
+    PatchEditor.cpp
     PhasePhckrGrid.cpp
     PhasePhckrGrid.h
     PhasePhckrPluginEditor.cpp

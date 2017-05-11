@@ -1,7 +1,7 @@
+#include "GraphEditorPositions.hpp"
+
 #include <string>
-#include "GraphViewGfx.hpp"
 #include "design.hpp"
-#include "GraphViewNodeStuff.hpp"
 #include <queue>
 #include <set>
 #include <assert.h>

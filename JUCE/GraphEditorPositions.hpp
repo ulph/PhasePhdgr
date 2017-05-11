@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include <set>
-#include "GraphViewGfx.hpp"
+#include "GraphEditorModel.hpp"
 #include "design.hpp"
 
 using namespace std;

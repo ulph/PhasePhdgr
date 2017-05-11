@@ -233,7 +233,7 @@ void GraphView::propagateUserModelChange() {
 
     graph.components = gfxGraph_cpy.components;
 
-    subscribedCGD.set(subscribedCGDhandle, graph);
+    subPatch.set(subPatchHandle, graph);
 }
 
 
@@ -426,7 +426,7 @@ void GraphView::updateBounds(const XY & position, const XY & size){
 }
 
 
-void GraphView::paint (Graphics& g){
+void GraphView::paint(Graphics& g){
     while (gfxGraphLock.test_and_set(memory_order_acquire));
 
     g.fillAll(Colours::black);

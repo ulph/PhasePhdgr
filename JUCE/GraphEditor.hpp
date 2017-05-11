@@ -16,8 +16,6 @@ void _stylize(TextEditor* t);
 void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);
 
-typedef SubValue<PatchDescriptor> SubPatch;
-
 class DocListModel : public ListBoxModel {
 private:
     map<string, ModuleDoc> moduleDocs;
@@ -41,9 +39,9 @@ public:
 class ConnectionGraphTextEditor : public TextEditor {
 private:
     int handle;
-    SubPatch & sub;
+    SubValue<PatchDescriptor> & sub;
 public:
-    ConnectionGraphTextEditor(SubPatch & sub);
+    ConnectionGraphTextEditor(SubValue<PatchDescriptor> & sub);
     virtual ~ConnectionGraphTextEditor();
 };
 
@@ -51,7 +49,6 @@ public:
 class GraphViewPort : public Viewport{
 public:
     GraphViewPort() : Viewport("...") {}
-    void mouseWheelMove(const MouseEvent &, const MouseWheelDetails &) override {}
 };
 
 
@@ -67,7 +64,7 @@ public:
     GraphViewBundle(
         GraphEditor& graphEditor,
         const Doc& doc,
-        SubPatch & subscribedCGD,
+        SubValue<PatchDescriptor> & subscribedCGD,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     );
@@ -78,10 +75,10 @@ public:
 
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
-    list<SubPatch> & subPatches;
+    list<SubValue<PatchDescriptor>> & subPatches;
     list<int> & subPatchHandles;
 public:
-    GraphEditorTabbedComponent(list<SubPatch> & subPatches, list<int> & subPatchHandles)
+    GraphEditorTabbedComponent(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , subPatches(subPatches)
         , subPatchHandles(subPatchHandles)
@@ -102,7 +99,7 @@ public:
 class GraphEditor : public Component
 {
     Doc doc;
-    SubPatch & patch;
+    SubValue<PatchDescriptor> & subPatch;
     PatchDescriptor patchCopy;
     int patchHandle;
 
@@ -116,7 +113,7 @@ class GraphEditor : public Component
     ListBox docList;
     DocListModel docListModel;
 
-    list<SubPatch> subPatches;
+    list<SubValue<PatchDescriptor>> subPatches;
     list<int> subPatchHandles;
     GraphEditorTabbedComponent editorStack;
     friend class GraphView;
@@ -125,7 +122,7 @@ class GraphEditor : public Component
 public:
     GraphEditor(
         const Doc &doc,
-        SubPatch &subscribedCGD,
+        SubValue<PatchDescriptor> &subPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     );

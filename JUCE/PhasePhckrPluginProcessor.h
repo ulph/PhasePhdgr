@@ -85,8 +85,8 @@ public:
     const PhasePhckr::Synth* getSynth() const;
 
     PhasePhckr::ComponentRegister componentRegister;
-    SubPatch activeVoice;
-    SubPatch activeEffect;
+    SubValue<PatchDescriptor> activeVoice;
+    SubValue<PatchDescriptor> activeEffect;
     void broadcastPatch(){
         // editor should call this once after construction
         activeVoice.set(activeVoiceHandle, voiceChain);

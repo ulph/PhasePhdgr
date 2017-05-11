@@ -89,7 +89,7 @@ void DocListModel::listBoxItemClicked(int row, const MouseEvent &) {
 }
 
 
-ConnectionGraphTextEditor::ConnectionGraphTextEditor(SubPatch & sub)
+ConnectionGraphTextEditor::ConnectionGraphTextEditor(SubValue<PatchDescriptor> & sub)
     : TextEditor()
     , sub(sub)
 {
@@ -109,7 +109,7 @@ ConnectionGraphTextEditor::~ConnectionGraphTextEditor() {
 GraphViewBundle::GraphViewBundle(
     GraphEditor& graphEditor,
     const Doc& doc,
-    SubValue<PatchDescriptor> & subscribedCGD,
+    SubValue<PatchDescriptor> & subPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
@@ -117,7 +117,7 @@ GraphViewBundle::GraphViewBundle(
         graphEditor
         , viewPort
         , doc
-        , subscribedCGD
+        , subPatch
         , inBus
         , outBus
     )
@@ -157,19 +157,19 @@ void GraphViewBundle::resized()
 
 GraphEditor::GraphEditor(
     const Doc &doc_,
-    SubPatch &patch,
+    SubValue<PatchDescriptor> &subPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
     : doc(doc_)
-    , patch(patch)
+    , subPatch(subPatch)
     , docListModel(doc.get(), docView)
     , docList("docList", &docListModel)
-    , textEditor(patch)
+    , textEditor(subPatch)
     , rootView(
         *this,
         doc,
-        patch,
+        subPatch,
         inBus,
         outBus
     )
@@ -191,7 +191,7 @@ GraphEditor::GraphEditor(
     _stylize(&docView);
     _stylize(&docList);
 
-    patchHandle = patch.subscribe(
+    patchHandle = subPatch.subscribe(
         function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
             patchCopy = desc;
             PhasePhckr::ComponentRegister().makeComponentDocs(doc); // HAX 1
@@ -209,7 +209,7 @@ GraphEditor::GraphEditor(
 }
 
 GraphEditor::~GraphEditor() {
-    patch.unsubscribe(patchHandle);
+    subPatch.unsubscribe(patchHandle);
 }
 
 void GraphEditor::paint(Graphics& g)
@@ -234,13 +234,13 @@ void GraphEditor::push_tab(const string& componentName, const string& componentT
     }
 
     cmp = patchCopy.components.at(componentType);
-    subPatches.push_back(SubPatch());
+    subPatches.push_back(SubValue<PatchDescriptor>());
     auto &subP = subPatches.back();
     auto handle = subP.subscribe(function<void(const PatchDescriptor&)>(
         [this, cmp, componentType](const PatchDescriptor& p){
         patchCopy.components[componentType] = cmp;
         patchCopy.components[componentType].graph = p.root.graph;
-        patch.set(-1, patchCopy);
+        subPatch.set(-1, patchCopy);
     }
     ));
     subPatchHandles.push_back(handle);

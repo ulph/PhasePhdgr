@@ -17,8 +17,8 @@ static json loadJson(const File & f) {
 
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
         PhasePhckrAudioProcessor& p,
-        SubPatch &activeVoice_,
-        SubPatch &activeEffect_
+        SubValue<PatchDescriptor> &activeVoice_,
+        SubValue<PatchDescriptor> &activeEffect_
         )
     : AudioProcessorEditor (&p), processor (p)
     , activeVoice(activeVoice_)

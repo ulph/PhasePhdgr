@@ -29,11 +29,11 @@ public:
         GraphEditor& graphEditor,
         Viewport& viewPort,
         const Doc& doc,
-        SubValue<PatchDescriptor> & subscribedCGD,
+        SubValue<PatchDescriptor> & subPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     )
-        : subscribedCGD(subscribedCGD)
+        : subPatch(subPatch)
         , graphEditor(graphEditor)
         , viewPort(viewPort)
         , doc(doc)
@@ -43,14 +43,14 @@ public:
         , selecting(false)
     {
         viewPort.setScrollOnDragEnabled(true);
-        subscribedCGDhandle = subscribedCGD.subscribe(
+        subPatchHandle = subPatch.subscribe(
             [this](const PhasePhckr::PatchDescriptor& g){
                 setGraph(g);
             }
         );
     }
     ~GraphView() {
-        subscribedCGD.unsubscribe(subscribedCGDhandle);
+        subPatch.unsubscribe(subPatchHandle);
     }
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDoubleClick(const MouseEvent & event) override;
@@ -80,8 +80,8 @@ private:
         const ModulePositionMap & mp
     );
 
-    int subscribedCGDhandle;
-    SubValue<PatchDescriptor> & subscribedCGD;
+    int subPatchHandle;
+    SubValue<PatchDescriptor> & subPatch;
 
     GraphEditor& graphEditor;
     Viewport& viewPort;

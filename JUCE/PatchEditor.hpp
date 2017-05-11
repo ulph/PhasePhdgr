@@ -46,12 +46,12 @@ public:
 };
 
 
-class PatchEditorTabs : public TabbedComponent {
+class GraphEditorTabbedComponent : public TabbedComponent {
 private:
     list<SubValue<PatchDescriptor>> & subPatches;
     list<int> & subPatchHandles;
 public:
-    PatchEditorTabs(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
+    GraphEditorTabbedComponent(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , subPatches(subPatches)
         , subPatchHandles(subPatchHandles)
@@ -88,7 +88,7 @@ class PatchEditor : public Component
 
     list<SubValue<PatchDescriptor>> subPatches;
     list<int> subPatchHandles;
-    PatchEditorTabs editorStack;
+    GraphEditorTabbedComponent editorStack;
     friend class GraphEditor;
     void push_tab(const string& componentName, const string& componentType);
 

@@ -72,7 +72,6 @@ private:
 
     void setGraph(const PatchDescriptor& graph);
     void propagateUserModelChange();
-    atomic_flag connectionGraphDescriptorLock = ATOMIC_FLAG_INIT;
 
     // make a copy data structures before calling
     void updateRenderComponents(

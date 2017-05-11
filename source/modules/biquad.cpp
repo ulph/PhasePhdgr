@@ -68,7 +68,10 @@ LowPass::LowPass()
  */
 void LowPass::process(uint32_t fs)
 {
-  float w0 = 2.f * (float)M_PI * inputs[0].value / fs;
+  float f0 = inputs[0].value / (float)fs;
+  f0 = f0>0.49f?0.49f:f0;
+
+  float w0 = 2.f * (float)M_PI * f0;
   float alpha = sinf(w0) / (2.0f * inputs[1].value);
 
   float a0 = 1.f + alpha;

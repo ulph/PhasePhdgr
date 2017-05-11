@@ -37,7 +37,7 @@ void GraphEditorBundle::paint(Graphics& g)
 
 void GraphEditorBundle::resized()
 {
-    viewPort.setBounds(0, 0, 1, 1);
+    viewPort.setBoundsRelative(0, 0, 1, 1);
     repaint();
 }
 
@@ -496,6 +496,8 @@ void GraphEditor::setGraph(const PatchDescriptor& patch) {
 
   // build the render/user interaction model
   updateRenderComponents(patchCopy, modulePositions);
+
+  repaint();
 
 }
 

@@ -7,7 +7,7 @@
 using namespace PhasePhckr;
 
 
-GraphViewBundle::GraphViewBundle(
+GraphEditorBundle::GraphEditorBundle(
     PatchEditor& graphEditor,
     const Doc& doc,
     SubValue<PatchDescriptor> & subPatch,
@@ -29,13 +29,13 @@ GraphViewBundle::GraphViewBundle(
 }
 
 
-void GraphViewBundle::paint(Graphics& g)
+void GraphEditorBundle::paint(Graphics& g)
 {
     g.fillAll(Colours::black);
 }
 
 
-void GraphViewBundle::resized()
+void GraphEditorBundle::resized()
 {
     viewPort.setBounds(0, 0, 1, 1);
     repaint();
@@ -270,7 +270,7 @@ void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
     for (auto & m : gfxGraph.modules) {
         if (m.within(mousePos)) {
-            graphEditor.push_tab(m.module.name, m.module.type);
+            patchEditor.push_tab(m.module.name, m.module.type);
         }
     }
 }

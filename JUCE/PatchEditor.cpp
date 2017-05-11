@@ -201,7 +201,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     editorStack.addTab(
         to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",
         Colours::black,
-        new GraphViewBundle(
+        new GraphEditorBundle(
             *this,
             doc,
             subP,

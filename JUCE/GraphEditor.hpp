@@ -26,7 +26,7 @@ class GraphEditor : public Component, public DragAndDropTarget
 {
 public:
     GraphEditor(
-        PatchEditor& graphEditor,
+        PatchEditor& patchEditor,
         Viewport& viewPort,
         const Doc& doc,
         SubValue<PatchDescriptor> & subPatch,
@@ -34,7 +34,7 @@ public:
         const vector<PadDescription> &outBus
     )
         : subPatch(subPatch)
-        , graphEditor(graphEditor)
+        , patchEditor(patchEditor)
         , viewPort(viewPort)
         , doc(doc)
         , inBus(inBus)
@@ -83,7 +83,7 @@ private:
     int subPatchHandle;
     SubValue<PatchDescriptor> & subPatch;
 
-    PatchEditor& graphEditor;
+    PatchEditor& patchEditor;
     Viewport& viewPort;
 
     vector<PadDescription> inBus;
@@ -112,12 +112,12 @@ public:
 };
 
 
-class GraphViewBundle : public Component{
+class GraphEditorBundle : public Component{
 private:
     GraphViewPort viewPort;
     GraphEditor graphView;
 public:
-    GraphViewBundle(
+    GraphEditorBundle(
         PatchEditor& graphEditor,
         const Doc& doc,
         SubValue<PatchDescriptor> & subscribedCGD,

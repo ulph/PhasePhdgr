@@ -46,12 +46,12 @@ public:
 };
 
 
-class GraphEditorTabbedComponent : public TabbedComponent {
+class PatchEditorTabs : public TabbedComponent {
 private:
     list<SubValue<PatchDescriptor>> & subPatches;
     list<int> & subPatchHandles;
 public:
-    GraphEditorTabbedComponent(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
+    PatchEditorTabs(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , subPatches(subPatches)
         , subPatchHandles(subPatchHandles)
@@ -79,7 +79,7 @@ class PatchEditor : public Component
     PhasePhckrGrid grid;
     PhasePhckrGrid docGrid;
 
-    GraphViewBundle rootView;
+    GraphEditorBundle rootView;
 
     PatchTextEditor textEditor;
     TextEditor docView;
@@ -88,7 +88,7 @@ class PatchEditor : public Component
 
     list<SubValue<PatchDescriptor>> subPatches;
     list<int> subPatchHandles;
-    GraphEditorTabbedComponent editorStack;
+    PatchEditorTabs editorStack;
     friend class GraphEditor;
     void push_tab(const string& componentName, const string& componentType);
 

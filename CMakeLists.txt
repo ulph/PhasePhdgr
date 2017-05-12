@@ -41,7 +41,6 @@ if(${USING_NLOHMANN_JSON})
         message(FATAL_ERROR "Cannot find nlohmann/json.hpp")
     endif()
     add_definitions(-DUSING_NLOHMANN_JSON=1)
-    install(FILES "${JSON_INCLUDE_DIR}/nlohmann/json.hpp" DESTINATION include/nlohmann)
 else()
     add_definitions(-DUSING_NLOHMANN_JSON=0)
 endif()
@@ -62,11 +61,6 @@ set(API_INC
 )
 
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
-
-install(FILES 
-    ${API_INC}
-    DESTINATION include
-)
 
 option(BUILD_JUCE_STUFF OFF)
 if(${BUILD_JUCE_STUFF})

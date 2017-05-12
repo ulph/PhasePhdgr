@@ -8,11 +8,14 @@
               pluginCode="Ooaa" pluginChannelConfigs="" pluginIsSynth="1" pluginWantsMidiIn="1"
               pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="PhasePhckrAU" pluginRTASCategory="" aaxIdentifier="com.yourcompany.PhasePhckr"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.1"
-              companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions">
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.0.1"
+              companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions"
+              displaySplashScreen="1" reportAppUsage="1" splashScreenColour="Dark"
+              buildStandalone="0" enableIAA="0">
   <MAINGROUP id="hSD0uH" name="PhasePhckr"/>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp">
+    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp"
+               vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="PhasePhckr"/>
@@ -34,7 +37,8 @@
         <MODULEPATH id="juce_audio_plugin_client" path="JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="phasephckr.lib&#10;connectiongraph.lib&#10;modules.lib&#10;dsp.lib">
+    <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="phasephckr.lib&#10;connectiongraph.lib&#10;modules.lib&#10;dsp.lib"
+            vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="../phasephckr_install/lib"
@@ -63,7 +67,8 @@
       </MODULEPATHS>
     </VS2015>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vst3Folder="" extraLinkerFlags=""
-                externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp">
+                externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp"
+                vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="PhasePhckr"
                        libraryPath="../phasephckr_install/lib" headerPath="../phasephckr_install/include"

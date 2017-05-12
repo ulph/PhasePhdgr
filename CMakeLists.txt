@@ -99,18 +99,22 @@ if(${BUILD_VST})
         FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
         FIND_LIBRARY(FOUNDATION_LIB Foundation)
         FIND_LIBRARY(WEBKIT_LIB WebKit)
-        FIND_LIBRARY(OPENGL_LIB OpenGL)
-        FIND_LIBRARY(GLKIT_LIB GLKit)
-        FIND_LIBRARY(GLUT_LIB GLKit)
+#        FIND_LIBRARY(OPENGL_LIB OpenGL)
+#        FIND_LIBRARY(GLKIT_LIB GLKit)
+#        FIND_LIBRARY(GLUT_LIB GLUT)
+        FIND_LIBRARY(COREGRAPHICS_LIB CoreGraphics)
+        FIND_LIBRARY(COREDISPLAY_LIB CoreDisplay)
+
+        include(FindOpenGL)
+
         TARGET_LINK_LIBRARIES( PhasePhckr
             ${ACCELERATE_LIB}
             ${COCOA_LIB}
             ${COREIMAGE_LIB}
             ${IOKIT_LIB}
             ${WEBKIT_LIB}
-#            ${OPENGL_LIB}
-#            ${GLKIT_LIB}
-#            ${GLUT_LIB}
+
+            ${OPENGL_LIBRARIES}
             )
     endif()
     install(TARGETS PhasePhckr DESTINATION ${VST_DESTINATION})

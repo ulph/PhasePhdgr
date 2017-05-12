@@ -71,6 +71,7 @@ if(APPLE)
     set(JUCE_SRC
         ${JUCE_SRC}
         ${JUCE_LIB}/include_juce_opengl.mm
+        ${JUCE_LIB}/include_juce_gui_extra.mm
     )
 endif()
 

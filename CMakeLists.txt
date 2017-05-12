@@ -76,8 +76,8 @@ endif()
 option(BUILD_VST OFF)
 if(${BUILD_VST})
     set(VST_DESTINATION "~/.vst" CACHE FILEPATH "Where to INSTALL the VST")
-    add_library(
-        PhasePhckr SHARED
+
+    set( PHASEPHCKR_LIBS
         $<TARGET_OBJECTS:connectiongraph_obj>
         $<TARGET_OBJECTS:dsp_obj>
         $<TARGET_OBJECTS:modules_obj>
@@ -85,37 +85,33 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:juce_lib_obj>
         $<TARGET_OBJECTS:juce_phasephckr_obj>
     )
+
+    add_library(PhasePhckr MODULE ${PHASEPHCKR_LIBS})
     set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)
 
     if(APPLE)
-        INCLUDE_DIRECTORIES ( /Developer/Headers/FlatCarbon )
+        set_target_properties(PhasePhckr PROPERTIES BUNDLE TRUE)
+        set_target_properties(PhasePhckr PROPERTIES BUNDLE_EXTENSION "vst3")
+        # TODO, more stuff from VST3 cmake ... or simply use VST3 cmake from SDK?
+
         FIND_LIBRARY(ACCELERATE_LIB Accelerate)
-        FIND_LIBRARY(CARBON_LIB Carbon)
         FIND_LIBRARY(COCOA_LIB Cocoa)
-        FIND_LIBRARY(COREAUDIO_LIB CoreAudio)
         FIND_LIBRARY(COREIMAGE_LIB CoreImage)
-        FIND_LIBRARY(SYSTEM_LIB System)
         FIND_LIBRARY(IOKIT_LIB IOkit)
-        FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
-        FIND_LIBRARY(FOUNDATION_LIB Foundation)
         FIND_LIBRARY(WEBKIT_LIB WebKit)
-#        FIND_LIBRARY(OPENGL_LIB OpenGL)
-#        FIND_LIBRARY(GLKIT_LIB GLKit)
-#        FIND_LIBRARY(GLUT_LIB GLUT)
-        FIND_LIBRARY(COREGRAPHICS_LIB CoreGraphics)
-        FIND_LIBRARY(COREDISPLAY_LIB CoreDisplay)
-
+        FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation) #reqd by vst I think
         include(FindOpenGL)
-
         TARGET_LINK_LIBRARIES( PhasePhckr
             ${ACCELERATE_LIB}
             ${COCOA_LIB}
             ${COREIMAGE_LIB}
             ${IOKIT_LIB}
             ${WEBKIT_LIB}
-
+            ${COREFOUNDATION_LIB}
             ${OPENGL_LIBRARIES}
             )
     endif()
+
     install(TARGETS PhasePhckr DESTINATION ${VST_DESTINATION})
+
 endif()

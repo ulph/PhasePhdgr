@@ -86,5 +86,32 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:juce_phasephckr_obj>
     )
     set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)
+
+    if(APPLE)
+        INCLUDE_DIRECTORIES ( /Developer/Headers/FlatCarbon )
+        FIND_LIBRARY(ACCELERATE_LIB Accelerate)
+        FIND_LIBRARY(CARBON_LIB Carbon)
+        FIND_LIBRARY(COCOA_LIB Cocoa)
+        FIND_LIBRARY(COREAUDIO_LIB CoreAudio)
+        FIND_LIBRARY(COREIMAGE_LIB CoreImage)
+        FIND_LIBRARY(SYSTEM_LIB System)
+        FIND_LIBRARY(IOKIT_LIB IOkit)
+        FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
+        FIND_LIBRARY(FOUNDATION_LIB Foundation)
+        FIND_LIBRARY(WEBKIT_LIB WebKit)
+        FIND_LIBRARY(OPENGL_LIB OpenGL)
+        FIND_LIBRARY(GLKIT_LIB GLKit)
+        FIND_LIBRARY(GLUT_LIB GLKit)
+        TARGET_LINK_LIBRARIES( PhasePhckr
+            ${ACCELERATE_LIB}
+            ${COCOA_LIB}
+            ${COREIMAGE_LIB}
+            ${IOKIT_LIB}
+            ${WEBKIT_LIB}
+#            ${OPENGL_LIB}
+#            ${GLKIT_LIB}
+#            ${GLUT_LIB}
+            )
+    endif()
     install(TARGETS PhasePhckr DESTINATION ${VST_DESTINATION})
 endif()

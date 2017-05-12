@@ -5,3 +5,4 @@ Builds/*
 .vscode
 */.vscode
 CMakeLists.txt.user
+*.DS_Store

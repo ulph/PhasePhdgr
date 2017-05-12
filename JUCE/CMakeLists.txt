@@ -38,6 +38,10 @@ if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
     message(FATAL_ERROR "Cannot find ${JUCE_LIB}/JuceHeader.h ... forgot to run Projuicer at least once?")
 endif()
 
+if(APPLE)
+add_definitions(-x objective-c++)
+endif()
+
 set(JUCE_SRC
     ${JUCE_LIB}/include_juce_audio_basics.cpp
     ${JUCE_LIB}/include_juce_audio_devices.cpp

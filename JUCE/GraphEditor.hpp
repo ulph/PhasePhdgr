@@ -39,12 +39,12 @@ public:
     virtual void mouseDrag(const MouseEvent & event) override;
     virtual void mouseUp(const MouseEvent & event) override;
     virtual void mouseMove(const MouseEvent & event) override;
-    virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails){
+    virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override {
         return true; // why not
     }
     virtual void itemDropped(const SourceDetails & dragSourceDetails) override;
 
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
     void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
 private:

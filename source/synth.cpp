@@ -7,9 +7,9 @@ namespace PhasePhckr {
 const size_t numVoices = 16;
 
 Synth::Synth()
-    : effects(nullptr)
+    : voiceBus(new VoiceBus())
+    , effects(nullptr)
     , globalData(new GlobalData())
-    , voiceBus(new VoiceBus())
     , scopeHz(0)
     , scopeVoiceIndex(-1)
 {

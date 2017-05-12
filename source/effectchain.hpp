@@ -15,6 +15,7 @@ private:
 public:
     EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp);
     virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const GlobalData& globalData);
+    virtual ~EffectChain(){}
 
 };
 

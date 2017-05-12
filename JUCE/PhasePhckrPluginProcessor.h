@@ -13,7 +13,6 @@
 using namespace std;
 
 class PhasePhckrParameter : public AudioParameterFloat {
-    int idx;
 public:
     PhasePhckrParameter(int idx)
         : AudioParameterFloat(
@@ -23,7 +22,6 @@ public:
             1.0f,
             0.0f
             )
-        , idx(idx)
     {
     }
 };

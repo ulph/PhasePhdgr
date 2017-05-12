@@ -18,8 +18,6 @@ const float c_GridSize = 200;
 const float c_NodeSize = 125;
 const float c_PortSize = 10;
 
-static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize);
-
 struct XY {
     XY() : x(0), y(0) {}
     XY(float x, float y) : x(x), y(y) {}

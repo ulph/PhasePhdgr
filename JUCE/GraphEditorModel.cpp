@@ -630,7 +630,7 @@ void GfxGraph::designPorts(const Doc &doc){
         std::vector<ModulePortValue> mpvs;
         for(const auto& ip: m.inputs){
             if(ip.assignedValue){
-                mpvs.push_back(ModulePortValue{m.module.name, ip.port, ip.value});
+                mpvs.push_back(ModulePortValue{{m.module.name, ip.port}, ip.value});
             }
         }
         m.designPorts(doc, mpvs);
@@ -647,7 +647,7 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
             cgd.modules.push_back(m->module);
             for (const auto &ip : m->inputs) {
                 if (ip.assignedValue) {
-                    cgd.values.push_back(ModulePortValue{ m->module.name, ip.port, ip.value });
+                    cgd.values.push_back(ModulePortValue{{m->module.name, ip.port}, ip.value });
                 }
             }
         }
@@ -680,7 +680,7 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
             PadDescription pd = { alias, "", 0};
             inBus.push_back(pd);
             // store 'api' connection
-            cgd.connections.push_back(ModulePortConnection{c_inBus.name, alias, w.connection.target.module, w.connection.target.port});
+            cgd.connections.push_back(ModulePortConnection{{c_inBus.name, alias}, {w.connection.target.module, w.connection.target.port}});
             // remap external connection graph
             w.connection.target.module = name;
             w.connection.target.port = alias;
@@ -693,7 +693,7 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
             PadDescription pd = { alias, "", 0};
             outBus.push_back(pd);
             // store 'api' connectino
-            cgd.connections.push_back(ModulePortConnection{w.connection.source.module, w.connection.source.port, c_outBus.name, alias});
+            cgd.connections.push_back(ModulePortConnection{{w.connection.source.module, w.connection.source.port}, {c_outBus.name, alias}});
             // remap external connection graph
             w.connection.source.module = name;
             w.connection.source.port = alias;
@@ -743,7 +743,7 @@ PatchDescriptor GfxGraph::exportModelData(){
         graph.root.graph.modules.emplace_back(m.module);
         for ( const auto &ip : m.inputs){
             if(ip.assignedValue){
-                graph.root.graph.values.emplace_back(ModulePortValue{m.module.name, ip.port, ip.value});
+                graph.root.graph.values.emplace_back(ModulePortValue{{m.module.name, ip.port}, ip.value});
             }
         }
         graph.layout.emplace(m.module.name, ModulePosition{(int)m.position.x, (int)m.position.y});

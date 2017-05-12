@@ -5,10 +5,10 @@
 #include <math.h>
 
 FractionalSincTable::FractionalSincTable(const int N, const int numFractions, float normFreq)
-    : N(N)
-    , numFractions(numFractions)
+    : numFractions(numFractions)
     , coeffs(new float[numFractions*N])
     , normFreq(normFreq)
+    , N(N)
 {
     compute();
 }

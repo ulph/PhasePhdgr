@@ -3,8 +3,8 @@
 namespace PhasePhckr {
 
 Scope::Scope()
-    : scopeBufferWriteIndex(0)
-    , scopeBufferSize(sizeof(scopeBuffer) / sizeof(float))
+    : scopeBufferSize(sizeof(scopeBuffer) / sizeof(float))
+    , scopeBufferWriteIndex(0)
     , scopeDrift(0.0f)
 {
     memset(scopeBuffer, 0, sizeof(scopeBuffer));

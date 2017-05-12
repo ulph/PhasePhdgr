@@ -192,7 +192,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
 
     const int numOutputChannels = getTotalNumOutputChannels();
-    const int numMidiMessages = midiMessages.getNumEvents();
+//    const int numMidiMessages = midiMessages.getNumEvents();
     const int blockSize = buffer.getNumSamples();
     float sampleRate = (float)getSampleRate();
 

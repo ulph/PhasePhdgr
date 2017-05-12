@@ -2,7 +2,7 @@
 #include <math.h>
 
 ChamberlinFilter::ChamberlinFilter() 
-    : low(0.f), high(0.f), band(0.f)
+    : band(0.f), low(0.f), high(0.f)
 {
     inputs.push_back(Pad("input"));
     inputs.push_back(Pad("wc", 100.f));

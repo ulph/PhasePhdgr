@@ -15,7 +15,7 @@ namespace PhasePhckrFileStuff {
             std::transform(filestr.begin(), filestr.end(), filestr.begin(), ::tolower);
             return filestr == std::string(".json");
         }
-        virtual bool isDirectorySuitable(const File &file) const {
+        virtual bool isDirectorySuitable(const File &file) const override {
             return true;
         }
     };

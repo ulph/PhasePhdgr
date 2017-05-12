@@ -7,8 +7,8 @@ namespace PhasePhckr
 
 SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp)
     : connectionGraph()
-    , rms(0.0f)
     , rmsSlew(0.99f)
+    , rms(0.0f)
     , samplesToProcess(0)
     , doTerminate(false)
 {

@@ -9,10 +9,9 @@ const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayN
 const float max_delay_t = 5.f;
 
 Delay::Delay()
-    : readPosition(0)
-    , buffer(nullptr)
+    : buffer(nullptr)
     , bufferSize(0)
-    , lastDelayInSamples(0)
+    , readPosition(0)
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("time", 0.5f));
@@ -64,5 +63,4 @@ void Delay::process(uint32_t fs) {
     readPosition++;
     readPosition %= bufferSize;
 
-    lastDelayInSamples = tapeSamples;
 }

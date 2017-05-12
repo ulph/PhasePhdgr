@@ -31,7 +31,7 @@ private:
 public:
     MPEVoice mpe;
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
-    ~SynthVoice();
+    virtual ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);
     const float* getInternalBuffer(int channel) { return &internalBuffer[channel][0]; };

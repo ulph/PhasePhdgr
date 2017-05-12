@@ -27,9 +27,6 @@ public:
 private:
     PhasePhckrAudioProcessor& processor;
 
-    int activeVoiceSubscribeHandle;
-    int activeEffectSubscribeHandle;
-
     PhasePhckrScope voiceScopeL;
     PhasePhckrScope voiceScopeR;
     PhasePhckrXYScope voiceScopeXY;
@@ -41,22 +38,26 @@ private:
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 
-    TimeSliceThread fileWatchThread;
-    DirectoryContentsList voiceDirectoryWatcher;
-    FileListComponent voiceDirectoryList;
-    PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
-    DirectoryContentsList effectDirectoryWatcher;
-    FileListComponent effectDirectoryList;
-    PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
-    PhasePhckrGrid filesGrid;
     LambdaTimer fileUpdateTimer;
     void updateFiles() {
         voiceDirectoryWatcher.refresh();
         effectDirectoryWatcher.refresh();
     }
+    TimeSliceThread fileWatchThread;
 
+    int activeVoiceSubscribeHandle;
+    DirectoryContentsList voiceDirectoryWatcher;
+    FileListComponent voiceDirectoryList;
+    PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
     PatchEditor voiceEditor;
+    
+    int activeEffectSubscribeHandle;
+    DirectoryContentsList effectDirectoryWatcher;
+    FileListComponent effectDirectoryList;
+    PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;
     PatchEditor effectEditor;
+
+    PhasePhckrGrid filesGrid;
 
 #if INTERCEPT_STD_STREAMS
     InterceptStringStream coutIntercept;

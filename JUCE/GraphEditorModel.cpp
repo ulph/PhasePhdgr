@@ -109,11 +109,11 @@ void GfxPort::draw(Graphics & g, int rowIndex) const {
 }
 
 GfxPort::GfxPort()
-    : port("?"), unit("?"), value(13), defaultValue(42), isInput(false)
+    : port("?"), unit("?"), defaultValue(42), value(13), isInput(false)
 {}
 
 GfxPort::GfxPort(string port, const string unit, float value, bool isInput)
-    : port(port), unit(unit), value(value), defaultValue(value), isInput(isInput)
+    : port(port), unit(unit), defaultValue(value), value(value), isInput(isInput)
 {}
 
 void GfxPort::updateValue(const string& module, const std::vector<ModulePortValue> &mpvs){

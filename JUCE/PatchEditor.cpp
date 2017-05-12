@@ -132,16 +132,16 @@ PatchEditor::PatchEditor(
 )
     : subPatch(subPatch)
     , subCmpReg(subCmpReg)
-    , docListModel(doc.get(), docView)
-    , docList("docList", &docListModel)
-    , textEditor(subPatch)
     , rootView(
-        *this,
-        subDoc,
-        subPatch,
-        inBus,
-        outBus
-    )
+           *this,
+           subDoc,
+           subPatch,
+           inBus,
+           outBus
+           )
+    , textEditor(subPatch)
+    , docList("docList", &docListModel)
+    , docListModel(doc.get(), docView)
     , editorStack(subPatches, subPatchHandles)
 {
     addAndMakeVisible(grid);

@@ -154,9 +154,9 @@ GraphEditor::GraphEditor(
     const vector<PadDescription> &outBus
 )
     : subPatch(subPatch)
+    , subDoc(subDoc)
     , patchEditor(patchEditor)
     , viewPort(viewPort)
-    , subDoc(subDoc)
     , inBus(inBus)
     , outBus(outBus)
     , selecting(false)

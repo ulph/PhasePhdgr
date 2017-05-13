@@ -19,30 +19,16 @@ if(${FAST_MATH})
 else()
 endif()
 
-option(FORCE_FTZ_DAZ OFF)
-if(${FORCE_FTZ_DAZ})
-    add_definitions(-DFORCE_FTZ_DAZ=1)
-else()
-    add_definitions(-DFORCE_FTZ_DAZ=0)
-endif()
-
-option(INTERCEPT_STD_STREAMS ON)
-if(${INTERCEPT_STD_STREAMS})
-    add_definitions(-DINTERCEPT_STD_STREAMS=1)
-else()
-    add_definitions(-DINTERCEPT_STD_STREAMS=0)
-endif()
-
-option(USING_NLOHMANN_JSON OFF)
-if(${USING_NLOHMANN_JSON})
+option(BUILD_VST OFF)
+if(${BUILD_VST})
+    set(USING_NLOHMANN_JSON ON)
     set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
     include_directories(${JSON_INCLUDE_DIR})
     if(NOT EXISTS "${JSON_INCLUDE_DIR}/nlohmann/json.hpp")
         message(FATAL_ERROR "Cannot find nlohmann/json.hpp")
     endif()
-    add_definitions(-DUSING_NLOHMANN_JSON=1)
 else()
-    add_definitions(-DUSING_NLOHMANN_JSON=0)
+    set(USING_NLOHMANN_JSON OFF)
 endif()
 
 add_subdirectory(source)
@@ -62,16 +48,31 @@ set(API_INC
 
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
 
-option(BUILD_JUCE_STUFF OFF)
-if(${BUILD_JUCE_STUFF})
-    add_subdirectory(JUCE)
-endif()
-
-option(BUILD_VST OFF)
 if(${BUILD_VST})
-    set(VST_DESTINATION "~/.vst" CACHE FILEPATH "Where to INSTALL the VST")
 
-    set( PHASEPHCKR_LIBS
+    option(FORCE_FTZ_DAZ OFF)
+    if(${FORCE_FTZ_DAZ})
+        add_definitions(-DFORCE_FTZ_DAZ=1)
+    else()
+        add_definitions(-DFORCE_FTZ_DAZ=0)
+    endif()
+
+    option(INTERCEPT_STD_STREAMS ON)
+    if(${INTERCEPT_STD_STREAMS})
+        add_definitions(-DINTERCEPT_STD_STREAMS=1)
+    else()
+        add_definitions(-DINTERCEPT_STD_STREAMS=0)
+    endif()
+
+    # VST3 SDK stuff
+    set(VST3_SDK_ROOT "" CACHE FILEPATH "VST3 SDK root")
+    include_directories(${VST3_SDK_ROOT}) #JUCE needs this
+
+    # JUCE stuff
+    add_subdirectory(JUCE)
+
+    # our + JUCE object libs
+    set( PHASEPHCKR_SRC
         $<TARGET_OBJECTS:connectiongraph_obj>
         $<TARGET_OBJECTS:dsp_obj>
         $<TARGET_OBJECTS:modules_obj>
@@ -80,32 +81,32 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:juce_phasephckr_obj>
     )
 
-    add_library(PhasePhckr MODULE ${PHASEPHCKR_LIBS})
-    set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)
+    # let's utilize the templates from VST SDK ...
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    include(vst_sdk)
+    mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC})
 
+    # extra junk required by JUCE on APPLE
     if(APPLE)
-        set_target_properties(PhasePhckr PROPERTIES BUNDLE TRUE)
-        set_target_properties(PhasePhckr PROPERTIES BUNDLE_EXTENSION "vst3")
-        # TODO, more stuff from VST3 cmake ... or simply use VST3 cmake from SDK?
-
         FIND_LIBRARY(ACCELERATE_LIB Accelerate)
         FIND_LIBRARY(COCOA_LIB Cocoa)
         FIND_LIBRARY(COREIMAGE_LIB CoreImage)
         FIND_LIBRARY(IOKIT_LIB IOkit)
         FIND_LIBRARY(WEBKIT_LIB WebKit)
-        FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation) #reqd by vst I think
+        FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
         include(FindOpenGL)
-        TARGET_LINK_LIBRARIES( PhasePhckr
+        TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE
             ${ACCELERATE_LIB}
             ${COCOA_LIB}
             ${COREIMAGE_LIB}
             ${IOKIT_LIB}
             ${WEBKIT_LIB}
-            ${COREFOUNDATION_LIB}
             ${OPENGL_LIBRARIES}
-            )
+            ${COREFOUNDATION_LIB}
+        )
     endif()
 
-    install(TARGETS PhasePhckr DESTINATION ${VST_DESTINATION})
+    # make solution tidy
+    set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)
 
 endif()

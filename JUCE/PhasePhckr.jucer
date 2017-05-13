@@ -2,11 +2,11 @@
 
 <JUCERPROJECT id="oOaAxT" name="PhasePhckr" projectType="audioplug" version="0.0.1"
               bundleIdentifier="com.yourcompany.PhasePhckr" includeBinaryInAppConfig="1"
-              buildVST="1" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildVST="0" buildVST3="1" buildAU="0" buildAUv3="0" buildRTAS="0"
               buildAAX="0" pluginName="PhasePhckr" pluginDesc="PhasePhckr"
               pluginManufacturer="ulham solutions" pluginManufacturerCode="Manu"
               pluginCode="Ooaa" pluginChannelConfigs="" pluginIsSynth="1" pluginWantsMidiIn="1"
-              pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0"
+              pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="1"
               pluginAUExportPrefix="PhasePhckrAU" pluginRTASCategory="" aaxIdentifier="com.yourcompany.PhasePhckr"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.0.1"
               companyEmail="ulf.hammarqvist@gmail.com" companyName="ulham solutions"

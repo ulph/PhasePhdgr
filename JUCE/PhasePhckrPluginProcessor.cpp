@@ -17,10 +17,8 @@
 
 using namespace PhasePhckrFileStuff;
 
-//==============================================================================
 PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
      : AudioProcessor (BusesProperties()
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                        )
 {
@@ -94,20 +92,12 @@ const String PhasePhckrAudioProcessor::getName() const
 
 bool PhasePhckrAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
     return true;
-   #else
-    return false;
-   #endif
 }
 
 bool PhasePhckrAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
-    return true;
-   #else
     return false;
-   #endif
 }
 
 double PhasePhckrAudioProcessor::getTailLengthSeconds() const
@@ -117,8 +107,7 @@ double PhasePhckrAudioProcessor::getTailLengthSeconds() const
 
 int PhasePhckrAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
 }
 
 int PhasePhckrAudioProcessor::getCurrentProgram()
@@ -142,36 +131,17 @@ void PhasePhckrAudioProcessor::changeProgramName (int index, const String& newNa
 //==============================================================================
 void PhasePhckrAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
 }
 
 void PhasePhckrAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
 }
 
-#ifndef JucePlugin_PreferredChannelConfigurations
 bool PhasePhckrAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    ignoreUnused (layouts);
-    return true;
-  #else
-    // We only support stereo output ...
     if (layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) return false;
-
-    // This checks if the input layout matches the output layoutsustainHeight
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-   #endif
-
     return true;
-  #endif
 }
-#endif
 
 void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
@@ -262,7 +232,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
 //==============================================================================
 bool PhasePhckrAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
@@ -273,19 +243,12 @@ AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
 //==============================================================================
 void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
 }
 
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PhasePhckrAudioProcessor();

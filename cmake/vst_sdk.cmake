@@ -12,9 +12,7 @@ endfunction()
 
 function(mod_smtg_add_vst3plugin target sdkroot)
     set(sources ${ARGN})
-
     add_library(${target} MODULE ${sources})
-
     if(MAC)
         set_target_properties(${target} PROPERTIES BUNDLE TRUE)
         if(XCODE)

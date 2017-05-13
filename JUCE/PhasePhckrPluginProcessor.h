@@ -2,6 +2,7 @@
 #define PLUGINPROCESSOR_H_INCLUDED
 
 #include "JuceLibraryCode/JuceHeader.h"
+
 #include "phasephckr.h" // for now
 #include "design_json.hpp"
 #include "PhasePhckrGrid.h"

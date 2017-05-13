@@ -69,6 +69,9 @@ if(${BUILD_VST})
     include_directories(${VST3_SDK_ROOT}) #JUCE needs this
 
     # JUCE stuff
+    add_definitions(-DJucePlugin_Build_VST3=1)
+    add_definitions(-DJucePlugin_WantsMidiInput=1)
+    add_definitions(-DJucePlugin_IsSynth=1)
     add_subdirectory(JUCE)
 
     # our + JUCE object libs

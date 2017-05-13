@@ -38,6 +38,10 @@ if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
     message(FATAL_ERROR "Cannot find ${JUCE_LIB}/JuceHeader.h ... forgot to run Projuicer at least once?")
 endif()
 
+add_definitions(-DJucePlugin_Build_VST3=1)
+add_definitions(-DJucePlugin_WantsMidiInput=1)
+add_definitions(-DJucePlugin_IsSynth=1)
+
 set(JUCE_SRC
     ${JUCE_LIB}/include_juce_audio_plugin_client_utils.cpp
     ${JUCE_LIB}/include_juce_audio_plugin_client_VST3.cpp
@@ -59,6 +63,21 @@ if(APPLE)
         ${JUCE_LIB}/include_juce_gui_extra.mm
         ${JUCE_LIB}/include_juce_audio_processors.mm
         ${JUCE_LIB}/include_juce_audio_plugin_client_VST_utils.mm
+    )
+    FIND_LIBRARY(ACCELERATE_LIB Accelerate)
+    FIND_LIBRARY(COCOA_LIB Cocoa)
+    FIND_LIBRARY(COREIMAGE_LIB CoreImage)
+    FIND_LIBRARY(IOKIT_LIB IOkit)
+    FIND_LIBRARY(WEBKIT_LIB WebKit)
+    include(FindOpenGL)
+    set(JUCE_DEPS
+        ${ACCELERATE_LIB}
+        ${COCOA_LIB}
+        ${COREIMAGE_LIB}
+        ${IOKIT_LIB}
+        ${WEBKIT_LIB}
+        ${OPENGL_LIBRARIES}
+        PARENT_SCOPE
     )
 endif()
 

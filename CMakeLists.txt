@@ -69,9 +69,6 @@ if(${BUILD_VST})
     include_directories(${VST3_SDK_ROOT}) #JUCE needs this
 
     # JUCE stuff
-    add_definitions(-DJucePlugin_Build_VST3=1)
-    add_definitions(-DJucePlugin_WantsMidiInput=1)
-    add_definitions(-DJucePlugin_IsSynth=1)
     add_subdirectory(JUCE)
 
     # our + JUCE object libs
@@ -84,30 +81,18 @@ if(${BUILD_VST})
         $<TARGET_OBJECTS:juce_phasephckr_obj>
     )
 
-    # let's utilize the templates from VST SDK ...
+    # utilize the (modded) templates from VST SDK ...
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
     include(vst_sdk)
     mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC})
 
     # extra junk required by JUCE on APPLE
     if(APPLE)
-        FIND_LIBRARY(ACCELERATE_LIB Accelerate)
-        FIND_LIBRARY(COCOA_LIB Cocoa)
-        FIND_LIBRARY(COREIMAGE_LIB CoreImage)
-        FIND_LIBRARY(IOKIT_LIB IOkit)
-        FIND_LIBRARY(WEBKIT_LIB WebKit)
         FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
-        include(FindOpenGL)
-        TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE
-            ${ACCELERATE_LIB}
-            ${COCOA_LIB}
-            ${COREIMAGE_LIB}
-            ${IOKIT_LIB}
-            ${WEBKIT_LIB}
-            ${OPENGL_LIBRARIES}
-            ${COREFOUNDATION_LIB}
-        )
+        TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE ${COREFOUNDATION_LIB} )
     endif()
+
+    TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE ${JUCE_DEPS})
 
     # make solution tidy
     set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)

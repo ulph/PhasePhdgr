@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="oOaAxT" name="PhasePhckr" projectType="audioplug" version="0.0.1"
               bundleIdentifier="com.yourcompany.PhasePhckr" includeBinaryInAppConfig="1"
-              buildVST="0" buildVST3="1" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildVST="1" buildVST3="1" buildAU="0" buildAUv3="0" buildRTAS="0"
               buildAAX="0" pluginName="PhasePhckr" pluginDesc="PhasePhckr"
               pluginManufacturer="ulham solutions" pluginManufacturerCode="Manu"
               pluginCode="Ooaa" pluginChannelConfigs="" pluginIsSynth="1" pluginWantsMidiIn="1"

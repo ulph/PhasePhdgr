@@ -19,16 +19,10 @@ using namespace PhasePhckrFileStuff;
 
 //==============================================================================
 PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
                        )
-#endif
 {
 
     activeVoiceHandle = activeVoice.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
@@ -182,8 +176,6 @@ bool PhasePhckrAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 #if FORCE_FTZ_DAZ
-//    _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-//    _MM_SET_ROUNDING_MODE(_MM_ROUND_TOWARD_ZERO);
     int oldMXCSR = _mm_getcsr(); /*read the old MXCSR setting */ \
     int newMXCSR = oldMXCSR | 0x8040; /* set DAZ and FZ bits */ \
     _mm_setcsr( newMXCSR); /*write the new MXCSR setting to the MXCSR */

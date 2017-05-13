@@ -39,29 +39,8 @@ if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
 endif()
 
 set(JUCE_SRC
-#    ${JUCE_LIB}/include_juce_audio_basics.cpp
-#    ${JUCE_LIB}/include_juce_audio_devices.cpp
-#    ${JUCE_LIB}/include_juce_audio_formats.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_AAX.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_RTAS_1.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_RTAS_2.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_RTAS_3.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_RTAS_4.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_RTAS_utils.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_Standalone.cpp
     ${JUCE_LIB}/include_juce_audio_plugin_client_utils.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_VST2.cpp
     ${JUCE_LIB}/include_juce_audio_plugin_client_VST3.cpp
-#    ${JUCE_LIB}/include_juce_audio_processors.cpp
-#    ${JUCE_LIB}/include_juce_core.cpp
-#    ${JUCE_LIB}/include_juce_cryptography.cpp
-#    ${JUCE_LIB}/include_juce_data_structures.cpp
-#    ${JUCE_LIB}/include_juce_events.cpp
-#    ${JUCE_LIB}/include_juce_graphics.cpp
-#    ${JUCE_LIB}/include_juce_gui_basics.cpp
-#    ${JUCE_LIB}/include_juce_gui_extra.cpp
-#    ${JUCE_LIB}/include_juce_opengl.cpp
-#    ${JUCE_LIB}/include_juce_video.cpp
     ${JUCE_LIB}/AppConfig.h
     ${JUCE_LIB}/JuceHeader.h
 )
@@ -82,7 +61,6 @@ if(APPLE)
         ${JUCE_LIB}/include_juce_audio_plugin_client_VST_utils.mm
     )
 endif()
-
 
 add_library(juce_lib_obj OBJECT ${JUCE_SRC})
 set_target_properties(juce_lib_obj PROPERTIES COMPILE_FLAGS "-fPIC")

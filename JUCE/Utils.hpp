@@ -8,8 +8,9 @@
 #if INTERCEPT_STD_STREAMS
 struct InterceptStringStream {
     InterceptStringStream(std::ostream & stream)
-        : oldBuf(stream.rdbuf(newBuf.rdbuf()))
+        : newBuf()
     {
+        oldBuf = stream.rdbuf(newBuf.rdbuf());
     }
     ~InterceptStringStream() {
         std::cout.rdbuf(oldBuf);

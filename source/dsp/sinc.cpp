@@ -26,12 +26,6 @@ void FractionalSincTable::compute() {
             coeffs[ni] = hamming*sincf(arg * normFreq);
             M += coeffs[ni];
         }
-        // silly normalization
-        for (auto n = 0; n < N; ++n)
-        {
-            int ni = i*N + n;
-            coeffs[ni] /= M;
-        }
     }
 }
 

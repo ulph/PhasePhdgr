@@ -10,21 +10,15 @@ FractionalSincTable::FractionalSincTable(const int N, const int numFractions, fl
     , normFreq(normFreq)
     , N(N)
 {
-    compute();
-}
-
-void FractionalSincTable::compute() {
     for (auto i = 0; i < numFractions; ++i)
     {
         float frac = (float)i*1.0f / (float(numFractions));
-        float M = 0;
         for (auto n = 0; n < N; ++n)
         {
             int ni = i*N + n;
             float arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
             float hamming = 0.54f + 0.46f*cosf((2.f*(float)M_PI*arg) / (float)(N - 1));
             coeffs[ni] = hamming*sincf(arg * normFreq);
-            M += coeffs[ni];
         }
     }
 }
@@ -52,4 +46,20 @@ const int FractionalSincTable::getCoefficients(const float fraction, float* dest
     }
 
     return N;
+}
+
+
+BlepTable::BlepTable(const int N, const int numFractions, float normFreq)
+    : FractionalSincTable(N, numFractions, normFreq)
+{
+    for (auto i = 0; i < numFractions; ++i)
+    {
+        float cumSum = 0;
+        for (auto n = 0; n < N; ++n)
+        {
+            int ni = i*N + n;
+            cumSum += coeffs[ni];
+            coeffs[ni] = cumSum;
+        }
+    }
 }

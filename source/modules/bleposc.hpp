@@ -4,25 +4,14 @@
 #include "module.hpp"
 #include <assert.h>
 
-static inline float poly3blep0(float t)
-{
-    assert(t >= 0 && t<= 1);
-    if(t < 0) return 0;
-    if(t > 1) return 1;
-//    return t*t*t - 0.5*t*t*t*t;
-    return 0.5f*t*t;
-}
-
-static inline float poly3blep1(float t)
-{
-    return -poly3blep0(1-t);
-}
-
 class PolyBlepOsc : public Module
 {
+public:
+    static const int c_blepN = 16;
 private:
+    float buf[c_blepN];
+    int bufPos;
     float internalPhase;
-    float blepDelay;
     float widthDelay;
     int   pulseStage;
     float oldPhase;

@@ -10,6 +10,7 @@ public:
     static const int c_blepN = 16;
 private:
     float buf[c_blepN];
+    float blep[c_blepN];
     int bufPos;
     float internalPhase;
     float widthDelay;

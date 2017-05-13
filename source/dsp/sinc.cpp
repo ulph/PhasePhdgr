@@ -60,6 +60,7 @@ BlepTable::BlepTable(const int N, const int numFractions, float normFreq)
             int ni = i*N + n;
             cumSum += coeffs[ni];
             coeffs[ni] = cumSum;
+            coeffs[ni] -= (n>=N/2?1.f:0.f); // blep residual ... TODO - right place??
         }
     }
 }

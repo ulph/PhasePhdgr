@@ -44,7 +44,6 @@ void PolyBlepOsc::process(uint32_t fs)
     freq = (freq >= 0 ? freq : freq + 2);
     freq *= 0.5;
     oldPhase = newPhase;
-    int bufPosN = (bufPos+1)%c_blepN;
 
     internalPhase += freq;
 
@@ -57,25 +56,30 @@ void PolyBlepOsc::process(uint32_t fs)
         {
             if(internalPhase < pulseWidth) break;
             float t = (internalPhase - pulseWidth) / (widthDelay - pulseWidth + freq);
-            buf[bufPos]             += mix * poly3blep0(t);
-            buf[bufPosN] += mix * poly3blep1(t);
+            c_blepTable.getCoefficients(t, &blep[0], c_blepN);
+            for(int n=0; n<c_blepN; ++n){
+                buf[(bufPos+n)%c_blepN] += mix * blep[n];
+            }
             pulseStage = 1;
         }
         if(pulseStage == 1)
         {
             if(internalPhase < 1) break;
             float t = (internalPhase - 1) / freq;
-            buf[bufPos]             -= poly3blep0(t);
-            buf[bufPosN] -= poly3blep1(t);
+            c_blepTable.getCoefficients(t, &blep[0], c_blepN);
+            for(int n=0; n<c_blepN; ++n){
+                buf[(bufPos+n)%c_blepN] -= mix * blep[n];
+            }
             pulseStage = 0;
             internalPhase -= 1;
         }
     }
 
-    buf[bufPosN] += (1-mix)*internalPhase + mix*(pulseStage ? 1.f : 0.f);
+    buf[(bufPos+c_blepN/2+1)%c_blepN] += (1-mix)*internalPhase + mix*(pulseStage ? 1.f : 0.f);
     widthDelay = pulseWidth;
 
     outputs[0].value = (2*buf[bufPos] - 1);
     buf[bufPos] = 0;
-    bufPos = bufPosN;
+    bufPos++;
+    bufPos %= c_blepN;
 }

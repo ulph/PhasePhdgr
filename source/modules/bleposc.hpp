@@ -7,7 +7,7 @@
 class PolyBlepOsc : public Module
 {
 public:
-    static const int c_blepN = 16;
+    static const int c_blepN = 8;
 private:
     float buf[c_blepN];
     float blep[c_blepN];

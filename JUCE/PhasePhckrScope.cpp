@@ -21,9 +21,9 @@ void PhasePhckrScope::paint (Graphics& g)
         for (int i = 0; i < (sourceSize - 1); ++i) {
             g.drawLine(
                 i*xScale,
-                size_y*0.5f + yScale*sourceBuffer[i],
+                size_y*0.5f - yScale*sourceBuffer[i],
                 (i + 1)*xScale,
-                size_y*0.5f + yScale*sourceBuffer[i + 1],
+                size_y*0.5f - yScale*sourceBuffer[i + 1],
                 1.0f
             );
         }
@@ -55,7 +55,7 @@ void PhasePhckrXYScope::paint (Graphics& g)
     for (int i = 0; i < sourceSizeL; ++i) {
         g.setPixel(
             (size_x*(blitScale*sourceBufferL[i] + 0.5f)),
-            (size_y*(blitScale*sourceBufferR[i] + 0.5f))
+            (size_y*(-blitScale*sourceBufferR[i] + 0.5f))
         );
     }
 

@@ -13,6 +13,8 @@ BlitOsc::BlitOsc()
     , cumSum(0.f)
 {
     inputs.push_back(Pad("phase"));
+    inputs.push_back(Pad("pwm"));
+    inputs.push_back(Pad("shape")); // square vs saw
     outputs.push_back(Pad("output"));
 }
 
@@ -25,7 +27,7 @@ void BlitOsc::process(uint32_t fs)
         float fraction = - oldPhase / (phase - oldPhase);
         c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
         for(int n=0; n<c_blitN; ++n){
-            buf[(bufPos+n)%c_blitN] -= blit[n]; // wtf, my sinc's upside down?
+            buf[(bufPos+n)%c_blitN] += blit[n];
         }
     }
     else if(phase <= 0 && oldPhase > 0){
@@ -34,7 +36,7 @@ void BlitOsc::process(uint32_t fs)
         float fraction = -oldPhase_ / (phase_ - oldPhase_);
         c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
         for(int n=0; n<c_blitN; ++n){
-            buf[(bufPos+n)%c_blitN] += blit[n];
+            buf[(bufPos+n)%c_blitN] -= blit[n];
         }
     }
     oldPhase = phase;

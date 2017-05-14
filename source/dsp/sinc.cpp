@@ -48,19 +48,3 @@ const int FractionalSincTable::getCoefficients(const float fraction, float* dest
     return N;
 }
 
-
-BlepTable::BlepTable(const int N, const int numFractions, float normFreq)
-    : FractionalSincTable(N, numFractions, normFreq)
-{
-    for (auto i = 0; i < numFractions; ++i)
-    {
-        float cumSum = 0;
-        for (auto n = 0; n < N; ++n)
-        {
-            int ni = i*N + n;
-            cumSum += coeffs[ni];
-            coeffs[ni] = cumSum;
-            coeffs[ni] -= (n>=N/2?1.f:0.f); // blep residual ... TODO - right place??
-        }
-    }
-}

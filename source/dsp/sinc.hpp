@@ -19,9 +19,3 @@ public:
     virtual ~FractionalSincTable();
     const int getCoefficients(const float fraction, float* destinationBuffer, const int destinationBufferSize) const;
 };
-
-
-struct BlepTable : public FractionalSincTable
-{
-    BlepTable(int N, int numFractions, float normFreq);
-};

@@ -4,22 +4,20 @@
 #include "module.hpp"
 #include <assert.h>
 
-class PolyBlepOsc : public Module
+class BlitOsc : public Module
 {
 public:
-    static const int c_blepN = 8;
+    static const int c_blitN = 32;
 private:
-    float buf[c_blepN];
-    float blep[c_blepN];
+    float buf[c_blitN];
+    float blit[c_blitN];
     int bufPos;
-    float internalPhase;
-    float widthDelay;
-    int   pulseStage;
     float oldPhase;
-public:
-    PolyBlepOsc();
+    float cumSum;
+public :
+    BlitOsc();
     void process(uint32_t fs);
-    static Module* factory() { return new PolyBlepOsc(); }
+    static Module* factory() { return new BlitOsc(); }
 };
 
 #endif

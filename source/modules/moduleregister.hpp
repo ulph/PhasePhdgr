@@ -54,7 +54,7 @@ public:
         cg.registerModule("NOISE", &(Noise::factory));
 
         /* oscillators */
-        cg.registerModule("PBLOSC", &(PolyBlepOsc::factory));
+        cg.registerModule("PBLOSC", &(BlitOsc::factory));
         cg.registerModule("SINE", &(Sine::factory));
 
         /* filters */

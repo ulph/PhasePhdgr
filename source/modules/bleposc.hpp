@@ -14,6 +14,8 @@ private:
     int bufPos;
     float oldPhase;
     float cumSum;
+    int stage;
+    float internalPhase;
 public :
     BlitOsc();
     void process(uint32_t fs);

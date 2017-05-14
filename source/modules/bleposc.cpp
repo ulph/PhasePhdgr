@@ -12,6 +12,8 @@ BlitOsc::BlitOsc()
     , bufPos(0)
     , oldPhase(0.f)
     , cumSum(0.f)
+    , stage(0)
+    , internalPhase(0.f)
 {
     inputs.push_back(Pad("phase"));
     inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
@@ -21,37 +23,43 @@ BlitOsc::BlitOsc()
 
 void BlitOsc::process(uint32_t fs)
 {
-    float phase = limit(inputs[0].value);
+    float phase = inputs[0].value;
     float shape = limit(inputs[1].value);
     float pwm = limit(inputs[2].value);
 
     const float leak = 0.999f;
     float phaseDiff = phase - oldPhase;
-    phaseDiff += phaseDiff<0.f?2.0:0.f;
+    phaseDiff += phaseDiff<0.f?2.0:0.f; // wrap around ... note, assumes positive phase derivative...
     float bias = phaseDiff/2.0f;
 
-    if(phase >= pwm && oldPhase < pwm){
+    internalPhase += phaseDiff;
+
+    if(stage==0 && internalPhase >= pwm){
         float fraction = 0.0f;
-        if(phase != oldPhase){
-            fraction = (pwm - oldPhase) / (phase - oldPhase);
+        if(internalPhase != oldPhase){
+            fraction = (pwm - oldPhase) / (internalPhase - oldPhase);
         }
-        c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+        int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+        assert(n == c_blitN);
         for(int n=0; n<c_blitN; ++n){
             buf[(bufPos+n)%c_blitN] += shape*blit[n];
         }
+        stage=1;
     }
-    else if(phase < oldPhase){ // wrap around
-        float phase_ = phase + 1.0f;
-        float oldPhase_ = oldPhase - 1.0f;
+    if(stage==1 && internalPhase >= 1.f){
         float fraction = 0.0f;
-        if(phase_ != oldPhase_){
-            fraction = -oldPhase_ / (phase_ - oldPhase_);
+        if(internalPhase != oldPhase){
+            fraction = (1.f - oldPhase) / (internalPhase - oldPhase);
         }
-        c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+        int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+        assert(n == c_blitN);
         for(int n=0; n<c_blitN; ++n){
             buf[(bufPos+n)%c_blitN] -= blit[n];
         }
+        stage=0;
+        internalPhase -= 2.0f;
     }
+
     oldPhase = phase;
 
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;

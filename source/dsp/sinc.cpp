@@ -32,7 +32,10 @@ const int FractionalSincTable::getCoefficients(const float fraction, float* dest
     {
         return 0;
     }
-    assert(fraction < 1.0f && fraction >= 0.0f);
+    if(fraction > 1.0f || fraction < 0.f){
+        assert(0);
+        return 0;
+    }
 
     const float softIdx = fraction * (float)numFractions;
     assert(softIdx < numFractions);

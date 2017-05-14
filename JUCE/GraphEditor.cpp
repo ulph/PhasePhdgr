@@ -377,6 +377,7 @@ void GraphEditor::updateBounds(const XY & position, const XY & size){
         bounds.setHeight((int)(position.y + size.y) + 10);
     }
     setBounds(bounds);
+    repaint();
 }
 
 

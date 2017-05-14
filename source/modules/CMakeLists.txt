@@ -38,6 +38,7 @@ set(SRC
     sine.hpp
     sympow.cpp
     sympow.hpp
+    inlines.hpp
 )
 
 include_directories(../connectiongraph)

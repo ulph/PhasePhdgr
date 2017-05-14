@@ -1,6 +1,7 @@
 #include "bleposc.hpp"
 #include <string.h>
 #include "sinc.hpp"
+#include "inlines.hpp"
 
 const int c_numFraction = 1000;
 const auto c_blitTable = FractionalSincTable(BlitOsc::c_blitN, c_numFraction, (float)M_PI);
@@ -13,16 +14,16 @@ BlitOsc::BlitOsc()
     , cumSum(0.f)
 {
     inputs.push_back(Pad("phase"));
-    inputs.push_back(Pad("shape")); // square <-> saw ...
-    inputs.push_back(Pad("pwm")); // square <-> pulse ...
+    inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
+    inputs.push_back(Pad("pwm")); // pulse/saw <-> square/2saw <-> pulse/saw ...
     outputs.push_back(Pad("output"));
 }
 
 void BlitOsc::process(uint32_t fs)
 {
-    float phase = inputs[0].value;
-    float shape = inputs[1].value;
-    float pwm = inputs[2].value;
+    float phase = limit(inputs[0].value);
+    float shape = limit(inputs[1].value);
+    float pwm = limit(inputs[2].value);
 
     const float leak = 0.999f;
     float phaseDiff = phase - oldPhase;
@@ -39,7 +40,7 @@ void BlitOsc::process(uint32_t fs)
             buf[(bufPos+n)%c_blitN] += shape*blit[n];
         }
     }
-    else if(phase <= 0 && oldPhase > 0){
+    else if(phase < oldPhase){ // wrap around
         float phase_ = phase + 1.0f;
         float oldPhase_ = oldPhase - 1.0f;
         float fraction = 0.0f;

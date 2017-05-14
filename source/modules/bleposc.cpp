@@ -13,21 +13,26 @@ BlitOsc::BlitOsc()
     , cumSum(0.f)
 {
     inputs.push_back(Pad("phase"));
-    inputs.push_back(Pad("pwm"));
-    inputs.push_back(Pad("shape")); // square vs saw
+    inputs.push_back(Pad("shape")); // square vs saw ...
+    inputs.push_back(Pad("pwm")); // pulse vs triangle ...
     outputs.push_back(Pad("output"));
 }
 
 void BlitOsc::process(uint32_t fs)
 {
-    const float leak = 0.99f;
-
     float phase = inputs[0].value;
+    float shape = inputs[1].value;
+
+    const float leak = 0.99f;
+    float phaseDiff = phase - oldPhase;
+    phaseDiff += phaseDiff<0.f?2.0:0.f;
+    float bias = phaseDiff/2.0f; // should probably smooth phaseDiff a bit as it's a numerical derivative ...
+
     if(phase >= 0.f && oldPhase < 0.f){
         float fraction = - oldPhase / (phase - oldPhase);
         c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
         for(int n=0; n<c_blitN; ++n){
-            buf[(bufPos+n)%c_blitN] += blit[n];
+            buf[(bufPos+n)%c_blitN] += shape*blit[n];
         }
     }
     else if(phase <= 0 && oldPhase > 0){
@@ -41,7 +46,7 @@ void BlitOsc::process(uint32_t fs)
     }
     oldPhase = phase;
 
-    cumSum = cumSum*leak + buf[bufPos];
+    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;
     outputs[0].value = cumSum;
     buf[bufPos] = 0.f;
     bufPos++;

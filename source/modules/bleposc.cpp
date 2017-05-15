@@ -92,6 +92,7 @@ void BlitOsc::process(uint32_t fs)
     sync = newSync;
 
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;
+    // TODO, first order HP with cutoff quite low, like 5 hz or so. that or figure out why there is still some bias for higher notes
     outputs[0].value = cumSum;
     buf[bufPos] = 0.f;
     bufPos++;

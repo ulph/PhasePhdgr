@@ -36,7 +36,7 @@ void BlitOsc::process(uint32_t fs)
     float bias = nFreq/2.0f;
     // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
 
-    float leak = 1.f-nFreq*0.5;
+    float leak = 1.f-nFreq*0.5; // TODO, maybe leak here can be somewhat adjustable?
 
     internalPhase += nFreq;
 
@@ -55,7 +55,7 @@ void BlitOsc::process(uint32_t fs)
             float t = -0.5f; // target value
             float r = cumSum; // current (future) value
             for(int n=0; n<c_blitN; ++n){
-                r += buf[(bufPos+n)%c_blitN];
+                r += buf[(bufPos+n)%c_blitN]; // should be bias here?
             }
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){

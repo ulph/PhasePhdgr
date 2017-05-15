@@ -33,30 +33,34 @@ void BlitOsc::process(uint32_t fs)
 
     internalPhase += nFreq;
 
-    if(stage==0 && internalPhase >= pwm){
-        float fraction = 0.0f;
-        if(internalPhase != oldPhase){
-            fraction = (pwm - oldPhase) / (internalPhase - oldPhase);
+    while(true){
+        if(stage==0){
+            if(internalPhase < pwm) break;
+            float fraction = 0.0f;
+            if(internalPhase != oldPhase){
+                fraction = (pwm - oldPhase) / (internalPhase - oldPhase);
+            }
+            int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+            assert(n == c_blitN);
+            for(int n=0; n<c_blitN; ++n){
+                buf[(bufPos+n)%c_blitN] += shape*blit[n];
+            }
+            stage=1;
         }
-        int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-        assert(n == c_blitN);
-        for(int n=0; n<c_blitN; ++n){
-            buf[(bufPos+n)%c_blitN] += shape*blit[n];
+        if(stage==1){
+            if(internalPhase < 1.0f) break;
+            float fraction = 0.0f;
+            if(internalPhase != oldPhase){
+                fraction = (1.f - oldPhase) / (internalPhase - oldPhase);
+            }
+            int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+            assert(n == c_blitN);
+            for(int n=0; n<c_blitN; ++n){
+                buf[(bufPos+n)%c_blitN] -= blit[n];
+            }
+            stage=0;
+            internalPhase -= 2.0f;
         }
-        stage=1;
-    }
-    if(stage==1 && internalPhase >= 1.f){
-        float fraction = 0.0f;
-        if(internalPhase != oldPhase){
-            fraction = (1.f - oldPhase) / (internalPhase - oldPhase);
-        }
-        int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-        assert(n == c_blitN);
-        for(int n=0; n<c_blitN; ++n){
-            buf[(bufPos+n)%c_blitN] -= blit[n];
-        }
-        stage=0;
-        internalPhase -= 2.0f;
     }
 
     oldPhase = internalPhase;

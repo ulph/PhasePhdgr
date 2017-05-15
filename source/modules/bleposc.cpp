@@ -26,11 +26,11 @@ BlitOsc::BlitOsc()
 void BlitOsc::process(uint32_t fs)
 {
     float freq = inputs[0].value;
-    float shape = limit(inputs[1].value);
+    float shape = limit(inputs[1].value, 0.f, 1.f);
     float pwm = limit(inputs[2].value);
     float newSync = inputs[3].value;
 
-    const float leak = 0.999f;
+    const float leak = 0.9999f;
     float nFreq = 2.f*freq/(float)fs; // TODO, feed in nFreq from inBus as it'll be quite nice [-1,1]
     float bias = nFreq/2.0f; // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
 
@@ -42,18 +42,21 @@ void BlitOsc::process(uint32_t fs)
 
     while(true){
         if(stage==-1){
-            // perhaps here is where we could do softsync...?
-            // but for now, assume hard sync ...
+            // TODO - softsync
             float fraction = 0.0f;
             if(newSync != sync){
                 fraction = (0 - sync) / (newSync - sync);
             }
-            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            float r = cumSum; // TODO, not quite right. should be towards -1
+            float t = -0.5f; // target value
+            float r = cumSum; // current (future) value
             for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] -= r*blit[n];
+                r += buf[(bufPos+n)%c_blitN];
             }
-            internalPhase -= (internalPhase>1.f)?1.f:internalPhase;
+            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+            for(int n=0; n<c_blitN; ++n){
+                buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
+            }
+            internalPhase = 0; // not right, but almost right -- should probably take into account the fraction
             stage = 0;
         }
         if(stage==0){

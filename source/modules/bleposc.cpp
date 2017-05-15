@@ -25,14 +25,12 @@ BlitOsc::BlitOsc()
 
 void BlitOsc::process(uint32_t fs)
 {
-    float freq = inputs[0].value;
+    float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
     float shape = limit(inputs[1].value);
-    float pwm = limit(inputs[2].value);
+    float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
     float newSync = inputs[3].value;
 
-    float nFreq = 2.f*freq/(float)fs;
-    nFreq = (nFreq > 1.0f) ? 1.0f : nFreq;
-    nFreq = (nFreq <-1.0f) ?-1.0f : nFreq;
+    float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
     float bias = nFreq;
     // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
 

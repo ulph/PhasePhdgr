@@ -14,10 +14,12 @@ BlitOsc::BlitOsc()
     , cumSum(0.f)
     , stage(0)
     , internalPhase(0.f)
+    , sync(0.f)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
     inputs.push_back(Pad("pwm")); // pulse/saw <-> square/2saw <-> pulse/saw ...
+    inputs.push_back(Pad("reset")); // for osc sync
     outputs.push_back(Pad("output"));
 }
 
@@ -26,22 +28,41 @@ void BlitOsc::process(uint32_t fs)
     float freq = inputs[0].value;
     float shape = limit(inputs[1].value);
     float pwm = limit(inputs[2].value);
+    float newSync = inputs[3].value;
 
     const float leak = 0.999f;
     float nFreq = 2.f*freq/(float)fs; // TODO, feed in nFreq from inBus as it'll be quite nice [-1,1]
-    float bias = nFreq/2.0f;
+    float bias = nFreq/2.0f; // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
 
     internalPhase += nFreq;
 
+    if(newSync >= 0 && sync < 0){
+        stage = -1;
+    }
+
     while(true){
+        if(stage==-1){
+            // perhaps here is where we could do softsync...?
+            // but for now, assume hard sync ...
+            float fraction = 0.0f;
+            if(newSync != sync){
+                fraction = (0 - sync) / (newSync - sync);
+            }
+            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+            float r = cumSum; // TODO, not quite right. should be towards -1
+            for(int n=0; n<c_blitN; ++n){
+                buf[(bufPos+n)%c_blitN] -= r*blit[n];
+            }
+            internalPhase -= (internalPhase>1.f)?1.f:internalPhase;
+            stage = 0;
+        }
         if(stage==0){
             if(internalPhase < pwm) break;
             float fraction = 0.0f;
             if(internalPhase != oldPhase){
                 fraction = (pwm - oldPhase) / (internalPhase - oldPhase);
             }
-            int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            assert(n == c_blitN);
+            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] += shape*blit[n];
             }
@@ -53,8 +74,7 @@ void BlitOsc::process(uint32_t fs)
             if(internalPhase != oldPhase){
                 fraction = (1.f - oldPhase) / (internalPhase - oldPhase);
             }
-            int n = c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            assert(n == c_blitN);
+            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] -= blit[n];
             }
@@ -64,6 +84,7 @@ void BlitOsc::process(uint32_t fs)
     }
 
     oldPhase = internalPhase;
+    sync = newSync;
 
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;
     outputs[0].value = cumSum;

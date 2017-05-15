@@ -15,8 +15,9 @@ private:
     float oldPhase;
     float cumSum;
     int stage;
+    float sync;
     float internalPhase;
-public :
+public:
     BlitOsc();
     void process(uint32_t fs);
     static Module* factory() { return new BlitOsc(); }

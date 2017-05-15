@@ -2,7 +2,7 @@
 
 Phase::Phase() : trig(0.f){
     inputs.push_back(Pad("freq"));
-    inputs.push_back(Pad("trig"));
+    inputs.push_back(Pad("reset"));
     outputs.push_back(Pad("phase"));
 }
 

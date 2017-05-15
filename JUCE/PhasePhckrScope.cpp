@@ -10,7 +10,7 @@ void PhasePhckrScope::paint (Graphics& g)
     int sourceSize = 0;
     const float * sourceBuffer = source.getBuffer(&sourceSize);
 
-    g.setColour(Colour(0x22ff0000));
+    g.setColour(Colour(0xffff0000));
     g.drawLine(0.0f, (size_y*0.5f), size_x, (size_y*0.5f), 0.5f);
     g.drawLine(0.0f, (size_y*0.5f + yScale), size_x, (size_y*0.5f + yScale), 0.5f);
     g.drawLine(0.0f, (size_y*0.5f - yScale), size_x, (size_y*0.5f - yScale), 0.5f);

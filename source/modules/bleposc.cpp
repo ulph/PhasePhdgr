@@ -25,6 +25,11 @@ BlitOsc::BlitOsc()
 
 void BlitOsc::process(uint32_t fs)
 {
+    // TODO invastigating aliasing and popping on sync
+    // 1 check fractions are withing bounds ... and their calcs
+    // 2 check sync fracion, and the resetting of phase
+    // 3 ... leak compensate sync reset value? not by the delta, but target value itself...
+
     float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
     float shape = limit(inputs[1].value);
     float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
@@ -33,6 +38,7 @@ void BlitOsc::process(uint32_t fs)
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
     float bias = nFreq;
     // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
+    // TODO, triangles (using derivative...)
 
     float leak = 1.f-nFreq*0.1; // maybe leak here can be somewhat adjustable?
 
@@ -52,7 +58,7 @@ void BlitOsc::process(uint32_t fs)
             float t = -1.0f; // target value
             float r = cumSum; // current (future) value
             for(int n=0; n<c_blitN; ++n){
-                r += buf[(bufPos+n)%c_blitN]; // should take into account leak here?
+                r += buf[(bufPos+n)%c_blitN];
             }
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){

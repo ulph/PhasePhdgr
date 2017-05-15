@@ -5,6 +5,7 @@
 
 const int c_numFraction = 1000;
 const auto c_blitTable = FractionalSincTable(BlitOsc::c_blitN, c_numFraction, (float)M_PI);
+// TODO; investigate something like fs/4 bandlimit on the sinc itself...
 
 BlitOsc::BlitOsc()
     : buf{0.f}

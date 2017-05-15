@@ -15,7 +15,7 @@ BlitOsc::BlitOsc()
     , stage(0)
     , internalPhase(0.f)
 {
-    inputs.push_back(Pad("phase"));
+    inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
     inputs.push_back(Pad("pwm")); // pulse/saw <-> square/2saw <-> pulse/saw ...
     outputs.push_back(Pad("output"));
@@ -23,16 +23,15 @@ BlitOsc::BlitOsc()
 
 void BlitOsc::process(uint32_t fs)
 {
-    float phase = inputs[0].value;
+    float freq = inputs[0].value;
     float shape = limit(inputs[1].value);
     float pwm = limit(inputs[2].value);
 
     const float leak = 0.999f;
-    float phaseDiff = phase - oldPhase;
-    phaseDiff += phaseDiff<0.f?2.0:0.f; // wrap around ... note, assumes positive phase derivative...
-    float bias = phaseDiff/2.0f;
+    float nFreq = 2.f*freq/(float)fs; // TODO, feed in nFreq from inBus as it'll be quite nice [-1,1]
+    float bias = nFreq/2.0f;
 
-    internalPhase += phaseDiff;
+    internalPhase += nFreq;
 
     if(stage==0 && internalPhase >= pwm){
         float fraction = 0.0f;
@@ -60,7 +59,7 @@ void BlitOsc::process(uint32_t fs)
         internalPhase -= 2.0f;
     }
 
-    oldPhase = phase;
+    oldPhase = internalPhase;
 
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;
     outputs[0].value = cumSum;

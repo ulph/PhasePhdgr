@@ -53,7 +53,7 @@ void BlitOsc::process(uint32_t fs)
 
     float leak = 1.f-nFreq*0.1; // maybe leak here can be somewhat adjustable?
 
-    if(newSync >= 0 && sync < 0){
+    if(newSync > 0 && sync <= 0){
         float syncFraction = (0 - sync) / (newSync - sync);
         // TODO - softsync
         float t = -1.0f; // target value
@@ -75,7 +75,7 @@ void BlitOsc::process(uint32_t fs)
 
     while(true){
         if(stage==0){
-            if(internalPhase < pwm) break;
+            if(internalPhase <= pwm) break;
             float fraction = (pwm - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
@@ -84,7 +84,7 @@ void BlitOsc::process(uint32_t fs)
             stage=1;
         }
         if(stage==1){
-            if(internalPhase < 1.0f) break;
+            if(internalPhase <= 1.0f) break;
             float fraction = (1.f - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){

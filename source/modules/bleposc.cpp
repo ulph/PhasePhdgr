@@ -63,6 +63,7 @@ void BlitOsc::process(uint32_t fs)
             for(int n=0; n<c_blitN; ++n){
                 r += buf[(bufPos+n)%c_blitN];
             }
+            // todo, should really be value at +fraction ...
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];

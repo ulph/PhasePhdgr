@@ -3,6 +3,7 @@
 
 #include "biquad.hpp"
 
+// TODO, make open variant
 Biquad::Biquad()
 {
     inputs.push_back(Pad("input"));

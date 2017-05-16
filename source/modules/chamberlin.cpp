@@ -28,3 +28,5 @@ void ChamberlinFilter::process(uint32_t fs) {
     outputs[2].value = band;
     outputs[3].value = notch;
 }
+
+// TODO, make open variant ...

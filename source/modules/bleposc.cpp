@@ -11,7 +11,6 @@ BlitOsc::BlitOsc()
     : buf{0.f}
     , blit{0.f}
     , bufPos(0)
-    , oldPhase(0.f)
     , cumSum(0.f)
     , stage(0)
     , internalPhase(0.f)
@@ -38,6 +37,9 @@ void BlitOsc::process(uint32_t fs)
 
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
     float bias = nFreq;
+
+    if(nFreq == 0) return;
+
     // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
     // TODO, triangles (using derivative...)
 
@@ -70,10 +72,7 @@ void BlitOsc::process(uint32_t fs)
         }
         if(stage==0){
             if(internalPhase < pwm) break;
-            float fraction = 0.0f;
-            if(internalPhase != oldPhase){
-                fraction = (pwm - oldPhase) / (internalPhase - oldPhase);
-            }
+            float fraction = (pwm - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] += 2.f*shape*blit[n];
@@ -82,10 +81,7 @@ void BlitOsc::process(uint32_t fs)
         }
         if(stage==1){
             if(internalPhase < 1.0f) break;
-            float fraction = 0.0f;
-            if(internalPhase != oldPhase){
-                fraction = (1.f - oldPhase) / (internalPhase - oldPhase);
-            }
+            float fraction = (1.f - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] -= 2.f*blit[n];
@@ -95,7 +91,6 @@ void BlitOsc::process(uint32_t fs)
         }
     }
 
-    oldPhase = internalPhase;
     sync = newSync;
 
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;

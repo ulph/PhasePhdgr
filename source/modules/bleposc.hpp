@@ -12,7 +12,6 @@ private:
     float buf[c_blitN];
     float blit[c_blitN];
     int bufPos;
-    float oldPhase;
     float cumSum;
     int stage;
     float sync;

@@ -5,7 +5,7 @@
 
 const int c_sincDelayN = 32;
 const int c_sincDelayNumFraction = 1000;
-const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction, (float)M_PI);
+const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction, (float)M_PI, true);
 const float max_delay_t = 5.f;
 
 Delay::Delay()

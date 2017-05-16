@@ -16,7 +16,7 @@ protected:
     bool normAmp;
 public:
     const int N;
-    FractionalSincTable(int N, int numFractions, float normFreq, bool normAmp=false);
+    FractionalSincTable(int N, int numFractions, float normFreq, bool normAmp=true);
     virtual ~FractionalSincTable();
     const int getCoefficients(const float fraction, float* destinationBuffer, const int destinationBufferSize) const;
 };

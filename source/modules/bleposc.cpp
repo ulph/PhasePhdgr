@@ -100,7 +100,7 @@ void BlitOsc::process(uint32_t fs)
     last_cumSum = cumSum; // x
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias; // x+1
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, 5.f, fs); // cheat a bit and add a high-pass of 5 hz
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.5f, fs); // cheat a bit and add a high-pass... removes some modulation gunk so sounds a bit nicer I think
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

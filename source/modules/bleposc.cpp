@@ -2,6 +2,7 @@
 #include <string.h>
 #include "sinc.hpp"
 #include "inlines.hpp"
+#include "rlc.hpp"
 
 const int c_numFraction = 1000;
 const auto c_blitTable = FractionalSincTable(BlitOsc::c_blitN, c_numFraction, (float)M_PI);
@@ -30,11 +31,6 @@ void BlitOsc::process(uint32_t fs)
 {
     const float c_slew = 0.9f; // a bit arbitrary ... and not sure how much this adds as stuff should actually be smoothed before
 
-    // TODO invastigating aliasing and popping on sync
-    // 1 check fractions are withing bounds ... and their calcs
-    // 2 check sync fracion, and the resetting of phase
-    // 3 ... leak compensate sync reset value? not by the delta, but target value itself...
-
     float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
     float shape = limit(inputs[1].value);
     float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
@@ -56,32 +52,27 @@ void BlitOsc::process(uint32_t fs)
 
     float leak = 1.f-nFreq*0.1; // maybe leak here can be somewhat adjustable?
 
-    internalPhase += nFreq;
-
     if(newSync >= 0 && sync < 0){
-        stage = -1;
+        float syncFraction = (0 - sync) / (newSync - sync);
+        // TODO - softsync
+        float t = -1.0f; // target value
+        float r = cumSum; // current value
+        // accumulate future value
+        for(int n=0; n<c_blitN; ++n){
+            r += buf[(bufPos+n)%c_blitN];
+        }
+        c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
+        for(int n=0; n<c_blitN; ++n){
+            buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
+        }
+        internalPhase = -1.f + (1.f-syncFraction)*nFreq;
+        stage = 0;
+    }
+    else{
+        internalPhase += nFreq;
     }
 
     while(true){
-        if(stage==-1){
-            // TODO - softsync
-            float fraction = 0.0f;
-            if(newSync != sync){
-                fraction = (0 - sync) / (newSync - sync);
-            }
-            float t = -1.0f; // target value
-            float r = cumSum; // current (future) value
-            for(int n=0; n<c_blitN; ++n){
-                r += buf[(bufPos+n)%c_blitN];
-            }
-            // todo, should really be value at +fraction ...
-            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
-            }
-            internalPhase = -1.f; // should take into account fraction here?
-            stage = 0;
-        }
         if(stage==0){
             if(internalPhase < pwm) break;
             float fraction = (pwm - (internalPhase-nFreq)) / nFreq;
@@ -106,7 +97,6 @@ void BlitOsc::process(uint32_t fs)
     sync = newSync;
 
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;
-    // TODO, first order HP with cutoff quite low, like 5 hz or so. that or figure out why there is still some bias for higher notes
     outputs[0].value = cumSum;
     buf[bufPos] = 0.f;
     bufPos++;

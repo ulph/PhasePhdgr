@@ -6,7 +6,7 @@
 static inline float CalcRcLp(float x1, float y0, float wc, float fs) {
     float d = 2.0f * (float)M_PI*wc / (float)fs;
     float a = d / (d + 1.0f);
-    return a*y0 + (1.0f - a)*x1;
+    return a*x1 + (1.0f - a)*y0;
 }
 
 static inline float CalcRcHp(float x1, float x0, float y0, float wc, float fs) {

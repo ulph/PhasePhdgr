@@ -50,7 +50,6 @@ void OpenRcLp::process(uint32_t fs)
     float wc = inputs[2].value;
     float y1 = CalcRcLp(x1, y0, wc, (float)fs);
     outputs[0].value = y1;
-    outputs[0].value = x1;
 }
 
 OpenRcHp::OpenRcHp()
@@ -71,5 +70,5 @@ void OpenRcHp::process(uint32_t fs)
     float wc = inputs[3].value;
     float y1 = CalcRcHp(x1, x0, y0, wc, (float)fs);
     outputs[0].value = y1;
-    outputs[0].value = x1;
+    outputs[1].value = x1;
 }

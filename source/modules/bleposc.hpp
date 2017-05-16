@@ -19,6 +19,7 @@ private:
     float last_nFreq;
     float last_pwm;
     float last_shape;
+    float last_cumSum; // for hp
 public:
     BlitOsc();
     void process(uint32_t fs);

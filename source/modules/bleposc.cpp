@@ -19,6 +19,7 @@ BlitOsc::BlitOsc()
     , last_nFreq(0.f)
     , last_pwm(0.f)
     , last_shape(0.f)
+    , last_cumSum(0.f)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
@@ -96,8 +97,10 @@ void BlitOsc::process(uint32_t fs)
 
     sync = newSync;
 
-    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias;
-    outputs[0].value = cumSum;
+    last_cumSum = cumSum; // x
+    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias; // x+1
+
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, 5.f, fs); // cheat a bit and add a high-pass of 5 hz
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

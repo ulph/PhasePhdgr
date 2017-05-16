@@ -1,16 +1,5 @@
 #include "rlc.hpp"
 
-static float CalcRcLp(float x1, float y0, float wc, float fs) {
-    float d = 2.0f * (float)M_PI*wc / (float)fs;
-    float a = d / (d + 1.0f);
-    return a*y0 + (1.0f - a)*x1;
-}
-
-static float CalcRcHp(float x1, float x0, float y0, float wc, float fs) {
-    float a = 1.0f / ((2.0f * (float)M_PI*wc / (float)fs) + 1.0f);
-    return a*y0 + a*(x1 - x0);
-}
-
 RcLp::RcLp()
 {
     inputs.push_back(Pad("x1"));

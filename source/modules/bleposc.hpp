@@ -16,6 +16,9 @@ private:
     int stage;
     float sync;
     float internalPhase;
+    float last_nFreq;
+    float last_pwm;
+    float last_shape;
 public:
     BlitOsc();
     void process(uint32_t fs);

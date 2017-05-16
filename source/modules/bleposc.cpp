@@ -15,6 +15,9 @@ BlitOsc::BlitOsc()
     , stage(0)
     , internalPhase(0.f)
     , sync(0.f)
+    , last_nFreq(0.f)
+    , last_pwm(0.f)
+    , last_shape(0.f)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
@@ -25,6 +28,8 @@ BlitOsc::BlitOsc()
 
 void BlitOsc::process(uint32_t fs)
 {
+    const float c_slew = 0.9f; // a bit arbitrary ... and not sure how much this adds as stuff should actually be smoothed before
+
     // TODO invastigating aliasing and popping on sync
     // 1 check fractions are withing bounds ... and their calcs
     // 2 check sync fracion, and the resetting of phase
@@ -36,6 +41,12 @@ void BlitOsc::process(uint32_t fs)
     float newSync = inputs[3].value;
 
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
+
+    // slew stuff -- workaround for jittery automation
+    nFreq = c_slew*last_nFreq + (1-c_slew)*nFreq;
+    pwm = c_slew*last_pwm + (1-c_slew)*pwm;
+    shape = c_slew*last_shape + (1-c_slew)*shape;
+
     float bias = nFreq;
 
     if(nFreq == 0) return;
@@ -100,4 +111,8 @@ void BlitOsc::process(uint32_t fs)
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;
+
+    last_pwm = pwm;
+    last_shape = shape;
+    last_nFreq = nFreq;
 }

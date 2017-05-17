@@ -117,11 +117,56 @@ void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr
     }
 }
 
+
+class StupidButtonProperty : public ButtonPropertyComponent {
+public:
+    StupidButtonProperty (const String &propertyName, bool triggerOnMouseDown)
+        : ButtonPropertyComponent(propertyName, triggerOnMouseDown)
+    {}
+    virtual void buttonClicked(){
+        // ...
+    }
+    virtual String getButtonText() const {
+        return "";
+    }
+};
+
+
 void PatchEditor::refreshAndBroadcastDoc(){
     populateDocWithComponents(doc, cmpReg, patchCopy);
     docListModel.setDocs(doc.get());
     docList.repaint();
     subDoc.set(docHandle, doc);
+}
+
+void PatchEditor::refreshOverview(){
+    overview.clear();
+    Array<PropertyComponent *> overviewModules;
+    Array<PropertyComponent *> overviewConnections;
+    Array<PropertyComponent *> overviewValues;
+    // ...
+
+    // TODO, custom property components I suppose
+    //... basicly the whole patch structure could be represented as secions and nested PropertyPanels
+
+    for(const auto& m : patchCopy.root.graph.modules){
+        overviewModules.add(new StupidButtonProperty(m.name + " [" + m.type +"]", false));
+    }
+    overview.addSection("modules", overviewModules, false);
+
+    for(const auto& v : patchCopy.root.graph.values){
+        overviewValues.add(new StupidButtonProperty(v.target.module+":"+v.target.port+" = "+to_string(v.value), false));
+    }
+    overview.addSection("values", overviewValues, false);
+
+    for(const auto& c : patchCopy.root.graph.connections){
+        overviewConnections.add(new StupidButtonProperty(
+            c.source.module+":"+c.source.port+" -> "+c.target.module+":"+c.target.port,
+            false
+        ));
+    }
+    overview.addSection("connections", overviewConnections, false);
+
 }
 
 PatchEditor::PatchEditor(
@@ -143,9 +188,10 @@ PatchEditor::PatchEditor(
     , docList("docList", &docListModel)
     , docListModel(doc.get(), docView)
     , editorStack(subPatches, subPatchHandles)
+    , leftSidePanelTabs(TabbedButtonBar::TabsAtTop)
 {
     addAndMakeVisible(grid);
-    grid.addComponent(&textEditor);
+    grid.addComponent(&leftSidePanelTabs);
     grid.addComponent(&editorStack);
     grid.addComponent(&docGrid);
     grid.setColoumns({ 0.125f, 0.75f, 0.125f });
@@ -157,6 +203,9 @@ PatchEditor::PatchEditor(
     docGrid.setColoumns({ 1.0f });
     docList.updateContent();
 
+    leftSidePanelTabs.addTab("overview", Colours::black, &overview, false);
+    leftSidePanelTabs.addTab("raw", Colours::black, &textEditor, false);
+
     _stylize(&docView);
     _stylize(&docList);
 
@@ -164,6 +213,7 @@ PatchEditor::PatchEditor(
         function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
             patchCopy = desc;
             refreshAndBroadcastDoc();
+            refreshOverview();
         }
     ));
 

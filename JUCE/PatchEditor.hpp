@@ -88,7 +88,12 @@ class PatchEditor : public Component
 
     GraphEditorBundle rootView;
 
+    TabbedComponent leftSidePanelTabs;
     PatchTextEditor textEditor;
+
+    PropertyPanel overview;
+    // ...
+
     TextEditor docView;
     ListBox docList;
     DocListModel docListModel;
@@ -99,6 +104,7 @@ class PatchEditor : public Component
     void refreshAndBroadcastDoc();
     friend class GraphEditor;
     void push_tab(const string& componentName, const string& componentType);
+    void refreshOverview();
 
 public:
     PatchEditor(

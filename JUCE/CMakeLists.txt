@@ -95,23 +95,40 @@ if(APPLE)
         PARENT_SCOPE
     )
 elseif(UNIX)
+
+    include(FindOpenGL)
+
+    set(JUCE_DEPS
+        ${OPENGL_LIBRARIES}
+    )
+
     find_package(PkgConfig REQUIRED)
 
-    function(add_package prefix pkg)
+    function(add_package prefix pkg list)
         pkg_search_module(${prefix} REQUIRED ${pkg})
         include_directories(${${prefix}_INCLUDE_DIRS})
         link_directories(${${prefix}_LIBRARY_DIRS})
         add_definitions(${${prefix}_CFLAGS_OTHER})
+        set(${list}
+            ${${list}}
+            ${${prefix}_LIBRARIES}
+            PARENT_SCOPE
+        )
     endfunction()
 
-    add_package(ALSA alsa)
-    add_package(FREETYPE2 freetype2)
-    add_package(GTK+X11 gtk+-x11-3.0)
-    add_package(CURL libcurl)
-    add_package(WEBKIT2GTK webkit2gtk-4.0)
-    add_package(X11 x11)
-    add_package(XEXT xext)
-    add_package(XINERAMA xinerama)
+    add_package(ALSA alsa JUCE_DEPS)
+    add_package(FREETYPE2 freetype2 JUCE_DEPS)
+    add_package(GTK+X11 gtk+-x11-3.0 JUCE_DEPS)
+    add_package(CURL libcurl JUCE_DEPS)
+    add_package(WEBKIT2GTK webkit2gtk-4.0 JUCE_DEPS)
+    add_package(X11 x11 JUCE_DEPS)
+    add_package(XEXT xext JUCE_DEPS)
+    add_package(XINERAMA xinerama JUCE_DEPS)
+
+    set(JUCE_DEPS
+        ${JUCE_DEPS}
+        PARENT_SCOPE
+    )
 
 else()
 endif()

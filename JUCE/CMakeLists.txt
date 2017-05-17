@@ -38,12 +38,14 @@ if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
     message(FATAL_ERROR "Cannot find ${JUCE_LIB}/JuceHeader.h ... forgot to run Projuicer at least once?")
 endif()
 
+#add_definitions(-DJucePlugin_Build_VST=1)
 add_definitions(-DJucePlugin_Build_VST3=1)
 add_definitions(-DJucePlugin_WantsMidiInput=1)
 add_definitions(-DJucePlugin_IsSynth=1)
 
 set(JUCE_SRC
     ${JUCE_LIB}/include_juce_audio_plugin_client_utils.cpp
+#    ${JUCE_LIB}/include_juce_audio_plugin_client_VST2.cpp
     ${JUCE_LIB}/include_juce_audio_plugin_client_VST3.cpp
     ${JUCE_LIB}/AppConfig.h
     ${JUCE_LIB}/JuceHeader.h

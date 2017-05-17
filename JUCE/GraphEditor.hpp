@@ -4,7 +4,7 @@
 #include "GraphEditorModel.hpp"
 #include "GraphEditorPositions.hpp"
 
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "design.hpp"
 #include <iostream>
 #include <set>

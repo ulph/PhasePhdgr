@@ -1,4 +1,4 @@
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "PhasePhckrGrid.h"
 
 void PhasePhckrGrid::paint(Graphics& g){

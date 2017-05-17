@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "design.hpp"
 #include <math.h>
 #include <float.h>

@@ -1,7 +1,7 @@
 #ifndef PLUGINEDITOR_H_INCLUDED
 #define PLUGINEDITOR_H_INCLUDED
 
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"

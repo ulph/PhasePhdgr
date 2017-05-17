@@ -25,15 +25,10 @@ set(PH_SRC
 add_library(juce_phasephckr_obj OBJECT ${PH_SRC})
 set_target_properties(juce_phasephckr_obj PROPERTIES COMPILE_FLAGS "-fPIC")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules)
-   message(FATAL_ERROR "Could not JUCE/modules folder at ${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules. Need a symlink/folder with sdk root...")
-endif()
+include_directories(${JUCE_SDK_ROOT}/modules)
 
-set(JUCE_LIB ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
-if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
-    message(FATAL_ERROR "Cannot find ${JUCE_LIB}/JuceHeader.h ... forgot to run Projuicer at least once?")
-endif()
+set(JUCE_JUNK ${CMAKE_CURRENT_SOURCE_DIR}/JuceJunk)
+include_directories(${JUCE_JUNK})
 
 add_definitions(-DJucePlugin_Build_VST=1)
 add_definitions(-DJucePlugin_Build_VST3=1)
@@ -41,40 +36,40 @@ add_definitions(-DJucePlugin_WantsMidiInput=1)
 add_definitions(-DJucePlugin_IsSynth=1)
 
 set(JUCE_SRC
-    ${JUCE_LIB}/include_juce_audio_plugin_client_utils.cpp
-    ${JUCE_LIB}/include_juce_audio_plugin_client_VST2.cpp
-    ${JUCE_LIB}/include_juce_audio_plugin_client_VST3.cpp
-    ${JUCE_LIB}/AppConfig.h
-    ${JUCE_LIB}/JuceHeader.h
+    ${JUCE_JUNK}/AppConfig.h
+    ${JUCE_JUNK}/JuceHeader.h
+    ${JUCE_JUNK}/include_juce_audio_plugin_client_utils.cpp
+    ${JUCE_JUNK}/include_juce_audio_plugin_client_VST2.cpp
+    ${JUCE_JUNK}/include_juce_audio_plugin_client_VST3.cpp
 )
 
 if(APPLE)
     add_definitions(-x objective-c++)
     set(JUCE_SRC
         ${JUCE_SRC}
-        ${JUCE_LIB}/include_juce_data_structures.mm
-        ${JUCE_LIB}/include_juce_events.mm
-        ${JUCE_LIB}/include_juce_audio_basics.mm
-        ${JUCE_LIB}/include_juce_core.mm
-        ${JUCE_LIB}/include_juce_opengl.mm
-        ${JUCE_LIB}/include_juce_graphics.mm
-        ${JUCE_LIB}/include_juce_gui_basics.mm
-        ${JUCE_LIB}/include_juce_gui_extra.mm
-        ${JUCE_LIB}/include_juce_audio_processors.mm
-        ${JUCE_LIB}/include_juce_audio_plugin_client_VST_utils.mm
+        ${JUCE_JUNK}/include_juce_data_structures.mm
+        ${JUCE_JUNK}/include_juce_events.mm
+        ${JUCE_JUNK}/include_juce_audio_basics.mm
+        ${JUCE_JUNK}/include_juce_core.mm
+        ${JUCE_JUNK}/include_juce_opengl.mm
+        ${JUCE_JUNK}/include_juce_graphics.mm
+        ${JUCE_JUNK}/include_juce_gui_basics.mm
+        ${JUCE_JUNK}/include_juce_gui_extra.mm
+        ${JUCE_JUNK}/include_juce_audio_processors.mm
+        ${JUCE_JUNK}/include_juce_audio_plugin_client_VST_utils.mm
     )
 else()
     set(JUCE_SRC
         ${JUCE_SRC}
-        ${JUCE_LIB}/include_juce_data_structures.cpp
-        ${JUCE_LIB}/include_juce_events.cpp
-        ${JUCE_LIB}/include_juce_audio_basics.cpp
-        ${JUCE_LIB}/include_juce_core.cpp
-        ${JUCE_LIB}/include_juce_opengl.cpp
-        ${JUCE_LIB}/include_juce_graphics.cpp
-        ${JUCE_LIB}/include_juce_gui_basics.cpp
-        ${JUCE_LIB}/include_juce_gui_extra.cpp
-        ${JUCE_LIB}/include_juce_audio_processors.cpp
+        ${JUCE_JUNK}/include_juce_data_structures.cpp
+        ${JUCE_JUNK}/include_juce_events.cpp
+        ${JUCE_JUNK}/include_juce_audio_basics.cpp
+        ${JUCE_JUNK}/include_juce_core.cpp
+        ${JUCE_JUNK}/include_juce_opengl.cpp
+        ${JUCE_JUNK}/include_juce_graphics.cpp
+        ${JUCE_JUNK}/include_juce_gui_basics.cpp
+        ${JUCE_JUNK}/include_juce_gui_extra.cpp
+        ${JUCE_JUNK}/include_juce_audio_processors.cpp
     )
 endif()
 

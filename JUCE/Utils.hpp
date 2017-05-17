@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "docs.hpp"
 #include <sstream>
 #include "design_json.hpp"

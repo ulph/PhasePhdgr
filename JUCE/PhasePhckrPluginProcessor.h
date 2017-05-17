@@ -1,7 +1,7 @@
 #ifndef PLUGINPROCESSOR_H_INCLUDED
 #define PLUGINPROCESSOR_H_INCLUDED
 
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
 #include "phasephckr.h" // for now
 #include "design_json.hpp"

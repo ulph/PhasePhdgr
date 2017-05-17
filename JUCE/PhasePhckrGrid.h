@@ -1,7 +1,7 @@
 #ifndef PHASEPHCKRGRID_H_INCLUDED
 #define PHASEPHCKRGRID_H_INCLUDED
 
-#include "JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 #include "phasephckr.h"
 #include <vector>
 #include <iostream>

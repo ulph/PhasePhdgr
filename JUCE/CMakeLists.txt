@@ -96,10 +96,20 @@ if(APPLE)
     )
 elseif(UNIX)
 
+    set(common_linker_flags "-Wl,--no-undefined")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${common_linker_flags}")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${common_linker_flags}")
+
+    add_definitions(-DLINUX=1)
+    add_definitions(-DJUCER_LINUX_MAKE_7346DA2A=1)
+
     include(FindOpenGL)
+    find_package(Threads)
 
     set(JUCE_DEPS
+        ${CMAKE_THREAD_LIBS_INIT}
         ${OPENGL_LIBRARIES}
+        ${CMAKE_DL_LIBS}
     )
 
     find_package(PkgConfig REQUIRED)

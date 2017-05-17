@@ -25,8 +25,6 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
     inputs.push_back(Pad("pwm")); // pulse/saw <-> square/2saw <-> pulse/saw ...
     inputs.push_back(Pad("reset")); // for osc sync
-    inputs.push_back(Pad("freq_drift", 0.1f));
-    inputs.push_back(Pad("amp_drift", 0.1f));
     outputs.push_back(Pad("output"));
 }
 
@@ -38,11 +36,6 @@ void BlitOsc::process(uint32_t fs)
     float shape = limit(inputs[1].value);
     float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
     float newSync = inputs[3].value;
-
-    // TODO, slowly random walk within some range, or randomly perturb (slewed, mind) each iteration ...
-    float freq_drift = inputs[4].value;
-    float amp_drift = inputs[4].value;
-    // or, make a nice breakout box for this?
 
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
 

@@ -35,14 +35,14 @@ if(NOT EXISTS "${JUCE_LIB}/JuceHeader.h")
     message(FATAL_ERROR "Cannot find ${JUCE_LIB}/JuceHeader.h ... forgot to run Projuicer at least once?")
 endif()
 
-#add_definitions(-DJucePlugin_Build_VST=1)
+add_definitions(-DJucePlugin_Build_VST=1)
 add_definitions(-DJucePlugin_Build_VST3=1)
 add_definitions(-DJucePlugin_WantsMidiInput=1)
 add_definitions(-DJucePlugin_IsSynth=1)
 
 set(JUCE_SRC
     ${JUCE_LIB}/include_juce_audio_plugin_client_utils.cpp
-#    ${JUCE_LIB}/include_juce_audio_plugin_client_VST2.cpp
+    ${JUCE_LIB}/include_juce_audio_plugin_client_VST2.cpp
     ${JUCE_LIB}/include_juce_audio_plugin_client_VST3.cpp
     ${JUCE_LIB}/AppConfig.h
     ${JUCE_LIB}/JuceHeader.h
@@ -84,6 +84,7 @@ if(APPLE)
     FIND_LIBRARY(COREIMAGE_LIB CoreImage)
     FIND_LIBRARY(IOKIT_LIB IOkit)
     FIND_LIBRARY(WEBKIT_LIB WebKit)
+    FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
     include(FindOpenGL)
     set(JUCE_DEPS
         ${ACCELERATE_LIB}
@@ -91,6 +92,7 @@ if(APPLE)
         ${COREIMAGE_LIB}
         ${IOKIT_LIB}
         ${WEBKIT_LIB}
+        ${COREFOUNDATION_LIB}
         ${OPENGL_LIBRARIES}
         PARENT_SCOPE
     )
@@ -102,6 +104,7 @@ elseif(UNIX)
 
     add_definitions(-DLINUX=1)
     add_definitions(-DJUCER_LINUX_MAKE_7346DA2A=1)
+    add_definitions(-DJUCE_SHARED_CODE=1)
 
     include(FindOpenGL)
     find_package(Threads)

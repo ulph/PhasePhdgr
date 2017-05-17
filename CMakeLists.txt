@@ -86,12 +86,6 @@ if(${BUILD_VST})
     include(vst_sdk)
     mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC})
 
-    # extra junk required by JUCE on APPLE
-    if(APPLE)
-        FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
-        TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE ${COREFOUNDATION_LIB} )
-    endif()
-
     TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE ${JUCE_DEPS})
 
     # make solution tidy

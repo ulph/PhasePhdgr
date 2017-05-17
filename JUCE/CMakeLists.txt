@@ -1,8 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-include(FindFreetype)
-include_directories(${FREETYPE_INCLUDE_DIRS})
-
 set(PH_SRC
     DirectoryWatcher.cpp
     DirectoryWatcher.hpp
@@ -100,15 +97,21 @@ if(APPLE)
 elseif(UNIX)
     find_package(PkgConfig REQUIRED)
 
-    pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-    include_directories(${GTK3_INCLUDE_DIRS})
-    link_directories(${GTK3_LIBRARY_DIRS})
-    add_definitions(${GTK3_CFLAGS_OTHER})
+    function(add_package prefix pkg)
+        pkg_search_module(${prefix} REQUIRED ${pkg})
+        include_directories(${${prefix}_INCLUDE_DIRS})
+        link_directories(${${prefix}_LIBRARY_DIRS})
+        add_definitions(${${prefix}_CFLAGS_OTHER})
+    endfunction()
 
-    pkg_check_modules(WEBKIT2 REQUIRED webkit2gtk-4.0)
-    include_directories(${WEBKIT2_INCLUDE_DIRS})
-    link_directories(${WEBKIT2_LIBRARY_DIRS})
-    add_definitions(${WEBKIT2_CFLAGS_OTHER})
+    add_package(ALSA alsa)
+    add_package(FREETYPE2 freetype2)
+    add_package(GTK+X11 gtk+-x11-3.0)
+    add_package(CURL libcurl)
+    add_package(WEBKIT2GTK webkit2gtk-4.0)
+    add_package(X11 x11)
+    add_package(XEXT xext)
+    add_package(XINERAMA xinerama)
 
 else()
 endif()

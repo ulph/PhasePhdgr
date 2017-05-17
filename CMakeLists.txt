@@ -66,7 +66,7 @@ if(${BUILD_VST})
 
     # VST3 SDK stuff
     set(VST3_SDK_ROOT "" CACHE FILEPATH "VST3 SDK root")
-    include_directories(${VST3_SDK_ROOT}) #JUCE needs this
+    include_directories(${VST3_SDK_ROOT})
 
     # JUCE stuff
     add_subdirectory(JUCE)

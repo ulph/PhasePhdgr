@@ -64,6 +64,22 @@ if(APPLE)
         ${JUCE_LIB}/include_juce_audio_processors.mm
         ${JUCE_LIB}/include_juce_audio_plugin_client_VST_utils.mm
     )
+else()
+    set(JUCE_SRC
+        ${JUCE_SRC}
+        ${JUCE_LIB}/include_juce_data_structures.cpp
+        ${JUCE_LIB}/include_juce_events.cpp
+        ${JUCE_LIB}/include_juce_audio_basics.cpp
+        ${JUCE_LIB}/include_juce_core.cpp
+        ${JUCE_LIB}/include_juce_opengl.cpp
+        ${JUCE_LIB}/include_juce_graphics.cpp
+        ${JUCE_LIB}/include_juce_gui_basics.cpp
+        ${JUCE_LIB}/include_juce_gui_extra.cpp
+        ${JUCE_LIB}/include_juce_audio_processors.cpp
+    )
+endif()
+
+if(APPLE)
     FIND_LIBRARY(ACCELERATE_LIB Accelerate)
     FIND_LIBRARY(COCOA_LIB Cocoa)
     FIND_LIBRARY(COREIMAGE_LIB CoreImage)
@@ -79,6 +95,20 @@ if(APPLE)
         ${OPENGL_LIBRARIES}
         PARENT_SCOPE
     )
+elseif(UNIX)
+    find_package(PkgConfig REQUIRED)
+
+    pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+    include_directories(${GTK3_INCLUDE_DIRS})
+    link_directories(${GTK3_LIBRARY_DIRS})
+    add_definitions(${GTK3_CFLAGS_OTHER})
+
+    pkg_check_modules(WEBKIT2 REQUIRED webkit2gtk-4.0)
+    include_directories(${WEBKIT2_INCLUDE_DIRS})
+    link_directories(${WEBKIT2_LIBRARY_DIRS})
+    add_definitions(${WEBKIT2_CFLAGS_OTHER})
+
+else()
 endif()
 
 add_library(juce_lib_obj OBJECT ${JUCE_SRC})

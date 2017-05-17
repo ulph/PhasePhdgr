@@ -203,8 +203,8 @@ PatchEditor::PatchEditor(
     docGrid.setColoumns({ 1.0f });
     docList.updateContent();
 
-    leftSidePanelTabs.addTab("overview", Colours::black, &overview, false);
     leftSidePanelTabs.addTab("raw", Colours::black, &textEditor, false);
+    leftSidePanelTabs.addTab("overview", Colours::black, &overview, false);
 
     _stylize(&docView);
     _stylize(&docList);

@@ -83,7 +83,9 @@ void BlitOsc::process(uint32_t fs)
     while(true){
         if(stage==0){
             if(internalPhase <= pwm) break;
-            float fraction = (pwm - (internalPhase-nFreq)) / nFreq;
+            float interval = (pwm - (internalPhase-nFreq));
+            while(interval < 0.f) interval += nFreq; // this can happen when modulating, we're sort off one sample too late (as pwm enough between sample points)...
+            float fraction = interval / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] += 2.f*shape*blit[n];

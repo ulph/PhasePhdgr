@@ -7,7 +7,8 @@
 class BlitOsc : public Module
 {
 public:
-    static const int c_blitN = 16; // TODO, find a sweet spot or at least use min-phase sinc
+    static const int c_blitN = 16; // for the derivative
+    static const int c_dBlitN =16; // for the bias derivative (2nd order derivative strictly but we seperate the concerns here)
 private:
     float buf[c_blitN];
     float blit[c_blitN];
@@ -20,7 +21,10 @@ private:
     float last_pwm;
     float last_shape;
     float last_cumSum;
-    float last_bias;
+    float bias;
+    float dBuf[c_dBlitN];
+    float dBlit[c_dBlitN];
+    int dBufPos;
 public:
     BlitOsc();
     void process(uint32_t fs);

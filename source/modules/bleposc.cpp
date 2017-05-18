@@ -6,7 +6,7 @@
 
 const int c_numFraction = 1000;
 const auto c_blitTable = FractionalSincTable(BlitOsc::c_blitN, c_numFraction, (float)M_PI, true);
-const auto c_dBlitTable = FractionalSincTable(BlitOsc::c_dBlitN, c_numFraction, (float)M_PI, true);
+// TODO; investigate something like fs/4 bandlimit on the sinc itself...
 
 BlitOsc::BlitOsc()
     : buf{0.f}
@@ -20,10 +20,7 @@ BlitOsc::BlitOsc()
     , last_pwm(0.f)
     , last_shape(0.f)
     , last_cumSum(0.f)
-    , bias(0.f)
-    , dBuf{0.f}
-    , dBlit{0.f}
-    , dBufPos(0.f)
+    , last_bias(0.f)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // triangle <-> saw <-> square
@@ -48,18 +45,13 @@ void BlitOsc::process(uint32_t fs)
     pwm = c_slew*last_pwm + (1-c_slew)*pwm;
     shape = c_slew*last_shape + (1-c_slew)*shape;
 
-    bias = bias*0.99f + dBuf[dBufPos];
-    dBuf[dBufPos] = 0.f;
-    dBufPos++;
-    dBufPos %= c_dBlitN;
-
     if(nFreq == 0) return; // nothing to do, just exit
 
     float upflank = limit(shape, 0.f, 1.f);
     float downflank = 1.f+limit(shape, -1.f, 0.f);
 
-    /*
-    bias = nFreq;
+    float bias  = nFreq;
+
     // mix between triangle and saw shape
     bias = downflank*(1-upflank)*bias // mix in saw 'bias'
          + (1-downflank)*(stage-0.5)*bias*8; // or triangle 'bias'
@@ -68,7 +60,6 @@ void BlitOsc::process(uint32_t fs)
     const float c_bias_slew = 0.9;
     bias = last_bias*c_bias_slew + (1-c_bias_slew)*bias;
     last_bias = bias;
-    */
 
     float leak = 1.f-nFreq*0.1; // make adjustable?
 
@@ -105,14 +96,7 @@ void BlitOsc::process(uint32_t fs)
                 buf[(bufPos+n)%c_blitN] += 2.f*upflank*blit[n];
             }
             stage=1;
-
-            // catch-all
-            c_dBlitTable.getCoefficients(fraction, &dBlit[0], c_dBlitN);
-            for(int n=0; n<c_dBlitN; ++n){
-                dBuf[(dBufPos+n)%c_dBlitN] += (1-shape)*nFreq*dBlit[n];
-            }
         }
-
         if(stage==1){
             if(internalPhase <= 1.0f) break;
             float fraction = (1.f - (internalPhase-nFreq)) / nFreq;
@@ -122,17 +106,6 @@ void BlitOsc::process(uint32_t fs)
             }
             stage=0;
             internalPhase -= 2.0f;
-
-            if(shape >= 0.f){
-                // saw
-            }
-            else{
-                // triangle
-                c_dBlitTable.getCoefficients(fraction, &dBlit[0], c_dBlitN);
-                for(int n=0; n<c_dBlitN; ++n){
-                    dBuf[(dBufPos+n)%c_dBlitN] += shape*nFreq*dBlit[n]; // note, shape is negative
-                }
-            }
         }
     }
 
@@ -141,7 +114,7 @@ void BlitOsc::process(uint32_t fs)
     last_cumSum = cumSum; // x
     cumSum = cumSum*leak  // leaky integrate
             + buf[bufPos]  // with next value
-            + bias; // add in the bias for triangle/square shape
+            + bias;
 
     outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.5f, fs); // cheat a bit and add a high-pass... removes some modulation gunk so sounds a bit nicer I think
     buf[bufPos] = 0.f;

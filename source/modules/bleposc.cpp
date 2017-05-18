@@ -22,15 +22,15 @@ BlitOsc::BlitOsc()
     , last_cumSum(0.f)
 {
     inputs.push_back(Pad("freq"));
-    inputs.push_back(Pad("shape")); // 2saw <-> saw <-> square ... (a 'serendipity' with 2saw, cool stuff)
-    inputs.push_back(Pad("pwm")); // pulse/saw <-> square/2saw <-> pulse/saw ...
+    inputs.push_back(Pad("shape")); // triangle <-> saw <-> square
+    inputs.push_back(Pad("pwm")); // assymetry, rather. does not affect a pure saw
     inputs.push_back(Pad("reset")); // for osc sync
     outputs.push_back(Pad("output"));
 }
 
 void BlitOsc::process(uint32_t fs)
 {
-    const float c_slew = 0.9f; // a bit arbitrary ... and not sure how much this adds as stuff should actually be smoothed before
+    const float c_slew = 0.9f; // a bit arbitrary...
 
     float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
     float shape = limit(inputs[1].value);
@@ -39,19 +39,19 @@ void BlitOsc::process(uint32_t fs)
 
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
 
-    // slew stuff -- workaround for jittery automation
+    // slew stuff -- workaround for jittery automation and simplistic aa
     nFreq = c_slew*last_nFreq + (1-c_slew)*nFreq;
     pwm = c_slew*last_pwm + (1-c_slew)*pwm;
     shape = c_slew*last_shape + (1-c_slew)*shape;
 
-    float bias = nFreq;
+    float upflank = limit(shape, 0.f, 1.f);
+    float downflank = 1.f-limit(shape, -1.f, 0.f);
 
-    if(nFreq == 0) return;
+    float bias = nFreq; // if shape >= 0, bias is nFreq
 
-    // TODO, bias should also be integrated from some (perhaps order 1 is sufficient) derivative of freq
-    // TODO, triangles (using derivative...)
+    if(nFreq == 0) return; // nothing to do, just exit
 
-    float leak = 1.f-nFreq*0.1; // maybe leak here can be somewhat adjustable?
+    float leak = 1.f-nFreq*0.1; // make adjustable?
 
     if(newSync > 0 && sync <= 0){
         float syncFraction = (0 - sync) / (newSync - sync);
@@ -83,7 +83,7 @@ void BlitOsc::process(uint32_t fs)
             float fraction = interval / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] += 2.f*shape*blit[n];
+                buf[(bufPos+n)%c_blitN] += 2.f*upflank*blit[n];
             }
             stage=1;
         }
@@ -92,7 +92,7 @@ void BlitOsc::process(uint32_t fs)
             float fraction = (1.f - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] -= 2.f*blit[n];
+                buf[(bufPos+n)%c_blitN] -= 2.f*downflank*blit[n];
             }
             stage=0;
             internalPhase -= 2.0f;

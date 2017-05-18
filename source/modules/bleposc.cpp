@@ -33,7 +33,7 @@ void BlitOsc::process(uint32_t fs)
     const float c_slew = 0.9f; // a bit arbitrary...
 
     float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
-    float shape = limit(inputs[1].value);
+    float shape = limit(inputs[1].value, 0.0f, 1.0f);
     float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
     float newSync = inputs[3].value;
 
@@ -43,15 +43,13 @@ void BlitOsc::process(uint32_t fs)
     nFreq = c_slew*last_nFreq + (1-c_slew)*nFreq;
     pwm = c_slew*last_pwm + (1-c_slew)*pwm;
     shape = c_slew*last_shape + (1-c_slew)*shape;
-
-    float upflank = limit(shape, 0.f, 1.f);
-    float downflank = 1.f-limit(shape, -1.f, 0.f);
-
-    float bias = nFreq; // if shape >= 0, bias is nFreq
+    last_pwm = pwm;
+    last_shape = shape;
+    last_nFreq = nFreq;
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    float leak = 1.f-nFreq*0.1; // make adjustable?
+    float leak = 1.f-nFreq*0.1;
 
     if(newSync > 0 && sync <= 0){
         float syncFraction = (0 - sync) / (newSync - sync);
@@ -83,7 +81,7 @@ void BlitOsc::process(uint32_t fs)
             float fraction = interval / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] += 2.f*upflank*blit[n];
+                buf[(bufPos+n)%c_blitN] += 2.f*shape*blit[n];
             }
             stage=1;
         }
@@ -92,7 +90,7 @@ void BlitOsc::process(uint32_t fs)
             float fraction = (1.f - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] -= 2.f*downflank*blit[n];
+                buf[(bufPos+n)%c_blitN] -= 2.f*blit[n];
             }
             stage=0;
             internalPhase -= 2.0f;
@@ -102,14 +100,10 @@ void BlitOsc::process(uint32_t fs)
     sync = newSync;
 
     last_cumSum = cumSum; // x
-    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias; // x+1
+    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*nFreq; // x+1
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.5f, fs); // cheat a bit and add a high-pass... removes some modulation gunk so sounds a bit nicer I think
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.25f, fs); // todo, make this a parameter
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;
-
-    last_pwm = pwm;
-    last_shape = shape;
-    last_nFreq = nFreq;
 }

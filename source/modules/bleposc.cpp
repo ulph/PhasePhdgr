@@ -20,7 +20,6 @@ BlitOsc::BlitOsc()
     , last_pwm(0.f)
     , last_shape(0.f)
     , last_cumSum(0.f)
-    , last_bias(0.f)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // triangle <-> saw <-> square
@@ -45,21 +44,12 @@ void BlitOsc::process(uint32_t fs)
     pwm = c_slew*last_pwm + (1-c_slew)*pwm;
     shape = c_slew*last_shape + (1-c_slew)*shape;
 
-    if(nFreq == 0) return; // nothing to do, just exit
-
     float upflank = limit(shape, 0.f, 1.f);
-    float downflank = 1.f+limit(shape, -1.f, 0.f);
+    float downflank = 1.f-limit(shape, -1.f, 0.f);
 
-    float bias  = nFreq;
+    float bias = nFreq; // if shape >= 0, bias is nFreq
 
-    // mix between triangle and saw shape
-    bias = downflank*(1-upflank)*bias // mix in saw 'bias'
-         + (1-downflank)*(stage-0.5)*bias*8; // or triangle 'bias'
-
-    // slew bias a bit -- we should ideally integrate it, but hopefully we can get away with not having to
-    const float c_bias_slew = 0.9;
-    bias = last_bias*c_bias_slew + (1-c_bias_slew)*bias;
-    last_bias = bias;
+    if(nFreq == 0) return; // nothing to do, just exit
 
     float leak = 1.f-nFreq*0.1; // make adjustable?
 
@@ -112,9 +102,7 @@ void BlitOsc::process(uint32_t fs)
     sync = newSync;
 
     last_cumSum = cumSum; // x
-    cumSum = cumSum*leak  // leaky integrate
-            + buf[bufPos]  // with next value
-            + bias;
+    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*bias; // x+1
 
     outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.5f, fs); // cheat a bit and add a high-pass... removes some modulation gunk so sounds a bit nicer I think
     buf[bufPos] = 0.f;

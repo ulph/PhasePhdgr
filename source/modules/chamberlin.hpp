@@ -15,4 +15,14 @@ public:
     static Module* factory() { return new ChamberlinFilter(); }
 };
 
+
+class OpenChamberlinFilter : public Module
+{
+public:
+    OpenChamberlinFilter();
+    void process(uint32_t fs);
+    static Module* factory() { return new OpenChamberlinFilter(); }
+};
+
+
 #endif

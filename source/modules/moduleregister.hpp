@@ -62,6 +62,7 @@ public:
         cg.registerModule("BQLPF", &(LowPass::factory));
         cg.registerModule("BQPEAK", &(PeakingEQ::factory));
         cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory));
+        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory));
         cg.registerModule("RCHP", &(RcHp::factory));
         cg.registerModule("RCLP", &(RcLp::factory));
         cg.registerModule("ORCHP", &(OpenRcHp::factory));

@@ -102,7 +102,7 @@ void BlitOsc::process(uint32_t fs)
     last_cumSum = cumSum; // x
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*nFreq; // x+1
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.25f, fs); // todo, make this a parameter
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.125f, fs); // todo, make this a parameter. closer to f0 may be beneficial when syncing, but lower _may_ be desireable when passing into a overdriven filter.
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

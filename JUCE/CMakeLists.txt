@@ -73,7 +73,13 @@ else()
     )
 endif()
 
+add_definitions(-DJUCE_SHARED_CODE=1)
+
 if(APPLE)
+
+    add_definitions(-DMAC=1)
+    add_definitions(-DJUCER_XCODE_MAC_F6D2F4CF=1)
+
     FIND_LIBRARY(ACCELERATE_LIB Accelerate)
     FIND_LIBRARY(COCOA_LIB Cocoa)
     FIND_LIBRARY(COREIMAGE_LIB CoreImage)
@@ -99,7 +105,6 @@ elseif(UNIX)
 
     add_definitions(-DLINUX=1)
     add_definitions(-DJUCER_LINUX_MAKE_7346DA2A=1)
-    add_definitions(-DJUCE_SHARED_CODE=1)
 
     include(FindOpenGL)
     find_package(Threads)

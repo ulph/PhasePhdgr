@@ -87,7 +87,7 @@ if(${BUILD_VST})
     include(vst_sdk)
     mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC})
 
-    TARGET_LINK_LIBRARIES( PhasePhckr PRIVATE ${JUCE_DEPS})
+    TARGET_LINK_LIBRARIES( PhasePhckr ${JUCE_DEPS})
 
     # make solution tidy
     set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)

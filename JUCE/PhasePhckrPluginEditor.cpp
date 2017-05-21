@@ -68,8 +68,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , cerrIntercept(std::cerr)
 #endif
 {
+
     fileWatchThread.startThread();
+#if FORCE_UPDATE_FILELIST
     fileUpdateTimer.startTimer(1000);
+#endif
 
     setResizeLimits(128, 128, 1800, 1000);
     setConstrainer(nullptr);

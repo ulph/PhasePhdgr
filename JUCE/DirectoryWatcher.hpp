@@ -41,6 +41,21 @@ namespace PhasePhckrFileStuff {
 
     void createDirIfNeeded(File dir);
 
+    typedef std::function<void(const DirectoryContentsList*)> StupidFileListCallBack;
+
+    class StupidFileChangeListener : public ChangeListener{
+    private:
+        StupidFileListCallBack cb;
+    public:
+        StupidFileChangeListener(const StupidFileListCallBack& cb)
+            : cb(cb){ }
+        virtual void changeListenerCallback(ChangeBroadcaster *source){
+            DirectoryContentsList* src = dynamic_cast<DirectoryContentsList *>(source);
+            if(!src) return;
+            cb(src);
+        }
+    };
+
     typedef std::function<void(const File&)> StupidCallBack;
 
     class StupidFileBrowserListener : public FileBrowserListener {

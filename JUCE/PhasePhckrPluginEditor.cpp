@@ -30,7 +30,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , fileUpdateTimer(new function<void()>(
                                        [this](){updateFiles();}
                                        ))
-    , fileWatchThread("fileWatchThread")
+    , fileWatchThread("editorFileWatchThread")
 
     , activeVoiceSubscribeHandle(processor.activeVoice.subscribe(
                                                              [this](const PatchDescriptor & v) {

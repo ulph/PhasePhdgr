@@ -1,18 +1,32 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
 #include "design_json.hpp"
-#include "DirectoryWatcher.hpp"
 
 #include <xmmintrin.h>
 
 using namespace PhasePhckrFileStuff;
+using namespace std;
+
+void PhasePhckrAudioProcessor::updateComponentRegister(const DirectoryContentsList* d)
+{
+    for(int i=0; i<d->getNumFiles(); i++) {
+        const File& f = d->getFile(i);
+        String p = f.getRelativePathFrom(componentsDir);
+        string n = string("@")+p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
+        String s = f.loadFileAsString();
+        json j = json::parse(s.toStdString().c_str());
+        ComponentDescriptor cd = j;
+        componentRegister.registerComponent(n, cd);
+        subComponentRegister.set(componentRegisterHandle, componentRegister);
+    }
+}
 
 PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
-     : AudioProcessor (BusesProperties()
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
-                       )
+     : AudioProcessor (BusesProperties().withOutput ("Output", AudioChannelSet::stereo(), true))
+     , fileWatchThread("processorFileWatchThread")
+     , componentDirectoryWatcher(getFilter(), fileWatchThread)
+     , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
 {
-
     activeVoiceHandle = activeVoice.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
     activeEffectHandle = activeEffect.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
@@ -40,6 +54,9 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
         File cmp = componentsDir.getFullPathName() + File::separator + type.substr(1) + ".json";
         cmp.replaceWithText(json(body).dump(2));
     }
+    componentDirectoryWatcher.addChangeListener(&componentFilesListener);
+    componentDirectoryWatcher.setDirectory(componentsDir, true, true);
+    fileWatchThread.startThread();
 
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
@@ -62,13 +79,15 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
     delete synth;
 }
 
-void PhasePhckrAudioProcessor::applyVoiceChain() {
+void PhasePhckrAudioProcessor::applyVoiceChain()
+{
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setVoiceChain(voiceChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
-void PhasePhckrAudioProcessor::applyEffectChain() {
+void PhasePhckrAudioProcessor::applyEffectChain()
+{
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setFxChain(effectChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);

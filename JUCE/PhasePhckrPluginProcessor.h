@@ -10,8 +10,10 @@
 #include "Utils.hpp"
 #include <list>
 #include "PatchEditor.hpp"
+#include "DirectoryWatcher.hpp"
 
 using namespace std;
+using namespace PhasePhckrFileStuff;
 
 class PhasePhckrParameter : public AudioParameterFloat {
 public:
@@ -42,12 +44,17 @@ private:
     }
     PhasePhckr::Synth* synth;
 
+    TimeSliceThread fileWatchThread;
+    DirectoryContentsList componentDirectoryWatcher;
+    StupidFileChangeListener componentFilesListener;
+
     PhasePhckr::PatchDescriptor voiceChain;
     int activeVoiceHandle;
 
     PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;
 
+    void updateComponentRegister(const DirectoryContentsList* d);
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 

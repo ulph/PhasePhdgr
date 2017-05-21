@@ -10,7 +10,7 @@
 #include <vector>
 #include "Utils.hpp"
 #include "PatchEditor.hpp"
-
+#include "DirectoryWatcher.hpp"
 
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public DragAndDropContainer
 {

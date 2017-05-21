@@ -254,9 +254,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     ComponentDescriptor cmp;
 
     if (!patchCopy.components.count(componentType)) {
-        // HAX, the component register needs to be passed here or onto this
-        PhasePhckr::ComponentRegister cr;
-        if(!cr.getComponent(componentType, cmp)) return;
+        if(!cmpReg.getComponent(componentType, cmp)) return;
         patchCopy.components[componentType] = cmp;
     }
 

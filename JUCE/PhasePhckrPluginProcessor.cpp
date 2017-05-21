@@ -11,10 +11,11 @@ void PhasePhckrAudioProcessor::updateComponentRegister(const DirectoryContentsLi
 {
     for(int i=0; i<d->getNumFiles(); i++) {
         const File& f = d->getFile(i);
+        if(!f.existsAsFile()) continue; // TODO, recurse into subdirs
         String p = f.getRelativePathFrom(componentsDir);
         string n = string("@")+p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
-        String s = f.loadFileAsString();
-        json j = json::parse(s.toStdString().c_str());
+        string s = f.loadFileAsString().toStdString();
+        json j = json::parse(s.c_str());
         ComponentDescriptor cd = j;
         componentRegister.registerComponent(n, cd);
         subComponentRegister.set(componentRegisterHandle, componentRegister);

@@ -106,7 +106,6 @@ public:
     }
 
     vector<AudioParameterFloat *> floatParameters;
-    vector<AudioParameterBool *> boolParameters;
 
 };
 

@@ -6,6 +6,9 @@
 #include <random>
 #include <string.h>
 #include <atomic>
+#include <map>
+
+using namespace std;
 
 namespace PhasePhckr {
 
@@ -37,7 +40,7 @@ namespace PhasePhckr {
     public:
         Synth();
         virtual ~Synth();
-        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
+        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const vector<float> & parameters);
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
         void handleY(int channel, float position);
@@ -48,23 +51,11 @@ namespace PhasePhckr {
         void handleModWheel(float value);
         void setFxChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
         void setVoiceChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
-        const Scope& getVoiceScope(int i) const {
-            if(i==0)
-                return voiceScopeL;
-            if(i==1)
-                return voiceScopeR;
-            return voiceScopeL;
-        }
-        const Scope& getOutputScope(int i) const {
-            if(i==0)
-                return outputScopeL;
-            if(i==1)
-                return outputScopeR;
-            return outputScopeL;
-        }
+        const Scope& getVoiceScope(int i) const;
+        const Scope& getOutputScope(int i) const;
     private:
         VoiceBus *voiceBus;
-        std::vector<SynthVoice*> voices;
+        vector<SynthVoice*> voices;
         EffectChain* effects;
         Scope voiceScopeL;
         Scope voiceScopeR;
@@ -73,6 +64,7 @@ namespace PhasePhckr {
         GlobalData *globalData;
         float scopeHz;
         int scopeVoiceIndex;
+        map<int, pair<int, int>> parameterRouting;
     };
 
 }

@@ -42,7 +42,7 @@ void Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegi
     }
 }
 
-void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
+void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const vector<float> & parameters)
 {
     int samplesLeft = numSamples;
     int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;
@@ -82,7 +82,6 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     }
 
     voiceBus->update();
-
 }
 
 void Synth::handleNoteOnOff(int a, int b, float c, bool d) { voiceBus->handleNoteOnOff(a, b, c, d, voices); }
@@ -93,5 +92,17 @@ void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c, 
 void Synth::handleExpression(float a) { globalData->expression(a); }
 void Synth::handleBreath(float a) { globalData->breath(a); }
 void Synth::handleModWheel(float a) { globalData->modwheel(a); }
+
+const Scope& Synth::getVoiceScope(int i) const {
+    if(i==0) return voiceScopeL;
+    if(i==1) return voiceScopeR;
+    return voiceScopeL;
+}
+
+const Scope& Synth::getOutputScope(int i) const {
+    if(i==0) return outputScopeL;
+    if(i==1) return outputScopeR;
+    return outputScopeL;
+}
 
 }

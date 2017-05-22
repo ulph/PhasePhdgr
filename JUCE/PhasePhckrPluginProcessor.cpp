@@ -85,6 +85,7 @@ void PhasePhckrAudioProcessor::applyVoiceChain()
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setVoiceChain(voiceChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
+    // ?
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain()
@@ -92,9 +93,9 @@ void PhasePhckrAudioProcessor::applyEffectChain()
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setFxChain(effectChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
+    // ?
 }
 
-//==============================================================================
 const String PhasePhckrAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -138,7 +139,6 @@ void PhasePhckrAudioProcessor::changeProgramName (int index, const String& newNa
 {
 }
 
-//==============================================================================
 void PhasePhckrAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 }
@@ -239,7 +239,6 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
 #endif
 }
 
-//==============================================================================
 bool PhasePhckrAudioProcessor::hasEditor() const
 {
     return true;
@@ -250,13 +249,37 @@ AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
     return new PhasePhckrAudioProcessorEditor (*this);
 }
 
-//==============================================================================
 void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
+    json j;
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    j["voice"] = voiceChain;
+    j["effect"] = effectChain;
+    synthUpdateLock.clear(std::memory_order_release);
+    auto ss = j.dump(2);
+    const char* s = ss.c_str();
+    size_t n = (strlen(s)+1) / sizeof(char);
+    destData.fillWith(0);
+    destData.insert((const void*)s, n, 0);
+    assert(destData.getSize() == n);
 }
 
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    string ss((const char*)data);
+    json j;
+    try {
+        j = json::parse(ss.c_str());
+    } catch (const std::exception& e) {
+        assert(0);
+    }
+    PatchDescriptor newVoiceChain = j.at("voice").get<PatchDescriptor>();
+    PatchDescriptor newEffectChain = j.at("effect").get<PatchDescriptor>();
+
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    voiceChain = newVoiceChain;
+    effectChain = newEffectChain;
+    synthUpdateLock.clear(std::memory_order_release);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

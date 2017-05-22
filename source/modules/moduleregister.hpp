@@ -33,8 +33,19 @@ public:
     void process(uint32_t fs) {
         outputs[0].value = inputs[0].value;
     }
-    virtual std::string docString() { return "A 'constant' of questionable value."; };
+    virtual std::string docString() { return "A 'constant' of questionable value."; }
     static Module* factory() { return new Constant(); }
+};
+
+
+class Knob : public Constant {
+    public:
+    static Module* factory() { return new Knob(); }
+    virtual ModuleDoc makeDoc() {
+        auto d = Module::makeDoc();
+        d.inputs.clear();
+        return d;
+    }
 };
 
 
@@ -87,6 +98,9 @@ public:
         /* convinience */
         cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));
+
+        /* special */
+        cg.registerModule("=KNOB", &(Knob::factory));
 
     }
 };

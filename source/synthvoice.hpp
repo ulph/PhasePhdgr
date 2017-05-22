@@ -28,6 +28,8 @@ private:
     float sampleRate;
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
     bool doTerminate;
+    map<string, int> moduleHandles;
+    map<string, int> parameterHandles;
 public:
     MPEVoice mpe;
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);

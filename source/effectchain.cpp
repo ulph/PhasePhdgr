@@ -9,13 +9,16 @@ namespace PhasePhckr {
 EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     PatchDescriptor patchDescriptor = fxChain;
     ModuleRegister::registerAllModules(connectionGraph);
-    std::map<std::string, int> moduleHandles;
+    moduleHandles.clear();
+    parameterHandles.clear();
+
     designPatch(
         connectionGraph,
         patchDescriptor,
         c_effectChainInBus,
         c_effectChainOutBus,
         moduleHandles,
+        parameterHandles,
         cp
     );
     inBus = moduleHandles["inBus"];

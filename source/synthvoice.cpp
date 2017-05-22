@@ -15,13 +15,16 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     ModuleRegister::registerAllModules(connectionGraph);
     PatchDescriptor patchDescriptor = voiceChain;
 
-    std::map<std::string, int> moduleHandles;
+    moduleHandles.clear();
+    parameterHandles.clear();
+
     designPatch(
         connectionGraph,
         patchDescriptor,
         c_voiceChainInBus,
         c_voiceChainOutBus,
         moduleHandles,
+        parameterHandles,
         cp
     );
 

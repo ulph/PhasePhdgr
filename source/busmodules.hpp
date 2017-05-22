@@ -27,7 +27,7 @@ public:
     virtual void process(uint32_t fs)
     {
         for(int i = 0; i < outputs.size(); i++) {
-            outputs[i] = inputs[i];
+            outputs[i].value = inputs[i].value;
         }
     }
     virtual ModuleDoc makeDoc() {

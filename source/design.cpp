@@ -15,7 +15,8 @@ void designChain(
     ConnectionGraph &g,
     PatchDescriptor &pd,
     ComponentDescriptor &cd,
-    map<string, int>& handles
+    map<string, int>& moduleHandles,
+    map<string, int>& parameterHandles
 );
 
 bool unpackComponent(
@@ -24,7 +25,8 @@ bool unpackComponent(
     PatchDescriptor &pd,
     ComponentDescriptor &parent,
     ComponentDescriptor &current,
-    map<string, int>&handles
+    map<string, int> &moduleHandles,
+    map<string, int> &parameterHandles
 ) {
     // find the component definition
     cout << "component " << mv.name << " " << mv.type << endl;
@@ -34,8 +36,8 @@ bool unpackComponent(
 
     auto inBus = new BusModule(current.inBus, true);
     auto outBus = new BusModule(current.outBus, false);
-    handles[pfx+c_inBus.name] = g.addCustomModule(inBus);
-    handles[pfx+c_outBus.name] = g.addCustomModule(outBus);
+    moduleHandles[pfx+c_inBus.name] = g.addCustomModule(inBus);
+    moduleHandles[pfx+c_outBus.name] = g.addCustomModule(outBus);
 
     // find any connections to and from this component and "re-route" to inBus/outBus
     for(auto &c : parent.graph.connections){
@@ -63,7 +65,7 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
-    designChain(g, pd, current, handles);
+    designChain(g, pd, current, moduleHandles, parameterHandles);
 
     return true;
 }
@@ -73,7 +75,9 @@ void designChain(
     ConnectionGraph &g,
     PatchDescriptor &pd,
     ComponentDescriptor &cd,
-    map<string, int> &handles) {
+    map<string, int> &moduleHandles,
+    map<string, int> &parameterHandles
+){
 
     set<string> components;
 
@@ -84,7 +88,7 @@ void designChain(
                 cerr << "Error: " << m.type << " is unknown Component type!" << endl;
                 continue;
             }
-            if(unpackComponent(g, m, pd, cd, pd.components[m.type], handles)){
+            if(unpackComponent(g, m, pd, cd, pd.components[m.type], moduleHandles, parameterHandles)){
                 components.insert(m.name);
             }
         }
@@ -93,20 +97,23 @@ void designChain(
     // create the modules and store their handles
     for (const auto &m : cd.graph.modules) {
         if (components.count(m.name)) continue;
-        if (handles.count(m.name) > 0) {
+        if (moduleHandles.count(m.name) > 0) {
             cerr << "Error: " << m.name << " name dupe! (modules)" << endl;
         }
         else {
             int handle = g.addModule(m.type);
-            handles[m.name] = handle;
+            moduleHandles[m.name] = handle;
             cout << handle << " : " << " " << m.name << std::endl;
+            if(m.type.at(0) == '='){
+                parameterHandles[m.name] = handle;
+            }
         }
     }
 
     // iterate over the connections
     for (const auto &c : cd.graph.connections) {
-        int hFrom = handles.count(c.source.module) > 0 ? handles.at(c.source.module) : -2;
-        int hTo = handles.count(c.target.module) > 0 ? handles.at(c.target.module) : -2;
+        int hFrom = moduleHandles.count(c.source.module) > 0 ? moduleHandles.at(c.source.module) : -2;
+        int hTo = moduleHandles.count(c.target.module) > 0 ? moduleHandles.at(c.target.module) : -2;
         cout << c.source.module << ":" << c.source.port << " -> " << c.target.module << ":" << c.target.port << endl;
         if (hFrom < 0 || hTo < 0) {
             cerr << "Error: \"" << c.source.module << " -> " << c.target.module << "\" invalid. ";
@@ -126,7 +133,7 @@ void designChain(
     // set default values provided
     for (const auto &v : cd.graph.values) {
         if (components.count(v.target.module)) continue;
-        int h = handles.count(v.target.module) > 0 ? handles.at(v.target.module) : -2;
+        int h = moduleHandles.count(v.target.module) > 0 ? moduleHandles.at(v.target.module) : -2;
         cout << v.target.module << ":" << v.target.port << " = " << v.value << endl;
         if (h < 0) {
             cerr << "Error: " << v.target.module << " not found! (values)" << endl;
@@ -143,6 +150,7 @@ void designPatch(
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
+    map<string, int> &parameterHandles,
     const ComponentRegister & cp
 ) {
 
@@ -167,7 +175,8 @@ void designPatch(
         connectionGraph,
         p,
         p.root,
-        moduleHandles
+        moduleHandles,
+        parameterHandles
     );
 }
 

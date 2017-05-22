@@ -73,6 +73,7 @@ void designPatch(
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
+    map<string, int> &parameterHandles,
     const ComponentRegister & cp
 );
 

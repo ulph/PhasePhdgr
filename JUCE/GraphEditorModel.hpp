@@ -74,6 +74,7 @@ struct GfxPort {
 
 
 struct GfxModule {
+    bool isParameter = false;
 
     vector<GfxPort> inputs;
     vector<GfxPort> outputs;
@@ -90,7 +91,7 @@ struct GfxModule {
     void repositionPorts();
     bool within(XY p) const;
     bool withinPort(XY p, XY& portPosition, string &port, bool & inputPort);
-    void draw(Graphics & g, bool selected=false) const;
+    virtual void draw(Graphics & g, bool selected=false) const;
     bool getValue(const string& port, float& value);
     void clearValue(const string& port);
     bool setValue(const string& port, float value);
@@ -104,7 +105,6 @@ struct GfxModule {
     );
 
 };
-
 
 struct GfxWire {
 private:

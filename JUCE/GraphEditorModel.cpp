@@ -178,12 +178,15 @@ void GfxModule::draw(Graphics & g, bool selected) const {
     else {
         g.setColour(Colour(0x88000000));
     }
+    float cornerSize = 5.f;
+    if(isParameter) cornerSize = c_NodeSize*0.5f;
+
     g.fillRoundedRectangle(
         position.x,
         position.y,
         size.x,
         size.y,
-        5.f
+        cornerSize
     );
 
     g.setColour(Colours::white); // restore trans
@@ -193,7 +196,7 @@ void GfxModule::draw(Graphics & g, bool selected) const {
         position.y,
         size.x,
         size.y,
-        2.f
+        cornerSize
     );
 
     PathStrokeType strokeType(1);
@@ -299,6 +302,7 @@ GfxModule::GfxModule(
 )
     : module(mv)
 {
+    if(module.type.at(0) == '=') isParameter = true;
     size = XY(c_NodeSize, c_NodeSize);
     position.y = y * c_GridSize;
     position.x = x * c_GridSize;

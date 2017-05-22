@@ -20,7 +20,6 @@ public:
      );
     ~PhasePhckrAudioProcessorEditor();
 
-    //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
 
@@ -40,13 +39,11 @@ private:
 
     TimeSliceThread fileWatchThread;
 
-    int activeVoiceSubscribeHandle;
     DirectoryContentsList voiceDirectoryWatcher;
     FileListComponent voiceDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener voiceListListener;
     PatchEditor voiceEditor;
     
-    int activeEffectSubscribeHandle;
     DirectoryContentsList effectDirectoryWatcher;
     FileListComponent effectDirectoryList;
     PhasePhckrFileStuff::StupidFileBrowserListener effectListListener;

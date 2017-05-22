@@ -15,9 +15,7 @@ static json loadJson(const File & f) {
     return json::parse(s.toStdString().c_str());
 }
 
-PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
-        PhasePhckrAudioProcessor& p
-        )
+PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
@@ -27,37 +25,28 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
     , fileWatchThread("editorFileWatchThread")
-    , activeVoiceSubscribeHandle(processor.activeVoice.subscribe(
-                                                             [this](const PatchDescriptor & v) {
-                                                                 //
-                                                             }))
     , voiceDirectoryWatcher(getFilter(), fileWatchThread)
     , voiceDirectoryList(voiceDirectoryWatcher)
     , voiceListListener([this](const File& f) {
-        processor.activeVoice.set(activeVoiceSubscribeHandle, loadJson(f));
+        processor.activeVoice.set(-1, loadJson(f));
     })
     , voiceEditor(
-              processor.activeVoice,
-              processor.subComponentRegister,
-              c_voiceChainInBus,
-              c_voiceChainOutBus
-              )
-
-    , activeEffectSubscribeHandle(processor.activeEffect.subscribe(
-                                                               [this](const PatchDescriptor & v) {
-                                                                   //
-                                                               }))
+        processor.activeVoice,
+        processor.subComponentRegister,
+        c_voiceChainInBus,
+        c_voiceChainOutBus
+    )
     , effectDirectoryWatcher(getFilter(), fileWatchThread)
     , effectDirectoryList(effectDirectoryWatcher)
     , effectListListener([this](const File& f) {
-            processor.activeEffect.set(activeEffectSubscribeHandle, loadJson(f));
-        })
+        processor.activeEffect.set(-1, loadJson(f));
+    })
     , effectEditor(
-            processor.activeEffect,
-            processor.subComponentRegister,
-            c_effectChainInBus,
-            c_effectChainOutBus
-        )
+        processor.activeEffect,
+        processor.subComponentRegister,
+        c_effectChainInBus,
+        c_effectChainOutBus
+    )
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
@@ -126,8 +115,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
-    processor.activeEffect.unsubscribe(activeEffectSubscribeHandle);
-    processor.activeVoice.unsubscribe(activeVoiceSubscribeHandle);
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;

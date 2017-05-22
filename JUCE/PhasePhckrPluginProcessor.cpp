@@ -275,11 +275,8 @@ void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeIn
     }
     PatchDescriptor newVoiceChain = j.at("voice").get<PatchDescriptor>();
     PatchDescriptor newEffectChain = j.at("effect").get<PatchDescriptor>();
-
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    voiceChain = newVoiceChain;
-    effectChain = newEffectChain;
-    synthUpdateLock.clear(std::memory_order_release);
+    activeVoice.set(-1, newVoiceChain);
+    activeEffect.set(-1, newEffectChain);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

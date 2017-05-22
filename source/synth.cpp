@@ -94,6 +94,9 @@ void Synth::handleExpression(float a) { globalData->expression(a); }
 void Synth::handleBreath(float a) { globalData->breath(a); }
 void Synth::handleModWheel(float a) { globalData->modwheel(a); }
 
+void Synth::setFxParameter(int handle, float value){effects->setParameter(handle, value);}
+void Synth::setVoiceParameter(int handle, float value){/**/}
+
 const Scope& Synth::getVoiceScope(int i) const {
     if(i==0) return voiceScopeL;
     if(i==1) return voiceScopeR;

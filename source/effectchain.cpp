@@ -11,7 +11,6 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
     ModuleRegister::registerAllModules(connectionGraph);
     moduleHandles.clear();
     parameterHandles.clear();
-
     designPatch(
         connectionGraph,
         patchDescriptor,
@@ -23,9 +22,18 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
     );
     inBus = moduleHandles["inBus"];
     outBus = moduleHandles["outBus"];
+
+    parameterValues.clear();
+    for(const auto &p : parameterHandles){
+        parameterValues[p.second] = 0.f;
+    }
 }
 
 void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
+    for(const auto& p: parameterValues){
+        connectionGraph.setInput(p.first, 0, p.second);
+    }
+
     GlobalData globalDataCopy = globalData;
     for (int i = 0; i < numSamples; ++i) {
         globalDataCopy.update();
@@ -44,5 +52,19 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
         bufferR[i] = sampleR;
     }
 }
+
+void EffectChain::setParameter(int handle, float value){
+    auto it = parameterValues.find(handle);
+    if(it == parameterValues.end()){
+        assert(0);
+        return;
+    }
+    it->second = value;
+}
+
+const map<string, int>& EffectChain::getParameterHandles(){
+    return parameterHandles;
+}
+
 
 }

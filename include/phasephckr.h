@@ -40,7 +40,7 @@ namespace PhasePhckr {
     public:
         Synth();
         virtual ~Synth();
-        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const vector<float> & parameters);
+        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
         void handleY(int channel, float position);
@@ -64,7 +64,7 @@ namespace PhasePhckr {
         GlobalData *globalData;
         float scopeHz;
         int scopeVoiceIndex;
-        map<int, pair<int, int>> parameterRouting;
+        map<string, int> effectParameters;
     };
 
 }

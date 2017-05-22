@@ -27,6 +27,7 @@ Synth::~Synth(){
 void Synth::setFxChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);
+    effectParameters = effects->getParameterHandles();
 }
 
 void Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
@@ -42,7 +43,7 @@ void Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegi
     }
 }
 
-void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const vector<float> & parameters)
+void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
     int samplesLeft = numSamples;
     int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;

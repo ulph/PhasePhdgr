@@ -234,13 +234,11 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     midiMessages.clear();
 
     // handle the parameter values
-    vector<float> pVals;
-    pVals.reserve(floatParameters.size());
     for(const auto p: floatParameters){
-        pVals.push_back(*p);
+        // map to voice or effect, using the handle
     }
 
-    synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate, pVals);
+    synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
 
     synthUpdateLock.clear(std::memory_order_release);
 

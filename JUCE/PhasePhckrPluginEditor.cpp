@@ -26,12 +26,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor (
     , outputScopeR(processor.getSynth()->getOutputScope(1))
     , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
-
-    , fileUpdateTimer(new function<void()>(
-                                       [this](){updateFiles();}
-                                       ))
     , fileWatchThread("editorFileWatchThread")
-
     , activeVoiceSubscribeHandle(processor.activeVoice.subscribe(
                                                              [this](const PatchDescriptor & v) {
                                                                  //

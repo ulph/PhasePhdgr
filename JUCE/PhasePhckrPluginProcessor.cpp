@@ -15,10 +15,15 @@ void PhasePhckrAudioProcessor::updateComponentRegister(const DirectoryContentsLi
         String p = f.getRelativePathFrom(componentsDir);
         string n = string("@")+p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
         string s = f.loadFileAsString().toStdString();
-        json j = json::parse(s.c_str());
-        ComponentDescriptor cd = j;
-        componentRegister.registerComponent(n, cd);
-        subComponentRegister.set(componentRegisterHandle, componentRegister);
+        try {
+            json j = json::parse(s.c_str());
+            ComponentDescriptor cd = j;
+            componentRegister.registerComponent(n, cd);
+            subComponentRegister.set(componentRegisterHandle, componentRegister);
+        } catch (const std::exception& e) {
+            continue;
+            assert(0);
+        }
     }
 }
 
@@ -55,9 +60,9 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
         File cmp = componentsDir.getFullPathName() + File::separator + type.substr(1) + ".json";
         cmp.replaceWithText(json(body).dump(2));
     }
+    fileWatchThread.startThread();
     componentDirectoryWatcher.addChangeListener(&componentFilesListener);
     componentDirectoryWatcher.setDirectory(componentsDir, true, true);
-    fileWatchThread.startThread();
 
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
@@ -85,7 +90,6 @@ void PhasePhckrAudioProcessor::applyVoiceChain()
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setVoiceChain(voiceChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
-    // ?
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain()
@@ -93,7 +97,6 @@ void PhasePhckrAudioProcessor::applyEffectChain()
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     synth->setFxChain(effectChain, componentRegister);
     synthUpdateLock.clear(std::memory_order_release);
-    // ?
 }
 
 const String PhasePhckrAudioProcessor::getName() const

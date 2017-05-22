@@ -38,11 +38,6 @@ private:
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 
-    LambdaTimer fileUpdateTimer;
-    void updateFiles() {
-        voiceDirectoryWatcher.refresh();
-        effectDirectoryWatcher.refresh();
-    }
     TimeSliceThread fileWatchThread;
 
     int activeVoiceSubscribeHandle;

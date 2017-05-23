@@ -21,7 +21,7 @@
 #include "biquad.hpp"
 #include "bleposc.hpp"
 #include "chamberlin.hpp"
-
+#include "inlines.hpp"
 
 class Constant : public Module
 {
@@ -46,6 +46,7 @@ class Knob : public Constant {
         d.inputs.clear();
         return d;
     }
+    virtual std::string docString() { return "A knob representing an automatable parameter. It will show up in the HOST as well as the parameters tab."; }
 };
 
 

@@ -94,7 +94,7 @@ void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffe
             toPrune.push_back(kv.first);
     }
     for(const auto& i: toPrune){
-        floatParameters[i]->clearLabel();
+        floatParameters[i]->clearName();
         parameterRouting.erase(i);
     }
 
@@ -102,12 +102,12 @@ void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffe
     list< pair<pair<ApiType, int>, string>> newParams;
     if(newVoiceChain){
         for(const auto& kv: voiceParameters){
-            newParams.push_back(make_pair(make_pair(VOICE, kv.second), kv.first));
+            newParams.push_back(make_pair(make_pair(VOICE, kv.second), "v " + kv.first));
         }
     }
     if(newEffectChain){
         for(const auto& kv: effectParameters){
-            newParams.push_back(make_pair(make_pair(EFFECT, kv.second), kv.first));
+            newParams.push_back(make_pair(make_pair(EFFECT, kv.second), "e " + kv.first));
         }
     }
 
@@ -117,7 +117,7 @@ void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffe
         if(parameterRouting.count(i)) continue;
         auto p = newParams.front(); newParams.pop_front();
         parameterRouting[i] = p.first;
-        floatParameters[i]->setLabel(p.second);
+        floatParameters[i]->setName(p.second);
     }
 
 }

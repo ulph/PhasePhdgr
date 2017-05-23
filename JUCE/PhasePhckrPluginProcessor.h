@@ -18,24 +18,29 @@ using namespace PhasePhckrFileStuff;
 class PhasePhckrParameter : public AudioParameterFloat {
 private :
     int idx;
+    string name;
 public:
     PhasePhckrParameter(int idx)
         : AudioParameterFloat(
-            to_string(idx),
             to_string(idx / 8) + "_" + to_string(idx % 8),
+            "", // setName
             0.0f,
             1.0f,
             0.0f
             )
         , idx(idx)
+        , name("")
     {
     }
-    void clearLabel(){
-        // set label as per constructor
-        // ... todo
+    void clearName(){
+        setName("");
     }
-    void setLabel(string label){
-        // ... todo
+    void setName(string newName){
+        name = newName;
+        setValueNotifyingHost(*this);
+    }
+    virtual String getName (int maximumStringLength) const override {
+        return name.substr(0, maximumStringLength);
     }
 };
 

@@ -21,7 +21,6 @@
 #include "biquad.hpp"
 #include "bleposc.hpp"
 #include "chamberlin.hpp"
-#include "inlines.hpp"
 
 class Constant : public Module
 {

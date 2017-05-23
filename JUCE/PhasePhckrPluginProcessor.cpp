@@ -87,7 +87,6 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 
 void PhasePhckrAudioProcessor::updateParameters()
 {
-    set<int> doNotPrune;
     map<string, int> newParameterNames;
     map<int, pair<ApiType, int>> newParameterRouting;
 
@@ -99,6 +98,9 @@ void PhasePhckrAudioProcessor::updateParameters()
         floatParameters[p.second]->clearName();
     }
 
+    int numNewNames = 0;
+    string firstNewName = "";
+
     // find existing parameter (by name) and update it, or add to list of new parameters if not found
     list< pair<pair<ApiType, int>, string>> newParams;
     for(const auto& kv: voiceParameters){
@@ -107,12 +109,15 @@ void PhasePhckrAudioProcessor::updateParameters()
         auto it = parameterNames.find(lbl);
         if(it == parameterNames.end()){
             newParams.push_back(make_pair(route, lbl));
+            if(numNewNames == 0){
+                firstNewName = lbl;
+            }
+            numNewNames++;
         }
         else{
             floatParameters[it->second]->setName(lbl);
             newParameterRouting[it->second] = route;
             newParameterNames[lbl] = it->second;
-            doNotPrune.insert(it->second);
         }
     }
     for(const auto& kv: effectParameters){
@@ -121,12 +126,37 @@ void PhasePhckrAudioProcessor::updateParameters()
         auto it = parameterNames.find(lbl);
         if(it == parameterNames.end()){
             newParams.push_back(make_pair(route, lbl));
+            if(numNewNames == 0){
+                firstNewName = lbl;
+            }
+            numNewNames++;
         }
         else{
-            floatParameters[it->second]->setName(lbl);
             newParameterRouting[it->second] = route;
             newParameterNames[lbl] = it->second;
-            doNotPrune.insert(it->second);
+            floatParameters[it->second]->setName(lbl);
+        }
+    }
+
+    // special case - one new name and just one less new params -> a single rename
+    if(numNewNames == 1 && newParameterNames.size() == (parameterNames.size()-1)){
+        for(const auto& kv: parameterNames){
+            if(!newParameterNames.count(kv.first)){
+                // found it!
+                auto it = newParams.begin();
+                while(it != newParams.end()){
+                    if(it->second == firstNewName){
+                        // found it also in newParams... apply and delete
+                        newParameterRouting[kv.second] = it->first;
+                        newParameterNames[firstNewName] = kv.second;
+                        floatParameters[kv.second]->setName(firstNewName);
+                        newParams.erase(it);
+                        break;
+                    }
+                    it++;
+                }
+                break;
+            }
         }
     }
 
@@ -136,8 +166,12 @@ void PhasePhckrAudioProcessor::updateParameters()
         if(newParameterRouting.count(i)) continue;
         auto p = newParams.front(); newParams.pop_front();
         newParameterRouting[i] = p.first;
-        floatParameters[i]->setName(p.second);
         newParameterNames[p.second] = i;
+        floatParameters[i]->setName(p.second);
+    }
+
+    if(newParams.size()){
+        cerr << "Warning - number of parameter modules larger than number allocated in plug-in!" << endl;
     }
 
     // replace the old route table and name book-keeping

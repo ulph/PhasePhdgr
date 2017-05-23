@@ -88,30 +88,26 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffectChain)
 {
     // clean
-    if(newVoiceChain && newEffectChain){
-        parameterRouting.clear();
+    list<int> toPrune;
+    for(const auto& kv : parameterRouting){
+        if((kv.second.first == VOICE && newVoiceChain) || (kv.second.first == EFFECT && newEffectChain))
+            toPrune.push_back(kv.first);
     }
-    else{
-        list<int> toPrune;
-        for(const auto& kv : parameterRouting){
-            if((kv.second.first == VOICE && newVoiceChain) || (kv.second.first == EFFECT && newEffectChain))
-                toPrune.push_back(kv.first);
-        }
-        for(const auto& i: toPrune){
-            parameterRouting.erase(i);
-        }
+    for(const auto& i: toPrune){
+        floatParameters[i]->clearLabel();
+        parameterRouting.erase(i);
     }
 
     // create a joblist of all new params
-    list<pair<ApiType, int>> newParams;
+    list< pair<pair<ApiType, int>, string>> newParams;
     if(newVoiceChain){
         for(const auto& kv: voiceParameters){
-            newParams.push_back(make_pair(VOICE, kv.second));
+            newParams.push_back(make_pair(make_pair(VOICE, kv.second), kv.first));
         }
     }
     if(newEffectChain){
         for(const auto& kv: effectParameters){
-            newParams.push_back(make_pair(EFFECT, kv.second));
+            newParams.push_back(make_pair(make_pair(EFFECT, kv.second), kv.first));
         }
     }
 
@@ -120,7 +116,8 @@ void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffe
         if(newParams.size() == 0) break;
         if(parameterRouting.count(i)) continue;
         auto p = newParams.front(); newParams.pop_front();
-        parameterRouting[i] = p;
+        parameterRouting[i] = p.first;
+        floatParameters[i]->setLabel(p.second);
     }
 
 }

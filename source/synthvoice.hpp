@@ -30,6 +30,7 @@ private:
     bool doTerminate;
     map<string, int> moduleHandles;
     map<string, int> parameterHandles;
+    map<int, float> parameterValues;
 public:
     MPEVoice mpe;
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
@@ -37,6 +38,7 @@ public:
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);
     const float* getInternalBuffer(int channel) { return &internalBuffer[channel][0]; }
+    void setParameter(int handle, float value);
     const map<string, int>& getParameterHandles();
 };
 

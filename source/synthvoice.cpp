@@ -31,6 +31,11 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     inBus = moduleHandles["inBus"];
     outBus = moduleHandles["outBus"];
 
+    parameterValues.clear();
+    for(const auto &p : parameterHandles){
+        parameterValues[p.second] = 0.f;
+    }
+
 #if MULTITHREADED
     t = std::thread(&SynthVoice::threadedProcess, this);
 #endif
@@ -50,6 +55,9 @@ void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalD
     // Make sure thread is not processing already ... (should not happen)
     while(samplesToProcess > 0) std::this_thread::yield();
 #endif
+    for(const auto& p: parameterValues){
+        connectionGraph.setInput(p.first, 0, p.second);
+    }
     // Queue work for thread
     globalData = g;
     this->sampleRate = sampleRate;
@@ -124,6 +132,15 @@ void SynthVoice::threadedProcess()
 #if MULTITHREADED
     }
 #endif
+}
+
+void SynthVoice::setParameter(int handle, float value){
+    auto it = parameterValues.find(handle);
+    if(it == parameterValues.end()){
+        assert(0);
+        return;
+    }
+    it->second = value;
 }
 
 const map<string, int>& SynthVoice::getParameterHandles(){

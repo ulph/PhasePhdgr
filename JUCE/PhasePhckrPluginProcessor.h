@@ -16,6 +16,8 @@ using namespace std;
 using namespace PhasePhckrFileStuff;
 
 class PhasePhckrParameter : public AudioParameterFloat {
+private :
+    int idx;
 public:
     PhasePhckrParameter(int idx)
         : AudioParameterFloat(
@@ -25,7 +27,15 @@ public:
             1.0f,
             0.0f
             )
+        , idx(idx)
     {
+    }
+    void clearLabel(){
+        // set label as per constructor
+        // ... todo
+    }
+    void setLabel(string label){
+        // ... todo
     }
 };
 
@@ -64,7 +74,7 @@ private:
     std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
 
     void updateParameters(bool newVoiceChain, bool newEffectChain);
-    vector<AudioParameterFloat *> floatParameters;
+    vector<PhasePhckrParameter *> floatParameters;
     enum ApiType {
         VOICE,
         EFFECT

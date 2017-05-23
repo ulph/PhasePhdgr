@@ -20,7 +20,7 @@ private :
     int idx;
     string name;
     static string clearedName(int idx){
-        return to_string(idx / 8) + "_" + to_string(idx % 8);
+        return "";//to_string(idx / 8) + "_" + to_string(idx % 8);
     }
 public:
     PhasePhckrParameter(int idx)

@@ -85,40 +85,64 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
     delete synth;
 }
 
-void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffectChain)
+void PhasePhckrAudioProcessor::updateParameters()
 {
-    // clean
-    list<int> toPrune;
-    for(const auto& kv : parameterRouting){
-        if((kv.second.first == VOICE && newVoiceChain) || (kv.second.first == EFFECT && newEffectChain))
-            toPrune.push_back(kv.first);
-    }
-    for(const auto& i: toPrune){
-        floatParameters[i]->clearName();
-        parameterRouting.erase(i);
+    set<int> doNotPrune;
+    map<string, int> newParameterNames;
+    map<int, pair<ApiType, int>> newParameterRouting;
+
+    assert(parameterNames.size() == parameterRouting.size());
+
+    // clear all the names, will get set back below
+    for(const auto& p: parameterNames){
+        assert(newParameterRouting.count(p.second));
+        floatParameters[p.second]->clearName();
     }
 
-    // create a joblist of all new params
+    // find existing parameter (by name) and update it, or add to list of new parameters if not found
     list< pair<pair<ApiType, int>, string>> newParams;
-    if(newVoiceChain){
-        for(const auto& kv: voiceParameters){
-            newParams.push_back(make_pair(make_pair(VOICE, kv.second), "v " + kv.first));
+    for(const auto& kv: voiceParameters){
+        string lbl = "v " + kv.first;
+        auto route = make_pair(VOICE, kv.second);
+        auto it = parameterNames.find(lbl);
+        if(it == parameterNames.end()){
+            newParams.push_back(make_pair(route, lbl));
+        }
+        else{
+            floatParameters[it->second]->setName(lbl);
+            newParameterRouting[it->second] = route;
+            newParameterNames[lbl] = it->second;
+            doNotPrune.insert(it->second);
         }
     }
-    if(newEffectChain){
-        for(const auto& kv: effectParameters){
-            newParams.push_back(make_pair(make_pair(EFFECT, kv.second), "e " + kv.first));
+    for(const auto& kv: effectParameters){
+        string lbl = "e " + kv.first;
+        auto route = make_pair(EFFECT, kv.second);
+        auto it = parameterNames.find(lbl);
+        if(it == parameterNames.end()){
+            newParams.push_back(make_pair(route, lbl));
+        }
+        else{
+            floatParameters[it->second]->setName(lbl);
+            newParameterRouting[it->second] = route;
+            newParameterNames[lbl] = it->second;
+            doNotPrune.insert(it->second);
         }
     }
 
-    // find first free slot and stick it there
+    // for any new parameters, find first free slot and stick it there
     for(int i=0; i<floatParameters.size(); i++){
         if(newParams.size() == 0) break;
-        if(parameterRouting.count(i)) continue;
+        if(newParameterRouting.count(i)) continue;
         auto p = newParams.front(); newParams.pop_front();
-        parameterRouting[i] = p.first;
+        newParameterRouting[i] = p.first;
         floatParameters[i]->setName(p.second);
+        newParameterNames[p.second] = i;
     }
+
+    // replace the old route table and name book-keeping
+    parameterNames = newParameterNames;
+    parameterRouting = newParameterRouting;
 
 }
 
@@ -126,7 +150,7 @@ void PhasePhckrAudioProcessor::applyVoiceChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     voiceParameters = synth->setVoiceChain(voiceChain, componentRegister);
-    updateParameters(true, false);
+    updateParameters();
     synthUpdateLock.clear(std::memory_order_release);
 }
 
@@ -134,7 +158,7 @@ void PhasePhckrAudioProcessor::applyEffectChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     effectParameters = synth->setFxChain(effectChain, componentRegister);
-    updateParameters(false, true);
+    updateParameters();
     synthUpdateLock.clear(std::memory_order_release);
 }
 

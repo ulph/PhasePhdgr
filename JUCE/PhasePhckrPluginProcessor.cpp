@@ -85,17 +85,59 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
     delete synth;
 }
 
+void PhasePhckrAudioProcessor::updateParameters(bool newVoiceChain, bool newEffectChain)
+{
+    // clean
+    if(newVoiceChain && newEffectChain){
+        parameterRouting.clear();
+    }
+    else{
+        list<int> toPrune;
+        for(const auto& kv : parameterRouting){
+            if((kv.second.first == VOICE && newVoiceChain) || (kv.second.first == EFFECT && newEffectChain))
+                toPrune.push_back(kv.first);
+        }
+        for(const auto& i: toPrune){
+            parameterRouting.erase(i);
+        }
+    }
+
+    // create a joblist of all new params
+    list<pair<ApiType, int>> newParams;
+    if(newVoiceChain){
+        for(const auto& kv: voiceParameters){
+            newParams.push_back(make_pair(VOICE, kv.second));
+        }
+    }
+    if(newEffectChain){
+        for(const auto& kv: effectParameters){
+            newParams.push_back(make_pair(EFFECT, kv.second));
+        }
+    }
+
+    // find first free slot and stick it there
+    for(int i=0; i<floatParameters.size(); i++){
+        if(newParams.size() == 0) break;
+        if(parameterRouting.count(i)) continue;
+        auto p = newParams.front(); newParams.pop_front();
+        parameterRouting[i] = p;
+    }
+
+}
+
 void PhasePhckrAudioProcessor::applyVoiceChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    synth->setVoiceChain(voiceChain, componentRegister);
+    voiceParameters = synth->setVoiceChain(voiceChain, componentRegister);
+    updateParameters(true, false);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    synth->setFxChain(effectChain, componentRegister);
+    effectParameters = synth->setFxChain(effectChain, componentRegister);
+    updateParameters(false, true);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
@@ -234,8 +276,21 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     midiMessages.clear();
 
     // handle the parameter values
-    for(const auto p: floatParameters){
-        // map to voice or effect, using the handle
+    for(const auto kv: parameterRouting){
+        auto idx = kv.first;
+        auto type = kv.second.first;
+        auto handle = kv.second.second;
+        float value = *(floatParameters[idx]);
+        switch(type){
+        case VOICE:
+            synth->setVoiceParameter(handle, value);
+            break;
+        case EFFECT:
+            synth->setFxParameter(handle, value);
+            break;
+        default:
+            break;
+        }
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);

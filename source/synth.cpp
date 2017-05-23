@@ -24,13 +24,14 @@ Synth::~Synth(){
     delete globalData;
 }
 
-void Synth::setFxChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
+const map<string, int>& Synth::setFxChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);
-    effectParameters = effects->getParameterHandles();
+    return effects->getParameterHandles();
 }
 
-void Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
+const map<string, int>& Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
+    assert(numVoices > 0);
     delete voiceBus;
     voiceBus = new VoiceBus();
     for (SynthVoice *v : voices) {
@@ -41,6 +42,7 @@ void Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegi
         SynthVoice* v = new SynthVoice(voiceChain, cp);
         voices.push_back(v);
     }
+    return voices[0]->getParameterHandles(); // they're identical
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)

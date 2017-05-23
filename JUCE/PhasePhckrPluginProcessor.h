@@ -63,6 +63,16 @@ private:
 
     std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
 
+    void updateParameters(bool newVoiceChain, bool newEffectChain);
+    vector<AudioParameterFloat *> floatParameters;
+    enum ApiType {
+        VOICE,
+        EFFECT
+    };
+    map<int, pair<ApiType, int>> parameterRouting;
+    map<string, int> effectParameters;
+    map<string, int> voiceParameters;
+
 public:
     PhasePhckrAudioProcessor();
     ~PhasePhckrAudioProcessor();
@@ -94,18 +104,16 @@ public:
 
     const PhasePhckr::Synth* getSynth() const;
 
-    SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
-
     SubValue<PatchDescriptor> activeVoice;
     SubValue<PatchDescriptor> activeEffect;
+    SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
+
     void broadcastPatch(){
         // editor should call this once after construction
         subComponentRegister.set(componentRegisterHandle, componentRegister);
         activeVoice.set(activeVoiceHandle, voiceChain);
         activeEffect.set(activeEffectHandle, effectChain);
     }
-
-    vector<AudioParameterFloat *> floatParameters;
 
 };
 

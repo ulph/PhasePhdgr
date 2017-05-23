@@ -49,8 +49,8 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
-        void setFxChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
-        void setVoiceChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
+        const map<string, int>& setFxChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
+        const map<string, int>& setVoiceChain(const PatchDescriptor & fxChain, const ComponentRegister & cp);
         void setFxParameter(int handle, float value);
         void setVoiceParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;
@@ -66,8 +66,6 @@ namespace PhasePhckr {
         GlobalData *globalData;
         float scopeHz;
         int scopeVoiceIndex;
-        map<string, int> effectParameters;
-        map<string, int> voiceParameters;
     };
 
 }

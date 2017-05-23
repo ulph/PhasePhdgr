@@ -126,4 +126,8 @@ void SynthVoice::threadedProcess()
 #endif
 }
 
+const map<string, int>& SynthVoice::getParameterHandles(){
+    return parameterHandles;
+}
+
 }

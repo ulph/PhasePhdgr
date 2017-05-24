@@ -369,15 +369,22 @@ AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
 
 void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    PresetDescriptor p;
+    PresetDescriptor preset;
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    p.voice = voiceChain;
-    p.effect = effectChain;
-    p.parameters = vector<ParameterDescriptor>();
-    // TODO parameters
+    preset.voice = voiceChain;
+    preset.effect = effectChain;
+    preset.parameters = vector<ParameterDescriptor>();
+    for(const auto &kv : parameterNames){
+        ParameterDescriptor p = {
+            kv.first,
+            kv.second,
+            floatParameters[kv.second]->get()
+        };
+        preset.parameters.emplace_back(p);
+    }
     synthUpdateLock.clear(std::memory_order_release);
 
-    json j = p;
+    json j = preset;
     const char* s = j.dump(2).c_str(); // TODO; json lib bugged with long rows...
     size_t n = (strlen(s)+1) / sizeof(char);
     destData.fillWith(0);
@@ -388,10 +395,18 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     string ss((const char*)data);
-    PresetDescriptor p = json::parse(ss.c_str());
-    activeVoice.set(-1, p.voice);
-    activeEffect.set(-1, p.effect);
-    // TODO parameters
+    PresetDescriptor preset = json::parse(ss.c_str());
+    for(const auto& fp:floatParameters){
+        fp->clearName();
+        fp->setValueNotifyingHost(0.f); // I think this is the correct thing to do
+    }
+    for(const auto& p: preset.parameters){
+        parameterNames[p.id] = p.index;
+        floatParameters[p.index]->setValueNotifyingHost(p.value);
+        // we could also set name but updateParameters takes care of that
+    }
+    activeVoice.set(-1, preset.voice);
+    activeEffect.set(-1, preset.effect);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

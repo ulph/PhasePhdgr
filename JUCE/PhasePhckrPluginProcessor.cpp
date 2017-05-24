@@ -369,13 +369,16 @@ AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
 
 void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    json j;
+    PresetDescriptor p;
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    j["voice"] = voiceChain;
-    j["effect"] = effectChain;
+    p.voice = voiceChain;
+    p.effect = effectChain;
+    p.parameters = vector<ParameterDescriptor>();
+    // TODO parameters
     synthUpdateLock.clear(std::memory_order_release);
-    auto ss = j.dump(2);
-    const char* s = ss.c_str();
+
+    json j = p;
+    const char* s = j.dump(2).c_str(); // TODO; json lib bugged with long rows...
     size_t n = (strlen(s)+1) / sizeof(char);
     destData.fillWith(0);
     destData.insert((const void*)s, n, 0);
@@ -385,16 +388,10 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     string ss((const char*)data);
-    json j;
-    try {
-        j = json::parse(ss.c_str());
-    } catch (const std::exception& e) {
-        assert(0);
-    }
-    PatchDescriptor newVoiceChain = j.at("voice").get<PatchDescriptor>();
-    PatchDescriptor newEffectChain = j.at("effect").get<PatchDescriptor>();
-    activeVoice.set(-1, newVoiceChain);
-    activeEffect.set(-1, newEffectChain);
+    PresetDescriptor p = json::parse(ss.c_str());
+    activeVoice.set(-1, p.voice);
+    activeEffect.set(-1, p.effect);
+    // TODO parameters
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

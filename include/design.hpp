@@ -52,7 +52,7 @@ struct ComponentDescriptor {
     string docString;
 };
 
-/* Patch (supergraph) */
+/* Patch */
 
 struct ModulePosition {
     int x;
@@ -63,6 +63,21 @@ struct PatchDescriptor {
     ComponentDescriptor root;
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout;
+};
+
+/* Preset (voice patch + effect patch + parameters) */
+// these are managed by JUCE layer
+
+struct ParameterDescriptor {
+    string id;
+    int index;
+    float value;
+};
+
+struct PresetDescriptor {
+    PatchDescriptor voice;
+    PatchDescriptor effect;
+    vector<ParameterDescriptor> parameters;
 };
 
 /* Functions and aux types */

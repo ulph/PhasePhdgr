@@ -112,4 +112,32 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.docString = j.at("docString").get<string>();
 }
 
+void to_json(json& j, const ParameterDescriptor& param){
+    j["id"] = param.id;
+    j["index"] = param.index;
+    j["value"] = param.value;
+}
+
+void from_json(const json& j, ParameterDescriptor& param){
+    param.id = j.at("id").get<string>();
+    param.index = j.at("index").get<int>();
+    param.value = j.at("value").get<float>();
+}
+
+void to_json(json& j, const PresetDescriptor& preset){
+    j["voice"] = preset.voice;
+    j["effect"] = preset.effect;
+    j["parameters"] = preset.parameters;
+}
+
+void from_json(const json& j, PresetDescriptor& preset){
+    preset.voice = j.at("voice").get<PatchDescriptor>();
+    preset.effect = j.at("effect").get<PatchDescriptor>();
+    try {
+        preset.parameters = j.at("parameters").get<vector<ParameterDescriptor>>();
+    } catch (const std::exception& e) {
+        assert(0);
+    }
+}
+
 }

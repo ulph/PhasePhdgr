@@ -31,9 +31,10 @@ public:
         resized();
     }
 
-    void update(){
+    void update() {
         label.setText(parameter->getName(64), sendNotificationAsync);
         slider.setValue(*parameter);
+        repaint();
     }
 
     void resized() override {
@@ -44,11 +45,26 @@ public:
 
     void paint (Graphics& g) override {
         if(label.getText().isNotEmpty()){
-            g.fillAll(Colours::darkgreen);
+            g.fillAll(Colour(0xFF222222));
+            slider.setColour(Slider::thumbColourId, Colours::lightgrey);
+            slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
+            slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+
+            slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
+            slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
         }
         else{
-            g.fillAll(Colours::darkgrey);
+            g.fillAll(Colour(0xFF0A0A0A));
+            slider.setColour(Slider::thumbColourId, Colours::darkgrey);
+            slider.setColour(Slider::rotarySliderFillColourId, Colours::darkgrey);
+            slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+
+            slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
+            slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
         }
+        const auto &r = getBounds();
+        g.setColour(Colours::black);
+        g.drawRect(0, 0, r.getWidth()-1, r.getHeight()-1, 1);
     }
 
     virtual void sliderDragStarted(Slider * slider) override {

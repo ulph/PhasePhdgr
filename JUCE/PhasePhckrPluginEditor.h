@@ -27,6 +27,7 @@ public:
         slider.setTextBoxStyle(Slider::TextBoxRight, false, 50, 20);
         addAndMakeVisible(slider);
         addAndMakeVisible(label);
+        label.setJustificationType(Justification::centred);
         slider.addListener(this);
         resized();
     }
@@ -44,21 +45,21 @@ public:
     }
 
     void paint (Graphics& g) override {
-        if(label.getText().isNotEmpty()){
+        if(parameter->isActive()){
             g.fillAll(Colour(0xFF222222));
+            label.setColour(Label::textColourId, Colours::lightgrey);
             slider.setColour(Slider::thumbColourId, Colours::lightgrey);
             slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
             slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-
             slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
             slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
         }
         else{
             g.fillAll(Colour(0xFF0A0A0A));
+            label.setColour(Label::textColourId, Colours::darkgrey);
             slider.setColour(Slider::thumbColourId, Colours::darkgrey);
             slider.setColour(Slider::rotarySliderFillColourId, Colours::darkgrey);
             slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-
             slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
             slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
         }

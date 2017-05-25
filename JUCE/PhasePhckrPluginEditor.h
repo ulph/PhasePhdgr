@@ -24,7 +24,7 @@ public:
     {
         slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         slider.setRange(0.f, 1.f);
-        slider.setTextBoxStyle(Slider::TextBoxRight, false, 40, 20);
+        slider.setTextBoxStyle(Slider::TextBoxRight, false, 50, 20);
         addAndMakeVisible(slider);
         addAndMakeVisible(label);
         slider.addListener(this);

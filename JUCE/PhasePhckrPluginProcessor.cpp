@@ -94,7 +94,7 @@ void PhasePhckrAudioProcessor::updateParameters()
 
     // clear all the names, will get set back below
     for(const auto& p: parameterNames){
-        assert(newParameterRouting.count(p.second));
+        assert(parameterRouting.count(p.second));
         floatParameters[p.second]->clearName();
     }
 
@@ -426,4 +426,28 @@ bool PhasePhckrAudioProcessor::accessParameter(int index, PhasePhckrParameter **
 
 int PhasePhckrAudioProcessor::numberOfParameters(){
     return floatParameters.size();
+}
+
+void PhasePhckrAudioProcessor::swapParameterIndices(string a, string b){
+    int a_idx = -1;
+    int b_idx = -1;
+    for(int i=0; i<floatParameters.size(); i++){
+        if(floatParameters[i]->getName(64) == a){
+            assert(a_idx == -1);
+            a_idx = i;
+        }
+        if(floatParameters[i]->getName(64) == b){
+            assert(b_idx == -1);
+            b_idx = i;
+        }
+    }
+    if(a_idx == b_idx) return;
+    if(a_idx == -1 || b_idx == -1) return;
+    parameterNames[a] = b_idx;
+    parameterNames[b] = a_idx;
+    auto a_route = parameterRouting[a_idx];
+    auto b_route = parameterRouting[b_idx];
+    parameterRouting[a_idx] = b_route;
+    parameterRouting[b_idx] = a_route;
+    updateParameters();
 }

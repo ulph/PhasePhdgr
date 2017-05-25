@@ -81,7 +81,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     for(int i=0; i<processor.numberOfParameters(); i++){
         PhasePhckrParameter* p = nullptr;
         if(processor.accessParameter(i, &p)){
-            auto knob = new ParameterKnob(p);
+            auto knob = new ParameterKnob(p, [this](string a, string b){processor.swapParameterIndices(a, b);});
             parameterKnobs.push_back(knob);
             performGrid.addComponent(knob);
         }

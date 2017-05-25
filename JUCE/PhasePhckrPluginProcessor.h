@@ -148,6 +148,8 @@ public:
    bool accessParameter(int index, PhasePhckrParameter ** param);
    int numberOfParameters();
 
+   void swapParameterIndices(string a, string b);
+
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

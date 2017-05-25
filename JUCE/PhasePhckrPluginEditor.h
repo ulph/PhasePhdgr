@@ -13,14 +13,16 @@
 #include "DirectoryWatcher.hpp"
 
 
-class ParameterKnob : public Component, public SliderListener {
+class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {
 private:
     Slider slider;
     Label label;
     PhasePhckrParameter * parameter;
+    const function<void(string, string)> swapParameterIndicesCallback;
 public:
-    ParameterKnob(PhasePhckrParameter * parameter)
+    ParameterKnob(PhasePhckrParameter * parameter, const function<void(string, string)> &swapParameterIndicesCallback)
         : parameter(parameter)
+        , swapParameterIndicesCallback(swapParameterIndicesCallback)
     {
         slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         slider.setRange(0.f, 1.f);
@@ -29,6 +31,7 @@ public:
         addAndMakeVisible(label);
         label.setJustificationType(Justification::centred);
         slider.addListener(this);
+        label.addMouseListener(this, false);
         resized();
     }
 
@@ -78,6 +81,22 @@ public:
 
     virtual void sliderValueChanged(Slider * slider) override {
         parameter->setValueNotifyingHost((float)slider->getValue());
+    }
+
+    virtual void mouseDown(const MouseEvent & event) override {
+        auto drg = DragAndDropContainer::findParentDragContainerFor(this);
+        var desc = label.getText();
+        drg->startDragging(desc, this);
+    }
+
+    virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override {
+        return true;
+    }
+
+    virtual void itemDropped(const SourceDetails &dragSourceDetails) override {
+        String desc = dragSourceDetails.description.toString();
+        if(desc == label.getText()) return;
+        swapParameterIndicesCallback(desc.toStdString(), label.getText().toStdString());
     }
 
 };

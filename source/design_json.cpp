@@ -136,7 +136,7 @@ void from_json(const json& j, PresetDescriptor& preset){
     try {
         preset.parameters = j.at("parameters").get<vector<ParameterDescriptor>>();
     } catch (const std::exception& e) {
-        assert(0);
+        //assert(0);
     }
 }
 

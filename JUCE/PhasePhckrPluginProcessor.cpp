@@ -70,7 +70,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     applyVoiceChain();
     applyEffectChain();
 
-    for (int i = 0; i < 8*32; i++) {
+    for (int i = 0; i < 8*16; i++) {
         auto knb_ptr = new PhasePhckrParameter(i);
         floatParameters.push_back(knb_ptr);
         addParameter(knb_ptr);
@@ -416,4 +416,14 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 const PhasePhckr::Synth* PhasePhckrAudioProcessor::getSynth() const {
     return synth;
+}
+
+bool PhasePhckrAudioProcessor::accessParameter(int index, PhasePhckrParameter ** param){
+    if(index >= numberOfParameters()) return false;
+    *param = floatParameters[index];
+    return true;
+}
+
+int PhasePhckrAudioProcessor::numberOfParameters(){
+    return floatParameters.size();
 }

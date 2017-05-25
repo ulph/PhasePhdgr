@@ -19,7 +19,8 @@ class PhasePhckrParameter : public AudioParameterFloat {
 private :
     int idx;
     string name;
-    static string clearedName(int idx){
+    static string clearedName(int idx)
+    {
         return "";//to_string(idx / 8) + "_" + to_string(idx % 8);
     }
 public:
@@ -36,7 +37,8 @@ public:
     {
     }
     void clearName(){
-        setName(clearedName(idx));
+        name = clearedName(idx);
+        setValueNotifyingHost(*this);
     }
     void setName(string newName){
         name = newName;
@@ -134,6 +136,10 @@ public:
         activeVoice.set(activeVoiceHandle, voiceChain);
         activeEffect.set(activeEffectHandle, effectChain);
     }
+
+    // walk circles around the JUCE stuff a bit ...
+   bool accessParameter(int index, PhasePhckrParameter ** param);
+   int numberOfParameters();
 
 };
 

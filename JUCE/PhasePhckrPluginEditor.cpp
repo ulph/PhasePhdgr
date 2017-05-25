@@ -51,6 +51,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 #endif
+    , parameterUpdateTimer(new function<void()>([this](){
+        for(const auto &knob : parameterKnobs){
+            knob->update();
+        }
+    }))
 {
 
     fileWatchThread.startThread();
@@ -71,8 +76,16 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     scopeGrid.addComponent(&outputScopeR);
     scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
-    mainFrame.addTab("parameters", Colours::black, &performGrid, false);
+    mainFrame.addTab("patch", Colours::black, &performGrid, false);
     performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
+    for(int i=0; i<processor.numberOfParameters(); i++){
+        PhasePhckrParameter* p = nullptr;
+        if(processor.accessParameter(i, &p)){
+            auto knob = new ParameterKnob(p);
+            parameterKnobs.push_back(knob);
+            performGrid.addComponent(knob);
+        }
+    }
 
     mainFrame.addTab("voice", Colours::black, &voiceEditor, false);
     mainFrame.addTab("effect", Colours::black, &effectEditor, false);
@@ -110,11 +123,17 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     processor.broadcastPatch();
 
+    parameterUpdateTimer.startTimer(500); // TODO, a better strategy
+
     resized();
 }
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
+    parameterUpdateTimer.stopTimer();
+    for(const auto &knob : parameterKnobs){
+        delete knob;
+    }
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;

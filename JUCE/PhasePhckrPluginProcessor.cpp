@@ -445,6 +445,7 @@ void PhasePhckrAudioProcessor::swapParameterIndices(string a, string b){
     }
     if(a_idx == b_idx) return;
     if(a_idx == -1 || b_idx == -1) return;
+    if(!floatParameters[a_idx]->isActive() && !floatParameters[b_idx]->isActive()) return; // todo, should not even get this far...
     parameterNames[a] = b_idx;
     parameterNames[b] = a_idx;
     float a_val = *floatParameters[a_idx];

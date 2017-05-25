@@ -90,11 +90,8 @@ void PhasePhckrAudioProcessor::updateParameters()
     map<string, int> newParameterNames;
     map<int, pair<ApiType, int>> newParameterRouting;
 
-    assert(parameterNames.size() == parameterRouting.size());
-
     // clear all the names, will get set back below
     for(const auto& p: parameterNames){
-        assert(parameterRouting.count(p.second));
         floatParameters[p.second]->clearName();
     }
 
@@ -177,6 +174,11 @@ void PhasePhckrAudioProcessor::updateParameters()
     // replace the old route table and name book-keeping
     parameterNames = newParameterNames;
     parameterRouting = newParameterRouting;
+
+    assert(parameterNames.size() == parameterRouting.size());
+    for(const auto& p: parameterNames){
+        assert(parameterRouting.count(p.second));
+    }
 
 }
 
@@ -445,9 +447,9 @@ void PhasePhckrAudioProcessor::swapParameterIndices(string a, string b){
     if(a_idx == -1 || b_idx == -1) return;
     parameterNames[a] = b_idx;
     parameterNames[b] = a_idx;
-    auto a_route = parameterRouting[a_idx];
-    auto b_route = parameterRouting[b_idx];
-    parameterRouting[a_idx] = b_route;
-    parameterRouting[b_idx] = a_route;
+    float a_val = *floatParameters[a_idx];
+    float b_val = *floatParameters[b_idx];
+    floatParameters[a_idx]->setValueNotifyingHost(b_val);
+    floatParameters[b_idx]->setValueNotifyingHost(a_val);
     updateParameters();
 }

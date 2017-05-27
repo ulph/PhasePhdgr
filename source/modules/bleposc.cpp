@@ -25,6 +25,7 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("shape")); // triangle <-> saw <-> square
     inputs.push_back(Pad("pwm")); // assymetry, rather. does not affect a pure saw
     inputs.push_back(Pad("reset")); // for osc sync
+    inputs.push_back(Pad("sync")); // soft-sync
     outputs.push_back(Pad("output"));
 }
 
@@ -36,6 +37,7 @@ void BlitOsc::process(uint32_t fs)
     float shape = limit(inputs[1].value, 0.0f, 1.0f);
     float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
     float newSync = inputs[3].value;
+    float syncAmount = 2.f*limit(inputs[4].value, 0.f, 1.f) - 1.f;
 
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
 
@@ -51,9 +53,9 @@ void BlitOsc::process(uint32_t fs)
 
     float leak = 1.f-nFreq*0.1;
 
-    if(newSync > 0 && sync <= 0){
+    internalPhase += nFreq;
+    if( (internalPhase >= syncAmount) && newSync > 0 && sync <= 0){
         float syncFraction = (0 - sync) / (newSync - sync);
-        // TODO - softsync
         float t = -1.0f; // target value
         float r = cumSum; // current value
         // accumulate future value
@@ -66,9 +68,6 @@ void BlitOsc::process(uint32_t fs)
         }
         internalPhase = -1.f + (1.f-syncFraction)*nFreq;
         stage = 0;
-    }
-    else{
-        internalPhase += nFreq;
     }
 
     while(true){

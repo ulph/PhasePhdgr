@@ -54,7 +54,7 @@ void BlitOsc::process(uint32_t fs)
     float leak = 1.f-nFreq*0.1;
 
     internalPhase += nFreq;
-    if( (internalPhase >= syncAmount) && newSync > 0 && sync <= 0){
+    if( (internalPhase >= syncAmount) && newSync < 0 && sync > 0){
         float syncFraction = (0 - sync) / (newSync - sync);
         float t = -1.0f; // target value
         float r = cumSum; // current value

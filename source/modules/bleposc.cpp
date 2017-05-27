@@ -55,6 +55,7 @@ void BlitOsc::process(uint32_t fs)
 
     internalPhase += nFreq;
     if( (internalPhase >= syncAmount) && newSync < 0 && sync > 0){
+        // TODO, this approach, now that it's aligned, effectively cancels the blits -> alias
         float syncFraction = (0 - sync) / (newSync - sync);
         float t = -1.0f; // target value
         float r = cumSum; // current value

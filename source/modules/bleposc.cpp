@@ -69,7 +69,7 @@ void BlitOsc::process(uint32_t fs)
         float masterNFreq = unwrappedNewMasterPhase - masterPhase;
         if(masterNFreq){
             float syncFraction = (1.f - masterPhase) / masterNFreq;
-            float target = -1.0f + (1-shape)*nFreq*(1.f-syncFraction); // target value -- TODO, almost correct
+            float target = -1.0f + (1-shape)*nFreq*(1.f-syncFraction); // target value -- TODO, almost correct - need to handle pwm=-1 and multiples of f0 better
             float remainder = 0.f; // current (future) value
             // accumulate future value
             for(int n=0; n<c_blitN; ++n){

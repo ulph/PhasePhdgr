@@ -32,6 +32,7 @@ BlitOsc::BlitOsc()
 #if BLEP_DEBUG_PORTS
     inputs.push_back(Pad("debug_leak", 1.f));
     inputs.push_back(Pad("debug_hp", 1.f));
+    inputs.push_back(Pad("debug_fix1", 1.f));
 #endif
     outputs.push_back(Pad("output"));
 }
@@ -75,7 +76,11 @@ void BlitOsc::process(uint32_t fs)
         if(masterNFreq){
             float syncFraction = (1.f - masterPhase) / masterNFreq;
 
-            float freqFractionCorrection = (masterNFreq/nFreq); // this is needed, need to do the math as of why :P
+            float freqFractionCorrection = (masterNFreq/nFreq); // this helps a tiny bit extra, need to do the math as of why :P
+#if BLEP_DEBUG_PORTS
+            float fix1 = inputs[7].value;
+            freqFractionCorrection = freqFractionCorrection*fix1 + (1-fix1);
+#endif
             float sawCorrection = (1.f-shape)*nFreq*(1.f-syncFraction*freqFractionCorrection); // adjust for saw shape
             float target = -1.0f + sawCorrection; // target value
 

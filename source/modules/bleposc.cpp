@@ -53,7 +53,6 @@ void BlitOsc::process(uint32_t fs)
 
     float leak = 1.f-nFreq*0.1;
 
-    internalPhase += nFreq;
     if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
         // TODO, this approach, now that it's aligned, effectively cancels the blits -> alias
         float unwrapperNewMasterPhase = newMasterPhase + 2.f;
@@ -70,6 +69,8 @@ void BlitOsc::process(uint32_t fs)
         }
         internalPhase = -1.f + (1.f-syncFraction)*nFreq;
         stage = 0;
+    } else {
+        internalPhase += nFreq;
     }
 
     while(true){

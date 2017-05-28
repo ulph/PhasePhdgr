@@ -15,7 +15,7 @@ BlitOsc::BlitOsc()
     , cumSum(0.f)
     , stage(0)
     , internalPhase(0.f)
-    , sync(0.f)
+    , masterPhase(0.f)
     , last_nFreq(0.f)
     , last_pwm(0.f)
     , last_shape(0.f)
@@ -36,7 +36,7 @@ void BlitOsc::process(uint32_t fs)
     float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
     float shape = limit(inputs[1].value, 0.0f, 1.0f);
     float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
-    float newSync = inputs[3].value;
+    float newMasterPhase = inputs[3].value;
     float syncAmount = 2.f*limit(inputs[4].value, 0.f, 1.f) - 1.f;
 
     float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
@@ -54,9 +54,10 @@ void BlitOsc::process(uint32_t fs)
     float leak = 1.f-nFreq*0.1;
 
     internalPhase += nFreq;
-    if( (internalPhase >= syncAmount) && newSync < 0 && sync > 0){
+    if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
         // TODO, this approach, now that it's aligned, effectively cancels the blits -> alias
-        float syncFraction = (0 - sync) / (newSync - sync);
+        float unwrapperNewMasterPhase = newMasterPhase + 2.f;
+        float syncFraction = (1.f - masterPhase) / (unwrapperNewMasterPhase - masterPhase);
         float t = -1.0f; // target value
         float r = cumSum; // current value
         // accumulate future value
@@ -97,7 +98,7 @@ void BlitOsc::process(uint32_t fs)
         }
     }
 
-    sync = newSync;
+    masterPhase = newMasterPhase;
 
     last_cumSum = cumSum; // x
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*nFreq; // x+1

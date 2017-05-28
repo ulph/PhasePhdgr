@@ -14,7 +14,7 @@ private:
     int bufPos;
     float cumSum;
     int stage;
-    float sync;
+    float masterPhase;
     float internalPhase;
     float last_nFreq;
     float last_pwm;

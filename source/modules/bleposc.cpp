@@ -26,6 +26,8 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("pwm")); // assymetry, rather. does not affect a pure saw
     inputs.push_back(Pad("reset")); // for osc sync
     inputs.push_back(Pad("sync")); // soft-sync
+    inputs.push_back(Pad("debug_leak", 1.f));
+    inputs.push_back(Pad("debug_hp", 1.f));
     outputs.push_back(Pad("output"));
 }
 
@@ -51,10 +53,11 @@ void BlitOsc::process(uint32_t fs)
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    float leak = 1.f-nFreq*0.1;
+    float prop_leak = nFreq*0.1f;
+    prop_leak *= inputs[5].value;
+    float leak = 1.f-prop_leak;
 
-    if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
-        // TODO, this approach, now that it's aligned, effectively cancels the blits -> alias
+    if( /*(internalPhase >= syncAmount) &&*/  newMasterPhase < 0 && masterPhase > 0){
         float unwrapperNewMasterPhase = newMasterPhase + 2.f;
         float syncFraction = (1.f - masterPhase) / (unwrapperNewMasterPhase - masterPhase);
         float t = -1.0f; // target value
@@ -67,7 +70,7 @@ void BlitOsc::process(uint32_t fs)
         for(int n=0; n<c_blitN; ++n){
             buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
         }
-        internalPhase = -1.f + (1.f-syncFraction)*nFreq;
+        internalPhase = newMasterPhase + nFreq;
         stage = 0;
     } else {
         internalPhase += nFreq;
@@ -104,7 +107,10 @@ void BlitOsc::process(uint32_t fs)
     last_cumSum = cumSum; // x
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*nFreq; // x+1
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, freq*0.125f, fs); // todo, make this a parameter. closer to f0 may be beneficial when syncing, but lower _may_ be desireable when passing into a overdriven filter.
+    float fc = freq*0.125f;
+    fc *= inputs[6].value;
+
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fs); // todo, make this a parameter. closer to f0 may be beneficial when syncing, but lower _may_ be desireable when passing into a overdriven filter.
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

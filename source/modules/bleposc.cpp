@@ -58,22 +58,54 @@ void BlitOsc::process(uint32_t fs)
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    float prop_leak = nFreq*0.01f;
+    float prop_leak = nFreq * 0.01f;
 #if BLEP_DEBUG_PORTS
     prop_leak *= inputs[5].value;
 #endif
-    float leak = 1.f-prop_leak;
+    float leak = 1.f - prop_leak;
 
     bool doSyncReset = false;
     if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
         doSyncReset = true;
     }
 
+    if(doSyncReset){
+        float unwrappedNewMasterPhase = newMasterPhase + 2.f;
+        float masterNFreq = unwrappedNewMasterPhase - masterPhase;
+        if(masterNFreq){
+            float syncFraction = (1.f - masterPhase) / masterNFreq;
+
+            float freqFractionCorrection = (masterNFreq/nFreq); // this is needed, need to do the math as of why :P
+            float sawCorrection = (1.f-shape)*nFreq*(1.f-syncFraction*freqFractionCorrection); // adjust for saw shape
+            float target = -1.0f + sawCorrection; // target value
+
+            float remainder = 0.f;
+            for(int n=0; n<c_blitN; ++n){
+                remainder += buf[(bufPos+n)%c_blitN];
+            }
+
+            float pulse = target-remainder-cumSum; // pulse that takes us to -1~
+
+            if(pulse){
+                c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
+                for(int n=0; n<c_blitN; ++n){
+                    buf[(bufPos+n)%c_blitN] += pulse*blit[n];
+                }
+            }
+
+            internalPhase = newMasterPhase;
+            stage = 0;
+        }
+        else {
+            assert(0);
+        }
+    }
+
     internalPhase += nFreq;
     //debug_phaseCtr++;
 
     while(true){
-        if(stage==0){
+        if( stage == 0 ){
             if(internalPhase <= pwm) break;
             float interval = (pwm - (internalPhase-nFreq));
             // deal with modulated pwm (not exactly correct but good enough)
@@ -84,51 +116,25 @@ void BlitOsc::process(uint32_t fs)
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] += 2.f*shape*blit[n];
             }
-            stage=1;
+            stage = 1;
         }
-        if(stage==1){
+        if( stage == 1 ){
             if(internalPhase <= 1.0f) break;
             float fraction = (1.f - (internalPhase-nFreq)) / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for(int n=0; n<c_blitN; ++n){
                 buf[(bufPos+n)%c_blitN] -= 2.f*blit[n];
             }
-            stage=0;
+            stage = 0;
             internalPhase -= 2.0f;
             //debug_phaseCtr = 0;
-        }
-    }
-
-    if(doSyncReset){
-        float unwrappedNewMasterPhase = newMasterPhase + 2.f;
-        float masterNFreq = unwrappedNewMasterPhase - masterPhase;
-        if(masterNFreq){
-            float syncFraction = (1.f - masterPhase) / masterNFreq;
-            float target = -1.0f + (1-shape)*nFreq*(1.f-syncFraction); // target value -- TODO, almost correct - need to handle pwm=-1 and multiples of f0 better
-            float remainder = 0.f; // current (future) value
-            // accumulate future value
-            for(int n=0; n<c_blitN; ++n){
-                remainder += buf[(bufPos+n)%c_blitN];
-            }
-            float pulse = target-remainder-cumSum;
-            if(pulse){
-                c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
-                for(int n=0; n<c_blitN; ++n){
-                    buf[(bufPos+n)%c_blitN] += pulse*blit[n];
-                }
-            }
-            internalPhase = newMasterPhase;
-            stage = 0;
-        }
-        else {
-            assert(0);
         }
     }
 
     masterPhase = newMasterPhase;
 
     last_cumSum = cumSum; // x
-    cumSum = cumSum*leak + buf[bufPos] + (1-shape)*nFreq; // x+1
+    cumSum = cumSum*leak + buf[bufPos] + (1.f-shape)*nFreq; // x+1
 
     float fc = freq*0.125f;
 #if BLEP_DEBUG_PORTS

@@ -22,6 +22,7 @@ BlitOsc::BlitOsc()
     , last_pwm(0.f)
     , last_shape(0.f)
     , last_cumSum(0.f)
+    //, debug_phaseCtr(0)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // triangle <-> saw <-> square
@@ -68,15 +69,18 @@ void BlitOsc::process(uint32_t fs)
         float masterNFreq = unwrappedNewMasterPhase - masterPhase;
         if(masterNFreq){
             float syncFraction = (1.f - masterPhase) / masterNFreq;
-            float t = -1.0f; // target value
-            float r = cumSum; // current value
+            float target = -1.0f + (1-shape)*nFreq*(1.f-syncFraction); // target value -- TODO, almost correct
+            float remainder = 0.f; // current (future) value
             // accumulate future value
             for(int n=0; n<c_blitN; ++n){
-                r += buf[(bufPos+n)%c_blitN];
+                remainder += buf[(bufPos+n)%c_blitN];
             }
-            c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
-            for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
+            float pulse = target-remainder-cumSum;
+            if(pulse){
+                c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
+                for(int n=0; n<c_blitN; ++n){
+                    buf[(bufPos+n)%c_blitN] += pulse*blit[n];
+                }
             }
             internalPhase = newMasterPhase;
             stage = 0;
@@ -87,6 +91,7 @@ void BlitOsc::process(uint32_t fs)
     }
 
     internalPhase += nFreq;
+    //debug_phaseCtr++;
 
     while(true){
         if(stage==0){
@@ -111,6 +116,7 @@ void BlitOsc::process(uint32_t fs)
             }
             stage=0;
             internalPhase -= 2.0f;
+            //debug_phaseCtr = 0;
         }
     }
 

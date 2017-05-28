@@ -20,6 +20,7 @@ private:
     float last_pwm;
     float last_shape;
     float last_cumSum; // for hp
+    //int debug_phaseCtr;
 public:
     BlitOsc();
     void process(uint32_t fs);

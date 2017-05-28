@@ -61,7 +61,7 @@ void BlitOsc::process(uint32_t fs)
 #endif
     float leak = 1.f-prop_leak;
 
-    if( (internalPhase >= syncAmount) &&  newMasterPhase < 0 && masterPhase > 0){
+    if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
         float unwrapperNewMasterPhase = newMasterPhase + 2.f;
         float syncFraction = (1.f - masterPhase) / (unwrapperNewMasterPhase - masterPhase);
         float t = -1.0f; // target value

@@ -4,6 +4,8 @@
 #include "inlines.hpp"
 #include "rlc.hpp"
 
+#define BLEP_DEBUG_PORTS 1
+
 const int c_numFraction = 1000;
 const auto c_blitTable = FractionalSincTable(BlitOsc::c_blitN, c_numFraction, (float)M_PI, true);
 // TODO; investigate something like fs/4 bandlimit on the sinc itself...
@@ -37,9 +39,9 @@ void BlitOsc::process(uint32_t fs)
 {
     const float c_slew = 0.9f; // a bit arbitrary...
 
-    float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
+    float freq = limit(inputs[0].value, 1.f, float(fs)*0.5f);
     float shape = limit(inputs[1].value, 0.0f, 1.0f);
-    float pwm = limit(inputs[2].value); //, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
+    float pwm = limit(inputs[2].value);
     float newMasterPhase = inputs[3].value;
     float syncAmount = 2.f*limit(inputs[4].value, 0.f, 1.f) - 1.f;
 
@@ -61,25 +63,27 @@ void BlitOsc::process(uint32_t fs)
 #endif
     float leak = 1.f-prop_leak;
 
-    float unwrappedNewMasterPhase = newMasterPhase;
     if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
-        unwrappedNewMasterPhase = newMasterPhase + 2.f;
-        float syncFraction = (1.f - masterPhase) / (unwrappedNewMasterPhase - masterPhase);
-        float t = -1.0f; // target value
-        float r = cumSum; // current value
-        // accumulate future value
-        for(int n=0; n<c_blitN; ++n){
-            r += buf[(bufPos+n)%c_blitN];
+        float unwrappedNewMasterPhase = newMasterPhase + 2.f;
+        float masterNFreq = unwrappedNewMasterPhase - masterPhase;
+        if(masterNFreq){
+            float syncFraction = (1.f - masterPhase) / masterNFreq;
+            float t = -1.0f; // target value
+            float r = cumSum; // current value
+            // accumulate future value
+            for(int n=0; n<c_blitN; ++n){
+                r += buf[(bufPos+n)%c_blitN];
+            }
+            c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
+            for(int n=0; n<c_blitN; ++n){
+                buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
+            }
+            internalPhase = newMasterPhase;
+            stage = 0;
         }
-        c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
-        for(int n=0; n<c_blitN; ++n){
-            buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
+        else {
+            assert(0);
         }
-        float __masterNFreq = unwrappedNewMasterPhase - masterPhase;
-        float _phaseDiff = newMasterPhase-internalPhase;
-        float _nFreqDiff = __masterNFreq-nFreq;
-        internalPhase = newMasterPhase;
-        stage = 0;
     }
 
     internalPhase += nFreq;
@@ -120,7 +124,7 @@ void BlitOsc::process(uint32_t fs)
     fc *= inputs[6].value;
 #endif
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fs); // todo, make this a parameter. closer to f0 may be beneficial when syncing, but lower _may_ be desireable when passing into a overdriven filter.
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fs);
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

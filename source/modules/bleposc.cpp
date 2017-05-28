@@ -39,7 +39,7 @@ void BlitOsc::process(uint32_t fs)
 
     float freq = limit(inputs[0].value, 0.0f, float(fs)*0.5f);
     float shape = limit(inputs[1].value, 0.0f, 1.0f);
-    float pwm = limit(inputs[2].value, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
+    float pwm = limit(inputs[2].value); //, 0.0f, 1.0f); // TODO weird shit happens on -1 when syncing
     float newMasterPhase = inputs[3].value;
     float syncAmount = 2.f*limit(inputs[4].value, 0.f, 1.f) - 1.f;
 
@@ -61,9 +61,10 @@ void BlitOsc::process(uint32_t fs)
 #endif
     float leak = 1.f-prop_leak;
 
+    float unwrappedNewMasterPhase = newMasterPhase;
     if( (internalPhase >= syncAmount) && newMasterPhase < 0 && masterPhase > 0){
-        float unwrapperNewMasterPhase = newMasterPhase + 2.f;
-        float syncFraction = (1.f - masterPhase) / (unwrapperNewMasterPhase - masterPhase);
+        unwrappedNewMasterPhase = newMasterPhase + 2.f;
+        float syncFraction = (1.f - masterPhase) / (unwrappedNewMasterPhase - masterPhase);
         float t = -1.0f; // target value
         float r = cumSum; // current value
         // accumulate future value
@@ -74,6 +75,9 @@ void BlitOsc::process(uint32_t fs)
         for(int n=0; n<c_blitN; ++n){
             buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
         }
+        float __masterNFreq = unwrappedNewMasterPhase - masterPhase;
+        float _phaseDiff = newMasterPhase-internalPhase;
+        float _nFreqDiff = __masterNFreq-nFreq;
         internalPhase = newMasterPhase;
         stage = 0;
     }
@@ -84,7 +88,7 @@ void BlitOsc::process(uint32_t fs)
         if(stage==0){
             if(internalPhase <= pwm) break;
             float interval = (pwm - (internalPhase-nFreq));
-            // as pwm can be modulated, we could potetionally end up (slightly) outside the range on higer pitches
+            // deal with modulated pwm (not exactly correct but good enough)
             while(interval > 1.f) interval -= nFreq;
             while(interval < 0.f) interval += nFreq;
             float fraction = interval / nFreq;

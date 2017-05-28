@@ -26,8 +26,10 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("pwm")); // assymetry, rather. does not affect a pure saw
     inputs.push_back(Pad("reset")); // for osc sync
     inputs.push_back(Pad("sync")); // soft-sync
+#if BLEP_DEBUG_PORTS
     inputs.push_back(Pad("debug_leak", 1.f));
     inputs.push_back(Pad("debug_hp", 1.f));
+#endif
     outputs.push_back(Pad("output"));
 }
 
@@ -54,10 +56,12 @@ void BlitOsc::process(uint32_t fs)
     if(nFreq == 0) return; // nothing to do, just exit
 
     float prop_leak = nFreq*0.1f;
+#if BLEP_DEBUG_PORTS
     prop_leak *= inputs[5].value;
+#endif
     float leak = 1.f-prop_leak;
 
-    if( /*(internalPhase >= syncAmount) &&*/  newMasterPhase < 0 && masterPhase > 0){
+    if( (internalPhase >= syncAmount) &&  newMasterPhase < 0 && masterPhase > 0){
         float unwrapperNewMasterPhase = newMasterPhase + 2.f;
         float syncFraction = (1.f - masterPhase) / (unwrapperNewMasterPhase - masterPhase);
         float t = -1.0f; // target value
@@ -70,11 +74,11 @@ void BlitOsc::process(uint32_t fs)
         for(int n=0; n<c_blitN; ++n){
             buf[(bufPos+n)%c_blitN] += (t-r)*blit[n];
         }
-        internalPhase = newMasterPhase + nFreq;
+        internalPhase = newMasterPhase;
         stage = 0;
-    } else {
-        internalPhase += nFreq;
     }
+
+    internalPhase += nFreq;
 
     while(true){
         if(stage==0){
@@ -108,7 +112,9 @@ void BlitOsc::process(uint32_t fs)
     cumSum = cumSum*leak + buf[bufPos] + (1-shape)*nFreq; // x+1
 
     float fc = freq*0.125f;
+#if BLEP_DEBUG_PORTS
     fc *= inputs[6].value;
+#endif
 
     outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fs); // todo, make this a parameter. closer to f0 may be beneficial when syncing, but lower _may_ be desireable when passing into a overdriven filter.
     buf[bufPos] = 0.f;

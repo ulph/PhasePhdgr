@@ -14,13 +14,10 @@ private:
     int bufPos;
     float cumSum;
     int stage;
-    float masterPhase;
+    float syncPhase;
     float internalPhase;
-    float last_nFreq;
-    float last_pwm;
-    float last_shape;
     float last_cumSum; // for hp
-    //int debug_phaseCtr;
+    float last_reset;
 public:
     BlitOsc();
     void process(uint32_t fs);

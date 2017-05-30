@@ -354,7 +354,10 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     if(playHead){
         AudioPlayHead::CurrentPositionInfo info;
         playHead->getCurrentPosition(info);
-        float tempo = info.bpm;
+        synth->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);
+        synth->handleBPM(info.bpm);
+        synth->handlePosition(info.ppqPosition);
+        synth->handleTime(info.timeInSeconds);
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);

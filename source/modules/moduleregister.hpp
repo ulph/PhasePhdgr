@@ -21,6 +21,7 @@
 #include "biquad.hpp"
 #include "bleposc.hpp"
 #include "chamberlin.hpp"
+#include "tempo.hpp"
 
 class Constant : public Module
 {
@@ -61,6 +62,11 @@ public:
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));
+        // todo: counters, sample-and-hold, etc
+
+        /* conversions */
+        cg.registerModule("TEMPO2TIME", &(TempoToTime::factory));
+        // todo: pitch transpose
 
         /* generators */
         cg.registerModule("PHASE", &(Phase::factory));

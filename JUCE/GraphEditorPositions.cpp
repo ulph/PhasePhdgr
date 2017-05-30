@@ -140,6 +140,13 @@ void setNodePositionsInner(
         start
     );
 
+    // make sure no module is dangling in Y
+    for (auto &p : modulePositions) {
+        if(p.second.y == INT_MIN){
+            p.second.y = 0;
+        }
+    }
+
     // special case to make inBus always at the top
     for (auto const &p : modulePositions) {
         if (p.first != start && p.second.y <= modulePositions[start].y) {
@@ -187,6 +194,13 @@ void setNodePositionsInner(
         for (const auto& c : cit->second) {
             xQueue.push(make_pair(c, d+i));
             i++;
+        }
+    }
+
+    // make sure no module is dangling in Y
+    for (auto &p : modulePositions) {
+        if(p.second.x == FLT_MAX){
+            p.second.x = 0;
         }
     }
 

@@ -51,10 +51,16 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 #endif
-    , parameterUpdateTimer(new function<void()>([this](){
+    , guiUpdateTimer(new function<void()>([this](){
         for(const auto &knob : parameterKnobs){
             knob->update();
         }
+        voiceScopeL.repaint();
+        voiceScopeR.repaint();
+        voiceScopeXY.repaint();
+        outputScopeL.repaint();
+        outputScopeR.repaint();
+        outputScopeXY.repaint();
     }))
 {
 
@@ -84,7 +90,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
             auto knob = new ParameterKnob(p,
                 [this](string a, string b){
                     processor.swapParameterIndices(a, b);
-                    parameterUpdateTimer.timerCallback();
+                    guiUpdateTimer.timerCallback();
                 }
             );
             parameterKnobs.push_back(knob);
@@ -128,14 +134,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     processor.broadcastPatch();
 
-    parameterUpdateTimer.startTimer(500); // TODO, a better strategy
+    guiUpdateTimer.startTimer(1.f/60.f * 1000.f);
 
     resized();
 }
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
-    parameterUpdateTimer.stopTimer();
+    guiUpdateTimer.stopTimer();
     for(const auto &knob : parameterKnobs){
         delete knob;
     }

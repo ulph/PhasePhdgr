@@ -28,8 +28,6 @@ void PhasePhckrScope::paint (Graphics& g)
             );
         }
     }
-
-    repaint();
 }
 
 void PhasePhckrScope::resized()
@@ -58,8 +56,6 @@ void PhasePhckrXYScope::paint (Graphics& g)
             (size_y*(-blitScale*sourceBufferR[i] + 0.5f))
         );
     }
-
-    repaint();
 }
 
 void PhasePhckrXYScope::resized()

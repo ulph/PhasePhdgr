@@ -18,6 +18,11 @@ private:
     Slider slider;
     Label label;
     PhasePhckrParameter * parameter;
+    float lastValue;
+    int lastActivity = -1;
+    String lastText;
+    float lastMin;
+    float lastMax;
     const function<void(string, string)> swapParameterIndicesCallback;
 public:
     ParameterKnob(PhasePhckrParameter * parameter, const function<void(string, string)> &swapParameterIndicesCallback)
@@ -36,10 +41,54 @@ public:
     }
 
     void update() {
-        label.setText(parameter->getName(64), sendNotificationAsync);
-        slider.setRange(parameter->range.start, parameter->range.end);
-        slider.setValue(*parameter, dontSendNotification);
-        repaint();
+        bool shouldRepaint = false;
+
+        if(*parameter != lastValue){
+            slider.setValue(*parameter, dontSendNotification);
+            lastValue = *parameter;
+            shouldRepaint = true;
+        }
+
+        if(parameter->isActive() != lastActivity){
+            lastActivity = (int)parameter->isActive();
+            if(parameter->isActive()){
+                label.setColour(Label::textColourId, Colours::lightgrey);
+                slider.setColour(Slider::thumbColourId, Colours::lightgrey);
+                slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
+                slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+                slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
+                slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
+            }
+            else{
+                label.setColour(Label::textColourId, Colours::darkgrey);
+                slider.setColour(Slider::thumbColourId, Colours::darkgrey);
+                slider.setColour(Slider::rotarySliderFillColourId, Colours::darkgrey);
+                slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+                slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
+                slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
+            }
+            shouldRepaint = true;
+        }
+
+        String newText = parameter->getName(64);
+        if(lastText != newText){
+            lastText = newText;
+            label.setText(newText, sendNotificationAsync);
+            shouldRepaint = true;
+        }
+
+        float newMin = parameter->range.start;
+        float newMax = parameter->range.end;
+        if(lastMin != newMin || lastMax != newMax){
+            lastMin = newMin;
+            lastMax = newMax;
+            slider.setRange(newMin, newMax);
+            shouldRepaint = true;
+        }
+
+        if(shouldRepaint){
+            repaint();
+        }
     }
 
     void resized() override {
@@ -51,21 +100,9 @@ public:
     void paint (Graphics& g) override {
         if(parameter->isActive()){
             g.fillAll(Colour(0xFF222222));
-            label.setColour(Label::textColourId, Colours::lightgrey);
-            slider.setColour(Slider::thumbColourId, Colours::lightgrey);
-            slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
-            slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-            slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
-            slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
         }
         else{
             g.fillAll(Colour(0xFF0A0A0A));
-            label.setColour(Label::textColourId, Colours::darkgrey);
-            slider.setColour(Slider::thumbColourId, Colours::darkgrey);
-            slider.setColour(Slider::rotarySliderFillColourId, Colours::darkgrey);
-            slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-            slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
-            slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
         }
         const auto &r = getBounds();
         g.setColour(Colours::black);
@@ -130,6 +167,7 @@ public:
 
 };
 
+
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:
@@ -179,7 +217,7 @@ private:
 #endif
 
     vector<ParameterKnob *> parameterKnobs;
-    LambdaTimer parameterUpdateTimer;
+    LambdaTimer guiUpdateTimer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };

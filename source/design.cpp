@@ -36,16 +36,20 @@ bool unpackComponent(
 
     auto inBus = new BusModule(current.inBus, true);
     auto outBus = new BusModule(current.outBus, false);
-    moduleHandles[pfx+c_inBus.name] = g.addCustomModule(inBus);
-    moduleHandles[pfx+c_outBus.name] = g.addCustomModule(outBus);
+    string inBusName = pfx+c_inBus.name;
+    string outBusName = pfx+c_outBus.name;
+    moduleHandles[inBusName] = g.addCustomModule(inBus);
+    moduleHandles[outBusName] = g.addCustomModule(outBus);
+    cout << moduleHandles[inBusName] << " : " << " " << inBusName << std::endl;
+    cout << moduleHandles[outBusName] << " : " << " " << outBusName << std::endl;
 
     // find any connections to and from this component and "re-route" to inBus/outBus
     for(auto &c : parent.graph.connections){
         if(c.source.module == mv.name){
-           c.source.module = pfx+c_outBus.name;
+           c.source.module = outBusName;
         }
         if(c.target.module == mv.name){
-            c.target.module = pfx+c_inBus.name;
+            c.target.module = inBusName;
         }
     }
 
@@ -54,6 +58,14 @@ bool unpackComponent(
         current.graph.values.push_back(ModulePortValue{{c_inBus.name, i.name}, i.value});
     }
 
+    // find any values set on this component and reroute to inBus
+    for(auto &v : parent.graph.values){
+        if(v.target.module == mv.name){
+            v.target.module = inBusName;
+        }
+    }
+
+    // prefix internals accordingly
     for (auto &m : current.graph.modules) {
         m.name = pfx + m.name;
     }
@@ -169,6 +181,8 @@ void designPatch(
     auto outBus_ = new BusModule(outBus, false);
     moduleHandles[c_inBus.name] = connectionGraph.addCustomModule(inBus_);
     moduleHandles[c_outBus.name] = connectionGraph.addCustomModule(outBus_);
+    cout << moduleHandles[c_inBus.name] << " : " << " " << c_inBus.name << std::endl;
+    cout << moduleHandles[c_outBus.name] << " : " << " " << c_outBus.name << std::endl;
 
     // begin parsing from root component
     designChain(

@@ -94,6 +94,7 @@ void SynthVoice::threadedProcess()
                 globalData.update();
                 const MPEVoiceState &v = mpe.getState();
                 const GlobalDataState &g = globalData.getState();
+                const GlobalTimeDataState &t = globalData.getTimeState();
 
                 internalBuffer[0][i] = 0.0f;
                 internalBuffer[1][i] = 0.0f;
@@ -111,9 +112,16 @@ void SynthVoice::threadedProcess()
                 connectionGraph.setInput(inBus, 4, v.glideX);
                 connectionGraph.setInput(inBus, 5, v.slideY);
                 connectionGraph.setInput(inBus, 6, v.pressZ);
+
                 connectionGraph.setInput(inBus, 7, g.mod);
                 connectionGraph.setInput(inBus, 8, g.exp);
                 connectionGraph.setInput(inBus, 9, g.brt);
+
+                connectionGraph.setInput(inBus, 10, (float)t.nominator);
+                connectionGraph.setInput(inBus, 11, (float)t.denominator);
+                connectionGraph.setInput(inBus, 12, t.bpm);
+                connectionGraph.setInput(inBus, 13, t.position);
+                connectionGraph.setInput(inBus, 14, t.time);
 
                 connectionGraph.process(outBus, sampleRate);
                 float sampleL = connectionGraph.getOutput(outBus, 0);

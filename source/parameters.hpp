@@ -4,6 +4,21 @@
 
 namespace PhasePhckr {
 
+    struct GlobalTimeDataState {
+        GlobalTimeDataState()
+            : nominator(4)
+            , denominator(4)
+            , bpm(120)
+            , position(0)
+            , time(0)
+        {}
+        int nominator;
+        int denominator;
+        float bpm;
+        float position;
+        float time;
+    };
+
     struct GlobalDataState {
         GlobalDataState() 
             : exp(0)
@@ -17,6 +32,7 @@ namespace PhasePhckr {
 
     class GlobalData {
     private:
+        GlobalTimeDataState timeSt;
         GlobalDataState tg;
         GlobalDataState st;
         float slewFactor;
@@ -24,6 +40,10 @@ namespace PhasePhckr {
         void modwheel(float v) { tg.mod = v; }
         void expression(float v) { tg.exp = v; }
         void breath(float v) { tg.brt = v; }
+        void signature(int num, int den) { timeSt.nominator = num; timeSt.denominator = den; }
+        void bpm(float bpm) { timeSt.bpm = bpm; }
+        void position(float pos) { timeSt.position = pos; }
+        void time(float t) { timeSt.time = t; }
         GlobalData() : slewFactor(c_slewFactor) {}
         void update() {
             st.mod = slewFactor * st.mod + (1.0f - slewFactor) * tg.mod;
@@ -31,6 +51,7 @@ namespace PhasePhckr {
             st.brt = slewFactor * st.brt + (1.0f - slewFactor) * tg.brt;
         }
         const GlobalDataState & getState() const { return st; }
+        const GlobalTimeDataState & getTimeState() const { return timeSt; }
     };
 
     struct MPEVoiceState {

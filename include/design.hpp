@@ -95,9 +95,16 @@ void designPatch(
 const vector<PadDescription> c_effectChainInBus = {
     {"left", "", 0},
     {"right", "", 0},
+
     {"mod", "", 0},
     {"exp", "", 0},
-    {"brt", "", 0}
+    {"brt", "", 0},
+
+    {"sigNom", "", 0},
+    {"sigDen", "", 0},
+    {"bpm", "", 0},
+    {"pos", "", 0},
+    {"time", "", 0}
 };
 
 const vector<PadDescription> c_effectChainOutBus = {
@@ -113,9 +120,16 @@ const vector<PadDescription> c_voiceChainInBus = {
     {"glide_x", "", 0},
     {"slide_y", "", 0},
     {"press_z", "", 0},
+
     {"mod", "", 0},
     {"exp", "", 0},
-    {"brt", "", 0}
+    {"brt", "", 0},
+
+    {"sigNom", "", 0},
+    {"sigDen", "", 0},
+    {"bpm", "", 0},
+    {"pos", "", 0},
+    {"time", "", 0}
 };
 
 const vector<PadDescription> c_voiceChainOutBus = {

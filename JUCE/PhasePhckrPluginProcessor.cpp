@@ -274,8 +274,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         buffer.clear(i, 0, blockSize);
     }
 
-    // TODO, run in some internal chunk size. make sure that midi messages are queued in time as they should.
-
+    // handle MIDI messages
     MidiBuffer::Iterator midiIt(midiMessages);
     int evtPos = 0;
     MidiMessage msg;
@@ -348,6 +347,14 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         default:
             break;
         }
+    }
+
+    // handle HOST properties
+    auto playHead = getPlayHead();
+    if(playHead){
+        AudioPlayHead::CurrentPositionInfo info;
+        playHead->getCurrentPosition(info);
+        float tempo = info.bpm;
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);

@@ -95,6 +95,10 @@ void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c, 
 void Synth::handleExpression(float a) { globalData->expression(a); }
 void Synth::handleBreath(float a) { globalData->breath(a); }
 void Synth::handleModWheel(float a) { globalData->modwheel(a); }
+void Synth::handleTimeSignature(int num, int den){ globalData->signature(num, den); }
+void Synth::handleBPM(float bpm){ globalData->bpm(bpm); }
+void Synth::handlePosition(float pos){ globalData->position(pos); }
+void Synth::handleTime(float t){ globalData->time(t); }
 
 void Synth::setFxParameter(int handle, float value){
     effects->setParameter(handle, value);

@@ -283,6 +283,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     );
 
     subP.set(handle, p);
+    subDoc.set(docHandle, doc);
 
     editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
 

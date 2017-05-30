@@ -174,10 +174,10 @@ bool GfxModule::withinPort(XY p, XY& portPosition, string &port, bool & inputPor
 
 void GfxModule::draw(Graphics & g, bool selected) const {
     if (selected) {
-        g.setColour(Colour(0x88888888));
+        g.setColour(Colour(0x66888888));
     }
     else {
-        g.setColour(Colour(0x88000000));
+        g.setColour(Colour(0xAA000000));
     }
     float cornerSize = 5.f;
     if(isParameter) cornerSize = c_NodeSize*0.5f;
@@ -367,10 +367,10 @@ void GfxWire::calculatePath(const vector<GfxModule> & modules) {
             c_NodeSize
         );
         grad = ColourGradient(
-            Colours::yellow,
+            Colour(0xBBFFFF00),
             position.x,
             position.y,
-            Colours::red,
+            Colour(0xBBFF0000),
             destination.x,
             destination.y,
             true

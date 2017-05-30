@@ -22,7 +22,7 @@ private:
     vector<string> rows;
     TextEditor & docView;
 public:
-    DocListModel(const map<string, ModuleDoc> & moduleDocs, TextEditor & docView);
+    DocListModel(TextEditor & docView);
     void setDocs(const map<string, ModuleDoc> & moduleDocs);
     virtual int getNumRows();
     virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected);
@@ -94,9 +94,9 @@ class PatchEditor : public Component
     PropertyPanel overview;
     // ...
 
+    DocListModel docListModel;
     TextEditor docView;
     ListBox docList;
-    DocListModel docListModel;
 
     list<SubValue<PatchDescriptor>> subPatches;
     list<int> subPatchHandles;

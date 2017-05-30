@@ -59,14 +59,13 @@ public:
         cg.registerModule("CINV", &(ClampInv::factory));
         cg.registerModule("SCLSHFT", &(ScaleShift::factory));
         cg.registerModule("CLAMP", &(Clamp::factory));
+        cg.registerModule("CONST", &(Constant::factory));
+        cg.registerModule("XFADE", &(CrossFade::factory));
 
         /* generators */
         cg.registerModule("PHASE", &(Phase::factory));
         cg.registerModule("NOISE", &(Noise::factory));
-
-        /* oscillators */
         cg.registerModule("PBLOSC", &(BlitOsc::factory));
-        cg.registerModule("SINE", &(Sine::factory));
 
         /* filters */
         cg.registerModule("BIQUAD", &(Biquad::factory));
@@ -86,6 +85,7 @@ public:
         cg.registerModule("DELAY", &(Delay::factory));
 
         /* shaping */
+        cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SPOW", &(SymPow::factory));
         cg.registerModule("QUANT8", &(Quant8::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
@@ -94,10 +94,6 @@ public:
         /* stereo */
         cg.registerModule("GAIN", &(Gain::factory));
         cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
-
-        /* convinience */
-        cg.registerModule("CONST", &(Constant::factory));
-        cg.registerModule("XFADE", &(CrossFade::factory));
 
         /* special */
         cg.registerModule("=KNOB", &(Knob::factory));

@@ -41,14 +41,10 @@ void _stylize(FileListComponent* l) {
     l->setColour(DirectoryContentsDisplayComponent::highlightColourId, Colours::darkgreen);
 }
 
-DocListModel::DocListModel(const std::map<std::string, ModuleDoc> & moduleDocs, TextEditor & docView)
+DocListModel::DocListModel(TextEditor & docView)
     : ListBoxModel()
-    , moduleDocs(moduleDocs)
     , docView(docView)
 {
-    for (const auto &kv : moduleDocs) {
-        rows.push_back(kv.first);
-    }
 }
 
 void DocListModel::setDocs(const std::map<std::string, ModuleDoc> & moduleDocs_) {
@@ -135,7 +131,7 @@ public:
 void PatchEditor::refreshAndBroadcastDoc(){
     populateDocWithComponents(doc, cmpReg, patchCopy);
     docListModel.setDocs(doc.get());
-    docList.repaint();
+    docList.updateContent();
     subDoc.set(docHandle, doc);
 }
 
@@ -185,8 +181,8 @@ PatchEditor::PatchEditor(
            outBus
            )
     , textEditor(subPatch)
+    , docListModel(docView)
     , docList("docList", &docListModel)
-    , docListModel(doc.get(), docView)
     , editorStack(subPatches, subPatchHandles)
     , leftSidePanelTabs(TabbedButtonBar::TabsAtTop)
 {

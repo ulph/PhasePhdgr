@@ -97,6 +97,7 @@ void GfxPort::draw(Graphics & g, int rowIndex) const {
         textY += rowIndex*(int)((isInput ? 1.75 : -1.75)*c_PortSize);
     }
 
+    g.setColour(Colours::darkgrey);
     g.drawFittedText(
         port,
         textX,

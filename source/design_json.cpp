@@ -116,12 +116,16 @@ void to_json(json& j, const ParameterDescriptor& param){
     j["id"] = param.id;
     j["index"] = param.index;
     j["value"] = param.value;
+    j["min"] = param.min;
+    j["max"] = param.max;
 }
 
 void from_json(const json& j, ParameterDescriptor& param){
     param.id = j.at("id").get<string>();
     param.index = j.at("index").get<int>();
     param.value = j.at("value").get<float>();
+    param.min = j.value("min", 0.f);
+    param.max = j.value("max", 1.f);
 }
 
 void to_json(json& j, const PresetDescriptor& preset){

@@ -81,7 +81,9 @@ public:
     }
 
     virtual void sliderValueChanged(Slider * slider) override {
-        parameter->setValueNotifyingHost((float)slider->getValue());
+        parameter->setValueNotifyingHost(
+            parameter->range.convertTo0to1((float)slider->getValue())
+        );
     }
 
     virtual void mouseDown(const MouseEvent & event) override {
@@ -103,7 +105,6 @@ public:
                 end.setEditable(true, true, false);
                 pm.addItem(3, "end:");
                 pm.addCustomItem(4, &end, 50, 20, false);
-                pm.addItem(5, "... UNDER CONSTRUCTION ...");
                 pm.show();
                 float newStart = start.getText().getFloatValue();
                 float newEnd = end.getText().getFloatValue();

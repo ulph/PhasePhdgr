@@ -72,6 +72,8 @@ struct ParameterDescriptor {
     string id;
     int index;
     float value;
+    float min;
+    float max;
 };
 
 struct PresetDescriptor {

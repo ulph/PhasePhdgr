@@ -41,12 +41,12 @@ public:
     void clearName(){
         name = clearedName(idx);
         active = false;
-        setValueNotifyingHost(*this);
+        setValueNotifyingHost(this->range.convertTo0to1(*this));
     }
     void setName(string newName){
         name = newName;
         active = true;
-        setValueNotifyingHost(*this);
+        setValueNotifyingHost(this->range.convertTo0to1(*this));
     }
     virtual String getName (int maximumStringLength) const override {
         return name.substr(0, maximumStringLength);

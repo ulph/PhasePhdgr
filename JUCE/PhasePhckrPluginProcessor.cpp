@@ -336,7 +336,8 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         auto idx = kv.first;
         auto type = kv.second.first;
         auto handle = kv.second.second;
-        float value = *(floatParameters[idx]);
+        auto p = floatParameters[idx];
+        float value = p->range.convertFrom0to1(*p);
         switch(type){
         case VOICE:
             synth->setVoiceParameter(handle, value);
@@ -387,10 +388,14 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
     preset.effect = effectChain;
     preset.parameters = vector<ParameterDescriptor>();
     for(const auto &kv : parameterNames){
+        auto param = floatParameters[kv.second];
+
         ParameterDescriptor p = {
             kv.first,
             kv.second,
-            floatParameters[kv.second]->get()
+            *param,
+            param->range.start,
+            param->range.end
         };
         preset.parameters.emplace_back(p);
     }
@@ -414,7 +419,10 @@ void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeIn
     }
     for(const auto& p: preset.parameters){
         parameterNames[p.id] = p.index;
-        floatParameters[p.index]->setValueNotifyingHost(p.value);
+        auto param = floatParameters[p.index];
+        param->range.start = p.min;
+        param->range.end = p.max;
+        param->setValueNotifyingHost(param->range.convertTo0to1(p.value));
         // we could also set name but updateParameters takes care of that
     }
     activeVoice.set(-1, preset.voice);

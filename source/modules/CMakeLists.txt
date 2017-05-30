@@ -38,8 +38,8 @@ set(SRC
     sine.hpp
     sympow.cpp
     sympow.hpp
-    tempo.cpp
-    tempo.hpp
+    conversion.cpp
+    conversion.hpp
     inlines.hpp
 )
 

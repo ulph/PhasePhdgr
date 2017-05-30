@@ -21,7 +21,7 @@
 #include "biquad.hpp"
 #include "bleposc.hpp"
 #include "chamberlin.hpp"
-#include "tempo.hpp"
+#include "conversion.hpp"
 
 class Constant : public Module
 {
@@ -66,7 +66,7 @@ public:
 
         /* conversions */
         cg.registerModule("TEMPO2TIME", &(TempoToTime::factory));
-        // todo: pitch transpose
+        cg.registerModule("TRANSPOSE", &(Transpose::factory));
 
         /* generators */
         cg.registerModule("PHASE", &(Phase::factory));

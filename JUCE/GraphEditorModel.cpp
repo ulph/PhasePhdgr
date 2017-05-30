@@ -92,8 +92,8 @@ void GfxPort::draw(Graphics & g, int rowIndex) const {
     int textW = (int)(3.f * c_PortSize);
     int textH = (int)c_PortSize;
     if (rowIndex >= 0) {
-        textX -= (int)(1.5*c_PortSize);
-        textW *= 2;
+        textX -= (int)(3*c_PortSize);
+        textW *= 3;
         textY += rowIndex*(int)((isInput ? 1.75 : -1.75)*c_PortSize);
     }
 
@@ -287,7 +287,7 @@ void GfxModule::designPorts(const Doc &doc, const std::vector<ModulePortValue> &
     }
     size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
     if (max_p > 3.0f) {
-        size.x = c_NodeSize + c_NodeSize*(max_p - 3.0f) / 5.0f;
+        size.x = c_NodeSize + c_NodeSize*max_p/3.0f;
     }
     repositionPorts();
 }

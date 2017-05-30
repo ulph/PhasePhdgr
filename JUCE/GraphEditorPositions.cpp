@@ -197,7 +197,7 @@ void setNodePositionsInner(
         }
     }
 
-    // make sure no module is dangling in Y
+    // make sure no module is dangling in X
     for (auto &p : modulePositions) {
         if(p.second.x == FLT_MAX){
             p.second.x = 0;

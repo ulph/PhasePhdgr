@@ -25,19 +25,20 @@ public:
         , swapParameterIndicesCallback(swapParameterIndicesCallback)
     {
         slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-        slider.setRange(0.f, 1.f);
         slider.setTextBoxStyle(Slider::TextBoxRight, false, 50, 20);
         addAndMakeVisible(slider);
         addAndMakeVisible(label);
         label.setJustificationType(Justification::centred);
         slider.addListener(this);
+        slider.addMouseListener(this, false);
         label.addMouseListener(this, false);
         resized();
     }
 
     void update() {
         label.setText(parameter->getName(64), sendNotificationAsync);
-        slider.setValue(*parameter);
+        slider.setRange(parameter->range.start, parameter->range.end);
+        slider.setValue(*parameter, dontSendNotification);
         repaint();
     }
 
@@ -84,9 +85,36 @@ public:
     }
 
     virtual void mouseDown(const MouseEvent & event) override {
-        auto drg = DragAndDropContainer::findParentDragContainerFor(this);
-        var desc = label.getText();
-        drg->startDragging(desc, this);
+        if(dynamic_cast<Label*>(event.eventComponent)){
+            if(event.mods.isLeftButtonDown()){
+                auto drg = DragAndDropContainer::findParentDragContainerFor(this);
+                var desc = label.getText();
+                drg->startDragging(desc, this);
+            }
+        }
+        else if(dynamic_cast<Slider*>(event.eventComponent)){
+            if(event.mods.isRightButtonDown()){
+                auto pm = PopupMenu();
+                Label start("start", to_string(parameter->range.start));
+                start.setEditable(true, true, false);
+                pm.addItem(1, "start:");
+                pm.addCustomItem(2, &start, 50, 20, false);
+                Label end("end", to_string(parameter->range.end));
+                end.setEditable(true, true, false);
+                pm.addItem(3, "end:");
+                pm.addCustomItem(4, &end, 50, 20, false);
+                pm.addItem(5, "... UNDER CONSTRUCTION ...");
+                pm.show();
+                float newStart = start.getText().getFloatValue();
+                float newEnd = end.getText().getFloatValue();
+                if(newEnd <= newStart){
+                    return;
+                }
+                parameter->range.start = newStart;
+                parameter->range.end = newEnd;
+                update();
+            }
+        }
     }
 
     virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override {

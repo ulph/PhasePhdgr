@@ -13,7 +13,7 @@ namespace PhasePhckr {
 
 void designChain(
     ConnectionGraph &g,
-    PatchDescriptor &pd,
+    const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int>& moduleHandles,
     map<string, int>& parameterHandles
@@ -22,7 +22,7 @@ void designChain(
 bool unpackComponent(
     ConnectionGraph &g,
     const ModuleVariable &mv,
-    PatchDescriptor &pd,
+    const PatchDescriptor &pd,
     ComponentDescriptor &parent,
     ComponentDescriptor &current,
     map<string, int> &moduleHandles,
@@ -85,7 +85,7 @@ bool unpackComponent(
 
 void designChain(
     ConnectionGraph &g,
-    PatchDescriptor &pd,
+    const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
     map<string, int> &parameterHandles
@@ -100,7 +100,8 @@ void designChain(
                 cerr << "Error: " << m.type << " is unknown Component type!" << endl;
                 continue;
             }
-            if(unpackComponent(g, m, pd, cd, pd.components[m.type], moduleHandles, parameterHandles)){
+            ComponentDescriptor child_cd = pd.components.at(m.type);
+            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles)){
                 components.insert(m.name);
             }
         }
@@ -158,13 +159,15 @@ void designChain(
 
 void designPatch(
     ConnectionGraph &connectionGraph,
-    PatchDescriptor &p,
+    const PatchDescriptor &p_,
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
     map<string, int> &parameterHandles,
     const ComponentRegister & cp
 ) {
+
+    PatchDescriptor p = p_;
 
     // copy over all global components
     for (const auto & kv : cp.all()){

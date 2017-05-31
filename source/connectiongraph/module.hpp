@@ -66,19 +66,11 @@ public:
     void setName(const std::string &n) { name = n; }
     std::string getName() { return name; }
 
-    virtual std::string docString() { return "..."; };
-    const std::vector<Pad> &copyInputPads() {
-        return inputs;
-    }
-    const std::vector<Pad> &copyOutputPads() {
-        return outputs;
-    }
-
+    virtual std::string docString() { return "..."; }
     virtual ModuleDoc makeDoc() {
         ModuleDoc doc;
         doc.type = name;
         doc.docString = docString();
-        std::vector<Pad> inputs = copyInputPads();
         for (const auto p : inputs) {
             PadDescription pd;
             pd.name = p.name;
@@ -86,7 +78,6 @@ public:
             pd.value = p.value;
             doc.inputs.push_back(pd);
         }
-        std::vector<Pad> outputs = copyOutputPads();
         for (const auto p : outputs) {
             PadDescription pd;
             pd.name = p.name;

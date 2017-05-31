@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     ConnectionGraph s;
     ModuleRegister::registerAllModules(s);
     int phase = s.addModule("PHASE");
-    s.getModule(phase)->setInput(0, hz);
+    s.setInput(phase, 0, hz);
 
     int dut = phase;
 

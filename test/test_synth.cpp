@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "phasephckr.h"
-#include "EffectChain.hpp"
+#include "effectchain.hpp"
 
 static const float kSamplerate = 48000.f;
 static const int kNumSamples = 64;
@@ -13,8 +13,9 @@ static const int kNumSamples = 64;
 int main(int argc, char **argv)
 {
   PhasePhckr::Synth synth;
-  synth.setFxChain(PhasePhckr::getExampleFxChain());
-  synth.setVoiceChain(PhasePhckr::getExampleVoiceChain());
+  PhasePhckr::ComponentRegister comp;
+  synth.setFxChain(PhasePhckr::getExampleFxChain(), comp);
+  synth.setVoiceChain(PhasePhckr::getExampleVoiceChain(), comp);
   float time = 0;
   float bufferL[kNumSamples];
   float bufferR[kNumSamples];

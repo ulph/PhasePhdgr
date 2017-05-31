@@ -10,7 +10,7 @@ int main()
     float bufferL[SYNTH_VOICE_BUFFER_LENGTH];
     float bufferR[SYNTH_VOICE_BUFFER_LENGTH];
 
-    SynthVoice v(PhasePhckr::getExampleVoiceChain());
+    SynthVoice v(PhasePhckr::getExampleVoiceChain(), PhasePhckr::ComponentRegister());
     GlobalData g;
     
     v.mpe.on(48, 0.5f);

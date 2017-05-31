@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Sine : public Module
+class Sine : public ModuleCRTP<Sine>
 {
 public:
     Sine();

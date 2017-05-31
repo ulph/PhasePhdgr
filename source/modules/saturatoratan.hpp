@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class SaturatorAtan : public Module
+class SaturatorAtan : public ModuleCRTP<SaturatorAtan>
 {
 public:
     SaturatorAtan();
@@ -11,7 +11,7 @@ public:
     static Module* factory() { return new SaturatorAtan(); }
 };
 
-class StereoSaturatorAtan : public Module
+class StereoSaturatorAtan : public ModuleCRTP<StereoSaturatorAtan>
 {
 public:
     StereoSaturatorAtan();

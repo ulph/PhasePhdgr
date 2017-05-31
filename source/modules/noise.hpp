@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Noise : public Module
+class Noise : public ModuleCRTP<Noise>
 {
 private:
     uint32_t val;

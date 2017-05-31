@@ -29,6 +29,23 @@ public:
 
 ConnectionGraph::ConnectionGraph() : compilationStatus(NOT_COMPILED)
 {
+
+}
+
+ConnectionGraph::ConnectionGraph(const ConnectionGraph& other)
+    : compilationStatus(NOT_COMPILED)
+{
+    // copy constructor that creates an non-compiled version
+    for(int i=0; i<other.modules.size(); ++i){
+        const auto& m = other.modules[i];
+        Module * mCopy = m->clone();
+        modules.push_back(mCopy);
+    }
+    for(int i=0; i<other.cables.size(); ++i){
+        const auto& c = other.cables[i];
+        auto cCopy = new Cable(*c);
+        cables.push_back(cCopy);
+    }
 }
 
 ConnectionGraph::~ConnectionGraph()
@@ -163,7 +180,6 @@ void ConnectionGraph::compileModule(int module, std::vector<int> &processedModul
                     padIsConnected = true;
                     program.push_back(Instruction(OP_RESET_INPUT, module, pad));
                 }
-                Module *m_dep = getModule(c->getFromModule());
                 compileModule(c->getFromModule(), processedModules);
                 program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, c->getFromModule(), c->getFromPad(), module, pad));
             }

@@ -28,6 +28,7 @@ protected:
 
 public:
     virtual ~Module() {}
+    virtual Module *clone() const = 0;
     virtual void process(uint32_t fs) = 0;
     float getOutput(int outputPad) { 
         return outputs[outputPad].value;
@@ -89,5 +90,15 @@ public:
     }
 
 };
+
+// CRTP pattern
+template <class D>
+class ModuleCRTP : public Module {
+public:
+  virtual Module *clone() const {
+      return new D(static_cast<D const&>(*this));
+  }
+};
+
 
 #endif

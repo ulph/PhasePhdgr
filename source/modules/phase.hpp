@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Phase : public Module
+class Phase : public ModuleCRTP<Phase>
 {
 private:
     float trig;

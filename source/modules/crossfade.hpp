@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class CrossFade : public Module
+class CrossFade : public ModuleCRTP<CrossFade>
 {
 public:
     CrossFade();

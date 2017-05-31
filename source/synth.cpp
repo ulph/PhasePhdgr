@@ -38,9 +38,10 @@ const map<string, int>& Synth::setVoiceChain(const PatchDescriptor& voiceChain, 
         delete v;
     }
     voices.clear();
+    SynthVoice v = SynthVoice(voiceChain, cp);
     for (int i = 0; i<numVoices; ++i) {
-        SynthVoice* v = new SynthVoice(voiceChain, cp);
-        voices.push_back(v);
+        SynthVoice *v_ = new SynthVoice(v);
+        voices.push_back(v_);
     }
     return voices[0]->getParameterHandles(); // they're identical
 }

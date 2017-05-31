@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Clamp : public Module
+class Clamp : public ModuleCRTP<Clamp>
 {
 public:
     Clamp();

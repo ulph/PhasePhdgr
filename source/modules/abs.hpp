@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Abs : public Module
+class Abs : public ModuleCRTP<Abs>
 {
 public:
     Abs();

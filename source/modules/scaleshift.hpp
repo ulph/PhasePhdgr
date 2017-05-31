@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class ScaleShift : public Module
+class ScaleShift : public ModuleCRTP<ScaleShift>
 {
 public:
     ScaleShift();

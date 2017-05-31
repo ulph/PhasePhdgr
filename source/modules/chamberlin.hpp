@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class ChamberlinFilter : public Module
+class ChamberlinFilter : public ModuleCRTP<ChamberlinFilter>
 {
 private:
     float band;
@@ -16,7 +16,7 @@ public:
 };
 
 
-class OpenChamberlinFilter : public Module
+class OpenChamberlinFilter : public ModuleCRTP<OpenChamberlinFilter>
 {
 public:
     OpenChamberlinFilter();

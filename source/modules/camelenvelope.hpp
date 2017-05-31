@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class CamelEnvelope : public Module
+class CamelEnvelope : public ModuleCRTP<CamelEnvelope>
 {
 public:
     CamelEnvelope();

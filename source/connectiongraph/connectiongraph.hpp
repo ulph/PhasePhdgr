@@ -16,13 +16,13 @@ protected:
     std::vector<Module*> modules;
     std::vector<Cable*> cables;
     std::vector<Instruction> program;
-    uint32_t fs;
     int compilationStatus;
     void compileProgram(int module);
     void compileModule(int module, std::vector<int> &processedModules);
-public:
     Module* getModule(int id);
+public:
     ConnectionGraph();
+    ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
     int addModule(std::string type);
     int addCustomModule(Module* module);

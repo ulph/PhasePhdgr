@@ -9,7 +9,6 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     : connectionGraph()
     , rmsSlew(0.99f)
     , rms(0.0f)
-    , samplesToProcess(0)
     , doTerminate(false)
 {
     ModuleRegister::registerAllModules(connectionGraph);
@@ -61,7 +60,7 @@ void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalD
     // Queue work for thread
     globalData = g;
     this->sampleRate = sampleRate;
-    samplesToProcess = numSamples;
+    threadStuff.samplesToProcess = numSamples;
 #if MULTITHREADED
 #else
     this->threadedProcess();
@@ -72,7 +71,7 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
 {
 #if MULTITHREADED
     // Wait for thread to complete...
-    while(samplesToProcess > 0) std::this_thread::yield();
+    while(threadStuff.samplesToProcess > 0) std::this_thread::yield();
 #endif
     // Collect data
     for(int i = 0; i < numSamples; i++) {
@@ -87,8 +86,8 @@ void SynthVoice::threadedProcess()
 #if MULTITHREADED
     while(!doTerminate) {
 #endif
-        int numSamples = samplesToProcess;
-        if(samplesToProcess > 0) {
+        int numSamples = threadStuff.samplesToProcess;
+        if(threadStuff.samplesToProcess > 0) {
             for (int i = 0; i < numSamples; ++i) {
                 mpe.update();
                 globalData.update();
@@ -131,7 +130,7 @@ void SynthVoice::threadedProcess()
                 rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
             }
 
-            samplesToProcess -= numSamples;
+            threadStuff.samplesToProcess -= numSamples;
         } else {
 #if MULTITHREADED
             std::this_thread::yield();

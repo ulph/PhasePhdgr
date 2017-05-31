@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Quant8 : public Module
+class Quant8 : public ModuleCRTP<Quant8>
 {
 public:
     Quant8();

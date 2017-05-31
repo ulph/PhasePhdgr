@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class SymPow : public Module
+class SymPow : public ModuleCRTP<SymPow>
 {
 public:
     SymPow();

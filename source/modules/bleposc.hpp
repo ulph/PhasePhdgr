@@ -4,7 +4,7 @@
 #include "module.hpp"
 #include <assert.h>
 
-class BlitOsc : public Module
+class BlitOsc : public ModuleCRTP<BlitOsc>
 {
 public:
     static const int c_blitN = 16; // TODO, find a sweet spot or at least use min-phase sinc

@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class TempoToTime : public Module
+class TempoToTime : public ModuleCRTP<TempoToTime>
 {
 public:
     TempoToTime();
@@ -12,7 +12,7 @@ public:
 };
 
 
-class Transpose : public Module
+class Transpose : public ModuleCRTP<Transpose>
 {
 public:
     Transpose();

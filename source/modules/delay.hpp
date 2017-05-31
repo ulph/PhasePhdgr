@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Delay : public Module
+class Delay : public ModuleCRTP<Delay>
 {
 private:
     float *buffer;

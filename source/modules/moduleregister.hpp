@@ -23,7 +23,7 @@
 #include "chamberlin.hpp"
 #include "conversion.hpp"
 
-class Constant : public Module
+class Constant : public ModuleCRTP<Constant>
 {
 public:
     Constant() {
@@ -38,8 +38,15 @@ public:
 };
 
 
-class Knob : public Constant {
+class Knob : public ModuleCRTP<Knob> {
     public:
+    Knob() {
+        inputs.push_back(Pad("value"));
+        outputs.push_back(Pad("value"));
+    }
+    void process(uint32_t fs) {
+        outputs[0].value = inputs[0].value;
+    }
     static Module* factory() { return new Knob(); }
     virtual ModuleDoc makeDoc() {
         auto d = Module::makeDoc();

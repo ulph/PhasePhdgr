@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class FoldBack : public Module
+class FoldBack : public ModuleCRTP<FoldBack>
 {
 protected:
     bool iterate(float *v, float scale);

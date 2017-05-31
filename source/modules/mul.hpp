@@ -3,7 +3,7 @@
 
 #include "module.hpp"
 
-class Mul : public Module
+class Mul : public ModuleCRTP<Mul>
 {
 public:
     Mul();
@@ -11,7 +11,7 @@ public:
     static Module* factory() { return new Mul(); }
 };
 
-class Gain : public Module
+class Gain : public ModuleCRTP<Gain>
 {
 public:
     Gain();

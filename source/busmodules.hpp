@@ -3,7 +3,7 @@
 #include "module.hpp"
 #include "design.hpp"
 
-class BusModule : public Module {
+class BusModule : public ModuleCRTP<BusModule> {
 private:
     bool isInput;
 public:

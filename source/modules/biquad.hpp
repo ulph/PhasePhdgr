@@ -2,7 +2,7 @@
 
 #include "module.hpp"
 
-class Biquad : public Module
+class Biquad : public ModuleCRTP<Biquad>
 {
 public:
     Biquad();
@@ -18,7 +18,7 @@ private:
     float y2;
 };
 
-class LowPass : public Module
+class LowPass : public ModuleCRTP<LowPass>
 {
 public:
     LowPass();
@@ -26,7 +26,7 @@ public:
     static Module* factory() { return new LowPass(); }
 };
 
-class PeakingEQ : public Module
+class PeakingEQ : public ModuleCRTP<PeakingEQ>
 {
 public:
   PeakingEQ();

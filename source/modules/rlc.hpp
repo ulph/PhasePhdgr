@@ -14,7 +14,7 @@ static inline float CalcRcHp(float x1, float x0, float y0, float wc, float fs) {
     return a*y0 + a*(x1 - x0);
 }
 
-class RcLp : public Module
+class RcLp : public ModuleCRTP<RcLp>
 {
 public:
     RcLp();
@@ -22,7 +22,7 @@ public:
     static Module* factory() { return new RcLp(); }
 };
 
-class RcHp : public Module
+class RcHp : public ModuleCRTP<RcHp>
 {
 private:
     float x;
@@ -32,7 +32,7 @@ public:
     static Module* factory() { return new RcHp(); }
 };
 
-class OpenRcLp : public Module
+class OpenRcLp : public ModuleCRTP<OpenRcLp>
 {
 public:
     OpenRcLp();
@@ -40,7 +40,7 @@ public:
     static Module* factory() { return new OpenRcLp(); }
 };
 
-class OpenRcHp : public Module
+class OpenRcHp : public ModuleCRTP<OpenRcHp>
 {
 public:
     OpenRcHp();

@@ -63,13 +63,13 @@ namespace PhasePhckr {
         VoiceBus *voiceBus;
         vector<SynthVoice*> voices;
         EffectChain* effects;
+        float scopeHz;
+        int scopeVoiceIndex;
         Scope voiceScopeL;
         Scope voiceScopeR;
         Scope outputScopeL;
         Scope outputScopeR;
         GlobalData *globalData;
-        float scopeHz;
-        int scopeVoiceIndex;
     };
 
 }

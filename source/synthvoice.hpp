@@ -44,6 +44,7 @@ public:
     const float* getInternalBuffer(int channel) { return &internalBuffer[channel][0]; }
     void setParameter(int handle, float value);
     const map<string, int>& getParameterHandles();
+    bool isSilent();
 };
 
 }

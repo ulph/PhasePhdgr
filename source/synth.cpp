@@ -10,7 +10,7 @@ Synth::Synth()
     : voiceBus(new VoiceBus())
     , effects(nullptr)
     , globalData(new GlobalData())
-    , scopeHz(0)
+    , scopeHz(0.f)
     , scopeVoiceIndex(-1)
 {
 }
@@ -52,6 +52,16 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;
     float *bufL = leftChannelbuffer, *bufR = rightChannelbuffer;
 
+    int newScopeVoiceIndex = voiceBus->findScopeVoiceIndex(voices);
+    if (newScopeVoiceIndex != -1) {
+        scopeVoiceIndex = newScopeVoiceIndex;
+        scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHz;
+    }
+    else if(scopeVoiceIndex != -1 && voices[scopeVoiceIndex]->isSilent()){
+        scopeVoiceIndex = -1;
+        scopeHz = 0.f;
+    }
+
     while(samplesLeft > 0) {
         int chunkSize = (samplesLeft < maxChunk) ? samplesLeft : maxChunk;
 
@@ -62,12 +72,6 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         bufL += chunkSize;
         bufR += chunkSize;
 
-        // fill the voice scope buffer with output of selected voice
-        int nextScopeVoiceIndex = voiceBus->findScopeVoiceIndex(voices);
-        if (nextScopeVoiceIndex != -1) {
-            scopeVoiceIndex = nextScopeVoiceIndex;
-            scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHz;
-        }
         if (scopeVoiceIndex != -1) {
             voiceScopeL.writeToBuffer(voices[scopeVoiceIndex]->getInternalBuffer(0), chunkSize, sampleRate, scopeHz);
             voiceScopeR.writeToBuffer(voices[scopeVoiceIndex]->getInternalBuffer(1), chunkSize, sampleRate, scopeHz);

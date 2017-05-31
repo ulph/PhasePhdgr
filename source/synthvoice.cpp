@@ -61,6 +61,9 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
     }
 }
 
+bool SynthVoice::isSilent(){
+    return rms < 0.0000001;
+}
 
 void SynthVoice::threadedProcess()
 {
@@ -78,7 +81,7 @@ void SynthVoice::threadedProcess()
 
             if (v.gate) {
                 rms = 1;
-            } else if (v.gate == 0 && rms < 0.0000001) {
+            } else if (v.gate == 0 && isSilent()) {
                 continue;
             }
 

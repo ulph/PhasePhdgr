@@ -47,7 +47,7 @@ void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalD
     }
     // Queue work for thread
     threadStuff.globalData = g;
-    this->sampleRate = sampleRate;
+    threadStuff.sampleRate = sampleRate;
     threadStuff.samplesToProcess = numSamples;
     this->threadedProcess();
 }
@@ -100,7 +100,7 @@ void SynthVoice::threadedProcess()
             connectionGraph.setInput(inBus, 13, t.position);
             connectionGraph.setInput(inBus, 14, t.time);
 
-            connectionGraph.process(outBus, sampleRate);
+            connectionGraph.process(outBus, threadStuff.sampleRate);
             float sampleL = connectionGraph.getOutput(outBus, 0);
             float sampleR = connectionGraph.getOutput(outBus, 1);
             internalBuffer[0][i] = sampleL;

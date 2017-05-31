@@ -19,10 +19,10 @@ class SynthVoiceThreading {
 public:
     GlobalData globalData;
     int samplesToProcess;
+    float sampleRate;
 };
 
 class SynthVoice {
-    friend class SynthVoiceThreading;
 private:
     ConnectionGraph connectionGraph;
     int inBus;
@@ -31,7 +31,6 @@ private:
     float rms;
     SynthVoiceThreading threadStuff;
     void threadedProcess();
-    float sampleRate;
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
     map<string, int> moduleHandles;
     map<string, int> parameterHandles;

@@ -5,11 +5,11 @@
 namespace PhasePhckr
 {
 
+
 SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp)
     : connectionGraph()
     , rmsSlew(0.99f)
     , rms(0.0f)
-    , doTerminate(false)
 {
     ModuleRegister::registerAllModules(connectionGraph);
     PatchDescriptor patchDescriptor = voiceChain;
@@ -34,45 +34,26 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     for(const auto &p : parameterHandles){
         parameterValues[p.second] = 0.f;
     }
-
-#if MULTITHREADED
-    t = std::thread(&SynthVoice::threadedProcess, this);
-#endif
 }
 
 SynthVoice::~SynthVoice()
 {
-    doTerminate = true;
-#if MULTITHREADED
-    t.join();
-#endif
 }
 
 void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
 {
-#if MULTITHREADED
-    // Make sure thread is not processing already ... (should not happen)
-    while(samplesToProcess > 0) std::this_thread::yield();
-#endif
     for(const auto& p: parameterValues){
         connectionGraph.setInput(p.first, 0, p.second);
     }
     // Queue work for thread
-    globalData = g;
+    threadStuff.globalData = g;
     this->sampleRate = sampleRate;
     threadStuff.samplesToProcess = numSamples;
-#if MULTITHREADED
-#else
     this->threadedProcess();
-#endif
 }
 
 void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSamples)
 {
-#if MULTITHREADED
-    // Wait for thread to complete...
-    while(threadStuff.samplesToProcess > 0) std::this_thread::yield();
-#endif
     // Collect data
     for(int i = 0; i < numSamples; i++) {
         bufferL[i] += internalBuffer[0][i];
@@ -83,62 +64,52 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
 
 void SynthVoice::threadedProcess()
 {
-#if MULTITHREADED
-    while(!doTerminate) {
-#endif
-        int numSamples = threadStuff.samplesToProcess;
-        if(threadStuff.samplesToProcess > 0) {
-            for (int i = 0; i < numSamples; ++i) {
-                mpe.update();
-                globalData.update();
-                const MPEVoiceState &v = mpe.getState();
-                const GlobalDataState &g = globalData.getState();
-                const GlobalTimeDataState &t = globalData.getTimeState();
+    int numSamples = threadStuff.samplesToProcess;
+    if(threadStuff.samplesToProcess > 0) {
+        for (int i = 0; i < numSamples; ++i) {
+            mpe.update();
+            threadStuff.globalData.update();
+            const MPEVoiceState &v = mpe.getState();
+            const GlobalDataState &g = threadStuff.globalData.getState();
+            const GlobalTimeDataState &t = threadStuff.globalData.getTimeState();
 
-                internalBuffer[0][i] = 0.0f;
-                internalBuffer[1][i] = 0.0f;
+            internalBuffer[0][i] = 0.0f;
+            internalBuffer[1][i] = 0.0f;
 
-                if (v.gate) {
-                    rms = 1;
-                } else if (v.gate == 0 && rms < 0.0000001) {
-                    continue;
-                }
-
-                connectionGraph.setInput(inBus, 0, v.gate);
-                connectionGraph.setInput(inBus, 1, v.strikeZ);
-                connectionGraph.setInput(inBus, 2, v.liftZ);
-                connectionGraph.setInput(inBus, 3, v.pitchHz);
-                connectionGraph.setInput(inBus, 4, v.glideX);
-                connectionGraph.setInput(inBus, 5, v.slideY);
-                connectionGraph.setInput(inBus, 6, v.pressZ);
-
-                connectionGraph.setInput(inBus, 7, g.mod);
-                connectionGraph.setInput(inBus, 8, g.exp);
-                connectionGraph.setInput(inBus, 9, g.brt);
-
-                connectionGraph.setInput(inBus, 10, (float)t.nominator);
-                connectionGraph.setInput(inBus, 11, (float)t.denominator);
-                connectionGraph.setInput(inBus, 12, t.bpm);
-                connectionGraph.setInput(inBus, 13, t.position);
-                connectionGraph.setInput(inBus, 14, t.time);
-
-                connectionGraph.process(outBus, sampleRate);
-                float sampleL = connectionGraph.getOutput(outBus, 0);
-                float sampleR = connectionGraph.getOutput(outBus, 1);
-                internalBuffer[0][i] = sampleL;
-                internalBuffer[1][i] = sampleR;
-                rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
+            if (v.gate) {
+                rms = 1;
+            } else if (v.gate == 0 && rms < 0.0000001) {
+                continue;
             }
 
-            threadStuff.samplesToProcess -= numSamples;
-        } else {
-#if MULTITHREADED
-            std::this_thread::yield();
-#endif
+            connectionGraph.setInput(inBus, 0, v.gate);
+            connectionGraph.setInput(inBus, 1, v.strikeZ);
+            connectionGraph.setInput(inBus, 2, v.liftZ);
+            connectionGraph.setInput(inBus, 3, v.pitchHz);
+            connectionGraph.setInput(inBus, 4, v.glideX);
+            connectionGraph.setInput(inBus, 5, v.slideY);
+            connectionGraph.setInput(inBus, 6, v.pressZ);
+
+            connectionGraph.setInput(inBus, 7, g.mod);
+            connectionGraph.setInput(inBus, 8, g.exp);
+            connectionGraph.setInput(inBus, 9, g.brt);
+
+            connectionGraph.setInput(inBus, 10, (float)t.nominator);
+            connectionGraph.setInput(inBus, 11, (float)t.denominator);
+            connectionGraph.setInput(inBus, 12, t.bpm);
+            connectionGraph.setInput(inBus, 13, t.position);
+            connectionGraph.setInput(inBus, 14, t.time);
+
+            connectionGraph.process(outBus, sampleRate);
+            float sampleL = connectionGraph.getOutput(outBus, 0);
+            float sampleR = connectionGraph.getOutput(outBus, 1);
+            internalBuffer[0][i] = sampleL;
+            internalBuffer[1][i] = sampleR;
+            rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
         }
-#if MULTITHREADED
+
+        threadStuff.samplesToProcess -= numSamples;
     }
-#endif
 }
 
 void SynthVoice::setParameter(int handle, float value){

@@ -15,20 +15,14 @@
 namespace PhasePhckr {
 
 class SynthVoiceThreading {
+    // fragmentary remain of the threading
 public:
-    std::thread t;
-    std::atomic<int> samplesToProcess;
-    SynthVoiceThreading(const SynthVoiceThreading& other)
-        : samplesToProcess(0)
-    {
-        t = std::thread();
-    }
-    SynthVoiceThreading()
-        : samplesToProcess(0)
-    {}
+    GlobalData globalData;
+    int samplesToProcess;
 };
 
 class SynthVoice {
+    friend class SynthVoiceThreading;
 private:
     ConnectionGraph connectionGraph;
     int inBus;
@@ -37,10 +31,8 @@ private:
     float rms;
     SynthVoiceThreading threadStuff;
     void threadedProcess();
-    GlobalData globalData;
     float sampleRate;
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
-    bool doTerminate;
     map<string, int> moduleHandles;
     map<string, int> parameterHandles;
     map<int, float> parameterValues;
@@ -56,4 +48,3 @@ public:
 };
 
 }
-

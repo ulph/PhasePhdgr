@@ -1,10 +1,3 @@
-option(MULTITHREADING OFF)
-if(${MULTITHREADING})
-    add_definitions(-DMULTITHREADED=1)
-else()
-    add_definitions(-DMULTITHREADED=0)
-endif()
-
 add_subdirectory(connectiongraph)
 add_subdirectory(dsp)
 add_subdirectory(modules)

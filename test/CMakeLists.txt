@@ -11,11 +11,11 @@ set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:phasephckr_obj>
 )
 
-add_executable(test_performance test_performance.cpp ${TEST_COMMON_SRC})
-set_property(TARGET test_performance PROPERTY FOLDER targets/test)
+add_executable(test_synthvoice test_synthvoice.cpp ${TEST_COMMON_SRC})
+set_property(TARGET test_synthvoice PROPERTY FOLDER targets/test)
 
 add_executable(test_modules test_modules.cpp ${TEST_COMMON_SRC})
 set_property(TARGET test_modules PROPERTY FOLDER targets/test)
 
-add_executable(test_synth test_synth.cpp ${TEST_COMMON_SRC})
-set_property(TARGET test_synth PROPERTY FOLDER targets/test)
+add_executable(cli_synth cli_synth.cpp ${TEST_COMMON_SRC})
+set_property(TARGET cli_synth PROPERTY FOLDER targets/test)

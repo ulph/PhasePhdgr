@@ -11,6 +11,7 @@ public:
     Noise();
     void process(uint32_t fs);
     static Module* factory() { return new Noise(); }
+    virtual Module *clone() const; // to initialize seed
 };
 
 #endif

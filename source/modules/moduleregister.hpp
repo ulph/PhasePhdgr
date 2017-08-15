@@ -22,6 +22,7 @@
 #include "bleposc.hpp"
 #include "chamberlin.hpp"
 #include "conversion.hpp"
+#include "samphold.hpp"
 
 class Constant : public ModuleCRTP<Constant>
 {
@@ -69,6 +70,7 @@ public:
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));
+        cg.registerModule("SAMPHOLD", &(SampleAndHold::factory));
         // todo: counters, sample-and-hold, etc
 
         /* conversions */

@@ -13,6 +13,8 @@ set(SRC
     clamp.hpp
     clampinv.cpp
     clampinv.hpp
+    conversion.cpp
+    conversion.hpp
     crossfade.cpp
     crossfade.hpp
     delay.cpp
@@ -38,8 +40,8 @@ set(SRC
     sine.hpp
     sympow.cpp
     sympow.hpp
-    conversion.cpp
-    conversion.hpp
+    samphold.cpp
+    samphold.hpp
     inlines.hpp
 )
 

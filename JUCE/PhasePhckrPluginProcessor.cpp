@@ -402,7 +402,8 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
     synthUpdateLock.clear(std::memory_order_release);
 
     json j = preset;
-    const char* s = j.dump(2).c_str(); // TODO; json lib bugged with long rows...
+    string ss = j.dump(2); // TODO; json lib bugged with long rows...
+    const char* s = ss.c_str(); 
     size_t n = (strlen(s)+1) / sizeof(char);
     destData.fillWith(0);
     destData.insert((const void*)s, n, 0);
@@ -412,12 +413,21 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     string ss((const char*)data);
-    PresetDescriptor preset = json::parse(ss.c_str());
-    for(const auto& fp:floatParameters){
+    PresetDescriptor preset;
+    try {
+        preset = json::parse(ss.c_str());
+    }
+    catch (const nlohmann::detail::exception& e) {
+        auto msg = e.what();
+        // sod off
+        return;
+    }
+
+    for (const auto& fp : floatParameters) {
         fp->clearName();
         fp->setValueNotifyingHost(0.f); // I think this is the correct thing to do
     }
-    for(const auto& p: preset.parameters){
+    for (const auto& p : preset.parameters) {
         parameterNames[p.id] = p.index;
         auto param = floatParameters[p.index];
         param->range.start = p.min;

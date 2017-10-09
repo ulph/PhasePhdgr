@@ -51,9 +51,11 @@ void PhasePhckrXYScope::paint (Graphics& g)
 
     g.setColour(Colour(0xffffff00));
     for (int i = 0; i < sourceSizeL; ++i) {
-        g.setPixel(
-            (size_x*(blitScale*sourceBufferL[i] + 0.5f)),
-            (size_y*(-blitScale*sourceBufferR[i] + 0.5f))
+		g.fillRect(
+			(size_x*(blitScale*sourceBufferL[i] + 0.5f)),
+			(size_y*(-blitScale*sourceBufferR[i] + 0.5f)),
+			1.f,
+			1.f
         );
     }
 }

@@ -93,7 +93,7 @@ void to_json(json& j, const PatchDescriptor& p) {
 
 void from_json(const json& j, PatchDescriptor& p) {
     p.root.graph = j.at("graph").get<ConnectionGraphDescriptor>();
-    p.root.docString = j.at("docString");
+    p.root.docString = j.at("docString").get<string>();
     p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     p.layout = j.at("layout").get<map<string, ModulePosition>>();
 }

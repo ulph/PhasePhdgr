@@ -40,7 +40,7 @@ set(JUCE_SRC
     ${JUCE_JUNK}/JuceHeader.h
     ${JUCE_JUNK}/include_juce_audio_plugin_client_utils.cpp
     ${JUCE_JUNK}/include_juce_audio_plugin_client_VST2.cpp
-    ${JUCE_JUNK}/include_juce_audio_plugin_client_VST3.cpp
+#    ${JUCE_JUNK}/include_juce_audio_plugin_client_VST3.cpp
 )
 
 if(APPLE)

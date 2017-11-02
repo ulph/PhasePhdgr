@@ -1,8 +1,8 @@
+#include <phasephckr_json.hpp>
+#include <xmmintrin.h>
+
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
-#include "json.hpp"
-
-#include <xmmintrin.h>
 
 using namespace PhasePhckrFileStuff;
 using namespace std;

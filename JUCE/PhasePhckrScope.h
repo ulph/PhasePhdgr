@@ -1,8 +1,8 @@
 #ifndef PHASEPHKRSCOPE_H_INCLUDED
 #define PHASEPHKRSCOPE_H_INCLUDED
 
+#include <phasephckr.hpp>
 #include "JuceHeader.h"
-#include "phasephckr.h"
 
 class PhasePhckrScope : public Component
 {

@@ -1,11 +1,10 @@
-#include "design.hpp"
+#include <phasephckr.hpp>
+
 #include "connectiongraph.hpp"
-#include "components.hpp"
 #include <set>
 #include <list>
 #include <queue>
 #include "busmodules.hpp"
-#include "design.hpp"
 
 using namespace std;
 

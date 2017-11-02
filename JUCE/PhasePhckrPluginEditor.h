@@ -1,13 +1,16 @@
 #ifndef PLUGINEDITOR_H_INCLUDED
 #define PLUGINEDITOR_H_INCLUDED
 
+#include <vector>
+
+#include <phasephckr.hpp>
 #include "JuceHeader.h"
+
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"
 #include "GraphEditor.hpp"
-#include "docs.hpp"
-#include <vector>
+
 #include "Utils.hpp"
 #include "PatchEditor.hpp"
 #include "DirectoryWatcher.hpp"

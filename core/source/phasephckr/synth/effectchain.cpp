@@ -1,7 +1,8 @@
+#include <phasephckr.hpp>
+
 #include "effectchain.hpp"
 #include "busmodules.hpp"
 #include "moduleregister.hpp"
-#include "design.hpp"
 #include "parameters.hpp"
 
 namespace PhasePhckr {

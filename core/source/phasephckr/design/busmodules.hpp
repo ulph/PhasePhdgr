@@ -1,7 +1,8 @@
 #pragma once
 
+#include <phasephckr.hpp>
+
 #include "module.hpp"
-#include "design.hpp"
 
 class BusModule : public ModuleCRTP<BusModule> {
 private:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "design.hpp"
+#include "phasephckr/design.hpp"
 
 #include "nlohmann/json.hpp"
 using nlohmann::json;

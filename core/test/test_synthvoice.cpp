@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdint>
 #include "synthvoice.hpp"
-#include "phasephckr.h"
+#include "phasephckr.hpp"
 
 using namespace PhasePhckr;
 

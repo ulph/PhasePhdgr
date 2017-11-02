@@ -1,22 +1,23 @@
 #ifndef GRAPHVIEW_H_INCLUDED
 #define GRAPHVIEW_H_INCLUDED
 
-#include "GraphEditorModel.hpp"
-#include "GraphEditorPositions.hpp"
-
-#include "JuceHeader.h"
-#include "design.hpp"
+#include <math.h>
+#include <atomic>
+#include <deque>
 #include <iostream>
 #include <set>
 #include <algorithm>
 #include <vector>
 #include <assert.h>
 #include <climits>
-#include "docs.hpp"
+
+#include <phasephckr.hpp>
+#include "JuceHeader.h"
+
+#include "GraphEditorModel.hpp"
+#include "GraphEditorPositions.hpp"
+
 #include "Utils.hpp"
-#include <math.h>
-#include <atomic>
-#include <deque>
 
 using namespace std;
 

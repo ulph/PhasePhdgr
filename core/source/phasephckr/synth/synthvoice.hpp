@@ -6,7 +6,7 @@
 #include "module.hpp"
 #include "connectiongraph.hpp"
 #include "moduleregister.hpp"
-#include "phasephckr.h"
+#include "phasephckr.hpp"
 #include "busmodules.hpp"
 #include "voicebus.hpp"
 

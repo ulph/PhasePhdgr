@@ -1,10 +1,13 @@
+#include <cstring>
+#include <typeinfo>
+
+#include <phasephckr.hpp>
+#include <phasephckr_json.hpp>
+#include "JuceHeader.h"
+
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
-#include "phasephckr.h"
-#include <cstring>
 #include "DirectoryWatcher.hpp"
-#include <typeinfo>
-#include "docs.hpp"
 
 using namespace PhasePhckrFileStuff;
 

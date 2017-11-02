@@ -1,5 +1,7 @@
+#include <phasephckr.hpp>
+#include <phasephckr_json.hpp>
+
 #include "PatchEditor.hpp"
-#include "components.hpp"
 
 using namespace std;
 using namespace PhasePhckr;

@@ -1,8 +1,8 @@
-#include "docs.hpp"
+#include <phasephckr.hpp>
+
 #include "moduleregister.hpp"
 #include "connectiongraph.hpp"
 #include "module.hpp"
-#include "components.hpp"
 #include "busmodules.hpp"
 
 namespace PhasePhckr {

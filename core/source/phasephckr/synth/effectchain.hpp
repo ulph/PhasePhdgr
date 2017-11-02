@@ -1,8 +1,9 @@
 #pragma once
 
+#include <phasephckr.hpp>
+
 #include "connectiongraph.hpp"
 #include "voicebus.hpp"
-#include "design.hpp"
 
 using namespace std;
 

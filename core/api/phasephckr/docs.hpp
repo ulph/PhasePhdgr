@@ -32,6 +32,4 @@ namespace PhasePhckr {
     };
 }
 
-
-
 #endif

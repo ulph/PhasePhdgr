@@ -4,7 +4,7 @@
 #include <map>
 #include <set>
 #include "GraphEditorModel.hpp"
-#include "design.hpp"
+
 
 using namespace std;
 

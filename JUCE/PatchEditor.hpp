@@ -1,11 +1,12 @@
 #pragma once
 
-#include "JuceHeader.h"
-#include "PhasePhckrGrid.h"
 #include <map>
 #include <vector>
-#include "docs.hpp"
-#include "design.hpp"
+
+#include <phasephckr.hpp>
+#include "JuceHeader.h"
+
+#include "PhasePhckrGrid.h"
 #include "Utils.hpp"
 #include "GraphEditor.hpp"
 

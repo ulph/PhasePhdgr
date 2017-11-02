@@ -1,14 +1,13 @@
 #ifndef PLUGINPROCESSOR_H_INCLUDED
 #define PLUGINPROCESSOR_H_INCLUDED
 
+#include <list>
+
+#include <phasephckr.hpp>
 #include "JuceHeader.h"
 
-#include "phasephckr.h" // for now
-#include "json.hpp"
 #include "PhasePhckrGrid.h"
-#include "components.hpp"
 #include "Utils.hpp"
-#include <list>
 #include "PatchEditor.hpp"
 #include "DirectoryWatcher.hpp"
 

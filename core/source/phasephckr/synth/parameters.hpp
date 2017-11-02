@@ -1,8 +1,10 @@
 #pragma once
 
-#include "phasephckr.h"
+#include "phasephckr.hpp"
 
 namespace PhasePhckr {
+
+    const float c_slewFactor = 0.995f;
 
     struct GlobalTimeDataState {
         GlobalTimeDataState()

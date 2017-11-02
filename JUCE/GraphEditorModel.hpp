@@ -2,14 +2,15 @@
 
 #include <string>
 #include <vector>
-#include "JuceHeader.h"
-#include "design.hpp"
 #include <math.h>
 #include <float.h>
 #include <list>
 #include <random>
 #include <assert.h>
 #include <set>
+
+#include <phasephckr.hpp>
+#include "JuceHeader.h"
 
 using namespace PhasePhckr;
 using namespace std;

@@ -1,5 +1,5 @@
 #include "parameters.hpp"
-#include "phasephckr.h"
+#include "phasephckr.hpp"
 #include <math.h>
 #include <string.h>
 #include <limits.h>

@@ -10,6 +10,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 find_package(Threads)
 
+set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
+  include_directories(${JSON_INCLUDE_DIR})
+  if(NOT EXISTS "${JSON_INCLUDE_DIR}/nlohmann/json.hpp")
+    message(FATAL_ERROR "Cannot find nlohmann/json.hpp")
+endif()
+
 add_definitions(-msse2 -mfpmath=sse)
 option(FAST_MATH OFF)
 if(${FAST_MATH})
@@ -18,11 +24,14 @@ else()
 endif()
 
 set(API_INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/components.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/docs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/design.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/json.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr_json.hpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/components.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/docs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/design.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/synth.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/scope.hpp
 )
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
 

@@ -12,7 +12,7 @@ namespace PhasePhckr {
 
     struct ComponentDescriptor;
 
-    class ComponentRegister {      
+    class ComponentRegister {
     private:
         std::map<std::string, ComponentDescriptor> r;
         void registerFactoryComponents();

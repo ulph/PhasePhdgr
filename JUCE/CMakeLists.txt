@@ -34,6 +34,8 @@ set(PH_SRC
 
 add_library(juce_phasephckr_obj OBJECT ${PH_SRC})
 set_target_properties(juce_phasephckr_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(juce_phasephckr_obj PROPERTIES FOLDER JUCE)
+
 
 include_directories(${JUCE_SDK_ROOT}/modules)
 
@@ -158,3 +160,4 @@ endif()
 
 add_library(juce_lib_obj OBJECT ${JUCE_SRC})
 set_target_properties(juce_lib_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(juce_lib_obj PROPERTIES FOLDER JUCE)

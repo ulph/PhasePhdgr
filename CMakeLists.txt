@@ -57,6 +57,6 @@ if(${BUILD_VST})
     TARGET_LINK_LIBRARIES( PhasePhckr ${JUCE_DEPS})
 
     # make solution tidy
-    set_target_properties(PhasePhckr PROPERTIES FOLDER targets/plugin/VST)
+    set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
 
 endif()

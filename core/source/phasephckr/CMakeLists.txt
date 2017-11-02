@@ -25,3 +25,4 @@ set(SRC
 
 add_library(phasephckr_obj OBJECT ${SRC})
 set_target_properties(phasephckr_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(phasephckr_obj PROPERTIES FOLDER core)

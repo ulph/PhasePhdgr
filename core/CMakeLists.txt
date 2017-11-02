@@ -31,6 +31,7 @@ set(API_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/scope.hpp
 )
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
+set_target_properties(phasephckr_api PROPERTIES FOLDER core)
 
 include_directories(api)
 add_subdirectory(source)

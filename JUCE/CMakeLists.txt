@@ -27,7 +27,7 @@ set_target_properties(juce_phasephckr_obj PROPERTIES COMPILE_FLAGS "-fPIC")
 
 include_directories(${JUCE_SDK_ROOT}/modules)
 
-set(JUCE_JUNK ${CMAKE_CURRENT_SOURCE_DIR}/JuceJunk)
+set(JUCE_JUNK ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
 include_directories(${JUCE_JUNK})
 
 add_definitions(-DJucePlugin_Build_VST=1)

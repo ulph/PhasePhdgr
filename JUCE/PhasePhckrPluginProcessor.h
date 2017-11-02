@@ -146,7 +146,7 @@ public:
 
     // walk circles around the JUCE stuff a bit ...
    bool accessParameter(int index, PhasePhckrParameter ** param);
-   int numberOfParameters();
+   size_t numberOfParameters();
 
    void swapParameterIndices(string a, string b);
 

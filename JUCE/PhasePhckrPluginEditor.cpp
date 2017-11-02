@@ -134,7 +134,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     processor.broadcastPatch();
 
-    guiUpdateTimer.startTimer(1.f/60.f * 1000.f);
+    guiUpdateTimer.startTimer((int)(1.f/60.f * 1000.f));
 
     resized();
 }

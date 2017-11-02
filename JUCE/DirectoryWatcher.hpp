@@ -31,13 +31,13 @@ namespace PhasePhckrFileStuff {
     const File rootDir = File(
         File::getSpecialLocation(
             File::SpecialLocationType::userApplicationDataDirectory
-        ).getFullPathName() + File::separator + phasePhkrDirName
+        ).getFullPathName() + File::getSeparatorString() + phasePhkrDirName
     );
 
-    const File effectsDir = File(rootDir.getFullPathName() + File::separator + effectsDirName);
-    const File voicesDir = File(rootDir.getFullPathName() + File::separator + voiceDirName);
-    const File componentsDir = File(rootDir.getFullPathName() + File::separator + componentsDirName);
-    const File patchesDir = File(rootDir.getFullPathName() + File::separator + patchesDirName);
+    const File effectsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + effectsDirName);
+    const File voicesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + voiceDirName);
+    const File componentsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + componentsDirName);
+    const File patchesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + patchesDirName);
 
     void createDirIfNeeded(File dir);
 

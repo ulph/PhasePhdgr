@@ -21,6 +21,7 @@ void PhasePhckrAudioProcessor::updateComponentRegister(const DirectoryContentsLi
             componentRegister.registerComponent(n, cd);
             subComponentRegister.set(componentRegisterHandle, componentRegister);
         } catch (const std::exception& e) {
+            (void)e;
             continue;
             assert(0);
         }
@@ -44,8 +45,8 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     createDirIfNeeded(patchesDir);
 
     // load init patches and dump to disk
-    File initVoice = voicesDir.getFullPathName() + File::separator + "_init.json";
-    File initEffect = effectsDir.getFullPathName() + File::separator + "_init.json"; 
+    File initVoice = voicesDir.getFullPathName() + File::getSeparatorString() + "_init.json";
+    File initEffect = effectsDir.getFullPathName() + File::getSeparatorString() + "_init.json";
 
     voiceChain = PhasePhckr::getExampleVoiceChain();
     initVoice.replaceWithText(json(voiceChain).dump(2));
@@ -57,7 +58,7 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     for (const auto &kv : componentRegister.all()) {
         const auto &type = kv.first;
         const auto &body = kv.second;
-        File cmp = componentsDir.getFullPathName() + File::separator + type.substr(1) + ".json";
+        File cmp = componentsDir.getFullPathName() + File::getSeparatorString() + type.substr(1) + ".json";
         cmp.replaceWithText(json(body).dump(2));
     }
     fileWatchThread.startThread();
@@ -356,9 +357,9 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         AudioPlayHead::CurrentPositionInfo info;
         playHead->getCurrentPosition(info);
         synth->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);
-        synth->handleBPM(info.bpm);
-        synth->handlePosition(info.ppqPosition);
-        synth->handleTime(info.timeInSeconds);
+        synth->handleBPM((float)info.bpm);
+        synth->handlePosition((float)info.ppqPosition);
+        synth->handleTime((float)info.timeInSeconds);
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
@@ -454,7 +455,7 @@ bool PhasePhckrAudioProcessor::accessParameter(int index, PhasePhckrParameter **
     return true;
 }
 
-int PhasePhckrAudioProcessor::numberOfParameters(){
+size_t PhasePhckrAudioProcessor::numberOfParameters(){
     return floatParameters.size();
 }
 

@@ -49,9 +49,11 @@ public:
             shouldRepaint = true;
         }
 
-        if(parameter->isActive() != lastActivity){
-            lastActivity = (int)parameter->isActive();
-            if(parameter->isActive()){
+        int isActive = (int)parameter->isActive();
+
+        if( isActive != lastActivity){
+            lastActivity = isActive;
+            if(isActive){
                 label.setColour(Label::textColourId, Colours::lightgrey);
                 slider.setColour(Slider::thumbColourId, Colours::lightgrey);
                 slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);

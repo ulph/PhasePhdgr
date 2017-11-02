@@ -19,12 +19,9 @@ set(SRC
     synth/parameters.hpp
 
     utilities/examples.cpp
+	utilities/json.cpp
     utilities/scope.cpp
 )
-
-if(${USING_NLOHMANN_JSON})
-    list(APPEND SRC utilities/json.cpp)
-endif()
 
 add_library(phasephckr_obj OBJECT ${SRC})
 set_target_properties(phasephckr_obj PROPERTIES COMPILE_FLAGS "-fPIC")

@@ -10,6 +10,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 find_package(Threads)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
+include(nlohmann_json)
+
 add_definitions(-msse2 -mfpmath=sse)
 option(FAST_MATH OFF)
 if(${FAST_MATH})

@@ -122,7 +122,7 @@ void BlitOsc::process(uint32_t fs)
 
     float fc = freq*0.125f;
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fs);
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, (float)fs);
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

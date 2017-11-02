@@ -13,7 +13,7 @@ void TempoToTime::process(uint32_t fs) {
     float bpm = inputs[1].value;
     if(beats <= 0 || bpm <= 0) {
         outputs[0].value = 0;
-        outputs[1].value = fs;
+        outputs[1].value = (float)fs;
         return;
     }
     float period = 60.f * beats/bpm;

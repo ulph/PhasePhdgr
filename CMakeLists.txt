@@ -8,9 +8,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
+  include_directories(${JSON_INCLUDE_DIR})
+  if(NOT EXISTS "${JSON_INCLUDE_DIR}/nlohmann/json.hpp")
+    message(FATAL_ERROR "Cannot find nlohmann/json.hpp")
+endif()
+
 option(BUILD_VST OFF)
 
-add_subdirectory(core)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/include)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 set(API_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/phasephckr.h

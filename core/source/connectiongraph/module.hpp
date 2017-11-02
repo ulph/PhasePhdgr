@@ -43,7 +43,7 @@ public:
     int getNumOutputPads() { return (int)outputs.size(); }
     
     int getInputPadFromName(std::string padName) {
-        for(int i = 0; i < inputs.size(); i++) {
+        for(int i = 0; i < (int)inputs.size(); i++) {
             if(inputs[i].name == padName) {
                 return i;
             }
@@ -54,7 +54,7 @@ public:
     }
     
     int getOutputPadFromName(std::string padName) {
-        for(int i = 0; i < outputs.size(); i++) {
+        for(int i = 0; i < (int)outputs.size(); i++) {
             if(outputs[i].name == padName) {
                 return i;
             }

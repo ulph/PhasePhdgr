@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   float bufferR[kNumSamples];
 
   float tempo = 120.f;
-  float beat = 60. / tempo;
+  float beat = 60.f / tempo;
 
   FILE *out_fid = nullptr;
   bool should_close_out_fid = false;

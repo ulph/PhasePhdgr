@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     }
 
     for (uint32_t t = 0; t < 5.0f*(float(fs)/hz); t++) {
-        s.process(dut, fs);
+        s.process(dut, (float)fs);
         float output = s.getOutput(dut, 0);
         fwrite(&output, sizeof(output), 1, outfile);
     }

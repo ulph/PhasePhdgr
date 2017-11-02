@@ -36,12 +36,12 @@ ConnectionGraph::ConnectionGraph(const ConnectionGraph& other)
     : compilationStatus(NOT_COMPILED)
 {
     // copy constructor that creates an non-compiled version
-    for(int i=0; i<other.modules.size(); ++i){
+    for(int i=0; i < (int)other.modules.size(); ++i){
         const auto& m = other.modules[i];
         Module * mCopy = m->clone();
         modules.push_back(mCopy);
     }
-    for(int i=0; i<other.cables.size(); ++i){
+    for(int i=0; i < (int)other.cables.size(); ++i){
         const auto& c = other.cables[i];
         auto cCopy = new Cable(*c);
         cables.push_back(cCopy);
@@ -61,7 +61,7 @@ ConnectionGraph::~ConnectionGraph()
 
 Module* ConnectionGraph::getModule(int id)
 {
-    if(id >= 0 && id < modules.size()) {
+    if(id >= 0 && id < (int)modules.size()) {
         return modules[id];
     } else {
         std::cerr << "Error: No module with id '" << id << "'" << std::endl; 
@@ -127,7 +127,7 @@ void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toP
 void ConnectionGraph::setInput(int module, int pad, float value)
 {
     Module *m = nullptr;
-    if(module >= 0 && module < modules.size()) {
+    if(module >= 0 && module < (int)modules.size()) {
         m = modules[module];
     }
     
@@ -137,7 +137,7 @@ void ConnectionGraph::setInput(int module, int pad, float value)
 }
 
 void ConnectionGraph::setInput(int module, std::string pad, float value){
-    if(module >= 0 && module < modules.size()) {
+    if(module >= 0 && module < (int)modules.size()) {
         Module *m = getModule(module);
         if(m){
             setInput(module, m->getInputPadFromName(pad), value);

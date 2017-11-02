@@ -26,7 +26,7 @@ public:
     }
     virtual void process(uint32_t fs)
     {
-        for(int i = 0; i < outputs.size(); i++) {
+        for(size_t i = 0; i < outputs.size(); i++) {
             outputs[i].value = inputs[i].value;
         }
     }

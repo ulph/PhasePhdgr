@@ -3,6 +3,10 @@
 Read my lips...
 Suck my balls!
 
+Run cmake from either
+* root, if you want all the stuff
+* core, if you want just the core (no gui/vst)
+
 ## core / synth ##
 
 As long as you work with the JUCE-less parts, leave cmake options at default.

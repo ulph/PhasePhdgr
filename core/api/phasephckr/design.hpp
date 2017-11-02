@@ -5,15 +5,14 @@
 #include <map>
 #include <iostream>
 
-#include "components.hpp"
-#include "docs.hpp"
-
 class ConnectionGraph;
-class ComponentRegister;
 
 using namespace std;
 
 namespace PhasePhckr {
+
+class ComponentRegister;
+struct PadDescription;
 
 /* Graph stuff */
 
@@ -94,52 +93,13 @@ void designPatch(
     const ComponentRegister & cp
 );
 
-const vector<PadDescription> c_effectChainInBus = {
-    {"left", "", 0},
-    {"right", "", 0},
+extern const vector<PadDescription> c_effectChainInBus;
+extern const vector<PadDescription> c_effectChainOutBus;
 
-    {"mod", "", 0},
-    {"exp", "", 0},
-    {"brt", "", 0},
+extern const vector<PadDescription> c_voiceChainInBus;
+extern const vector<PadDescription> c_voiceChainOutBus;
 
-    {"sigNom", "", 0},
-    {"sigDen", "", 0},
-    {"bpm", "", 0},
-    {"pos", "", 0},
-    {"time", "", 0}
-};
-
-const vector<PadDescription> c_effectChainOutBus = {
-    {"left", "", 0},
-    {"right", "", 0},
-};
-
-const vector<PadDescription> c_voiceChainInBus = {
-    {"gate", "", 0},
-    {"strike_z", "", 0},
-    {"lift_z", "", 0},
-    {"pitch_hz", "", 0},
-    {"glide_x", "", 0},
-    {"slide_y", "", 0},
-    {"press_z", "", 0},
-
-    {"mod", "", 0},
-    {"exp", "", 0},
-    {"brt", "", 0},
-
-    {"sigNom", "", 0},
-    {"sigDen", "", 0},
-    {"bpm", "", 0},
-    {"pos", "", 0},
-    {"time", "", 0}
-};
-
-const vector<PadDescription> c_voiceChainOutBus = {
-    {"left", "", 0},
-    {"right", "", 0},
-};
-
-const ModuleVariable c_inBus = {"inBus", "_INBUS"};
-const ModuleVariable c_outBus = {"outBus", "_OUTBUS"};
+extern const ModuleVariable c_inBus;
+extern const ModuleVariable c_outBus;
 
 }

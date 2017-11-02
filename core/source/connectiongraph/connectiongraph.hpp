@@ -3,11 +3,15 @@
 
 #include <vector>
 #include <string>
+
 #include "instruction.hpp"
 
 class Module;
 class Cable;
-struct ModuleDoc;
+
+namespace PhasePhckr {
+    struct ModuleDoc;
+}
 
 class ConnectionGraph
 {
@@ -36,7 +40,7 @@ public:
     float getOutput(int module, int pad);
     void process(int module, float fs);
     std::string graphviz();
-    void makeModuleDocs(std::vector<ModuleDoc> &doc);
+    void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
 };
 
 #endif

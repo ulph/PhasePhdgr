@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "phasephckr.hpp"
+#include <phasephckr.hpp>
 
 struct Pad
 {
@@ -69,19 +69,19 @@ public:
     std::string getName() { return name; }
 
     virtual std::string docString() { return "..."; }
-    virtual ModuleDoc makeDoc() {
-        ModuleDoc doc;
+    virtual PhasePhckr::ModuleDoc makeDoc() {
+        PhasePhckr::ModuleDoc doc;
         doc.type = name;
         doc.docString = docString();
         for (const auto p : inputs) {
-            PadDescription pd;
+            PhasePhckr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
             pd.value = p.value;
             doc.inputs.push_back(pd);
         }
         for (const auto p : outputs) {
-            PadDescription pd;
+            PhasePhckr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
             pd.value = p.value;

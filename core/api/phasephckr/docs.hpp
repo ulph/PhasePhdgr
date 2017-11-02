@@ -1,5 +1,4 @@
-#ifndef DOCS_HPP
-#define DOCS_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -7,29 +6,28 @@
 
 using namespace std;
 
-struct PadDescription {
-    std::string name;
-    std::string unit;
-    float value;
-};
-
-struct ModuleDoc {
-    std::string type;
-    std::vector<PadDescription> inputs;
-    std::vector<PadDescription> outputs;
-    std::string docString;
-};
-
 namespace PhasePhckr {
+
+    struct PadDescription {
+        string name;
+        string unit;
+        float value;
+    };
+
+    struct ModuleDoc {
+        string type;
+        vector<PadDescription> inputs;
+        vector<PadDescription> outputs;
+        string docString;
+    };
+
     class Doc {
     private:
-        std::map<std::string, ModuleDoc> docs;
+        map<string, ModuleDoc> docs;
     public:
         Doc();
-        const std::map<std::string, ModuleDoc> & get() const;
+        const map<string, ModuleDoc> & get() const;
         void add(const ModuleDoc & d);
         static ModuleDoc makeBusModuleDoc(const vector<PadDescription>& ports, bool isInput);
     };
 }
-
-#endif

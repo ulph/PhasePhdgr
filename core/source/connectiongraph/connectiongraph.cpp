@@ -226,7 +226,7 @@ std::string ConnectionGraph::graphviz()
     return ss.str();
 }
 
-void ConnectionGraph::makeModuleDocs(std::vector<ModuleDoc> &docList) {
+void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList) {
     for (const auto & p : moduleRegister) {
         auto m = p.second();
         m->setName(p.first);

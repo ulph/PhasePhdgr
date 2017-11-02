@@ -1,6 +1,14 @@
 #pragma once
 
+#include <map>
+#include <string>
+
 namespace PhasePhckr {
+    class GlobalData;
+    class SynthVoice;
+    class EffectChain;
+    class VoiceBus;
+
     class Synth {
     public:
         Synth();

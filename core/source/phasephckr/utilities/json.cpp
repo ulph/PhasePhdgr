@@ -3,19 +3,19 @@
 
 #include <sstream>
 
-void to_json(json& j, const PadDescription& p){
+namespace PhasePhckr{
+
+void to_json(json& j, const PadDescription& p) {
     j[0] = p.name;
     j[1] = p.unit;
     j[2] = p.value;
 }
 
-void from_json(const json& j, PadDescription& p){
+void from_json(const json& j, PadDescription& p) {
     p.name = j.at(0).get<string>();
     p.unit = j.at(1).get<string>();
     p.value = j.at(2).get<float>();
 }
-
-namespace PhasePhckr{
 
 void to_json(json& j, const ModuleVariable& mv) {
     j[0] = mv.name;

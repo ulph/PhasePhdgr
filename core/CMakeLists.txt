@@ -10,12 +10,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 find_package(Threads)
 
-set(JSON_INCLUDE_DIR "" CACHE FILEPATH "Install dir of https://nlohmann.github.io/json/")
-  include_directories(${JSON_INCLUDE_DIR})
-  if(NOT EXISTS "${JSON_INCLUDE_DIR}/nlohmann/json.hpp")
-    message(FATAL_ERROR "Cannot find nlohmann/json.hpp")
-endif()
-
 add_definitions(-msse2 -mfpmath=sse)
 option(FAST_MATH OFF)
 if(${FAST_MATH})

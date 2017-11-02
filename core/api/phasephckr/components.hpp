@@ -1,31 +1,31 @@
 #pragma once
 
-#include "design.hpp"
 #include <string.h>
-
-#include "design.hpp"
-#include "docs.hpp"
+#include <map>
 
 using namespace std;
 
 namespace PhasePhckr {
 
+    struct PadDescription;
     struct ComponentDescriptor;
+    struct ModuleDoc;
+    class Doc;
 
     class ComponentRegister {
     private:
-        std::map<std::string, ComponentDescriptor> r;
+        map<string, ComponentDescriptor> r;
         void registerFactoryComponents();
     public:
         ComponentRegister(){
             registerFactoryComponents();
         }
-        bool registerComponent(std::string name, const ComponentDescriptor & desc);
-        bool getComponent(std::string name, ComponentDescriptor & desc) const;
+        bool registerComponent(string name, const ComponentDescriptor & desc);
+        bool getComponent(string name, ComponentDescriptor & desc) const;
         static void makeComponentDoc(const string &type, const ComponentDescriptor & cmp, ModuleDoc &doc);
         bool makeComponentDoc(const string &name, ModuleDoc &doc) const;
         void makeComponentDocs(Doc &doc) const;
-        const map<std::string, ComponentDescriptor> & all() const {
+        const map<string, ComponentDescriptor> & all() const {
             return r;
         }
     };

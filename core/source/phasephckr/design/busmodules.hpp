@@ -8,7 +8,7 @@ class BusModule : public ModuleCRTP<BusModule> {
 private:
     bool isInput;
 public:
-    BusModule(const vector<PadDescription>& ports, bool isInput)
+    BusModule(const vector<PhasePhckr::PadDescription>& ports, bool isInput)
         : isInput(isInput)
     {
         if(isInput){
@@ -31,7 +31,7 @@ public:
             outputs[i].value = inputs[i].value;
         }
     }
-    virtual ModuleDoc makeDoc() {
+    virtual PhasePhckr::ModuleDoc makeDoc() {
         auto d = Module::makeDoc();
         if(isInput)
             d.inputs.clear();

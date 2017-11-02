@@ -3,6 +3,9 @@
 #include <map>
 #include <string>
 
+#include "design.hpp"
+#include "scope.hpp"
+
 namespace PhasePhckr {
     class GlobalData;
     class SynthVoice;

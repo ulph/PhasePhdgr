@@ -2,13 +2,15 @@
 
 #include <thread>
 #include <atomic>
+
+#include "phasephckr/components.hpp"
+#include "phasephckr/design.hpp"
+
 #include "parameters.hpp"
 #include "module.hpp"
 #include "connectiongraph.hpp"
 #include "moduleregister.hpp"
-#include "phasephckr.hpp"
 #include "busmodules.hpp"
-#include "voicebus.hpp"
 
 #define SYNTH_VOICE_BUFFER_LENGTH 1024
 

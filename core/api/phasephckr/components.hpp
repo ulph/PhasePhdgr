@@ -3,14 +3,12 @@
 #include <string.h>
 #include <map>
 
+#include "docs.hpp"
+#include "design.hpp"
+
 using namespace std;
 
 namespace PhasePhckr {
-
-    struct PadDescription;
-    struct ComponentDescriptor;
-    struct ModuleDoc;
-    class Doc;
 
     class ComponentRegister {
     private:

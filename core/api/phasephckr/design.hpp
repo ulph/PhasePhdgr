@@ -12,7 +12,6 @@ using namespace std;
 namespace PhasePhckr {
 
 class ComponentRegister;
-struct PadDescription;
 
 /* Graph stuff */
 
@@ -43,6 +42,12 @@ struct ConnectionGraphDescriptor {
 };
 
 /* Component (subgraph) stuff */
+
+struct PadDescription {
+    string name;
+    string unit;
+    float value;
+};
 
 struct ComponentDescriptor {
     vector<PadDescription> inBus;

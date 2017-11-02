@@ -1,4 +1,5 @@
-#include <phasephckr.hpp>
+#include "phasephckr/components.hpp"
+#include "phasephckr/design.hpp"
 
 #include "connectiongraph.hpp"
 #include <set>

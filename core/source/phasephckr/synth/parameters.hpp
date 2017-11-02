@@ -1,7 +1,5 @@
 #pragma once
 
-#include "phasephckr.hpp"
-
 namespace PhasePhckr {
 
     const float c_slewFactor = 0.995f;

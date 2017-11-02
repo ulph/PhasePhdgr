@@ -5,7 +5,6 @@
 #include <sstream>
 #include "connectiongraph.hpp"
 #include "module.hpp"
-#include "phasephckr.hpp"
 
 #define NOT_COMPILED (-1)
 

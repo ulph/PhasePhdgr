@@ -1,8 +1,9 @@
-#include "parameters.hpp"
-#include "phasephckr.hpp"
 #include <math.h>
 #include <string.h>
 #include <limits.h>
+
+#include "parameters.hpp"
+
 
 namespace PhasePhckr {
 

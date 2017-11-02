@@ -4,15 +4,11 @@
 #include <string>
 #include <map>
 
+#include "design.hpp"
+
 using namespace std;
 
 namespace PhasePhckr {
-
-    struct PadDescription {
-        string name;
-        string unit;
-        float value;
-    };
 
     struct ModuleDoc {
         string type;

@@ -1,4 +1,6 @@
-#include <phasephckr.hpp>
+#include <string.h>
+
+#include "phasephckr/scope.hpp"
 
 namespace PhasePhckr {
 

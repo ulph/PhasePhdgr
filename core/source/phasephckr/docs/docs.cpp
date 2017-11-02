@@ -1,4 +1,4 @@
-#include <phasephckr.hpp>
+#include "phasephckr/docs.hpp"
 
 #include "moduleregister.hpp"
 #include "connectiongraph.hpp"

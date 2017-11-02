@@ -4,7 +4,9 @@
 #include <vector>
 #include <utility>
 
-#include "phasephckr.hpp"
+#include "phasephckr/synth.hpp"
+#include "phasephckr/examples.hpp"
+
 #include "effectchain.hpp"
 
 static const float kSamplerate = 48000.f;

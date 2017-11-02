@@ -1,6 +1,6 @@
 #pragma once
 
-#include <phasephckr.hpp>
+#include "phasephckr/docs.hpp"
 
 #include "module.hpp"
 

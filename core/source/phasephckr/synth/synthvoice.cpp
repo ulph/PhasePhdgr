@@ -1,7 +1,4 @@
-#include <phasephckr.hpp>
-
 #include "synthvoice.hpp"
-#include "phasephckr.hpp"
 
 namespace PhasePhckr
 {

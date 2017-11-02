@@ -1,6 +1,6 @@
 #pragma once
 
-#include <phasephckr.hpp>
+#include "phasephckr/components.hpp"
 
 #include "connectiongraph.hpp"
 #include "voicebus.hpp"

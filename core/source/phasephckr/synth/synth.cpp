@@ -1,4 +1,5 @@
-#include "phasephckr.hpp"
+#include <phasephckr/synth.hpp>
+
 #include "synthvoice.hpp"
 #include "effectchain.hpp"
 

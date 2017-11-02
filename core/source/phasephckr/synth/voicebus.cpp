@@ -1,33 +1,9 @@
-#include "phasephckr.hpp"
-#include "synthvoice.hpp"
-#include "voicebus.hpp"
 #include <string>
 
+#include "voicebus.hpp"
+#include "synthvoice.hpp"
+
 namespace PhasePhckr {
-
-struct NoteData {
-    int channel;
-    int note;
-    float velocity; // off velocity is meaningless as it's a transient state
-    int voiceIndex;
-    float notePressure;
-    unsigned int age;
-    NoteData(int channel, int note, float velocity) :
-        channel(channel),
-        note(note),
-        velocity(velocity),
-        voiceIndex(-1),
-        notePressure(0),
-        age(0)
-    {}
-};
-
-struct ChannelData {
-    ChannelData() : x(0), y(0), z(0) {}
-    float x;
-    float y;
-    float z;
-};
 
 void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);

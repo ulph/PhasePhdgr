@@ -19,7 +19,7 @@ set(SRC
     synth/parameters.hpp
 
     utilities/examples.cpp
-	utilities/json.cpp
+    utilities/json.cpp
     utilities/scope.cpp
 )
 

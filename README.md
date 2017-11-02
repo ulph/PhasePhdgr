@@ -7,7 +7,7 @@ Read my lips... Suck my balls!
 
 See "json" below.
 
-Run cmake from #core.
+Run cmake from ./core
 
 
 ## VST / JUCE ##

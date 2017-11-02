@@ -3,7 +3,7 @@
 #include "JuceHeader.h"
 #include "docs.hpp"
 #include <sstream>
-#include "design_json.hpp"
+#include "json.hpp"
 
 #if INTERCEPT_STD_STREAMS
 struct InterceptStringStream {

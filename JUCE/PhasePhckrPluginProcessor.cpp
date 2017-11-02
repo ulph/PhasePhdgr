@@ -1,6 +1,6 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
-#include "design_json.hpp"
+#include "json.hpp"
 
 #include <xmmintrin.h>
 

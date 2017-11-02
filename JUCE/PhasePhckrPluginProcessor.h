@@ -4,7 +4,7 @@
 #include "JuceHeader.h"
 
 #include "phasephckr.h" // for now
-#include "design_json.hpp"
+#include "json.hpp"
 #include "PhasePhckrGrid.h"
 #include "components.hpp"
 #include "Utils.hpp"

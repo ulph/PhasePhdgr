@@ -45,8 +45,5 @@ set(SRC
     inlines.hpp
 )
 
-include_directories(../connectiongraph)
-include_directories(../dsp)
-
 add_library(modules_obj OBJECT ${SRC})
 set_target_properties(modules_obj PROPERTIES COMPILE_FLAGS "-fPIC")

@@ -8,8 +8,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-include_directories(include)
-
 find_package(Threads)
 
 add_definitions(-msse2 -mfpmath=sse)
@@ -20,15 +18,15 @@ else()
 endif()
 
 set(API_INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/phasephckr.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/components.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/docs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/design.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/design_json.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/components.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/docs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/design.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/json.hpp
 )
-
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
 
+include_directories(api)
 add_subdirectory(source)
 
 option(BUILD_TESTS OFF)

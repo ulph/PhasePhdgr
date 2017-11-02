@@ -16,16 +16,8 @@ endif()
 
 option(BUILD_VST OFF)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
-
-set(API_INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/phasephckr.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/components.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/docs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/design.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/design_json.hpp
-)
 
 if(${BUILD_VST})
 

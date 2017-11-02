@@ -1,8 +1,10 @@
 include_directories(../source)
-include_directories(../include)
+include_directories(../api)
 include_directories(../source/connectiongraph)
 include_directories(../source/modules)
 include_directories(../source/dsp)
+include_directories(../source/phasephckr/synth)
+include_directories(../source/phasephckr/design)
 
 set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>

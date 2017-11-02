@@ -4,6 +4,7 @@ Read my lips...
 Suck my balls!
 
 Run cmake from either
+
 * root, if you want all the stuff
 
 * core, if you want just the core (no gui/vst)

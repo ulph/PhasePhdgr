@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include <phasephckr.hpp>
+#include <phasephckr/docs.hpp>
 
 struct Pad
 {

@@ -4,14 +4,12 @@
 #include <vector>
 #include <string>
 
+#include <phasephckr/docs.hpp>
+
 #include "instruction.hpp"
 
 class Module;
 class Cable;
-
-namespace PhasePhckr {
-    struct ModuleDoc;
-}
 
 class ConnectionGraph
 {

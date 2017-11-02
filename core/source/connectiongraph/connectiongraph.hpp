@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <phasephckr/docs.hpp>
+#include "phasephckr/docs.hpp"
 
 #include "instruction.hpp"
 

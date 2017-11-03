@@ -57,15 +57,14 @@ private:
 
     void setDoc(const Doc& newDoc);
 
-    // make a copy data structures before calling
-    void updateRenderComponents(
-        const PatchDescriptor & cgd,
-        const ModulePositionMap & mp
-    );
+    void updateRenderComponents();
 
+    bool patchIsDirty;
     int subPatchHandle;
+    PatchDescriptor patch;
     SubValue<PatchDescriptor> &subPatch;
 
+    bool docIsDirty;
     Doc doc;
     SubValue<Doc> &subDoc;
     int docHandle;

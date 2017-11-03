@@ -183,7 +183,7 @@ GraphEditor::~GraphEditor() {
 
 void GraphEditor::propagateUserModelChange() {
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
-    PatchDescriptor patch = gfxGraph.exportModelData();
+    patch = gfxGraph.exportModelData();
     gfxGraphLock.clear(std::memory_order_release);
 
     subPatch.set(subPatchHandle, patch);
@@ -377,12 +377,13 @@ void GraphEditor::updateBounds(const XY & position, const XY & size){
         bounds.setHeight((int)(position.y + size.y) + 10);
     }
     setBounds(bounds);
-    repaint();
 }
 
 
 void GraphEditor::paint(Graphics& g){
     while (gfxGraphLock.test_and_set(memory_order_acquire));
+
+    updateRenderComponents();
 
     g.fillAll(Colours::black);
 
@@ -406,85 +407,92 @@ void GraphEditor::paint(Graphics& g){
 
 void GraphEditor::setDoc(const Doc& newDoc){
     while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+
     doc = newDoc;
     auto inBus_ = Doc::makeBusModuleDoc(inBus, true);
     auto outBus_ = Doc::makeBusModuleDoc(outBus, false);
     doc.add(inBus_);
     doc.add(outBus_);
-    gfxGraph.designPorts(doc);
-    gfxGraph.recalculateWires(gfxGraph.modules);
+
+    docIsDirty = true;
+
     gfxGraphLock.clear(std::memory_order_release);
+
+    repaint();
 }
 
 
-void GraphEditor::setGraph(const PatchDescriptor& patch) {
-  PatchDescriptor patchCopy = patch;
+void GraphEditor::setGraph(const PatchDescriptor& newPatch) {
+  while (gfxGraphLock.test_and_set(std::memory_order_acquire));
 
-  patchCopy.root.graph.modules.push_back(c_inBus);
-  patchCopy.root.graph.modules.push_back(c_outBus);
+  patch = newPatch;
+  patchIsDirty = true;
 
-  const string start = c_inBus.name;
-  const string stop = c_outBus.name;
-  ModulePositionMap modulePositions;
-  setNodePositions(patchCopy.root.graph, modulePositions, start, stop);
-
-  // build the render/user interaction model
-  updateRenderComponents(patchCopy, modulePositions);
+  gfxGraphLock.clear(std::memory_order_release);
 
   repaint();
 }
 
 
-void GraphEditor::updateRenderComponents(
-    const PatchDescriptor &patchCopy,
-    const ModulePositionMap & mp
-) 
+void GraphEditor::updateRenderComponents() 
 {
-    // create the renderable structures
+    // call from within paint
 
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
-    gfxGraph.components.clear();
-    gfxGraph.modules.clear();
-    gfxGraph.wires.clear();
-    gfxGraphLock.clear(std::memory_order_release);
+    if (docIsDirty) {
+        gfxGraph.designPorts(doc);
+        gfxGraph.recalculateWires(gfxGraph.modules);
+        
+        docIsDirty = false;
+    }
 
-    setDoc(doc);
+    if (patchIsDirty) {
 
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+        patch.root.graph.modules.push_back(c_inBus);
+        patch.root.graph.modules.push_back(c_outBus);
 
-    gfxGraph.components = patchCopy.components;
+        const string start = c_inBus.name;
+        const string stop = c_outBus.name;
+        ModulePositionMap mp;
+        setNodePositions(patch.root.graph, mp, start, stop);
 
-    for (const auto & m : patchCopy.root.graph.modules) {
-        XY xy(mp.at(m.name).x, mp.at(m.name).y);
-        if (patchCopy.layout.count(m.name)) {
-            auto xy_ = patchCopy.layout.at(m.name);
-            xy.x = (float)xy_.x / (float)c_GridSize;
-            xy.y = (float)xy_.y / (float)c_GridSize;
+        gfxGraph.components.clear();
+        gfxGraph.modules.clear();
+        gfxGraph.wires.clear();
+
+        gfxGraph.components = patch.components;
+
+        for (const auto & m : patch.root.graph.modules) {
+            XY xy(mp.at(m.name).x, mp.at(m.name).y);
+            if (patch.layout.count(m.name)) {
+                auto xy_ = patch.layout.at(m.name);
+                xy.x = (float)xy_.x / (float)c_GridSize;
+                xy.y = (float)xy_.y / (float)c_GridSize;
+            }
+            gfxGraph.add(
+                m,
+                doc,
+                xy,
+                patch.root.graph.values,
+                false
+            );
         }
-        gfxGraph.add(
-            m, 
-            doc, 
-            xy, 
-            patchCopy.root.graph.values,
-            false
-        );
+
+        for (const auto & c : patch.root.graph.connections) {
+            gfxGraph.connect(c);
+        }
+
+        auto bounds = gfxGraph.getBounds();
+        XY delta(0, 0);
+        if (bounds.first.x < 0) delta.x = -bounds.first.x;
+        if (bounds.first.y < 0) delta.y = -bounds.first.y;
+        if (delta.x && delta.y) {
+            gfxGraph.moveDelta(delta);
+            bounds = gfxGraph.getBounds();
+        }
+
+        updateBounds(bounds);
+        patchIsDirty = false;
     }
-
-    for (const auto & c : patchCopy.root.graph.connections) {
-        gfxGraph.connect(c);
-    }
-
-    auto bounds = gfxGraph.getBounds();
-    XY delta(0, 0);
-    if (bounds.first.x < 0) delta.x = -bounds.first.x;
-    if (bounds.first.y < 0) delta.y = -bounds.first.y;
-    if (delta.x && delta.y) {
-        gfxGraph.moveDelta(delta);
-        bounds = gfxGraph.getBounds();
-    }
-
-    gfxGraphLock.clear(std::memory_order_release);
-
-    updateBounds(bounds);
+    
 
 }

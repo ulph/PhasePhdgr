@@ -15,7 +15,7 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
     }
 }
 
-void PhasePhckrParameters::updateOrFindNewParameters(list<parameterRoute>& newParams, int& numNewNames, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting)
+void PhasePhckrParameters::updateOrFindNewParameters(list<parameterRoute>& newParams, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting)
 {
     string prefix = "";
     if(type == VOICE) prefix += "v ";
@@ -27,10 +27,9 @@ void PhasePhckrParameters::updateOrFindNewParameters(list<parameterRoute>& newPa
         auto it = parameterNames.find(lbl);
         if (it == parameterNames.end()) {
             newParams.push_back(make_pair(route, lbl));
-            if (numNewNames == 0) {
+            if (newParams.size() == 0) {
                 firstNewName = lbl;
             }
-            numNewNames++;
         }
         else {
             floatParameters[it->second]->setName(lbl);
@@ -51,16 +50,15 @@ void PhasePhckrParameters::refreshParameters()
         floatParameters[p.second]->clearName();
     }
 
-    int numNewNames = 0;
     string firstNewName = "";
     list<parameterRoute> newParams; // urghhhh bookeeping thingy
 
     // find existing parameter (by name) and update it, or add to list of new parameters if not found
-    updateOrFindNewParameters(newParams, numNewNames, firstNewName, VOICE, newParameterNames, newParameterRouting);
-    updateOrFindNewParameters(newParams, numNewNames, firstNewName, EFFECT, newParameterNames, newParameterRouting);
+    updateOrFindNewParameters(newParams, firstNewName, VOICE, newParameterNames, newParameterRouting);
+    updateOrFindNewParameters(newParams, firstNewName, EFFECT, newParameterNames, newParameterRouting);
 
     // special case - one new name and just one less new params -> a single rename
-    if (numNewNames == 1 && newParameterNames.size() == (parameterNames.size() - 1)) {
+    if (newParams.size() == 1 && newParameterNames.size() == (parameterNames.size() - 1)) {
         for (const auto& kv : parameterNames) {
             if (!newParameterNames.count(kv.first)) {
                 // found it!

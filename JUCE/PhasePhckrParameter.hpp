@@ -72,7 +72,7 @@ class PhasePhckrParameters {
     parameterHandleMap effectParameters;
     parameterHandleMap voiceParameters;
 
-    void updateOrFindNewParameters(list<parameterRoute>& newParams, int& numNewNames, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting);
+    void updateOrFindNewParameters(list<parameterRoute>& newParams, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting);
 
 public:
 

@@ -160,6 +160,8 @@ GraphEditor::GraphEditor(
     , inBus(inBus)
     , outBus(outBus)
     , selecting(false)
+    , patchIsDirty(false)
+    , docIsDirty(false)
 {
     subPatchHandle = subPatch.subscribe(
         [this](const PhasePhckr::PatchDescriptor& g){
@@ -172,6 +174,9 @@ GraphEditor::GraphEditor(
             setDoc(doc_);
         }
     );
+
+    setBounds(0, 0, 10, 10); // hack or we never get started
+
 }
 
 

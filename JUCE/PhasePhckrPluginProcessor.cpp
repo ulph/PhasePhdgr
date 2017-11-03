@@ -67,7 +67,7 @@ void PhasePhckrAudioProcessor::applyVoiceChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
-    parameters.setEffectParameters(pv);
+    parameters.setVoiceParameters(pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
@@ -261,6 +261,7 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
     destData.fillWith(0);
     destData.insert((const void*)s, n, 0);
     assert(destData.getSize() == n);
+
 }
 
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)

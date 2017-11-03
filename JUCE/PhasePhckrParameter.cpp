@@ -31,6 +31,7 @@ void PhasePhckrParameters::updateParameters()
 
     // find existing parameter (by name) and update it, or add to list of new parameters if not found
     list< pair<pair<ApiType, int>, string>> newParams;
+
     for (const auto& kv : voiceParameters) {
         string lbl = "v " + kv.first;
         auto route = make_pair(VOICE, kv.second);
@@ -48,6 +49,7 @@ void PhasePhckrParameters::updateParameters()
             newParameterNames[lbl] = it->second;
         }
     }
+
     for (const auto& kv : effectParameters) {
         string lbl = "e " + kv.first;
         auto route = make_pair(EFFECT, kv.second);

@@ -102,6 +102,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     mainFrame.addTab("patch", Colours::black, &performGrid, false);
     performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
+
     for(int i=0; i<processor.parameters.numberOfParameters(); i++){
         PhasePhckrParameter* p = nullptr;
         if(processor.parameters.accessParameter(i, &p)){

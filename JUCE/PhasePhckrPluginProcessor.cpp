@@ -39,29 +39,8 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     activeEffectHandle = activeEffect.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
 
-    createDirIfNeeded(rootDir);
-    createDirIfNeeded(effectsDir);
-    createDirIfNeeded(voicesDir);
-    createDirIfNeeded(componentsDir);
-    createDirIfNeeded(patchesDir);
+    createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
 
-    // load init patches and dump to disk
-    File initVoice = voicesDir.getFullPathName() + File::getSeparatorString() + "_init.json";
-    File initEffect = effectsDir.getFullPathName() + File::getSeparatorString() + "_init.json";
-
-    voiceChain = PhasePhckr::getExampleVoiceChain();
-    initVoice.replaceWithText(json(voiceChain).dump(2));
-
-    effectChain = PhasePhckr::getExampleFxChain();
-    initEffect.replaceWithText(json(effectChain).dump(2));
-
-    // dump all factory components to disk
-    for (const auto &kv : componentRegister.all()) {
-        const auto &type = kv.first;
-        const auto &body = kv.second;
-        File cmp = componentsDir.getFullPathName() + File::getSeparatorString() + type.substr(1) + ".json";
-        cmp.replaceWithText(json(body).dump(2));
-    }
     fileWatchThread.startThread();
     componentDirectoryWatcher.addChangeListener(&componentFilesListener);
     componentDirectoryWatcher.setDirectory(componentsDir, true, true);

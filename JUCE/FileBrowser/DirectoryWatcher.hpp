@@ -22,25 +22,6 @@ namespace PhasePhckrFileStuff {
 
     const FileFilter * getFilter();
 
-    const std::string phasePhkrDirName = "phasephkr";
-    const std::string effectsDirName = "effects";
-    const std::string voiceDirName = "voice";
-    const std::string componentsDirName = "components";
-    const std::string patchesDirName = "patches";
-
-    const File rootDir = File(
-        File::getSpecialLocation(
-            File::SpecialLocationType::userApplicationDataDirectory
-        ).getFullPathName() + File::getSeparatorString() + phasePhkrDirName
-    );
-
-    const File effectsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + effectsDirName);
-    const File voicesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + voiceDirName);
-    const File componentsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + componentsDirName);
-    const File patchesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + patchesDirName);
-
-    void createDirIfNeeded(File dir);
-
     typedef std::function<void(const DirectoryContentsList*)> StupidFileListCallBack;
 
     class StupidFileChangeListener : public ChangeListener{

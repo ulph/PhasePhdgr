@@ -9,14 +9,11 @@
 #include "PhasePhckrPluginEditor.h"
 #include "DirectoryWatcher.hpp"
 
+#include "FileIO.hpp"
+
 using namespace PhasePhckrFileStuff;
 
 using namespace std;
-
-static json loadJson(const File & f) {
-    String s = f.loadFileAsString();
-    return json::parse(s.toStdString().c_str());
-}
 
 PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)

@@ -32,6 +32,8 @@ set(PH_SRC
     FileBrowser/DirectoryWatcher.cpp
     FileBrowser/DirectoryWatcher.hpp
     FileBrowser/FileEditorBundle.hpp
+    FileBrowser/FileIO.hpp
+    FileBrowser/FileIO.cpp
 
     Components/PhasePhckrGrid.cpp
     Components/PhasePhckrGrid.h
@@ -40,6 +42,8 @@ set(PH_SRC
     Components/ParameterKnob.hpp
 
     Utils/Utils.hpp
+
+    PhasePhckrParameter.hpp
 
     PhasePhckrPluginEditor.cpp
     PhasePhckrPluginEditor.h

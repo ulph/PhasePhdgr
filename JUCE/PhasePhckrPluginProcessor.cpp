@@ -3,6 +3,7 @@
 
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrPluginEditor.h"
+#include "FileIO.hpp"
 
 using namespace PhasePhckrFileStuff;
 using namespace std;

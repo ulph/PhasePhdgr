@@ -67,7 +67,7 @@ void PhasePhckrAudioProcessor::applyVoiceChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
-    parameters.setVoiceParameters(pv);
+    parameters.setVoiceParametersHandleMap(pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
@@ -75,7 +75,7 @@ void PhasePhckrAudioProcessor::applyEffectChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     auto pv = synth->setFxChain(effectChain, componentRegister);
-    parameters.setEffectParameters(pv);
+    parameters.setEffectParametersHandleMap(pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
@@ -213,7 +213,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     midiMessages.clear();
 
     // handle the parameter values
-    parameters.sendParameters(synth);
+    parameters.visitHandleParameterValues(synth);
 
     // handle HOST properties
     auto playHead = getPlayHead();

@@ -106,11 +106,11 @@ void Synth::handleBPM(float bpm){ globalData->bpm(bpm); }
 void Synth::handlePosition(float pos){ globalData->position(pos); }
 void Synth::handleTime(float t){ globalData->time(t); }
 
-void Synth::setFxParameter(int handle, float value){
+void Synth::handleEffectParameter(int handle, float value){
     effects->setParameter(handle, value);
 }
 
-void Synth::setVoiceParameter(int handle, float value){
+void Synth::handleVoiceParameter(int handle, float value){
     for(auto & v : voices) v->setParameter(handle, value);
 }
 

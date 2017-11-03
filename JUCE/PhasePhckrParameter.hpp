@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <list>
 
 #include "JuceHeader.h"
 
@@ -53,45 +54,51 @@ public:
     }
 };
 
+enum ParameterType {
+    VOICE,
+    EFFECT
+};
 
-typedef map<string, int> parameterMapping;
+typedef map<string, int> parameterHandleMap;
+typedef map<int, pair<ParameterType, int>> parameterRouteMap;
 
+typedef pair<pair<ParameterType, int>, string> parameterRoute; // ugh ...
 
 class PhasePhckrParameters {
     vector<PhasePhckrParameter *> floatParameters;
-    enum ApiType {
-        VOICE,
-        EFFECT
-    };
-    map<int, pair<ApiType, int>> parameterRouting;
+    map<int, pair<ParameterType, int>> parameterRouting;
     map<string, int> parameterNames;
 
-    parameterMapping effectParameters;
-    parameterMapping voiceParameters;
+    parameterHandleMap effectParameters;
+    parameterHandleMap voiceParameters;
+
+    void updateOrFindNewParameters(list<parameterRoute>& newParams, int& numNewNames, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting);
 
 public:
 
     void initialize(PhasePhckrAudioProcessor * p);
 
-    void updateParameters();
+    void refreshParameters();
 
-    // walk circles around the JUCE stuff a bit ...
-    bool accessParameter(int index, PhasePhckrParameter ** param);
+    bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
 
-    void swapParameterIndices(string a, string b);
+    void swapParameterIndices(string a, string b); // via gui
 
-    void setVoiceParameters(const parameterMapping& pv){
+    void setVoiceParametersHandleMap(const parameterHandleMap& pv){
+        // from synth
         voiceParameters = pv;
-        updateParameters();
+        refreshParameters();
     }
 
-    void setEffectParameters(const parameterMapping& pv){
+    void setEffectParametersHandleMap(const parameterHandleMap& pv){
+        // from synth
         effectParameters = pv;
-        updateParameters();
+        refreshParameters();
     }
 
-    void sendParameters(PhasePhckr::Synth* synth){
+    void visitHandleParameterValues(PhasePhckr::Synth* synth){
+        // to synth
         for(const auto kv: parameterRouting){
             auto idx = kv.first;
             auto type = kv.second.first;
@@ -100,10 +107,10 @@ public:
             float value = p->range.convertFrom0to1(*p);
             switch(type){
             case VOICE:
-                synth->setVoiceParameter(handle, value);
+                synth->handleVoiceParameter(handle, value);
                 break;
             case EFFECT:
-                synth->setFxParameter(handle, value);
+                synth->handleEffectParameter(handle, value);
                 break;
             default:
                 break;
@@ -112,6 +119,8 @@ public:
     }
 
     vector<PhasePhckr::ParameterDescriptor> serialize(){
+        // from patch serialization - convert to a struct with strings
+
         auto v = vector<PhasePhckr::ParameterDescriptor>();
         for(const auto &kv : parameterNames){
             auto param = floatParameters[kv.second];
@@ -128,6 +137,8 @@ public:
     }
 
     void deserialize(const vector<PhasePhckr::ParameterDescriptor>& pv){
+        // from patch deserialization - convert from struct with strings
+
         // clear stuff
         for (const auto& fp : floatParameters) {
             fp->clearName();
@@ -143,10 +154,6 @@ public:
             param->setValueNotifyingHost(param->range.convertTo0to1(p.value));
             // we could also set name but updateParameters takes care of that
         }
-
-        // also, update??
     }
-
-
 
 };

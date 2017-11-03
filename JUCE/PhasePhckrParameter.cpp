@@ -15,11 +15,36 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
     }
 }
 
-
-void PhasePhckrParameters::updateParameters()
+void PhasePhckrParameters::updateOrFindNewParameters(list<parameterRoute>& newParams, int& numNewNames, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting)
 {
-    map<string, int> newParameterNames;
-    map<int, pair<ApiType, int>> newParameterRouting;
+    string prefix = "";
+    if(type == VOICE) prefix += "v ";
+    else if(type == EFFECT) prefix += "e ";
+
+    for (const auto& kv : voiceParameters) {
+        string lbl = prefix + kv.first;
+        auto route = make_pair(type, kv.second);
+        auto it = parameterNames.find(lbl);
+        if (it == parameterNames.end()) {
+            newParams.push_back(make_pair(route, lbl));
+            if (numNewNames == 0) {
+                firstNewName = lbl;
+            }
+            numNewNames++;
+        }
+        else {
+            floatParameters[it->second]->setName(lbl);
+            newParameterRouting[it->second] = route;
+            newParameterNames[lbl] = it->second;
+        }
+    }
+
+}
+
+void PhasePhckrParameters::refreshParameters()
+{
+    parameterHandleMap newParameterNames;
+    parameterRouteMap newParameterRouting;
 
     // clear all the names, will get set back below
     for (const auto& p : parameterNames) {
@@ -28,45 +53,11 @@ void PhasePhckrParameters::updateParameters()
 
     int numNewNames = 0;
     string firstNewName = "";
+    list<parameterRoute> newParams; // urghhhh bookeeping thingy
 
     // find existing parameter (by name) and update it, or add to list of new parameters if not found
-    list< pair<pair<ApiType, int>, string>> newParams;
-
-    for (const auto& kv : voiceParameters) {
-        string lbl = "v " + kv.first;
-        auto route = make_pair(VOICE, kv.second);
-        auto it = parameterNames.find(lbl);
-        if (it == parameterNames.end()) {
-            newParams.push_back(make_pair(route, lbl));
-            if (numNewNames == 0) {
-                firstNewName = lbl;
-            }
-            numNewNames++;
-        }
-        else {
-            floatParameters[it->second]->setName(lbl);
-            newParameterRouting[it->second] = route;
-            newParameterNames[lbl] = it->second;
-        }
-    }
-
-    for (const auto& kv : effectParameters) {
-        string lbl = "e " + kv.first;
-        auto route = make_pair(EFFECT, kv.second);
-        auto it = parameterNames.find(lbl);
-        if (it == parameterNames.end()) {
-            newParams.push_back(make_pair(route, lbl));
-            if (numNewNames == 0) {
-                firstNewName = lbl;
-            }
-            numNewNames++;
-        }
-        else {
-            newParameterRouting[it->second] = route;
-            newParameterNames[lbl] = it->second;
-            floatParameters[it->second]->setName(lbl);
-        }
-    }
+    updateOrFindNewParameters(newParams, numNewNames, firstNewName, VOICE, newParameterNames, newParameterRouting);
+    updateOrFindNewParameters(newParams, numNewNames, firstNewName, EFFECT, newParameterNames, newParameterRouting);
 
     // special case - one new name and just one less new params -> a single rename
     if (numNewNames == 1 && newParameterNames.size() == (parameterNames.size() - 1)) {
@@ -150,5 +141,5 @@ void PhasePhckrParameters::swapParameterIndices(string a, string b) {
     float b_val = *floatParameters[b_idx];
     floatParameters[a_idx]->setValueNotifyingHost(b_val);
     floatParameters[b_idx]->setValueNotifyingHost(a_val);
-    updateParameters();
+    refreshParameters();
 }

@@ -51,11 +51,8 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     applyVoiceChain();
     applyEffectChain();
 
-    for (int i = 0; i < 8*16; i++) {
-        auto knb_ptr = new PhasePhckrParameter(i);
-        floatParameters.push_back(knb_ptr);
-        addParameter(knb_ptr);
-    }
+    parameters.initialize(this);
+
 }
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
@@ -69,16 +66,16 @@ PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 void PhasePhckrAudioProcessor::applyVoiceChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    voiceParameters = synth->setVoiceChain(voiceChain, componentRegister);
-    updateParameters();
+    auto pv = synth->setVoiceChain(voiceChain, componentRegister);
+    parameters.setEffectParameters(pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    effectParameters = synth->setFxChain(effectChain, componentRegister);
-    updateParameters();
+    auto pv = synth->setFxChain(effectChain, componentRegister);
+    parameters.setEffectParameters(pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
@@ -216,23 +213,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     midiMessages.clear();
 
     // handle the parameter values
-    for(const auto kv: parameterRouting){
-        auto idx = kv.first;
-        auto type = kv.second.first;
-        auto handle = kv.second.second;
-        auto p = floatParameters[idx];
-        float value = p->range.convertFrom0to1(*p);
-        switch(type){
-        case VOICE:
-            synth->setVoiceParameter(handle, value);
-            break;
-        case EFFECT:
-            synth->setFxParameter(handle, value);
-            break;
-        default:
-            break;
-        }
-    }
+    parameters.sendParameters(synth);
 
     // handle HOST properties
     auto playHead = getPlayHead();
@@ -270,19 +251,7 @@ void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     preset.voice = voiceChain;
     preset.effect = effectChain;
-    preset.parameters = vector<ParameterDescriptor>();
-    for(const auto &kv : parameterNames){
-        auto param = floatParameters[kv.second];
-
-        ParameterDescriptor p = {
-            kv.first,
-            kv.second,
-            *param,
-            param->range.start,
-            param->range.end
-        };
-        preset.parameters.emplace_back(p);
-    }
+    preset.parameters = parameters.serialize();
     synthUpdateLock.clear(std::memory_order_release);
 
     json j = preset;
@@ -307,18 +276,8 @@ void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeIn
         return;
     }
 
-    for (const auto& fp : floatParameters) {
-        fp->clearName();
-        fp->setValueNotifyingHost(0.f); // I think this is the correct thing to do
-    }
-    for (const auto& p : preset.parameters) {
-        parameterNames[p.id] = p.index;
-        auto param = floatParameters[p.index];
-        param->range.start = p.min;
-        param->range.end = p.max;
-        param->setValueNotifyingHost(param->range.convertTo0to1(p.value));
-        // we could also set name but updateParameters takes care of that
-    }
+    parameters.deserialize(preset.parameters);
+
     activeVoice.set(-1, preset.voice);
     activeEffect.set(-1, preset.effect);
 }

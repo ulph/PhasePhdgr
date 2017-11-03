@@ -1,3 +1,4 @@
+#include "phasephckr_json.hpp"
 #include "FileIO.hpp"
 
 #include <algorithm>
@@ -52,8 +53,10 @@ namespace PhasePhckrFileStuff {
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
         // load init patches and dump to disk
-        storeJson(getInitialVoiceFile(), PhasePhckr::getExampleVoiceChain());
-        storeJson(getInitialEffectFile(), PhasePhckr::getExampleFxChain());
+        auto vf = getInitialVoiceFile();
+        auto ef = getInitialEffectFile();
+        storeJson(vf, PhasePhckr::getExampleVoiceChain());
+        storeJson(ef, PhasePhckr::getExampleFxChain());
 
         // dump all factory components to disk
         for (const auto &kv : cr.all()) {

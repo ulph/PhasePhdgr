@@ -102,12 +102,12 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     mainFrame.addTab("patch", Colours::black, &performGrid, false);
     performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
-    for(int i=0; i<processor.numberOfParameters(); i++){
+    for(int i=0; i<processor.parameters.numberOfParameters(); i++){
         PhasePhckrParameter* p = nullptr;
-        if(processor.accessParameter(i, &p)){
+        if(processor.parameters.accessParameter(i, &p)){
             auto knob = new ParameterKnob(p,
                 [this](string a, string b){
-                    processor.swapParameterIndices(a, b);
+                    processor.parameters.swapParameterIndices(a, b);
                     guiUpdateTimer.timerCallback();
                 }
             );

@@ -92,6 +92,8 @@ public:
         activeEffect.set(activeEffectHandle, effectChain);
     }
 
+    PhasePhckrParameters parameters;
+
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

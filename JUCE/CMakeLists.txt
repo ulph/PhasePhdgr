@@ -14,27 +14,37 @@ add_subdirectory(JuceJunk)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JuceJunk/JuceLibraryCode)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/PatchEditor)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/FileBrowser)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Components)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Utils)
 
 set(PH_SRC
-    DirectoryWatcher.cpp
-    DirectoryWatcher.hpp
-    GraphEditor.cpp
-    GraphEditor.hpp
-    GraphEditorPositions.cpp
-    GraphEditorPositions.hpp
-    GraphEditorModel.hpp
-    GraphEditorModel.cpp
-    PatchEditor.hpp
-    PatchEditor.cpp
-    PhasePhckrGrid.cpp
-    PhasePhckrGrid.h
+    PatchEditor/GraphEditor.cpp
+    PatchEditor/GraphEditor.hpp
+    PatchEditor/GraphEditorPositions.cpp
+    PatchEditor/GraphEditorPositions.hpp
+    PatchEditor/GraphEditorModel.hpp
+    PatchEditor/GraphEditorModel.cpp
+    PatchEditor/PatchEditor.hpp
+    PatchEditor/PatchEditor.cpp
+
+    FileBrowser/DirectoryWatcher.cpp
+    FileBrowser/DirectoryWatcher.hpp
+    FileBrowser/FileEditorBundle.hpp
+
+    Components/PhasePhckrGrid.cpp
+    Components/PhasePhckrGrid.h
+    Components/PhasePhckrScope.cpp
+    Components/PhasePhckrScope.h
+    Components/ParameterKnob.hpp
+
+    Utils/Utils.hpp
+
     PhasePhckrPluginEditor.cpp
     PhasePhckrPluginEditor.h
     PhasePhckrPluginProcessor.cpp
     PhasePhckrPluginProcessor.h
-    PhasePhckrScope.cpp
-    PhasePhckrScope.h
-    Utils.hpp
 )
 
 add_library(juce_phasephckr_obj OBJECT ${PH_SRC})

@@ -27,29 +27,47 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     , outputScopeR(processor.getSynth()->getOutputScope(1))
     , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
-    , fileWatchThread("editorFileWatchThread")
-    , voiceDirectoryWatcher(getFilter(), fileWatchThread)
-    , voiceDirectoryList(voiceDirectoryWatcher)
-    , voiceListListener([this](const File& f) {
-        processor.activeVoice.set(-1, loadJson(f));
-    })
+
     , voiceEditor(
         processor.activeVoice,
         processor.subComponentRegister,
         c_voiceChainInBus,
         c_voiceChainOutBus
     )
-    , effectDirectoryWatcher(getFilter(), fileWatchThread)
-    , effectDirectoryList(effectDirectoryWatcher)
-    , effectListListener([this](const File& f) {
-        processor.activeEffect.set(-1, loadJson(f));
-    })
+
     , effectEditor(
         processor.activeEffect,
         processor.subComponentRegister,
         c_effectChainInBus,
         c_effectChainOutBus
     )
+
+    , fileWatchThread("editorFileWatchThread")
+    , voiceFiles(
+        PhasePhckrFileStuff::voicesDir,
+        fileWatchThread,
+        [this](const File& f) {
+            processor.activeVoice.set(-1, loadJson(f));
+        }
+    )
+    , effectFiles(
+        PhasePhckrFileStuff::effectsDir,
+        fileWatchThread, 
+        [this](const File& f) {
+            processor.activeEffect.set(-1, loadJson(f));
+        }
+    )
+    , patchFiles(
+        PhasePhckrFileStuff::patchesDir,
+        fileWatchThread, 
+        [this](const File& f){} // TODO, routine to load a patch, simply ...
+    )
+    , componentFiles(
+        PhasePhckrFileStuff::componentsDir,
+        fileWatchThread, 
+        [this](const File& f) {}
+    )
+
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
@@ -105,14 +123,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     mainFrame.addTab("effect", Colours::black, &effectEditor, false);
 
     mainFrame.addTab("files", Colours::black, &filesGrid, false);
-    filesGrid.addComponent(&voiceDirectoryList);
-    filesGrid.addComponent(&effectDirectoryList);
-    voiceDirectoryList.addListener(&voiceListListener);
-    effectDirectoryList.addListener(&effectListListener);
-    voiceDirectoryWatcher.setDirectory(PhasePhckrFileStuff::voicesDir, true, true);
-    effectDirectoryWatcher.setDirectory(PhasePhckrFileStuff::effectsDir, true, true);
-    _stylize(&voiceDirectoryList);
-    _stylize(&effectDirectoryList);
+    filesGrid.addComponent(&voiceFiles.list);
+    filesGrid.addComponent(&effectFiles.list);
+    filesGrid.addComponent(&patchFiles.list);
+    filesGrid.addComponent(&componentFiles.list);
 
 #if INTERCEPT_STD_STREAMS
     mainFrame.addTab("debug", Colours::black, &debugTab, false);

@@ -41,39 +41,6 @@
         <MODULEPATH id="juce_audio_utils" path="../../../sdk/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="phasephckr.lib&#10;connectiongraph.lib&#10;modules.lib&#10;dsp.lib"
-            vstFolder="" vst3Folder="D:\sdk\VST_SDK\VST3_SDK" windowsTargetPlatformVersion="8.1">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="PhasePhckr" libraryPath="../phasephckr_install/lib"
-                       headerPath="../phasephckr_install/include" binaryPath="D:\VST_dev"
-                       enableIncrementalLinking="1" debugInformationFormat="ProgramDatabase"
-                       enablePluginBinaryCopyStep="0"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="PhasePhckr" binaryPath="D:\VST_dev"
-                       libraryPath="../phasephckr_install/lib" headerPath="../phasephckr_install/include"
-                       enableIncrementalLinking="1" debugInformationFormat="ProgramDatabase"
-                       enablePluginBinaryCopyStep="0" linkTimeOptimisation="1"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="JUCE/modules"/>
-        <MODULEPATH id="juce_video" path="JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="JUCE/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="JuceJunk"/>
-        <MODULEPATH id="juce_audio_formats" path="JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="JUCE/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="JUCE/modules"/>
-        <MODULEPATH id="juce_dsp" path="../../../sdk/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../../sdk/JUCE/modules"/>
-      </MODULEPATHS>
-    </VS2015>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" vst3Folder="" extraLinkerFlags=""
                 externalLibraries="phasephckr&#10;connectiongraph&#10;modules&#10;dsp"
                 vstFolder="">
@@ -103,6 +70,60 @@
         <MODULEPATH id="juce_audio_utils" path="../../../sdk/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
+    <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="" windowsTargetPlatformVersion="10.0.16299.0">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="0" isDebug="1" optimisation="1" targetName="PhasePhckr"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="PhasePhckr"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="JuceJunk"/>
+        <MODULEPATH id="juce_audio_basics" path="JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2017>
+    <ANDROIDSTUDIO targetFolder="Builds/Android">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" androidArchitectures="armeabi x86" isDebug="1" optimisation="1"
+                       linkTimeOptimisation="0" targetName="PhasePhckr"/>
+        <CONFIGURATION name="Release" androidArchitectures="" isDebug="0" optimisation="3"
+                       linkTimeOptimisation="1" targetName="PhasePhckr"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../sdk/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="JuceJunk"/>
+        <MODULEPATH id="juce_audio_basics" path="JUCE/modules"/>
+      </MODULEPATHS>
+    </ANDROIDSTUDIO>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

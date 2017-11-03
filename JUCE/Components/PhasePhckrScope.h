@@ -1,5 +1,4 @@
-#ifndef PHASEPHKRSCOPE_H_INCLUDED
-#define PHASEPHKRSCOPE_H_INCLUDED
+#pragma once
 
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
@@ -28,5 +27,3 @@ private:
     const PhasePhckr::Scope& sourceR;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrXYScope)
 };
-
-#endif  // PHASEPHKRSCOPE_H_INCLUDED

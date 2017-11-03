@@ -50,18 +50,6 @@ private:
 
     std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
 
-    void updateParameters();
-    vector<PhasePhckrParameter *> floatParameters;
-    enum ApiType {
-        VOICE,
-        EFFECT
-    };
-    map<int, pair<ApiType, int>> parameterRouting;
-    map<string, int> parameterNames;
-
-    map<string, int> effectParameters;
-    map<string, int> voiceParameters;
-
 public:
     PhasePhckrAudioProcessor();
     ~PhasePhckrAudioProcessor();
@@ -103,12 +91,6 @@ public:
         activeVoice.set(activeVoiceHandle, voiceChain);
         activeEffect.set(activeEffectHandle, effectChain);
     }
-
-    // walk circles around the JUCE stuff a bit ...
-   bool accessParameter(int index, PhasePhckrParameter ** param);
-   size_t numberOfParameters();
-
-   void swapParameterIndices(string a, string b);
 
 };
 

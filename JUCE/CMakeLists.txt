@@ -43,6 +43,7 @@ set(PH_SRC
 
     Utils/Utils.hpp
 
+    PhasePhckrParameter.cpp
     PhasePhckrParameter.hpp
 
     PhasePhckrPluginEditor.cpp

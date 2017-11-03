@@ -1,5 +1,28 @@
 #pragma once
 
+class PhasePhckrParameters {
+    vector<PhasePhckrParameter *> floatParameters;
+    enum ApiType {
+        VOICE,
+        EFFECT
+    };
+    map<int, pair<ApiType, int>> parameterRouting;
+    map<string, int> parameterNames;
+
+    map<string, int> effectParameters;
+    map<string, int> voiceParameters;
+
+public:
+    void updateParameters();
+
+    // walk circles around the JUCE stuff a bit ...
+    bool accessParameter(int index, PhasePhckrParameter ** param);
+    size_t numberOfParameters();
+
+    void swapParameterIndices(string a, string b);
+};
+
+
 class PhasePhckrParameter : public AudioParameterFloat {
 private:
     int idx;

@@ -744,6 +744,7 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
 PatchDescriptor GfxGraph::exportModelData(){
     PatchDescriptor graph;
     for (const auto &m :modules) {
+        graph.layout.emplace(m.module.name, ModulePosition{ (int)m.position.x, (int)m.position.y });
         if (m.module.name == "inBus" || m.module.name == "outBus") continue;
         graph.root.graph.modules.emplace_back(m.module);
         for ( const auto &ip : m.inputs){
@@ -751,7 +752,6 @@ PatchDescriptor GfxGraph::exportModelData(){
                 graph.root.graph.values.emplace_back(ModulePortValue{{m.module.name, ip.port}, ip.value});
             }
         }
-        graph.layout.emplace(m.module.name, ModulePosition{(int)m.position.x, (int)m.position.y});
     }
     for (const auto &w : wires) {
         graph.root.graph.connections.emplace_back(w.connection);

@@ -188,13 +188,13 @@ void GraphEditor::clearZoom() {
 
 
 void GraphEditor::increaseZoom() {
-    zoom += 0.1f;
+    zoom *= 1.25f;
     applyZoom();
 }
 
 
 void GraphEditor::decreaseZoom() {
-    zoom -= 0.1f;
+    zoom *= 0.8f;
     zoom = zoom < 0.1f ? 0.1f : zoom;
     applyZoom();
 }
@@ -314,6 +314,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         }
     }
 
+    // disable drag to scroll (until button released) in case of drag action
     if (userInteraction) {
         viewPort.setScrollOnDragEnabled(false);
         repaint();

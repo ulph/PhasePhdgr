@@ -88,7 +88,7 @@ private:
 
     XY mouseDownPos;
 
-    const float defaultZoom = 0.8f;
+    const float defaultZoom = 1.0f;
     float zoom;
 
     void clearZoom();

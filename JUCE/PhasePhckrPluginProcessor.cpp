@@ -35,8 +35,8 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
      , componentDirectoryWatcher(getFilter(), fileWatchThread)
      , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
 {
-    activeVoiceHandle = activeVoice.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
-    activeEffectHandle = activeEffect.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
+    activeVoiceHandle = subActiveVoice.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
+    activeEffectHandle = subActiveEffect.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
@@ -57,8 +57,8 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 {
-    activeVoice.unsubscribe(activeVoiceHandle);
-    activeEffect.unsubscribe(activeEffectHandle);
+    subActiveVoice.unsubscribe(activeVoiceHandle);
+    subActiveEffect.unsubscribe(activeEffectHandle);
     subComponentRegister.unsubscribe(componentRegisterHandle);
     delete synth;
 }
@@ -279,8 +279,8 @@ void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeIn
 
     parameters.deserialize(preset.parameters);
 
-    activeVoice.set(-1, preset.voice);
-    activeEffect.set(-1, preset.effect);
+    subActiveVoice.set(-1, preset.voice);
+    subActiveEffect.set(-1, preset.effect);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

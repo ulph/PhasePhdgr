@@ -34,18 +34,20 @@ public:
         const vector<PadDescription> &outBus
     );
     ~GraphEditor();
+
     virtual void mouseDown(const MouseEvent & event) override;
     virtual void mouseDoubleClick(const MouseEvent & event) override;
     virtual void mouseDrag(const MouseEvent & event) override;
     virtual void mouseUp(const MouseEvent & event) override;
     virtual void mouseMove(const MouseEvent & event) override;
+    virtual void mouseWheelMove(const MouseEvent &event, const MouseWheelDetails &wheel) override;
+
     virtual bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override {
         return true; // why not
     }
     virtual void itemDropped(const SourceDetails & dragSourceDetails) override;
 
     void paint (Graphics& g) override;
-    void mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d) override;
 
 private:
     void updateBounds(const pair<XY, XY>& rectange);
@@ -85,6 +87,14 @@ private:
     set<const GfxModule*> selectedModules;
 
     XY mouseDownPos;
+
+    const float defaultZoom = 0.8f;
+    float zoom;
+
+    void clearZoom();
+    void increaseZoom();
+    void decreaseZoom();
+    void applyZoom();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphEditor)
 };

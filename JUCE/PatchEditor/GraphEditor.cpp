@@ -37,7 +37,7 @@ void GraphEditorBundle::paint(Graphics& g)
 
 void GraphEditorBundle::resized()
 {
-    viewPort.setBoundsRelative(0, 0, 1, 1);
+    viewPort.setBoundsRelative(0, 0, 1.0f, 1.0f);
     repaint();
 }
 
@@ -175,9 +175,39 @@ GraphEditor::GraphEditor(
         }
     );
 
+    clearZoom();
+
     setBounds(0, 0, 10, 10); // hack or we never get started
 }
 
+
+void GraphEditor::clearZoom() {
+    zoom = defaultZoom;
+    applyZoom();
+}
+
+
+void GraphEditor::increaseZoom() {
+    zoom += 0.1f;
+    applyZoom();
+}
+
+
+void GraphEditor::decreaseZoom() {
+    zoom -= 0.1f;
+    zoom = zoom < 0.1f ? 0.1f : zoom;
+    applyZoom();
+}
+
+
+void GraphEditor::applyZoom() {
+    setTransform(
+        AffineTransform(
+            zoom, 0, 0,
+            0, zoom, 0
+        )
+    );
+}
 
 GraphEditor::~GraphEditor() {
     subPatch.unsubscribe(subPatchHandle);
@@ -207,6 +237,8 @@ void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
 
 void GraphEditor::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);
+    if (event.mods.isMiddleButtonDown()) return;
+
     bool modelChanged = false;
     bool userInteraction = false;
     mouseDownPos = XY((float)event.x, (float)event.y);
@@ -257,17 +289,19 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             break;
         }
     }
+
+    // disconnect a wire
     if (!userInteraction) {
         while (gfxGraphLock.test_and_set(memory_order_acquire));
-        // disconnect a wire
         if (gfxGraph.disconnect(mouseDownPos, looseWire)) {
             modelChanged = true;
             userInteraction = true;
         }
         gfxGraphLock.clear(memory_order_release);
     }
+
+    // select region start/stop
     if (!userInteraction) {
-        // select region start/stop
         if (event.mods.isShiftDown()) {
             selecting = true;
             selectionStart = event.position;
@@ -279,6 +313,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             selectedModules.clear();
         }
     }
+
     if (userInteraction) {
         viewPort.setScrollOnDragEnabled(false);
         repaint();
@@ -289,7 +324,12 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 
 
 void GraphEditor::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
-
+    if (d.deltaY >= 0) {
+        increaseZoom();
+    }
+    else if (d.deltaY <= 0) {
+        decreaseZoom();
+    }
 }
 
 
@@ -350,6 +390,7 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
 
 
 void GraphEditor::mouseMove(const MouseEvent & event) {
+
 }
 
 

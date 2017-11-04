@@ -26,14 +26,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     , mainFrame(TabbedButtonBar::TabsAtTop)
 
     , voiceEditor(
-        processor.activeVoice,
+        processor.subActiveVoice,
         processor.subComponentRegister,
         c_voiceChainInBus,
         c_voiceChainOutBus
     )
 
     , effectEditor(
-        processor.activeEffect,
+        processor.subActiveEffect,
         processor.subComponentRegister,
         c_effectChainInBus,
         c_effectChainOutBus
@@ -44,14 +44,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
         [this](const File& f) {
-            processor.activeVoice.set(-1, loadJson(f));
+            processor.subActiveVoice.set(-1, loadJson(f));
         }
     )
     , effectFiles(
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread, 
         [this](const File& f) {
-            processor.activeEffect.set(-1, loadJson(f));
+            processor.subActiveEffect.set(-1, loadJson(f));
         }
     )
     , patchFiles(
@@ -85,12 +85,12 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     fileWatchThread.startThread();
     fileWatchThread.notify();
 
-    setResizeLimits(128, 128, 1800, 1000);
+    setResizeLimits(128, 128, 8000, 8000);
     setConstrainer(nullptr);
     setResizable(true, true);
     setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
     addAndMakeVisible(mainFrame);
-
+    
     mainFrame.addTab("scopes", Colours::black, &scopeGrid, false);
     scopeGrid.addComponent(&voiceScopeL);
     scopeGrid.addComponent(&voiceScopeXY);

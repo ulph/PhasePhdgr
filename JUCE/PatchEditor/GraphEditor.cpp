@@ -31,7 +31,7 @@ GraphEditorBundle::GraphEditorBundle(
 
 void GraphEditorBundle::paint(Graphics& g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colours::darkgrey);
 }
 
 

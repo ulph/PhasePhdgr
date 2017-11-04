@@ -188,14 +188,14 @@ void GraphEditor::clearZoom() {
 
 
 void GraphEditor::increaseZoom() {
-    zoom *= 1.25f;
+    zoom *= zoomIncrement;
     applyZoom();
 }
 
 
 void GraphEditor::decreaseZoom() {
-    zoom *= 0.8f;
-    zoom = zoom < 0.1f ? 0.1f : zoom;
+    if (zoom < 0.1f) return;
+    zoom /= zoomIncrement;
     applyZoom();
 }
 
@@ -208,6 +208,7 @@ void GraphEditor::applyZoom() {
         )
     );
 }
+
 
 GraphEditor::~GraphEditor() {
     subPatch.unsubscribe(subPatchHandle);

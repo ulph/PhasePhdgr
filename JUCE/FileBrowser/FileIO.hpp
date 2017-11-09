@@ -10,10 +10,10 @@ namespace PhasePhckrFileStuff {
     void storeJson(File &f, const nlohmann::json& j);
 
     const std::string phasePhkrDirName = "phasephkr";
-    const std::string effectsDirName = "effects";
+    const std::string effectsDirName = "effect";
     const std::string voiceDirName = "voice";
-    const std::string componentsDirName = "components";
-    const std::string patchesDirName = "patches";
+    const std::string componentsDirName = "component";
+    const std::string presetsDirName = "preset";
 
     const File rootDir = File(
         File::getSpecialLocation(
@@ -24,7 +24,7 @@ namespace PhasePhckrFileStuff {
     const File effectsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + effectsDirName);
     const File voicesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + voiceDirName);
     const File componentsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + componentsDirName);
-    const File patchesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + patchesDirName);
+    const File presetsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + presetsDirName);
 
     void createDirIfNeeded(File dir);
 

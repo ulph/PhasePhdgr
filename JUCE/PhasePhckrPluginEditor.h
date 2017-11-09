@@ -26,6 +26,8 @@ public:
      );
     ~PhasePhckrAudioProcessorEditor();
 
+    void invalidateFileSelections();
+
     void paint (Graphics&) override;
     void resized() override;
 
@@ -48,7 +50,7 @@ private:
     PhasePhckrGrid filesGrid;
     FileEditorBundle voiceFiles;
     FileEditorBundle effectFiles;
-    FileEditorBundle patchFiles;
+    FileEditorBundle presetFiles;
     FileEditorBundle componentFiles;
 
     PatchEditor voiceEditor;

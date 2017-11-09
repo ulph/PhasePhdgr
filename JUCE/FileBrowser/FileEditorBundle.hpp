@@ -6,8 +6,12 @@
 typedef std::function<void(const nlohmann::json&)> ProvideJsonCallBack;
 typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
+const String bannedNameCharacters = " @!?.=-";
+
 class FileEditorBundle : public Component, public ButtonListener, public FileBrowserListener
 {
+
+    // TODO, thread safety between checks and usages of checks ... maybe
 
 private:
     Label titleLabel;
@@ -19,16 +23,28 @@ private:
     ProvideJsonCallBack fileLoadedCallback;
     GetJsonCallBack fetchJsonCallback;
 
-    bool filenameIsValid() {
-        return false;
+    File makeFullFileFromFilenameLabel() {
+        return watcher.getDirectory().getFullPathName() + File::getSeparatorString() + File(filenameLabel.getText() + string(".json")).getFileName();
+    }
+
+    bool isValidFilename() {
+        String filename = filenameLabel.getText();
+        if (filename.length() == 0) return false;
+        if (filename.containsAnyOf(bannedNameCharacters)) return false;
+        return true;
     }
 
 public:
     virtual void buttonClicked(Button * btn) override {
-        if (!filenameIsValid()) return;
-        auto j = fetchJsonCallback();
-    }
+        if (!isValidFilename()) return;
 
+        File targetFile = makeFullFileFromFilenameLabel();
+        if (targetFile.exists()) return;
+
+        auto j = fetchJsonCallback();
+        storeJson(targetFile, j);
+        watcher.refresh();
+    }
     virtual void selectionChanged() {}
     virtual void fileClicked(const File &file, const MouseEvent &e) {
         // do nought
@@ -39,6 +55,10 @@ public:
         filenameLabel.setText(file.getFileNameWithoutExtension(), sendNotificationAsync);
     }
     virtual void browserRootChanged(const File &newRoot) {}
+    
+    void invalidateSelection() {
+        filenameLabel.setText("", sendNotificationAsync);
+    }
 
     FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback)
         : watcher(PhasePhckrFileStuff::getFilter(), watchThread)

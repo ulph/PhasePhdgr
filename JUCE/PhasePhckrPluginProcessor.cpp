@@ -286,6 +286,17 @@ PatchDescriptor PhasePhckrAudioProcessor::getPatch(ParameterType type) {
     return patch;
 }
 
+void PhasePhckrAudioProcessor::setPatch(ParameterType type, const PatchDescriptor& patch) {
+    if (type == VOICE) {
+        setVoiceChain(patch);
+        subVoiceChain.set(activeVoiceHandle, patch);
+    }
+    else if (type == EFFECT) {
+        setEffectChain(patch);
+        subEffectChain.set(activeEffectHandle, patch);
+    }
+}
+
 PresetDescriptor PhasePhckrAudioProcessor::getPreset() {
     PresetDescriptor preset;
 
@@ -298,12 +309,8 @@ PresetDescriptor PhasePhckrAudioProcessor::getPreset() {
 
 void PhasePhckrAudioProcessor::setPreset(const PresetDescriptor& preset) {
     parameters.deserialize(preset.parameters);
-
-    setVoiceChain(preset.voice);
-    setEffectChain(preset.effect);
-    subVoiceChain.set(activeVoiceHandle, preset.voice);
-    subEffectChain.set(activeEffectHandle, preset.effect);
-
+    setPatch(VOICE, preset.voice);
+    setPatch(EFFECT, preset.effect);
 }
 
 void PhasePhckrAudioProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {

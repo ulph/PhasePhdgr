@@ -40,7 +40,7 @@ namespace PhasePhckrFileStuff {
         createDirIfNeeded(effectsDir);
         createDirIfNeeded(voicesDir);
         createDirIfNeeded(componentsDir);
-        createDirIfNeeded(patchesDir);
+        createDirIfNeeded(presetsDir);
     }
 
     File getInitialVoiceFile() {
@@ -52,6 +52,8 @@ namespace PhasePhckrFileStuff {
     }
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
+        createLibraryDirectoriesIfNeeded();
+
         // load init patches and dump to disk
         auto vf = getInitialVoiceFile();
         auto ef = getInitialEffectFile();

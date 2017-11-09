@@ -45,31 +45,39 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
         [this](const json& j) {
-            processor.subVoiceChain.set(-1, j);
+            processor.setPatch(VOICE, j);
         },
-        [this](void) -> json { return json(); }
+        [this](void) -> json { 
+            return processor.getPatch(VOICE);
+        }
     )
     , effectFiles(
         "effect files",
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread, 
         [this](const json& j) {
-            processor.subEffectChain.set(-1, j);
+            processor.setPatch(EFFECT, j);
         },
-        [this](void) -> json { return json(); }
+        [this](void) -> json {
+            return processor.getPatch(EFFECT);
+        }
     )
-    , patchFiles(
-        "patch files",
-        PhasePhckrFileStuff::patchesDir,
+    , presetFiles(
+        "preset files",
+        PhasePhckrFileStuff::presetsDir,
         fileWatchThread, 
-        [this](const json& j){}, // TODO, load patch
-        [this](void) -> json { return json(); }
+        [this](const json& j){
+            processor.setPreset(j);
+        },
+        [this](void) -> json { 
+            return processor.getPreset();
+        }
     )
     , componentFiles(
         "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread, 
-        [this](const json& j) {},
+        [this](const json& j) {}, // non-sensical
         [this](void) -> json { return json(); } // TODO, load one of the components, somehow
     )
 
@@ -91,6 +99,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         outputScopeXY.repaint();
     }))
 {
+
+    processor.subEffectChain.subscribe([this](const auto& pd) {
+        effectFiles.invalidateSelection();
+    });
+
+    processor.subVoiceChain.subscribe([this](const auto& pd) {
+        voiceFiles.invalidateSelection();
+    });
 
     fileWatchThread.startThread();
     fileWatchThread.notify();
@@ -127,13 +143,13 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         }
     }
 
-    mainFrame.addTab("voice", Colours::black, &voiceEditor, false);
-    mainFrame.addTab("effect", Colours::black, &effectEditor, false);
+    mainFrame.addTab("voice graph", Colours::black, &voiceEditor, false);
+    mainFrame.addTab("effect graph", Colours::black, &effectEditor, false);
 
     mainFrame.addTab("files", Colours::black, &filesGrid, false);
     filesGrid.addComponent(&voiceFiles);
     filesGrid.addComponent(&effectFiles);
-    filesGrid.addComponent(&patchFiles);
+    filesGrid.addComponent(&presetFiles);
     filesGrid.addComponent(&componentFiles);
 
 #if INTERCEPT_STD_STREAMS
@@ -163,6 +179,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     resized();
 }
+
+
+void PhasePhckrAudioProcessorEditor::invalidateFileSelections() {
+    effectFiles.invalidateSelection();
+    voiceFiles.invalidateSelection();
+    presetFiles.invalidateSelection();
+}
+
 
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {

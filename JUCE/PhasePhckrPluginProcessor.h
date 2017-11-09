@@ -80,6 +80,7 @@ public:
     PatchDescriptor getPatch(ParameterType type);
     PresetDescriptor getPreset();
     void setPreset(const PresetDescriptor& preset);
+    void setPatch(ParameterType type, const PatchDescriptor& patch);
 
     PhasePhckrParameters parameters;
 

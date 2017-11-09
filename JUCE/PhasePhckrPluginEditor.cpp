@@ -126,7 +126,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     scopeGrid.addComponent(&outputScopeR);
     scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
-    mainFrame.addTab("patch", Colours::black, &performGrid, false);
+    mainFrame.addTab("preset parameters", Colours::black, &performGrid, false);
     performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
 
     for(int i=0; i<processor.parameters.numberOfParameters(); i++){
@@ -143,8 +143,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         }
     }
 
-    mainFrame.addTab("voice graph", Colours::black, &voiceEditor, false);
-    mainFrame.addTab("effect graph", Colours::black, &effectEditor, false);
+    mainFrame.addTab("voice patch", Colours::black, &voiceEditor, false);
+    mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 
     mainFrame.addTab("files", Colours::black, &filesGrid, false);
     filesGrid.addComponent(&voiceFiles);

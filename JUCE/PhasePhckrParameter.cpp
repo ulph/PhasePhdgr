@@ -18,10 +18,20 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
 void PhasePhckrParameters::updateOrFindNewParameters(list<parameterRoute>& newParams, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting)
 {
     string prefix = "";
-    if(type == VOICE) prefix += "v ";
-    else if(type == EFFECT) prefix += "e ";
+    parameterHandleMap* existingParameterNames = nullptr;
 
-    for (const auto& kv : voiceParameters) {
+    if (type == VOICE) {
+        prefix += "v ";
+        existingParameterNames = &voiceParameters;
+    }
+    else if (type == EFFECT) {
+        prefix += "e ";
+        existingParameterNames = &effectParameters;
+    }
+
+    if (!existingParameterNames) return;
+
+    for (const auto& kv : *existingParameterNames) {
         string lbl = prefix + kv.first;
         auto route = make_pair(type, kv.second);
         auto it = parameterNames.find(lbl);

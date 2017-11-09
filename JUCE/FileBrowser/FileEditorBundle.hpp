@@ -15,13 +15,18 @@ class FileEditorBundle : public Component, public ButtonListener, public FileBro
 
 private:
     Label titleLabel;
+    TextButton goToRootButton;
+    TextButton goOneUpButton;
+    Label filenameLabel;
     TextButton saveButton;
+
     DirectoryContentsList watcher;
     FileListComponent list;
-    Label filenameLabel;
 
     ProvideJsonCallBack fileLoadedCallback;
     GetJsonCallBack fetchJsonCallback;
+
+    File fileRoot;
 
     File makeFullFileFromFilenameLabel() {
         return watcher.getDirectory().getFullPathName() + File::getSeparatorString() + File(filenameLabel.getText() + string(".json")).getFileName();
@@ -36,20 +41,35 @@ private:
 
 public:
     virtual void buttonClicked(Button * btn) override {
-        if (!isValidFilename()) return;
+        if (btn == &saveButton) {
+            if (!isValidFilename()) return;
 
-        File targetFile = makeFullFileFromFilenameLabel();
-        if (targetFile.exists()) return;
+            File targetFile = makeFullFileFromFilenameLabel();
+            if (targetFile.exists()) return;
 
-        auto j = fetchJsonCallback();
-        storeJson(targetFile, j);
-        watcher.refresh();
+            auto j = fetchJsonCallback();
+            storeJson(targetFile, j);
+            watcher.refresh();
+        }
+        else if (btn == &goToRootButton) {
+            watcher.setDirectory(fileRoot, true, true);
+        }
+        else if (btn == &goOneUpButton) {
+            auto currDir = watcher.getDirectory();
+            if (currDir.getFullPathName() == fileRoot.getFullPathName()) return;
+            auto oneUp = currDir.getParentDirectory();
+            watcher.setDirectory(oneUp, true, true);
+        }
     }
     virtual void selectionChanged() {}
     virtual void fileClicked(const File &file, const MouseEvent &e) {
-        // do nought
+        // switch directory
+        if (file.exists() && !file.existsAsFile()) {
+            watcher.setDirectory(file, true, true);
+        }
     }
     virtual void fileDoubleClicked(const File &file) {
+        if (!file.existsAsFile()) return; // nonexistant or a directory
         json j = loadJson(file);
         fileLoadedCallback(j);
         filenameLabel.setText(file.getFileNameWithoutExtension(), sendNotificationAsync);
@@ -69,10 +89,16 @@ public:
     {
         list.addListener(this);
         saveButton.addListener(this);
+        goToRootButton.addListener(this);
+        goOneUpButton.addListener(this);
+
+        fileRoot = directory;
 
         watcher.setDirectory(directory, true, true);
 
         addAndMakeVisible(titleLabel);
+        addAndMakeVisible(goToRootButton);
+        addAndMakeVisible(goOneUpButton);
         addAndMakeVisible(filenameLabel);
         addAndMakeVisible(saveButton);
 
@@ -83,6 +109,8 @@ public:
 
         _stylize(&filenameLabel);
 
+        goToRootButton.setButtonText("/");
+        goOneUpButton.setButtonText("..");
         filenameLabel.setEditable(true);
         saveButton.setButtonText("save");
 
@@ -92,7 +120,8 @@ public:
     virtual void resized() override {
         const int rowHeightPx = 30;
         const int titleWidthPx = 100;
-        const int buttonWidthPx = 100;
+        const int saveButtonWidthPx = 100;
+        const int dirButtonWidthPx = 30;
 
         auto bounds = getBounds();
         auto boundsHeight = bounds.getHeight();
@@ -100,7 +129,8 @@ public:
 
         float rowHeight = 0.01f;
         float titleWidth = 0.01f;
-        float buttonWidth = 0.01f;
+        float saveButtonWidth = 0.01f;
+        float dirButtonWidth = 0.01f;
 
         if (boundsHeight > 0) {
             rowHeight = (float)rowHeightPx / (float)boundsHeight;
@@ -108,12 +138,17 @@ public:
 
         if (boundsWidth > 0) {
             titleWidth = (float)titleWidthPx / (float)boundsWidth;
-            buttonWidth = (float)buttonWidthPx / (float)boundsWidth;
+            saveButtonWidth = (float)saveButtonWidthPx / (float)boundsWidth;
+            dirButtonWidth = (float)dirButtonWidthPx / (float)boundsWidth;
         }
 
+        float filenameLabelWidth = 1.f - titleWidth - 2 * dirButtonWidth - saveButtonWidth;
+
         titleLabel.setBoundsRelative(0.f, 0.f, titleWidth, rowHeight);
-        filenameLabel.setBoundsRelative(titleWidth, 0.f, 1.f - titleWidth - buttonWidth, rowHeight);
-        saveButton.setBoundsRelative(1.f - buttonWidth, 0.f, buttonWidth, rowHeight);
+        goToRootButton.setBoundsRelative(titleWidth, 0.f, dirButtonWidth, rowHeight);
+        goOneUpButton.setBoundsRelative(titleWidth + dirButtonWidth, 0.f, dirButtonWidth, rowHeight);
+        filenameLabel.setBoundsRelative(titleWidth + 2*dirButtonWidth, 0.f, filenameLabelWidth, rowHeight);
+        saveButton.setBoundsRelative(1.f - saveButtonWidth, 0.f, saveButtonWidth, rowHeight);
 
         list.setBoundsRelative(0.f, rowHeight, 1.f, 1.f - rowHeight);
     }

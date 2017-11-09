@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 {
   PhasePhckr::Synth synth;
   PhasePhckr::ComponentRegister comp;
-  synth.setFxChain(PhasePhckr::getExampleFxChain(), comp);
+  synth.setEffectChain(PhasePhckr::getExampleEffectChain(), comp);
   synth.setVoiceChain(PhasePhckr::getExampleVoiceChain(), comp);
   float time = 0;
   float bufferL[kNumSamples];

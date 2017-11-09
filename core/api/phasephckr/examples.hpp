@@ -3,6 +3,6 @@
 #include "design.hpp"
 
 namespace PhasePhckr {
-    PatchDescriptor getExampleFxChain();
+    PatchDescriptor getExampleEffectChain();
     PatchDescriptor getExampleVoiceChain();
 }

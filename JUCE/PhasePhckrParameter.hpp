@@ -85,15 +85,17 @@ public:
 
     void swapParameterIndices(string a, string b); // via gui
 
-    void setVoiceParametersHandleMap(const parameterHandleMap& pv){
+    void setParametersHandleMap(ParameterType type, const parameterHandleMap& pv){
         // from synth
-        voiceParameters = pv;
-        refreshParameters();
-    }
-
-    void setEffectParametersHandleMap(const parameterHandleMap& pv){
-        // from synth
-        effectParameters = pv;
+        if (type == VOICE) {
+            voiceParameters = pv;
+        }
+        else if (type == EFFECT) {
+            effectParameters = pv;
+        }
+        else {
+            return;
+        }
         refreshParameters();
     }
 

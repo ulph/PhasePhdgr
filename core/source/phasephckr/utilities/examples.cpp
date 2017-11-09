@@ -1,4 +1,4 @@
-#include "phasephckr/design.hpp"
+#include "phasephckr/examples.hpp"
 
 namespace PhasePhckr {
 
@@ -43,7 +43,7 @@ namespace PhasePhckr {
         }
     };
 
-    PatchDescriptor getExampleFxChain() { 
+    PatchDescriptor getExampleEffectChain() {
         PatchDescriptor ex;
         ex.root.graph = exFxChain;
         return ex;

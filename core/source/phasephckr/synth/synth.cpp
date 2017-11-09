@@ -25,7 +25,7 @@ Synth::~Synth(){
     delete globalData;
 }
 
-const map<string, int>& Synth::setFxChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
+const map<string, int>& Synth::setEffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);
     return effects->getParameterHandles();

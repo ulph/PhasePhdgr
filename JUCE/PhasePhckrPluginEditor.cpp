@@ -41,6 +41,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 
     , fileWatchThread("editorFileWatchThread")
     , voiceFiles(
+        "voice files",
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
         [this](const File& f) {
@@ -48,6 +49,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         }
     )
     , effectFiles(
+        "effect files",
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread, 
         [this](const File& f) {
@@ -55,20 +57,28 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         }
     )
     , patchFiles(
+        "patch files",
         PhasePhckrFileStuff::patchesDir,
         fileWatchThread, 
-        [this](const File& f){} // TODO, routine to load a patch, simply ...
+        [this](const File& f){
+            // TODO, load patch
+        } 
     )
     , componentFiles(
+        "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread, 
-        [this](const File& f) {}
+        [this](const File& f) {
+            // TODO, nothing?
+        }
     )
 
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 #endif
+
+    // TODO, tie the timer to the scopes view visibility
     , guiUpdateTimer(new function<void()>([this](){
         for(const auto &knob : parameterKnobs){
             knob->update();
@@ -121,10 +131,10 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     mainFrame.addTab("effect", Colours::black, &effectEditor, false);
 
     mainFrame.addTab("files", Colours::black, &filesGrid, false);
-    filesGrid.addComponent(&voiceFiles.list);
-    filesGrid.addComponent(&effectFiles.list);
-    filesGrid.addComponent(&patchFiles.list);
-    filesGrid.addComponent(&componentFiles.list);
+    filesGrid.addComponent(&voiceFiles);
+    filesGrid.addComponent(&effectFiles);
+    filesGrid.addComponent(&patchFiles);
+    filesGrid.addComponent(&componentFiles);
 
 #if INTERCEPT_STD_STREAMS
     mainFrame.addTab("debug", Colours::black, &debugTab, false);
@@ -173,6 +183,6 @@ void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
 
 void PhasePhckrAudioProcessorEditor::resized()
 {
-    mainFrame.setBoundsRelative(0, 0, 1, 1);
+    mainFrame.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
     repaint();
 }

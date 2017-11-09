@@ -56,7 +56,7 @@ namespace PhasePhckrFileStuff {
         auto vf = getInitialVoiceFile();
         auto ef = getInitialEffectFile();
         storeJson(vf, PhasePhckr::getExampleVoiceChain());
-        storeJson(ef, PhasePhckr::getExampleFxChain());
+        storeJson(ef, PhasePhckr::getExampleEffectChain());
 
         // dump all factory components to disk
         for (const auto &kv : cr.all()) {

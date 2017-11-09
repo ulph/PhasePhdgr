@@ -45,13 +45,17 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     componentDirectoryWatcher.addChangeListener(&componentFilesListener);
     componentDirectoryWatcher.setDirectory(componentsDir, true, true);
 
+    // parameter mumbo
+    parameters.initialize(this);
+
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
 
+    subActiveVoice.set(-1, getExampleVoiceChain());
+    subActiveEffect.set(-1, getExampleEffectChain());
+
     applyVoiceChain();
     applyEffectChain();
-
-    parameters.initialize(this);
 
 }
 
@@ -67,15 +71,15 @@ void PhasePhckrAudioProcessor::applyVoiceChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
-    parameters.setVoiceParametersHandleMap(pv);
+    parameters.setParametersHandleMap(VOICE, pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 
 void PhasePhckrAudioProcessor::applyEffectChain()
 {
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    auto pv = synth->setFxChain(effectChain, componentRegister);
-    parameters.setEffectParametersHandleMap(pv);
+    auto pv = synth->setEffectChain(effectChain, componentRegister);
+    parameters.setParametersHandleMap(EFFECT, pv);
     synthUpdateLock.clear(std::memory_order_release);
 }
 

@@ -2,7 +2,8 @@
 
 class FileEditorBundle : public Component
 {
-    Label title;
+private:
+    Label titleLabel;
     DirectoryContentsList watcher;
     FileListComponent list;
     PhasePhckrFileStuff::StupidFileBrowserListener listener;
@@ -11,23 +12,28 @@ public:
         : watcher(PhasePhckrFileStuff::getFilter(), watchThread)
         , list(watcher)
         , listener(callBack)
-        , title(name, name)
+        , titleLabel(String(), name)
     {
         list.addListener(&listener);
         watcher.setDirectory(directory, true, true);
-        addAndMakeVisible(title);
+
+        addAndMakeVisible(titleLabel);
         addAndMakeVisible(list);
+
+        _stylize(&titleLabel); titleLabel.setJustificationType(Justification::left);
         _stylize(&list);
+
         resized();
     }
 
     void resized() override {
-        const int rowHeightPx = 20;
+        const int rowHeightPx = 30;
 
         auto bounds = getBounds();
 
-        title.setBounds(0, 0, bounds.getX()*0.5, rowHeightPx);
+        titleLabel.setBounds(0, 0, bounds.getX()*0.5, rowHeightPx);
         list.setBounds(0, rowHeightPx, bounds.getX(), bounds.getY() - rowHeightPx);
+
     }
 
 };

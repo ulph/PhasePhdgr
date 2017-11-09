@@ -13,6 +13,7 @@
 using namespace PhasePhckr;
 using namespace std;
 
+void _stylize(Label * l);
 void _stylize(TextEditor* t);
 void _stylize(ListBox* l);
 void _stylize(FileListComponent* l);

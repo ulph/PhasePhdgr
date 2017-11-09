@@ -30,9 +30,16 @@ public:
         const int rowHeightPx = 30;
 
         auto bounds = getBounds();
+        auto boundsHeight = bounds.getHeight();
 
-        titleLabel.setBounds(0, 0, bounds.getX()*0.5, rowHeightPx);
-        list.setBounds(0, rowHeightPx, bounds.getX(), bounds.getY() - rowHeightPx);
+        float rowHeight = 0.01f;
+
+        if (boundsHeight > 0) {
+            rowHeight = (float)rowHeightPx / (float)boundsHeight;
+        }
+
+        titleLabel.setBoundsRelative(0.f, 0.f, 0.5f, rowHeight);
+        list.setBoundsRelative(0.f, rowHeight, 1.f, 1.f - rowHeight);
 
     }
 

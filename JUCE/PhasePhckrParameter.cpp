@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
     // only call once right after constructor or shit hits the fan
     for (int i = 0; i < 8*16; i++) {
@@ -17,6 +16,8 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
 
 void PhasePhckrParameters::updateOrFindNewParameters(list<parameterRoute>& newParams, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting)
 {
+    // no need to lock
+
     string prefix = "";
     parameterHandleMap* existingParameterNames = nullptr;
 
@@ -54,6 +55,8 @@ void PhasePhckrParameters::refreshParameters()
 {
     parameterHandleMap newParameterNames;
     parameterRouteMap newParameterRouting;
+
+    while (parameterLock.test_and_set(std::memory_order_acquire));
 
     // clear all the names, will get set back below
     for (const auto& p : parameterNames) {
@@ -107,6 +110,9 @@ void PhasePhckrParameters::refreshParameters()
     parameterNames = newParameterNames;
     parameterRouting = newParameterRouting;
 
+    parameterLock.clear(std::memory_order_release);
+
+    // post sanity checks
     assert(parameterNames.size() == parameterRouting.size());
     for (const auto& p : parameterNames) {
         assert(parameterRouting.count(p.second));
@@ -116,6 +122,7 @@ void PhasePhckrParameters::refreshParameters()
 
 
 bool PhasePhckrParameters::accessParameter(int index, PhasePhckrParameter ** param) {
+    // potentially unsafe hack
     if (index >= numberOfParameters()) return false;
     *param = floatParameters[index];
     return true;
@@ -128,6 +135,9 @@ size_t PhasePhckrParameters::numberOfParameters() {
 
 
 void PhasePhckrParameters::swapParameterIndices(string a, string b) {
+
+    while (parameterLock.test_and_set(std::memory_order_acquire));
+
     int a_idx = -1;
     int b_idx = -1;
     for (int i = 0; i<floatParameters.size(); i++) {
@@ -149,5 +159,101 @@ void PhasePhckrParameters::swapParameterIndices(string a, string b) {
     float b_val = *floatParameters[b_idx];
     floatParameters[a_idx]->setValueNotifyingHost(b_val);
     floatParameters[b_idx]->setValueNotifyingHost(a_val);
+
+    parameterLock.clear(std::memory_order_release);
+
     refreshParameters();
+}
+
+void PhasePhckrParameters::setParametersHandleMap(ParameterType type, const parameterHandleMap& pv) {
+    // from synth
+    if (type == VOICE) {
+        while (parameterLock.test_and_set(std::memory_order_acquire));
+        voiceParameters = pv;
+        parameterLock.clear(std::memory_order_release);
+    }
+    else if (type == EFFECT) {
+        while (parameterLock.test_and_set(std::memory_order_acquire));
+        effectParameters = pv;
+        parameterLock.clear(std::memory_order_release);
+    }
+    else {
+        return;
+    }
+    refreshParameters();
+}
+
+void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
+    // to synth
+    while (parameterLock.test_and_set(std::memory_order_acquire));
+
+    for (const auto kv : parameterRouting) {
+        auto idx = kv.first;
+        auto type = kv.second.first;
+        auto handle = kv.second.second;
+        auto p = floatParameters[idx];
+        float value = p->range.convertFrom0to1(*p);
+        switch (type) {
+        case VOICE:
+            synth->handleVoiceParameter(handle, value);
+            break;
+        case EFFECT:
+            synth->handleEffectParameter(handle, value);
+            break;
+        default:
+            break;
+        }
+    }
+
+    parameterLock.clear(std::memory_order_release);
+
+}
+
+vector<PhasePhckr::ParameterDescriptor> PhasePhckrParameters::serialize() {
+    // from patch serialization - convert to a struct with strings
+
+    auto v = vector<PhasePhckr::ParameterDescriptor>();
+
+    while (parameterLock.test_and_set(std::memory_order_acquire));
+
+    for (const auto &kv : parameterNames) {
+        auto param = floatParameters[kv.second];
+        PhasePhckr::ParameterDescriptor p = {
+            kv.first,
+            kv.second,
+            *param,
+            param->range.start,
+            param->range.end
+        };
+        v.emplace_back(p);
+    }
+
+    parameterLock.clear(std::memory_order_release);
+
+    return v;
+}
+
+void PhasePhckrParameters::deserialize(const vector<PhasePhckr::ParameterDescriptor>& pv) {
+    // from patch deserialization - convert from struct with strings
+
+    while (parameterLock.test_and_set(std::memory_order_acquire));
+
+    // clear stuff
+    for (const auto& fp : floatParameters) {
+        fp->clearName();
+        fp->setValueNotifyingHost(0.f); // I think this is the correct thing to do
+    }
+
+    // copy the values
+    for (const auto& p : pv) {
+        parameterNames[p.id] = p.index;
+        auto param = floatParameters[p.index];
+        param->range.start = p.min;
+        param->range.end = p.max;
+        param->setValueNotifyingHost(param->range.convertTo0to1(p.value));
+        // we could also set name but updateParameters takes care of that
+    }
+
+    parameterLock.clear(std::memory_order_release);
+
 }

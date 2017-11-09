@@ -45,6 +45,7 @@ private:
 
     TimeSliceThread fileWatchThread;
 
+    PhasePhckrGrid filesGrid;
     FileEditorBundle voiceFiles;
     FileEditorBundle effectFiles;
     FileEditorBundle patchFiles;
@@ -52,8 +53,6 @@ private:
 
     PatchEditor voiceEditor;
     PatchEditor effectEditor;
-
-    PhasePhckrGrid filesGrid;
 
 #if INTERCEPT_STD_STREAMS
     InterceptStringStream coutIntercept;

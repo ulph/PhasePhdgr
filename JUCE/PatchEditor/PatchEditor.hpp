@@ -118,4 +118,5 @@ public:
     virtual ~PatchEditor();
     void paint(Graphics& g);
     void resized();
+
 };

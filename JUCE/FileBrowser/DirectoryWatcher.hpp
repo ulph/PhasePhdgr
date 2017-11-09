@@ -39,6 +39,4 @@ namespace PhasePhckrFileStuff {
         }
     };
 
-    typedef std::function<void(const nlohmann::json&)> JsonCallBack;
-
 }

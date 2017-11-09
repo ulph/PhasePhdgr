@@ -21,14 +21,8 @@ class PhasePhckrAudioProcessor  : public AudioProcessor
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
-    void setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
-        voiceChain = p;
-        applyVoiceChain();
-    }
-    void setEffectChain(const PhasePhckr::PatchDescriptor &p) {
-        effectChain = p;
-        applyEffectChain();
-    }
+    void setVoiceChain(const PhasePhckr::PatchDescriptor &p);
+    void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Synth* synth;
 
     TimeSliceThread fileWatchThread;
@@ -44,9 +38,6 @@ private:
     void updateComponentRegister(const DirectoryContentsList* d);
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
-
-    void applyVoiceChain();
-    void applyEffectChain();
 
     std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
 
@@ -81,16 +72,14 @@ public:
 
     const PhasePhckr::Synth* getSynth() const;
 
-    SubValue<PatchDescriptor> subActiveVoice;
-    SubValue<PatchDescriptor> subActiveEffect;
+    SubValue<PatchDescriptor> subVoiceChain;
+    SubValue<PatchDescriptor> subEffectChain;
     SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
 
-    void broadcastPatch(){
-        // editor should call this once after construction
-        subComponentRegister.set(componentRegisterHandle, componentRegister);
-        subActiveVoice.set(activeVoiceHandle, voiceChain);
-        subActiveEffect.set(activeEffectHandle, effectChain);
-    }
+    void broadcastPatch();
+    PatchDescriptor getPatch(ParameterType type);
+    PresetDescriptor getPreset();
+    void setPreset(const PresetDescriptor& preset);
 
     PhasePhckrParameters parameters;
 

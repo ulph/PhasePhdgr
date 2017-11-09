@@ -26,14 +26,14 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     , mainFrame(TabbedButtonBar::TabsAtTop)
 
     , voiceEditor(
-        processor.subActiveVoice,
+        processor.subVoiceChain,
         processor.subComponentRegister,
         c_voiceChainInBus,
         c_voiceChainOutBus
     )
 
     , effectEditor(
-        processor.subActiveEffect,
+        processor.subEffectChain,
         processor.subComponentRegister,
         c_effectChainInBus,
         c_effectChainOutBus
@@ -45,32 +45,32 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
         [this](const json& j) {
-            processor.subActiveVoice.set(-1, j);
-        }
+            processor.subVoiceChain.set(-1, j);
+        },
+        [this](void) -> json { return json(); }
     )
     , effectFiles(
         "effect files",
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread, 
         [this](const json& j) {
-            processor.subActiveEffect.set(-1, j);
-        }
+            processor.subEffectChain.set(-1, j);
+        },
+        [this](void) -> json { return json(); }
     )
     , patchFiles(
         "patch files",
         PhasePhckrFileStuff::patchesDir,
         fileWatchThread, 
-        [this](const json& j){
-            // TODO, load patch
-        } 
+        [this](const json& j){}, // TODO, load patch
+        [this](void) -> json { return json(); }
     )
     , componentFiles(
         "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread, 
-        [this](const json& j) {
-            // TODO, nothing?
-        }
+        [this](const json& j) {},
+        [this](void) -> json { return json(); } // TODO, load one of the components, somehow
     )
 
 #if INTERCEPT_STD_STREAMS

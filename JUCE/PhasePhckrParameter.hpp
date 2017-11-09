@@ -74,88 +74,17 @@ class PhasePhckrParameters {
 
     void updateOrFindNewParameters(list<parameterRoute>& newParams, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting);
 
+    std::atomic_flag parameterLock = ATOMIC_FLAG_INIT;
+
 public:
-
     void initialize(PhasePhckrAudioProcessor * p);
-
     void refreshParameters();
-
     bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
-
     void swapParameterIndices(string a, string b); // via gui
-
-    void setParametersHandleMap(ParameterType type, const parameterHandleMap& pv){
-        // from synth
-        if (type == VOICE) {
-            voiceParameters = pv;
-        }
-        else if (type == EFFECT) {
-            effectParameters = pv;
-        }
-        else {
-            return;
-        }
-        refreshParameters();
-    }
-
-    void visitHandleParameterValues(PhasePhckr::Synth* synth){
-        // to synth
-        for(const auto kv: parameterRouting){
-            auto idx = kv.first;
-            auto type = kv.second.first;
-            auto handle = kv.second.second;
-            auto p = floatParameters[idx];
-            float value = p->range.convertFrom0to1(*p);
-            switch(type){
-            case VOICE:
-                synth->handleVoiceParameter(handle, value);
-                break;
-            case EFFECT:
-                synth->handleEffectParameter(handle, value);
-                break;
-            default:
-                break;
-            }
-        }
-    }
-
-    vector<PhasePhckr::ParameterDescriptor> serialize(){
-        // from patch serialization - convert to a struct with strings
-
-        auto v = vector<PhasePhckr::ParameterDescriptor>();
-        for(const auto &kv : parameterNames){
-            auto param = floatParameters[kv.second];
-            PhasePhckr::ParameterDescriptor p = {
-                kv.first,
-                kv.second,
-                *param,
-                param->range.start,
-                param->range.end
-            };
-            v.emplace_back(p);
-        }
-        return v;
-    }
-
-    void deserialize(const vector<PhasePhckr::ParameterDescriptor>& pv){
-        // from patch deserialization - convert from struct with strings
-
-        // clear stuff
-        for (const auto& fp : floatParameters) {
-            fp->clearName();
-            fp->setValueNotifyingHost(0.f); // I think this is the correct thing to do
-        }
-
-        // copy the values
-        for (const auto& p : pv) {
-            parameterNames[p.id] = p.index;
-            auto param = floatParameters[p.index];
-            param->range.start = p.min;
-            param->range.end = p.max;
-            param->setValueNotifyingHost(param->range.convertTo0to1(p.value));
-            // we could also set name but updateParameters takes care of that
-        }
-    }
+    void setParametersHandleMap(ParameterType type, const parameterHandleMap& pv);
+    void visitHandleParameterValues(PhasePhckr::Synth* synth);
+    vector<PhasePhckr::ParameterDescriptor> serialize();
+    void deserialize(const vector<PhasePhckr::ParameterDescriptor>& pv);
 
 };

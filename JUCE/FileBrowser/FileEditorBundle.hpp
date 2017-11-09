@@ -3,6 +3,9 @@
 #include "FileIO.hpp"
 #include "DirectoryWatcher.hpp"
 
+typedef std::function<void(const nlohmann::json&)> ProvideJsonCallBack;
+typedef std::function<nlohmann::json(void)> GetJsonCallBack;
+
 class FileEditorBundle : public Component, public ButtonListener, public FileBrowserListener
 {
 
@@ -12,12 +15,18 @@ private:
     DirectoryContentsList watcher;
     FileListComponent list;
     Label filenameLabel;
-//    json currentLoadedJson;
 
-    PhasePhckrFileStuff::JsonCallBack fileLoadedCallback;
+    ProvideJsonCallBack fileLoadedCallback;
+    GetJsonCallBack fetchJsonCallback;
+
+    bool filenameIsValid() {
+        return false;
+    }
 
 public:
     virtual void buttonClicked(Button * btn) override {
+        if (!filenameIsValid()) return;
+        auto j = fetchJsonCallback();
     }
 
     virtual void selectionChanged() {}
@@ -31,17 +40,12 @@ public:
     }
     virtual void browserRootChanged(const File &newRoot) {}
 
-    /*
-    virtual void setJson(const json & json) {
-        currentLoadedJson = json;
-    }
-    */
-
-    FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, PhasePhckrFileStuff::JsonCallBack fileLoadedCallback)
+    FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback)
         : watcher(PhasePhckrFileStuff::getFilter(), watchThread)
         , list(watcher)
         , titleLabel(String(), name)
         , fileLoadedCallback(fileLoadedCallback)
+        , fetchJsonCallback(fetchJsonCallback)
     {
         list.addListener(this);
         saveButton.addListener(this);

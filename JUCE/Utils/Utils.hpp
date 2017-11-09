@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include <atomic>
 
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
@@ -46,18 +47,23 @@ private:
 
 template <class T>
 class SubValue {
+
 private:
     int ctr;
     std::map<int, std::function<void(const T&)>> listeners;
+
 public:
     SubValue() : ctr(0) {}
+    
     int subscribe(std::function<void(const T&)> callback) {
         listeners.emplace(ctr, callback);
         return ctr++;
     }
+    
     void unsubscribe(int handle) {
         listeners.erase(handle);
     }
+
     void set(int handle, const T& newValue) {
         for (const auto &l : listeners) {
             if (l.first != handle) {

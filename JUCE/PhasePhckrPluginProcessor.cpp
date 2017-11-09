@@ -35,8 +35,8 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
      , componentDirectoryWatcher(getFilter(), fileWatchThread)
      , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
 {
-    activeVoiceHandle = subActiveVoice.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
-    activeEffectHandle = subActiveEffect.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
+    activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
+    activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
@@ -51,36 +51,20 @@ PhasePhckrAudioProcessor::PhasePhckrAudioProcessor()
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
 
-    subActiveVoice.set(-1, getExampleVoiceChain());
-    subActiveEffect.set(-1, getExampleEffectChain());
+    PresetDescriptor initialPreset;
+    initialPreset.voice = getExampleVoiceChain();
+    initialPreset.effect = getExampleEffectChain();
 
-    applyVoiceChain();
-    applyEffectChain();
+    setPreset(initialPreset);
 
 }
 
 PhasePhckrAudioProcessor::~PhasePhckrAudioProcessor()
 {
-    subActiveVoice.unsubscribe(activeVoiceHandle);
-    subActiveEffect.unsubscribe(activeEffectHandle);
+    subVoiceChain.unsubscribe(activeVoiceHandle);
+    subEffectChain.unsubscribe(activeEffectHandle);
     subComponentRegister.unsubscribe(componentRegisterHandle);
     delete synth;
-}
-
-void PhasePhckrAudioProcessor::applyVoiceChain()
-{
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    auto pv = synth->setVoiceChain(voiceChain, componentRegister);
-    parameters.setParametersHandleMap(VOICE, pv);
-    synthUpdateLock.clear(std::memory_order_release);
-}
-
-void PhasePhckrAudioProcessor::applyEffectChain()
-{
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    auto pv = synth->setEffectChain(effectChain, componentRegister);
-    parameters.setParametersHandleMap(EFFECT, pv);
-    synthUpdateLock.clear(std::memory_order_release);
 }
 
 const String PhasePhckrAudioProcessor::getName() const
@@ -251,21 +235,13 @@ AudioProcessorEditor* PhasePhckrAudioProcessor::createEditor()
 
 void PhasePhckrAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    PresetDescriptor preset;
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
-    preset.voice = voiceChain;
-    preset.effect = effectChain;
-    preset.parameters = parameters.serialize();
-    synthUpdateLock.clear(std::memory_order_release);
-
-    json j = preset;
-    string ss = j.dump(2); // TODO; json lib bugged with long rows...
+    json j = getPreset();
+    string ss = j.dump(2); // json lib bugged with long rows
     const char* s = ss.c_str(); 
     size_t n = (strlen(s)+1) / sizeof(char);
     destData.fillWith(0);
     destData.insert((const void*)s, n, 0);
     assert(destData.getSize() == n);
-
 }
 
 void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -280,11 +256,7 @@ void PhasePhckrAudioProcessor::setStateInformation (const void* data, int sizeIn
         // sod off
         return;
     }
-
-    parameters.deserialize(preset.parameters);
-
-    subActiveVoice.set(-1, preset.voice);
-    subActiveEffect.set(-1, preset.effect);
+    setPreset(preset);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
@@ -294,4 +266,63 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 const PhasePhckr::Synth* PhasePhckrAudioProcessor::getSynth() const {
     return synth;
+}
+
+void PhasePhckrAudioProcessor::broadcastPatch() {
+    // editor should call this once after construction
+    subComponentRegister.set(componentRegisterHandle, componentRegister);
+    subVoiceChain.set(activeVoiceHandle, voiceChain);
+    subEffectChain.set(activeEffectHandle, effectChain);
+}
+
+PatchDescriptor PhasePhckrAudioProcessor::getPatch(ParameterType type) {
+    PatchDescriptor patch;
+
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    if (type == VOICE) patch = voiceChain;
+    else if (type == EFFECT) patch = effectChain;
+    synthUpdateLock.clear(std::memory_order_release);
+
+    return patch;
+}
+
+PresetDescriptor PhasePhckrAudioProcessor::getPreset() {
+    PresetDescriptor preset;
+
+    preset.voice = getPatch(VOICE);
+    preset.effect = getPatch(EFFECT);
+    preset.parameters = parameters.serialize();
+
+    return preset;
+}
+
+void PhasePhckrAudioProcessor::setPreset(const PresetDescriptor& preset) {
+    parameters.deserialize(preset.parameters);
+
+    setVoiceChain(preset.voice);
+    setEffectChain(preset.effect);
+    subVoiceChain.set(activeVoiceHandle, preset.voice);
+    subEffectChain.set(activeEffectHandle, preset.effect);
+
+}
+
+void PhasePhckrAudioProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+
+    voiceChain = p;
+    auto pv = synth->setVoiceChain(voiceChain, componentRegister);
+    parameters.setParametersHandleMap(VOICE, pv);
+
+    synthUpdateLock.clear(std::memory_order_release);
+
+}
+
+void PhasePhckrAudioProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
+    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+
+    effectChain = p;
+    auto pv = synth->setEffectChain(effectChain, componentRegister);
+    parameters.setParametersHandleMap(EFFECT, pv);
+
+    synthUpdateLock.clear(std::memory_order_release);
 }

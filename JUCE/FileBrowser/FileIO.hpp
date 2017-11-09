@@ -9,7 +9,7 @@ namespace PhasePhckrFileStuff {
     nlohmann::json loadJson(const File & f);
     void storeJson(File &f, const nlohmann::json& j);
 
-    const std::string phasePhkrDirName = "phasephkr";
+    const std::string phasePhckrDirName = "phasephckr";
     const std::string effectsDirName = "effect";
     const std::string voiceDirName = "voice";
     const std::string componentsDirName = "component";
@@ -18,7 +18,7 @@ namespace PhasePhckrFileStuff {
     const File rootDir = File(
         File::getSpecialLocation(
             File::SpecialLocationType::userApplicationDataDirectory
-        ).getFullPathName() + File::getSeparatorString() + phasePhkrDirName
+        ).getFullPathName() + File::getSeparatorString() + phasePhckrDirName
     );
 
     const File effectsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + effectsDirName);

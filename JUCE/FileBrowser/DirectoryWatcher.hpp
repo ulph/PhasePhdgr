@@ -5,6 +5,8 @@
 #include <utility>
 #include <functional>
 
+#include "phasephckr_json.hpp"
+
 namespace PhasePhckrFileStuff {
 
     class StupidFileFilter : public FileFilter {
@@ -37,20 +39,6 @@ namespace PhasePhckrFileStuff {
         }
     };
 
-    typedef std::function<void(const File&)> StupidCallBack;
-
-    class StupidFileBrowserListener : public FileBrowserListener {
-    public:
-        StupidFileBrowserListener() = delete;
-        StupidFileBrowserListener(StupidCallBack callBack) : callBack(callBack) {}
-        virtual void selectionChanged() {}
-        virtual void fileClicked(const File &file, const MouseEvent &e) {
-            callBack(file);
-        }
-        virtual void fileDoubleClicked(const File &file) {}
-        virtual void browserRootChanged(const File &newRoot) {}
-    private:
-        StupidCallBack callBack;
-    };
+    typedef std::function<void(const nlohmann::json&)> JsonCallBack;
 
 }

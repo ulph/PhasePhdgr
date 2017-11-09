@@ -44,23 +44,23 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         "voice files",
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
-        [this](const File& f) {
-            processor.subActiveVoice.set(-1, loadJson(f));
+        [this](const json& j) {
+            processor.subActiveVoice.set(-1, j);
         }
     )
     , effectFiles(
         "effect files",
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread, 
-        [this](const File& f) {
-            processor.subActiveEffect.set(-1, loadJson(f));
+        [this](const json& j) {
+            processor.subActiveEffect.set(-1, j);
         }
     )
     , patchFiles(
         "patch files",
         PhasePhckrFileStuff::patchesDir,
         fileWatchThread, 
-        [this](const File& f){
+        [this](const json& j){
             // TODO, load patch
         } 
     )
@@ -68,7 +68,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread, 
-        [this](const File& f) {
+        [this](const json& j) {
             // TODO, nothing?
         }
     )

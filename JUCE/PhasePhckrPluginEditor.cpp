@@ -100,11 +100,11 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     }))
 {
 
-    processor.subEffectChain.subscribe([this](const auto& pd) {
+    subEffectHandle = processor.subEffectChain.subscribe([this](const auto& pd) {
         effectFiles.invalidateSelection();
     });
 
-    processor.subVoiceChain.subscribe([this](const auto& pd) {
+    subVoiceHandle = processor.subVoiceChain.subscribe([this](const auto& pd) {
         voiceFiles.invalidateSelection();
     });
 
@@ -198,6 +198,8 @@ PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;
 #endif
+    processor.subVoiceChain.unsubscribe(subVoiceHandle);
+    processor.subEffectChain.unsubscribe(subEffectHandle);
 }
 
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)

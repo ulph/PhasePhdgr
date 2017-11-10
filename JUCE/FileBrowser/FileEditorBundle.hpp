@@ -36,16 +36,8 @@ private:
 
     File fileRoot;
 
-    File makeFullFileFromFilenameLabel() {
-        return watcher.getDirectory().getFullPathName() + File::getSeparatorString() + File(filenameLabel.getText() + string(".json")).getFileName();
-    }
-
-    bool isValidFilename() {
-        String filename = filenameLabel.getText();
-        if (filename.length() == 0) return false;
-        if (filename.containsAnyOf(bannedNameCharacters)) return false;
-        return true;
-    }
+    File makeFullFileFromFilenameLabel();
+    bool isValidFilename();
 
 public:
     virtual void buttonClicked(Button * btn) override {
@@ -69,61 +61,26 @@ public:
             watcher.setDirectory(oneUp, true, true);
         }
     }
-    virtual void selectionChanged() {}
-    virtual void fileClicked(const File &file, const MouseEvent &e) {
+    virtual void selectionChanged() override {}
+    virtual void fileClicked(const File &file, const MouseEvent &e) override {
         // switch directory
         if (file.exists() && !file.existsAsFile()) {
             watcher.setDirectory(file, true, true);
         }
     }
-    virtual void fileDoubleClicked(const File &file) {
+    virtual void fileDoubleClicked(const File &file) override {
         if (!file.existsAsFile()) return; // nonexistant or a directory
         json j = loadJson(file);
         fileLoadedCallback(j);
         filenameLabel.setText(file.getFileNameWithoutExtension(), sendNotificationAsync);
     }
-    virtual void browserRootChanged(const File &newRoot) {}
+    virtual void browserRootChanged(const File &newRoot) override {}
     
     void invalidateSelection() {
         filenameLabel.setText("", sendNotificationAsync);
     }
 
-    FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback)
-        : watcher(PhasePhckrFileStuff::getFilter(), watchThread)
-        , list(watcher)
-        , titleLabel(String(), name)
-        , fileLoadedCallback(fileLoadedCallback)
-        , fetchJsonCallback(fetchJsonCallback)
-    {
-        list.addListener(this);
-        saveButton.addListener(this);
-        goToRootButton.addListener(this);
-        goOneUpButton.addListener(this);
-
-        fileRoot = directory;
-
-        watcher.setDirectory(directory, true, true);
-
-        addAndMakeVisible(titleLabel);
-        addAndMakeVisible(goToRootButton);
-        addAndMakeVisible(goOneUpButton);
-        addAndMakeVisible(filenameLabel);
-        addAndMakeVisible(saveButton);
-
-        addAndMakeVisible(list);
-
-        _stylize(&titleLabel); titleLabel.setJustificationType(Justification::left);
-        _stylize(&list);
-
-        _stylize(&filenameLabel);
-
-        goToRootButton.setButtonText("/");
-        goOneUpButton.setButtonText("..");
-        filenameLabel.setEditable(true);
-        saveButton.setButtonText("save");
-
-        resized();
-    }
+    FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback);
 
     virtual void resized() override {
         const int rowHeightPx = 30;
@@ -175,9 +132,12 @@ private:
     FileEditorBundle voiceFiles;
     FileEditorBundle effectFiles;
     FileEditorBundle presetFiles;
+
+    PhasePhckrGrid componentFilesGrid;
     FileEditorBundle componentFiles;
 
 public:
     FileBrowserPanel(PhasePhckrAudioProcessor& editor);
     virtual ~FileBrowserPanel();
+    void resized() override;
 };

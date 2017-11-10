@@ -10,33 +10,10 @@
 #include "Utils.hpp"
 #include "GraphEditor.hpp"
 
+#include "DocView.hpp"
+
 using namespace PhasePhckr;
 using namespace std;
-
-void _stylize(Label * l);
-void _stylize(TextEditor* t);
-void _stylize(ListBox* l);
-void _stylize(FileListComponent* l);
-
-class DocListModel : public ListBoxModel {
-private:
-    map<string, ModuleDoc> moduleDocs;
-    vector<string> rows;
-    TextEditor & docView;
-public:
-    DocListModel(TextEditor & docView);
-    void setDocs(const map<string, ModuleDoc> & moduleDocs);
-    virtual int getNumRows();
-    virtual void paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected);
-    virtual void listBoxItemClicked(int row, const MouseEvent &);
-    virtual var getDragSourceDescription (const SparseSet< int > &rowsToDescribe){
-        if(!rowsToDescribe.isEmpty()){
-            return String(rows[rowsToDescribe[0]]);
-        }
-        return var();
-    }
-};
-
 
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
@@ -66,6 +43,7 @@ class PatchEditor : public Component
     Doc doc;
     SubValue<Doc> subDoc;
     int docHandle;
+    DocView docView;
 
     SubValue<PatchDescriptor> &subPatch;
     PatchDescriptor patchCopy;
@@ -76,13 +54,8 @@ class PatchEditor : public Component
     int cmpRegHandle;
 
     PhasePhckrGrid grid;
-    PhasePhckrGrid docGrid;
 
     GraphEditorBundle rootView;
-
-    DocListModel docListModel;
-    TextEditor docView;
-    ListBox docList;
 
     list<SubValue<PatchDescriptor>> subPatches;
     list<int> subPatchHandles;

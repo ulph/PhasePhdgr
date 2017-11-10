@@ -36,6 +36,8 @@ set(PH_SRC
     FileBrowser/FileIO.hpp
     FileBrowser/FileIO.cpp
 
+    Components/DocView.cpp
+    Components/DocView.hpp
     Components/PhasePhckrGrid.cpp
     Components/PhasePhckrGrid.h
     Components/PhasePhckrScope.cpp
@@ -43,6 +45,8 @@ set(PH_SRC
     Components/ParameterKnob.hpp
 
     Utils/Utils.hpp
+    Utils/Style.cpp
+    Utils/Style.hpp
 
     PhasePhckrParameter.cpp
     PhasePhckrParameter.hpp

@@ -38,16 +38,6 @@ public:
 };
 
 
-class PatchTextEditor : public TextEditor {
-private:
-    int handle;
-    SubValue<PatchDescriptor> & sub;
-public:
-    PatchTextEditor(SubValue<PatchDescriptor> & sub);
-    virtual ~PatchTextEditor();
-};
-
-
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
     list<SubValue<PatchDescriptor>> & subPatches;
@@ -90,12 +80,6 @@ class PatchEditor : public Component
 
     GraphEditorBundle rootView;
 
-    TabbedComponent leftSidePanelTabs;
-    PatchTextEditor textEditor;
-
-    PropertyPanel overview;
-    // ...
-
     DocListModel docListModel;
     TextEditor docView;
     ListBox docList;
@@ -106,7 +90,6 @@ class PatchEditor : public Component
     void refreshAndBroadcastDoc();
     friend class GraphEditor;
     void push_tab(const string& componentName, const string& componentType);
-    void refreshOverview();
 
 public:
     PatchEditor(

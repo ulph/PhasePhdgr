@@ -39,52 +39,12 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         c_effectChainOutBus
     )
 
-    , fileWatchThread("editorFileWatchThread")
-    , voiceFiles(
-        "voice files",
-        PhasePhckrFileStuff::voicesDir,
-        fileWatchThread,
-        [this](const json& j) {
-            processor.setPatch(VOICE, j);
-        },
-        [this](void) -> json { 
-            return processor.getPatch(VOICE);
-        }
-    )
-    , effectFiles(
-        "effect files",
-        PhasePhckrFileStuff::effectsDir,
-        fileWatchThread, 
-        [this](const json& j) {
-            processor.setPatch(EFFECT, j);
-        },
-        [this](void) -> json {
-            return processor.getPatch(EFFECT);
-        }
-    )
-    , presetFiles(
-        "preset files",
-        PhasePhckrFileStuff::presetsDir,
-        fileWatchThread, 
-        [this](const json& j){
-            processor.setPreset(j);
-        },
-        [this](void) -> json { 
-            return processor.getPreset();
-        }
-    )
-    , componentFiles(
-        "component files",
-        PhasePhckrFileStuff::componentsDir,
-        fileWatchThread, 
-        [this](const json& j) {}, // non-sensical
-        [this](void) -> json { return json(); } // TODO, load one of the components, somehow
-    )
-
 #if INTERCEPT_STD_STREAMS
     , coutIntercept(std::cout)
     , cerrIntercept(std::cerr)
 #endif
+
+    , fileBrowserPanel(processor)
 
     // TODO, tie the timer to the scopes view visibility
     , guiUpdateTimer(new function<void()>([this](){
@@ -99,17 +59,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
         outputScopeXY.repaint();
     }))
 {
-
-    subEffectHandle = processor.subEffectChain.subscribe([this](const auto& pd) {
-        effectFiles.invalidateSelection();
-    });
-
-    subVoiceHandle = processor.subVoiceChain.subscribe([this](const auto& pd) {
-        voiceFiles.invalidateSelection();
-    });
-
-    fileWatchThread.startThread();
-    fileWatchThread.notify();
 
     setResizeLimits(128, 128, 8000, 8000);
     setConstrainer(nullptr);
@@ -146,11 +95,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     mainFrame.addTab("voice patch", Colours::black, &voiceEditor, false);
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 
-    mainFrame.addTab("files", Colours::black, &filesGrid, false);
-    filesGrid.addComponent(&voiceFiles);
-    filesGrid.addComponent(&effectFiles);
-    filesGrid.addComponent(&presetFiles);
-    filesGrid.addComponent(&componentFiles);
+    mainFrame.addTab("files", Colours::black, &fileBrowserPanel, false);
 
 #if INTERCEPT_STD_STREAMS
     mainFrame.addTab("debug", Colours::black, &debugTab, false);
@@ -180,14 +125,6 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     resized();
 }
 
-
-void PhasePhckrAudioProcessorEditor::invalidateFileSelections() {
-    effectFiles.invalidateSelection();
-    voiceFiles.invalidateSelection();
-    presetFiles.invalidateSelection();
-}
-
-
 PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 {
     guiUpdateTimer.stopTimer();
@@ -198,8 +135,6 @@ PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;
 #endif
-    processor.subVoiceChain.unsubscribe(subVoiceHandle);
-    processor.subEffectChain.unsubscribe(subEffectHandle);
 }
 
 void PhasePhckrAudioProcessorEditor::paint (Graphics& g)

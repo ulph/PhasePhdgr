@@ -31,6 +31,7 @@ set(PH_SRC
 
     FileBrowser/DirectoryWatcher.cpp
     FileBrowser/DirectoryWatcher.hpp
+    FileBrowser/FileEditorBundle.cpp
     FileBrowser/FileEditorBundle.hpp
     FileBrowser/FileIO.hpp
     FileBrowser/FileIO.cpp

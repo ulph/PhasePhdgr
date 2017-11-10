@@ -17,7 +17,6 @@
 
 #include "ParameterKnob.hpp"
 
-
 class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:
@@ -25,8 +24,6 @@ public:
         PhasePhckrAudioProcessor&
      );
     ~PhasePhckrAudioProcessorEditor();
-
-    void invalidateFileSelections();
 
     void paint (Graphics&) override;
     void resized() override;
@@ -45,13 +42,7 @@ private:
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 
-    TimeSliceThread fileWatchThread;
-
-    PhasePhckrGrid filesGrid;
-    FileEditorBundle voiceFiles;
-    FileEditorBundle effectFiles;
-    FileEditorBundle presetFiles;
-    FileEditorBundle componentFiles;
+    FileBrowserPanel fileBrowserPanel;
 
     PatchEditor voiceEditor;
     PatchEditor effectEditor;
@@ -67,9 +58,6 @@ private:
 
     vector<ParameterKnob *> parameterKnobs;
     LambdaTimer guiUpdateTimer;
-
-    int subVoiceHandle;
-    int subEffectHandle;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
 };

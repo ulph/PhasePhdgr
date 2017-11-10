@@ -1,12 +1,19 @@
 #pragma once
 
+#include "PhasePhckrPluginProcessor.h"
+
 #include "FileIO.hpp"
 #include "DirectoryWatcher.hpp"
+#include "PhasePhckrGrid.h"
+
+#include "PatchEditor.hpp" // TODO for _stylize
 
 typedef std::function<void(const nlohmann::json&)> ProvideJsonCallBack;
 typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
 const String bannedNameCharacters = " @!?.=-";
+
+using namespace PhasePhckrFileStuff;
 
 class FileEditorBundle : public Component, public ButtonListener, public FileBrowserListener
 {
@@ -14,6 +21,7 @@ class FileEditorBundle : public Component, public ButtonListener, public FileBro
     // TODO, thread safety between checks and usages of checks ... maybe
 
 private:
+
     Label titleLabel;
     TextButton goToRootButton;
     TextButton goOneUpButton;
@@ -153,4 +161,23 @@ public:
         list.setBoundsRelative(0.f, rowHeight, 1.f, 1.f - rowHeight);
     }
 
+};
+
+class PhasePhckrAudioProcessorEditor;
+
+class FileBrowserPanel : public Component {
+private:
+    PhasePhckrAudioProcessor& processor;
+    int subVoiceHandle;
+    int subEffectHandle;
+    TimeSliceThread fileWatchThread;
+    PhasePhckrGrid filesGrid;
+    FileEditorBundle voiceFiles;
+    FileEditorBundle effectFiles;
+    FileEditorBundle presetFiles;
+    FileEditorBundle componentFiles;
+
+public:
+    FileBrowserPanel(PhasePhckrAudioProcessor& editor);
+    virtual ~FileBrowserPanel();
 };

@@ -133,6 +133,10 @@ void FileEditorBundle::resized() {
     list.setBoundsRelative(0.f, rowHeight, 1.f, 1.f - rowHeight);
 }
 
+void FileEditorBundle::setFileName(const string& newName){
+    filenameLabel.setText(newName, sendNotificationAsync);
+}
+
 
 void FileBrowserPanel::updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p){
     c = p.components; // easy enough
@@ -202,9 +206,23 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread,
         [this](const json& j) {}, // non-sensical
-        [this](void) -> json { return json(); } // TODO, load one of the components, somehow
+        [this](void) -> json {
+            return selectedComponent;
+        }
     )
     , docViewTab(TabbedButtonBar::TabsAtTop)
+    , voiceDocView(
+        [this](const string& name){
+            selectedComponent = voiceComponents[name];
+            componentFiles.setFileName(name.substr(1));
+        }
+    )
+    , effectDocView(
+        [this](const string& name){
+            selectedComponent = effectComponents[name];
+            componentFiles.setFileName(name.substr(1));
+        }
+    )
 {
     fileWatchThread.startThread();
     fileWatchThread.notify();

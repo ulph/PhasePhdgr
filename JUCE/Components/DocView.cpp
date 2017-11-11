@@ -1,9 +1,10 @@
 #include "DocView.hpp"
 #include "Style.hpp"
 
-DocListModel::DocListModel(TextEditor & docView)
+DocListModel::DocListModel(TextEditor & docTextView, const ComponentClickedCallback& componentClicked)
     : ListBoxModel()
-    , docView(docView)
+    , docTextView(docTextView)
+    , componentClicked(componentClicked)
 {
 }
 
@@ -31,19 +32,20 @@ void DocListModel::paintListBoxItem(int rowNumber, Graphics &g, int width, int h
 void DocListModel::listBoxItemClicked(int row, const MouseEvent &) {
     if (row >= 0) {
         const auto &key = rows[row];
+        componentClicked(key); // trigger callback so external guy can use
         const auto &doc = moduleDocs[key];
-        docView.clear();
-        docView.insertTextAtCaret(doc.type + "\n\n");
-        docView.insertTextAtCaret("inputs:\n");
+        docTextView.clear();
+        docTextView.insertTextAtCaret(doc.type + "\n\n");
+        docTextView.insertTextAtCaret("inputs:\n");
         for (const auto & i : doc.inputs) {
-            docView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.value) + "\n");
+            docTextView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.value) + "\n");
         }
-        docView.insertTextAtCaret("\noutputs:\n");
+        docTextView.insertTextAtCaret("\noutputs:\n");
         for (const auto & o : doc.outputs) {
-            docView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + "\n");
+            docTextView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + "\n");
         }
-        docView.insertTextAtCaret("\n\n" + doc.docString);
-        docView.moveCaretToTop(false);
+        docTextView.insertTextAtCaret("\n\n" + doc.docString);
+        docTextView.moveCaretToTop(false);
     }
 }
 
@@ -55,18 +57,18 @@ var DocListModel::getDragSourceDescription (const SparseSet< int > &rowsToDescri
 }
 
 
-DocView::DocView()
-    : docListModel(docView)
+DocView::DocView(const ComponentClickedCallback& cb)
+    : docListModel(docTextView, cb)
     , docList("docList", &docListModel)
 {
     addAndMakeVisible(docGrid);
 
-    docGrid.addComponent(&docView);
+    docGrid.addComponent(&docTextView);
     docGrid.addComponent(&docList);
     docGrid.setColoumns({ 1.0f });
     docList.updateContent();
 
-    _stylize(&docView);
+    _stylize(&docTextView);
     _stylize(&docList);
 
     resized();

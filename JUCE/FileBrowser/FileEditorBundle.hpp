@@ -48,6 +48,7 @@ public:
     virtual void fileDoubleClicked(const File &file) override;
     virtual void browserRootChanged(const File &newRoot) override;
     void invalidateSelection();
+    void setFileName(const string& newName);
 
     FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback);
 
@@ -75,6 +76,7 @@ private:
     map<string, ComponentDescriptor> effectComponents;
     DocView voiceDocView;
     DocView effectDocView;
+    ComponentDescriptor selectedComponent;
 
 public:
     FileBrowserPanel(PhasePhckrAudioProcessor& editor);

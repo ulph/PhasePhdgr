@@ -67,6 +67,10 @@ bool unpackComponent(
 
     // prefix internals accordingly
     for (auto &m : current.graph.modules) {
+        if(!moduleNameIsValid(m.name)){
+            cerr << "Error: " << m.name << " is not a valid Module name!" << endl;
+            continue;
+        }
         m.name = pfx + m.name;
     }
     for (auto &v : current.graph.values) {
@@ -100,6 +104,10 @@ void designChain(
                 cerr << "Error: " << m.type << " is unknown Component type!" << endl;
                 continue;
             }
+            if(!componentNameIsValid(m.type)){
+                cerr << "Error: " << m.type << " is not a valid Component name!" << endl;
+                continue;
+            }
             ComponentDescriptor child_cd = pd.components.at(m.type);
             if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles)){
                 components.insert(m.name);
@@ -109,18 +117,18 @@ void designChain(
 
     // create the modules and store their handles
     for (const auto &m : cd.graph.modules) {
-        if (components.count(m.name)) continue;
         if (moduleHandles.count(m.name) > 0) {
             cerr << "Error: " << m.name << " name dupe! (modules)" << endl;
         }
-        else {
-            int handle = g.addModule(m.type);
-            moduleHandles[m.name] = handle;
-            cout << handle << " : " << " " << m.name << std::endl;
-            if(m.type.at(0) == '='){
-                parameterHandles[m.name] = handle;
-            }
+        if (components.count(m.name)) continue;
+
+        int handle = g.addModule(m.type);
+        moduleHandles[m.name] = handle;
+        cout << handle << " : " << " " << m.name << std::endl;
+        if(m.type.at(0) == '='){
+            parameterHandles[m.name] = handle;
         }
+
     }
 
     // iterate over the connections

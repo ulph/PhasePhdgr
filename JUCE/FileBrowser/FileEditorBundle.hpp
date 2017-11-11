@@ -13,8 +13,6 @@ class PhasePhckrAudioProcessorEditor;
 typedef std::function<void(const nlohmann::json&)> ProvideJsonCallBack;
 typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
-const String bannedNameCharacters = " @!?.=-";
-
 using namespace PhasePhckrFileStuff;
 
 class FileEditorBundle : public Component, public ButtonListener, public FileBrowserListener

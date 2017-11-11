@@ -197,6 +197,26 @@ void designPatch(
     );
 }
 
+bool findAnyOf(const string& str, const string& chars){
+    for(const auto& c: chars){
+        if(str.find(c) != string::npos) return true;
+    }
+    return false;
+}
+
+const string bannedCharacters = " @!?.="; // etc, quite a list ...
+
+bool moduleNameIsValid(const string& moduleName){
+    if(findAnyOf(moduleName, bannedCharacters)) return false;
+    return true;
+}
+
+bool componentNameIsValid(const string& componentName){
+    if(componentName[0] != '@') return false;
+    if(findAnyOf(componentName.substr(1), bannedCharacters)) return false;
+    return true;
+}
+
 const vector<PadDescription> c_effectChainInBus = {
     { "left", "", 0 },
     { "right", "", 0 },

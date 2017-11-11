@@ -98,6 +98,9 @@ void designPatch(
     const ComponentRegister & cp
 );
 
+bool moduleNameIsValid(const string& moduleName);
+bool componentNameIsValid(const string& componentName);
+
 extern const vector<PadDescription> c_effectChainInBus;
 extern const vector<PadDescription> c_effectChainOutBus;
 

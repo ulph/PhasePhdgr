@@ -5,6 +5,8 @@
 
 using namespace PhasePhckrFileStuff;
 
+const String bannedCharacters = " @!?.=-"; // TODO, reuse stuff from core/design
+
 File FileEditorBundle::makeFullFileFromFilenameLabel() {
     return watcher.getDirectory().getFullPathName() + File::getSeparatorString() + File(filenameLabel.getText() + string(".json")).getFileName();
 }
@@ -12,7 +14,7 @@ File FileEditorBundle::makeFullFileFromFilenameLabel() {
 bool FileEditorBundle::isValidFilename() {
     String filename = filenameLabel.getText();
     if (filename.length() == 0) return false;
-    if (filename.containsAnyOf(bannedNameCharacters)) return false;
+    if (filename.containsAnyOf(bannedCharacters)) return false;
     return true;
 }
 

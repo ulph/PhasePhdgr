@@ -40,11 +40,13 @@ struct XY {
         return Rectangle<float>(0, 0, x, y);
     }
 };
+
 inline XY operator+(XY lhs, const XY& rhs)
 {
     lhs += rhs;
     return lhs;
 }
+
 inline XY operator-(XY lhs, const XY& rhs)
 {
     lhs -= rhs;
@@ -107,6 +109,7 @@ struct GfxModule {
 
 };
 
+
 struct GfxWire {
 private:
     Path path;
@@ -156,5 +159,4 @@ struct GfxGraph {
     void designPorts(const Doc &doc);
     void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
     PatchDescriptor exportModelData();
-
 };

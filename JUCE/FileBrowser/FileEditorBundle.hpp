@@ -67,8 +67,14 @@ private:
     FileEditorBundle effectFiles;
     FileEditorBundle presetFiles;
 
+    void updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p);
     PhasePhckrGrid componentFilesGrid;
     FileEditorBundle componentFiles;
+    TabbedComponent docViewTab;
+    map<string, ComponentDescriptor> voiceComponents;
+    map<string, ComponentDescriptor> effectComponents;
+    DocView voiceDocView;
+    DocView effectDocView;
 
 public:
     FileBrowserPanel(PhasePhckrAudioProcessor& editor);

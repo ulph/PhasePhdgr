@@ -134,6 +134,17 @@ void FileEditorBundle::resized() {
 }
 
 
+void FileBrowserPanel::updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p){
+    c = p.components; // easy enough
+    map<string, ModuleDoc> docs;
+    for(const auto& kv : c){
+        ModuleDoc doc;
+        ComponentRegister::makeComponentDoc(kv.first, kv.second, doc);
+        docs[kv.first] = doc;
+    }
+    d.setDocs(docs);
+}
+
 FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
     : fileWatchThread("editorFileWatchThread")
     , processor(p)
@@ -141,6 +152,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         processor.subEffectChain.subscribe(
             [this](const auto& pd) {
                 effectFiles.invalidateSelection();
+                updateComponentMap(effectComponents, effectDocView, pd);
             }
         )
     )
@@ -148,6 +160,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         processor.subVoiceChain.subscribe(
             [this](const auto& pd) {
                 voiceFiles.invalidateSelection();
+                updateComponentMap(voiceComponents, voiceDocView, pd);
             }
         )
     )
@@ -191,6 +204,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         [this](const json& j) {}, // non-sensical
         [this](void) -> json { return json(); } // TODO, load one of the components, somehow
     )
+    , docViewTab(TabbedButtonBar::TabsAtTop)
 {
     fileWatchThread.startThread();
     fileWatchThread.notify();
@@ -201,8 +215,11 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
     filesGrid.addComponent(&effectFiles);
     filesGrid.addComponent(&presetFiles);
 
-    componentFilesGrid.addComponent(&componentFiles);
     filesGrid.addComponent(&componentFilesGrid);
+    componentFilesGrid.addComponent(&componentFiles);
+    componentFilesGrid.addComponent(&docViewTab);
+    docViewTab.addTab("voice", Colours::black, &voiceDocView, false);
+    docViewTab.addTab("effect", Colours::black, &effectDocView, false);
 
     resized();
 }
@@ -210,7 +227,6 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
 void FileBrowserPanel::resized()
 {
     filesGrid.setBoundsRelative(0, 0, 1.0f, 1.0f);
-    repaint();
 }
 
 FileBrowserPanel::~FileBrowserPanel(){

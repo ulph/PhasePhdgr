@@ -7,6 +7,8 @@
 #include <queue>
 #include "busmodules.hpp"
 
+#include <assert.h>
+
 using namespace std;
 
 namespace PhasePhckr {
@@ -16,8 +18,17 @@ void designChain(
     const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int>& moduleHandles,
-    map<string, int>& parameterHandles
+    map<string, int>& parameterHandles,
+    int depth
 );
+
+bool checkModuleName(const string& name){
+    if(!moduleNameIsValid(name)){
+        cerr << "Error: \"" << name << "\" is not a valid Module name!" << endl;
+        return false;
+    }
+    return true;
+}
 
 bool unpackComponent(
     ConnectionGraph &g,
@@ -26,8 +37,12 @@ bool unpackComponent(
     ComponentDescriptor &parent,
     ComponentDescriptor &current,
     map<string, int> &moduleHandles,
-    map<string, int> &parameterHandles
+    map<string, int> &parameterHandles,
+    int depth
 ) {
+
+    assert(depth > 0);
+
     // find the component definition
     cout << "component " << mv.name << " " << mv.type << endl;
 
@@ -67,10 +82,7 @@ bool unpackComponent(
 
     // prefix internals accordingly
     for (auto &m : current.graph.modules) {
-        if(!moduleNameIsValid(m.name)){
-            cerr << "Error: " << m.name << " is not a valid Module name!" << endl;
-            continue;
-        }
+        if(!checkModuleName(m.name)) continue;
         m.name = pfx + m.name;
     }
     for (auto &v : current.graph.values) {
@@ -81,7 +93,7 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
-    designChain(g, pd, current, moduleHandles, parameterHandles);
+    designChain(g, pd, current, moduleHandles, parameterHandles, depth);
 
     return true;
 }
@@ -92,7 +104,8 @@ void designChain(
     const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
-    map<string, int> &parameterHandles
+    map<string, int> &parameterHandles,
+    int depth
 ){
 
     set<string> components;
@@ -101,15 +114,15 @@ void designChain(
     for (const auto &m : cd.graph.modules) {
         if (m.type.front() == '@') {
             if(!pd.components.count( m.type )){
-                cerr << "Error: " << m.type << " is unknown Component type!" << endl;
+                cerr << "Error: \"" << m.type << "\" is unknown Component type!" << endl;
                 continue;
             }
             if(!componentNameIsValid(m.type)){
-                cerr << "Error: " << m.type << " is not a valid Component name!" << endl;
+                cerr << "Error: \"" << m.type << "\" is not a valid Component name!" << endl;
                 continue;
             }
             ComponentDescriptor child_cd = pd.components.at(m.type);
-            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles)){
+            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles, depth+1)){
                 components.insert(m.name);
             }
         }
@@ -117,8 +130,9 @@ void designChain(
 
     // create the modules and store their handles
     for (const auto &m : cd.graph.modules) {
+        if(depth == 0 && !checkModuleName(m.name)) continue;
         if (moduleHandles.count(m.name) > 0) {
-            cerr << "Error: " << m.name << " name dupe! (modules)" << endl;
+            cerr << "Error: \"" << m.name << "\" name dupe! (modules)" << endl;
         }
         if (components.count(m.name)) continue;
 
@@ -183,7 +197,7 @@ void designPatch(
             p.components[kv.first] = kv.second;
         }
         else{
-            cerr << "Warning: Component " << kv.first << " is globally defined and in patch! Consider renaming the patch defined component." << endl;
+            cerr << "Warning: Component \"" << kv.first << "\" is globally defined and in patch! Consider renaming the patch defined component." << endl;
         }
     }
 
@@ -201,9 +215,12 @@ void designPatch(
         p,
         p.root,
         moduleHandles,
-        parameterHandles
+        parameterHandles,
+        0
     );
 }
+
+const string bannedCharacters = " @!?.=-/\"\\"; // etc, quite a list ...
 
 bool findAnyOf(const string& str, const string& chars){
     for(const auto& c: chars){
@@ -211,8 +228,6 @@ bool findAnyOf(const string& str, const string& chars){
     }
     return false;
 }
-
-const string bannedCharacters = " @!?.="; // etc, quite a list ...
 
 bool moduleNameIsValid(const string& moduleName){
     if(findAnyOf(moduleName, bannedCharacters)) return false;

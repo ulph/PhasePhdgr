@@ -25,11 +25,13 @@ set(API_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr_json.hpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/components.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/docs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/design.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/synth.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/docs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/examples.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/scope.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/synth.hpp
 )
+
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
 set_target_properties(phasephckr_api PROPERTIES FOLDER core)
 

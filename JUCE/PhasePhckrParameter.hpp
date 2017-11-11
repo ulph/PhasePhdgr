@@ -54,6 +54,9 @@ public:
     }
 };
 
+
+// TODO, review/refactor this stuff again to see if some of the maps and types and whatnot can be simplified/removed...
+
 enum ParameterType {
     VOICE,
     EFFECT

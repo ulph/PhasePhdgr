@@ -51,24 +51,24 @@ PatchEditor::PatchEditor(
     editorStack.addTab("root", Colours::black, &rootView, false);
 
     patchHandle = subPatch.subscribe(
-        function<void(const PatchDescriptor&)>([this](const PatchDescriptor& desc) {
+        [this](const PatchDescriptor& desc) {
             patchCopy = desc;
             refreshAndBroadcastDoc();
         }
-    ));
+    );
 
     docHandle = subDoc.subscribe(
-        function<void(const Doc&)>([this](const Doc& doc_){
+        [this](const Doc& doc_){
             assert(0); // nobody else should be able to do this ... TODO, better solution :P
         }
-    ));
+    );
 
     cmpRegHandle = subCmpReg.subscribe(
-        function<void(const PhasePhckr::ComponentRegister&)>([this](const PhasePhckr::ComponentRegister& cmpReg_){
+        [this](const PhasePhckr::ComponentRegister& cmpReg_){
             cmpReg = cmpReg_;
             refreshAndBroadcastDoc();
         }
-    ));
+    );
 
     resized();
 }
@@ -101,13 +101,13 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     cmp = patchCopy.components.at(componentType);
     subPatches.push_back(SubValue<PatchDescriptor>());
     auto &subP = subPatches.back();
-    auto handle = subP.subscribe(function<void(const PatchDescriptor&)>(
+    auto handle = subP.subscribe(
         [this, cmp, componentType](const PatchDescriptor& p){
-        patchCopy.components[componentType] = cmp;
-        patchCopy.components[componentType].graph = p.root.graph;
-        subPatch.set(-1, patchCopy);
-    }
-    ));
+            patchCopy.components[componentType] = cmp;
+            patchCopy.components[componentType].graph = p.root.graph;
+            subPatch.set(-1, patchCopy);
+        }
+    );
     subPatchHandles.push_back(handle);
 
     PatchDescriptor p;

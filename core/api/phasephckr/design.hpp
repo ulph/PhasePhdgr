@@ -103,7 +103,11 @@ const char parameterMarker = '=';
 const char componentMarker = '@';
 
 bool moduleNameIsValid(const string& moduleName);
-bool componentNameIsValid(const string& componentName);
+bool componentNameIsValid(const string& componentName); // TODO componentType
+// TODO parameterTypeIsValid
+// TODO typeIsValid (checks that all uppercase?)
+
+// TODO isParameter, isComponent (that checks first char but ignores the validity at large)
 
 extern const vector<PadDescription> c_effectChainInBus;
 extern const vector<PadDescription> c_effectChainOutBus;

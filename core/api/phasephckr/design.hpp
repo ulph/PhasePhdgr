@@ -98,6 +98,10 @@ void designPatch(
     const ComponentRegister & cp
 );
 
+const char componentSeparator = '.';
+const char parameterMarker = '=';
+const char componentMarker = '@';
+
 bool moduleNameIsValid(const string& moduleName);
 bool componentNameIsValid(const string& componentName);
 

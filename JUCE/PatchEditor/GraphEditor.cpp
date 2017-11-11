@@ -55,7 +55,7 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
     poop.addCustomItem(nameMenuId, &nameLbl, 20, 20, false);
 
     int typeMenuId = 999;
-    if(moduleType.front() == '@'){
+    if(moduleType.front() == componentMarker){
         typeMenuId = ctr++;
         poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
     }

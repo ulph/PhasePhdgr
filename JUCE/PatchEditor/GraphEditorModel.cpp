@@ -301,7 +301,7 @@ GfxModule::GfxModule(
 )
     : module(mv)
 {
-    if(module.type.at(0) == '=') isParameter = true;
+    if(module.type.front() == parameterMarker) isParameter = true;
     size = XY(c_NodeSize, c_NodeSize);
     position.y = y * c_GridSize;
     position.x = x * c_GridSize;

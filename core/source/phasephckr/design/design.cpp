@@ -47,7 +47,7 @@ bool unpackComponent(
     cout << "component " << mv.name << " " << mv.type << endl;
 
     // move component subgraph onto the mv's "scope"
-    const string pfx = mv.name + ".";
+    const string pfx = mv.name + componentSeparator;
 
     auto inBus = new BusModule(current.inBus, true);
     auto outBus = new BusModule(current.outBus, false);
@@ -112,7 +112,7 @@ void designChain(
 
     // find any components (module bundles) and unpack them
     for (const auto &m : cd.graph.modules) {
-        if (m.type.front() == '@') {
+        if (m.type.front() == componentMarker) {
             if(!pd.components.count( m.type )){
                 cerr << "Error: \"" << m.type << "\" is unknown Component type!" << endl;
                 continue;
@@ -139,7 +139,7 @@ void designChain(
         int handle = g.addModule(m.type);
         moduleHandles[m.name] = handle;
         cout << handle << " : " << " " << m.name << std::endl;
-        if(m.type.at(0) == '='){
+        if(m.type.front() == parameterMarker){
             parameterHandles[m.name] = handle;
         }
 
@@ -220,7 +220,7 @@ void designPatch(
     );
 }
 
-const string bannedCharacters = " @!?.=-/\"\\"; // etc, quite a list ...
+const string bannedCharacters = " @!?.=-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
 
 bool findAnyOf(const string& str, const string& chars){
     for(const auto& c: chars){
@@ -235,7 +235,7 @@ bool moduleNameIsValid(const string& moduleName){
 }
 
 bool componentNameIsValid(const string& componentName){
-    if(componentName[0] != '@') return false;
+    if(componentName.front() != componentMarker) return false;
     if(findAnyOf(componentName.substr(1), bannedCharacters)) return false;
     return true;
 }

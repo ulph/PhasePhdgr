@@ -18,9 +18,11 @@ void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr
 
 
 void PatchEditor::refreshAndBroadcastDoc(){
+    doc = Doc();
     populateDocWithComponents(doc, cmpReg, patchCopy);
     docView.setDocs(doc.get());
     subDoc.set(docHandle, doc);
+    repaint();
 }
 
 
@@ -33,12 +35,12 @@ PatchEditor::PatchEditor(
     : subPatch(subPatch)
     , subCmpReg(subCmpReg)
     , rootView(
-           *this,
-           subDoc,
-           subPatch,
-           inBus,
-           outBus
-           )
+       *this,
+       subDoc,
+       subPatch,
+       inBus,
+       outBus
+    )
     , editorStack(subPatches, subPatchHandles)
 {
     addAndMakeVisible(grid);

@@ -38,9 +38,13 @@ void Delay::process(uint32_t fs) {
     tapeSamples = tapeSamples < N ? N : tapeSamples;
 
     if(tapeSamples > bufferSize){
+        // lazily grow the buffer ... TODO, proper memory chunk allocations
+        auto newBufferSize = 2*(int)tapeSamples;
+        auto newBuffer = new float[newBufferSize]();
+        memmove(newBuffer, buffer, sizeof(float)*bufferSize);
         delete[] buffer;
-        bufferSize = 2*(int)tapeSamples;
-        buffer = new float[bufferSize]();
+        buffer = newBuffer;
+        bufferSize = newBufferSize;
     }
 
     tapeSamples = ((tapeSamples+N) > bufferSize) ? (bufferSize-N) : tapeSamples;

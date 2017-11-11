@@ -6,6 +6,7 @@
 using namespace std;
 using namespace PhasePhckr;
 
+
 void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr, const PatchDescriptor pd){
     cr.makeComponentDocs(doc);
     for (const auto & c : pd.components) {

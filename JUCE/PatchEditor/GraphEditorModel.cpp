@@ -555,33 +555,54 @@ bool GfxGraph::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
 
 bool GfxGraph::rename(string module, string newName){
     bool foundModule = false;
-    bool conflict = false;
+
     int mIdx = 0;
     int i=0;
+
     for (const auto& m : modules) {
         if (m.module.name == module) {
+            // found it
             foundModule = true;
             mIdx = i;
         }
         if (m.module.name == newName) {
-            conflict = true;
+            // conflict
+            return false;
         }
         i++;
     }
-    if (foundModule && !conflict) {
-        modules.at(mIdx).module.name = newName;
-        auto wit = wires.begin();
-        while (wit != wires.end()) {
-            if (wit->connection.source.module == module){
-                wit->connection.source.module = newName;
-            }
-            else if(wit->connection.target.module == module) {
-                wit->connection.target.module = newName;
-            }
-            wit++;
+
+    if(!foundModule) return false;
+
+    modules.at(mIdx).module.name = newName;
+    auto wit = wires.begin();
+    while (wit != wires.end()) {
+        if (wit->connection.source.module == module){
+            wit->connection.source.module = newName;
         }
+        else if(wit->connection.target.module == module) {
+            wit->connection.target.module = newName;
+        }
+        wit++;
     }
-    return foundModule && !conflict;
+
+    return true;
+}
+
+bool GfxGraph::renameComponent(string componentType, string newComponentType){
+    if(componentType[0] != '@') return false;
+    if(newComponentType[0] != '@') return false;
+    if(components.count(componentType) && !components.count(newComponentType)){
+        for(auto& m: modules){
+            if(m.module.type == componentType){
+                m.module.type = newComponentType;
+            }
+        }
+        components[newComponentType] = components[componentType];
+        components.erase(componentType);
+        return true;
+    }
+    return false;
 }
 
 bool GfxGraph::remove(const string &module) {

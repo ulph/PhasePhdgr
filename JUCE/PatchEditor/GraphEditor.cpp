@@ -76,7 +76,10 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
         );
     }
     else if(moduleType != typeLbl.getText().toStdString()){
-        // TODO, call function on gfxGraph to change the type to new type if unique
+        return gfxGraph.renameComponent(
+            moduleType,
+            typeLbl.getText().toStdString()
+        );
     }
 
     return false;

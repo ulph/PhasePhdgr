@@ -123,15 +123,27 @@ bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & select
 }
 
 
-bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port){
+bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, GfxGraph& gfxGraph){
     float value;
     if(!gfxModule.getValue(port, value)) return false; // error
-    Label lbl(port, to_string(value));
+
+    // TODO deletion of component ports
+    // TODO also handle output ports (rename/delete on component)
+
+    Label lbl(port+"_v", to_string(value));
     lbl.setEditable(true, true, false);
     poop.addItem(1, port);
     poop.addCustomItem(2, &lbl, 20, 20, false);
     poop.addItem(3, "clear");
+
+    Label nameLbl(port, port);
+    nameLbl.setEditable(true, true, false);
+    if(gfxModule.module.type.front() == componentMarker){
+        poop.addCustomItem(4, &nameLbl, 20, 20, false);
+    }
+
     int choice = poop.show();
+
     if(choice == 3){
         gfxModule.clearValue(port);
         return true;
@@ -141,6 +153,15 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
         return gfxModule.setValue(
             port,
             lbl.getText().getFloatValue()
+        );
+    }
+
+    if(port != nameLbl.getText()){
+        return gfxGraph.renameComponentPort(
+            gfxModule.module.type,
+            port,
+            nameLbl.getText().toStdString(),
+            true
         );
     }
 
@@ -255,7 +276,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         if (m.withinPort(mouseDownPos, position, port, inputPort)) {
             if(inputPort && event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                modelChanged = makePortPoopUp(poop, m, port);
+                modelChanged = makePortPoopUp(poop, m, port, gfxGraph);
             }
             else{
                 looseWire.isValid = true;

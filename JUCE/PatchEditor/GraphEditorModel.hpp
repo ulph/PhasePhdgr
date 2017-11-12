@@ -153,6 +153,7 @@ struct GfxGraph {
     bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
     bool rename(string module, string newName);
     bool renameComponent(string componentType, string newComponentType);
+    bool renameComponentPort(string componentType, string port, string newPort, bool inputPort);
     bool remove(const string &module);
     bool getModule(string name, const GfxModule** module);
     bool hasModuleName(string name);

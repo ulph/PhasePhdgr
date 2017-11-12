@@ -607,6 +607,68 @@ bool GfxGraph::renameComponent(string componentType, string newComponentType){
     return true;
 }
 
+bool GfxGraph::renameComponentPort(string componentType, string port, string newPort, bool inputPort){
+    if(!components.count(componentType)) return false;
+
+    // TODO output ports
+    // TODO edit units
+
+    // 1. change component definition
+    ComponentDescriptor& definition = components[componentType];
+    if(inputPort){
+        PadDescription* pad = nullptr;
+        for(auto &p : definition.inBus){
+            if(p.name == port){
+                pad = &p;
+            }
+            if(p.name == newPort){
+                return false; // conflict
+            }
+        }
+        if(pad != nullptr){
+            pad->name = newPort;
+        }
+        else {
+            return false;
+        }
+    }
+    else{
+        assert(0); return false;
+    }
+
+    // 2a. find any instances -- skip this?
+    vector<GfxModule *> instances;
+    if(inputPort){
+        for(auto& m : modules){
+            if(m.module.type == componentType){
+                instances.push_back(&m);
+                for(auto& p:m.inputs){
+                    if(p.port == port){ p.port = newPort; break;}
+                }
+            }
+        }
+    }
+    else{
+        assert(0); return false;
+    }
+
+    // 2b. find any connections to/from renamed ports
+    for(auto* m : instances){
+        for(auto& w : wires){
+            if(inputPort){
+                if(w.connection.target.module == m->module.name && w.connection.target.port == port){
+                    w.connection.target.port = newPort;
+                }
+            }
+            else {
+                assert(0); return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool GfxGraph::remove(const string &module) {
     bool foundModule = false;
     int mIdx = 0;

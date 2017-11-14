@@ -101,7 +101,7 @@ void from_json(const json& j, PatchDescriptor& p) {
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
     j[c_inBus.name] = cgd.inBus;
-    j[c_inBus.name] = cgd.outBus;
+    j[c_outBus.name] = cgd.outBus;
     j["graph"] = cgd.graph;
     j["docString"] = cgd.docString;
 }

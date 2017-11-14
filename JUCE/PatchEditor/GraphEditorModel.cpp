@@ -720,6 +720,7 @@ void GfxGraph::designPorts(const Doc &doc){
     }
 }
 
+
 void GfxGraph::createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position){
     ConnectionGraphDescriptor cgd;
 
@@ -737,7 +738,11 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
     }
 
     set<string> inAlias;
-    set<string> outAlias; // TODO, make this a map, so _same_ module/port can be merged...
+    set<pss_t> inModules;
+
+    set<string> outAlias;
+    set<pss_t> outModules;
+    
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
 
@@ -758,10 +763,13 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
         else if (selectedModules.count(w.connection.target.module)) {
             auto mp = w.connection.target;
             string alias = mp.port;
-            while (inAlias.count(alias)) { alias += "_"; }
-            inAlias.insert(alias);
-            PadDescription pd = { alias, "", 0};
-            inBus.push_back(pd);
+            if (inModules.count((pss_t)mp) == 0) {
+                while (inAlias.count(alias)) { alias += "_"; }
+                inAlias.insert(alias);
+                PadDescription pd = { alias, "", 0 };
+                inBus.push_back(pd);
+                inModules.insert((pss_t)mp);
+            }
             // store 'api' connection
             cgd.connections.push_back(ModulePortConnection{{c_inBus.name, alias}, {w.connection.target.module, w.connection.target.port}});
             // remap external connection graph
@@ -771,10 +779,13 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
         else if (selectedModules.count(w.connection.source.module)) {
             auto mp = w.connection.source;
             string alias = mp.port;
-            while (outAlias.count(alias)) { alias += "_"; }
-            outAlias.insert(alias);
-            PadDescription pd = { alias, "", 0};
-            outBus.push_back(pd);
+            if (outModules.count((pss_t)mp) == 0) {
+                while (outAlias.count(alias)) { alias += "_"; }
+                outAlias.insert(alias);
+                PadDescription pd = { alias, "", 0 };
+                outBus.push_back(pd);
+                outModules.insert((pss_t)mp);
+            }
             // store 'api' connectino
             cgd.connections.push_back(ModulePortConnection{{w.connection.source.module, w.connection.source.port}, {c_outBus.name, alias}});
             // remap external connection graph

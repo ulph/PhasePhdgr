@@ -12,6 +12,7 @@ using namespace std;
 namespace PhasePhckr {
 
 class ComponentRegister;
+typedef pair<string, string> pss_t;
 
 /* Graph stuff */
 
@@ -21,6 +22,7 @@ struct ModuleVariable {
     bool operator ==(ModuleVariable const& other) {
         return other.name == name && other.type == type;
     }
+    explicit operator pss_t() const { return make_pair(name, type); }
 };
 
 struct ModulePort {
@@ -29,6 +31,7 @@ struct ModulePort {
     bool operator ==(ModulePort const& other) {
         return other.module == module && other.port == port;
     }
+    explicit operator pss_t() const { return make_pair(module, port); }
 };
 
 struct ModulePortConnection {

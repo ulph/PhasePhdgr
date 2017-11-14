@@ -12,6 +12,7 @@
 using namespace std;
 
 class PhasePhckrAudioProcessor;
+class PhasePhckrAudioProcessorEditor;
 
 class PhasePhckrParameter : public AudioParameterFloat {
 private:
@@ -81,6 +82,7 @@ class PhasePhckrParameters {
 
 public:
     void initialize(PhasePhckrAudioProcessor * p);
+    void initializeKnobs(PhasePhckrAudioProcessorEditor * e);
     void refreshParameters();
     bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();

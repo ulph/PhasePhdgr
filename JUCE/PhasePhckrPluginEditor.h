@@ -28,6 +28,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
+    friend PhasePhckrParameters;
+
 private:
     PhasePhckrAudioProcessor& processor;
 

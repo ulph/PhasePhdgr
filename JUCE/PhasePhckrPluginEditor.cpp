@@ -78,19 +78,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     mainFrame.addTab("preset parameters", Colours::black, &performGrid, false);
     performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
 
-    for(int i=0; i<processor.parameters.numberOfParameters(); i++){
-        PhasePhckrParameter* p = nullptr;
-        if(processor.parameters.accessParameter(i, &p)){
-            auto knob = new ParameterKnob(p,
-                [this](string a, string b){
-                    processor.parameters.swapParameterIndices(a, b);
-                    guiUpdateTimer.timerCallback();
-                }
-            );
-            parameterKnobs.push_back(knob);
-            performGrid.addComponent(knob);
-        }
-    }
+    processor.parameters.initializeKnobs(this);
 
     mainFrame.addTab("voice patch", Colours::black, &voiceEditor, false);
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);

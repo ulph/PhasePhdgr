@@ -610,47 +610,54 @@ bool GfxGraph::renameComponent(string componentType, string newComponentType){
 bool GfxGraph::renameComponentPort(string componentType, string port, string newPort, bool inputPort){
     if(!components.count(componentType)) return false;
 
-    // TODO output ports
-    // TODO edit units
-
     // 1. change component definition
     ComponentDescriptor& definition = components[componentType];
-    if(inputPort){
-        PadDescription* pad = nullptr;
-        for(auto &p : definition.inBus){
-            if(p.name == port){
-                pad = &p;
-            }
-            if(p.name == newPort){
-                return false; // conflict
-            }
-        }
-        if(pad != nullptr){
-            pad->name = newPort;
-        }
-        else{
-            return false;
-        }
-    }
-    else{
-        assert(0); return false;
-    }
+    PadDescription* pad = nullptr;
 
-    // 2a. find any instances -- skip this?
-    vector<GfxModule *> instances;
-    if(inputPort){
-        for(auto& m : modules){
-            if(m.module.type == componentType){
-                instances.push_back(&m);
-                for(auto& p:m.inputs){
-                    if(p.port == port){ p.port = newPort; break;}
+    // 1a. find the pad
+    auto * bus = &definition.outBus;
+    if(inputPort) bus = &definition.inBus;
+    for(auto &p : *bus){
+        if(p.name == port){
+            pad = &p;
+        }
+        if(p.name == newPort){
+            return false; // conflict
+        }
+    }
+     
+    // 1b. change the pad and any internal connections to/from
+    if(pad != nullptr){
+        pad->name = newPort;
+        // 1b. change internal connections
+        for (auto& c : definition.graph.connections) {
+            if (inputPort) {
+                if (c.source.module == "inBus" && c.source.port == port) {
+                    c.source.port = newPort;
+                }
+            }
+            else {
+                if (c.target.module == "outBus" && c.target.port == port) {
+                    c.target.port = newPort;
                 }
             }
         }
     }
     else{
-        assert(0); return false;
+        return false;
     }
+
+    // 2. update connections to instances of component
+
+    // 2a. find all instances
+    vector<GfxModule *> instances;
+    for (auto& m : modules) {
+        if (m.module.type == componentType) {
+            instances.push_back(&m);
+            // no need to update the actual instances, as subsequent refresh of model will take care of that
+        }
+    }
+
 
     // 2b. find any connections to/from renamed ports
     for(auto* m : instances){
@@ -658,16 +665,15 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
             if(inputPort){
                 if(w.connection.target.module == m->module.name && w.connection.target.port == port){
                     w.connection.target.port = newPort;
-                    cout << "DEBUG: " << "renamed port " << port << " to " << newPort;
                 }
             }
             else{
-                assert(0); return false;
+                if (w.connection.source.module == m->module.name && w.connection.source.port == port) {
+                    w.connection.source.port = newPort;
+                }
             }
         }
     }
-
-    // 3. somehow find a way to squeeze in a component input/output alias change ... or stuff will always break
 
     return true;
 }

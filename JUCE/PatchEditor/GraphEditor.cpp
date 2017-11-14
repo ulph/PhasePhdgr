@@ -123,20 +123,23 @@ bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & select
 }
 
 
-bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, GfxGraph& gfxGraph){
-    float value;
-    if(!gfxModule.getValue(port, value)) return false; // error
+bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, GfxGraph& gfxGraph, bool inputPort){
+    float value = 0.f;
+    if(inputPort && !gfxModule.getValue(port, value)) return false; // error
 
     // TODO deletion of component ports
     // TODO also handle output ports (rename/delete on component)
 
     Label lbl(port+"_v", to_string(value));
-    lbl.setEditable(true, true, false);
-    poop.addItem(1, port);
-    poop.addCustomItem(2, &lbl, 20, 20, false);
-    poop.addItem(3, "clear");
-
     Label nameLbl(port, port);
+
+    if (inputPort) {
+        lbl.setEditable(true, true, false);
+        poop.addItem(1, port);
+        poop.addCustomItem(2, &lbl, 20, 20, false);
+        poop.addItem(3, "clear");
+    }
+
     nameLbl.setEditable(true, true, false);
     if(gfxModule.module.type.front() == componentMarker){
         poop.addCustomItem(4, &nameLbl, 20, 20, false);
@@ -144,16 +147,18 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 
     int choice = poop.show();
 
-    if(choice == 3){
-        gfxModule.clearValue(port);
-        return true;
-    }
+    if (inputPort) {
+        if (choice == 3) {
+            gfxModule.clearValue(port);
+            return true;
+        }
 
-    if(value != lbl.getText().getFloatValue()){
-        return gfxModule.setValue(
-            port,
-            lbl.getText().getFloatValue()
-        );
+        if (value != lbl.getText().getFloatValue()) {
+            return gfxModule.setValue(
+                port,
+                lbl.getText().getFloatValue()
+            );
+        }
     }
 
     if(port != nameLbl.getText()){
@@ -161,7 +166,7 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
             gfxModule.module.type,
             port,
             nameLbl.getText().toStdString(),
-            true
+            inputPort
         );
     }
 
@@ -274,9 +279,9 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         XY position;
         // drag wire between ports
         if (m.withinPort(mouseDownPos, position, port, inputPort)) {
-            if(inputPort && event.mods.isRightButtonDown()){
+            if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                modelChanged = makePortPoopUp(poop, m, port, gfxGraph);
+                modelChanged = makePortPoopUp(poop, m, port, gfxGraph, inputPort);
             }
             else{
                 looseWire.isValid = true;

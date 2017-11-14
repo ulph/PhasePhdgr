@@ -1,5 +1,6 @@
 #include "PhasePhckrParameter.hpp"
 #include "PhasePhckrPluginProcessor.h"
+#include "PhasePhckrPluginEditor.h"
 
 #include <list>
 
@@ -11,6 +12,22 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
         auto knb_ptr = new PhasePhckrParameter(i);
         floatParameters.push_back(knb_ptr);
         p->addParameter(knb_ptr);
+    }
+}
+
+void PhasePhckrParameters::initializeKnobs(PhasePhckrAudioProcessorEditor * e) {
+    for (int i = 0; i<numberOfParameters(); i++) {
+        PhasePhckrParameter* p = nullptr;
+        if (accessParameter(i, &p)) {
+            auto knob = new ParameterKnob(p,
+                [this, e](string a, string b) {
+                swapParameterIndices(a, b);
+                e->guiUpdateTimer.timerCallback();
+            }
+            );
+            e->parameterKnobs.push_back(knob);
+            e->performGrid.addComponent(knob);
+        }
     }
 }
 

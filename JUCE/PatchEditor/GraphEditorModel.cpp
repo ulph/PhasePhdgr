@@ -721,6 +721,28 @@ void GfxGraph::designPorts(const Doc &doc){
 }
 
 
+void createOrUpdateAlias(const string& moduleName, ModulePort& connectionModulePort, set<string>& aliases, set<pss_t>& modulePortAliases, vector<PadDescription>& bus, vector<ModulePortConnection>& connections) {
+    string alias = connectionModulePort.port;
+
+    // helper function for createComponentFromSelection
+
+    // create new alias on bus if needed
+    if (modulePortAliases.count((pss_t)connectionModulePort) == 0) {
+        while (aliases.count(alias)) { alias += "_"; }
+        aliases.insert(alias);
+        PadDescription pd = { alias, "", 0 };
+        bus.push_back(pd);
+        modulePortAliases.insert((pss_t)connectionModulePort);
+    }
+
+    // store 'api' connection
+    connections.push_back(ModulePortConnection{ connectionModulePort, { c_outBus.name, alias } });
+
+    // remap external connection graph
+    connectionModulePort = { moduleName, alias };
+}
+
+
 void GfxGraph::createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position){
     ConnectionGraphDescriptor cgd;
 
@@ -753,44 +775,32 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
     }
     name += to_string(ctr);
 
-    // TODO - expose any unconnected ports with set values ... chances are quite good that a user wants to at least set them per instance of component
+    // any (unconnected) ports with set values ... chances are quite good that a user wants to at least set them per instance of component
+    for (const auto &mName : selectedModules) {
+        for (const auto &mObj : modules) {
+            if (mObj.module.name == mName) {
+                for (const auto &p : mObj.inputs) {
+                    if (p.assignedValue) {
+                        // TODO stuff
+                    }
+                }
+            }
+        }
+    }
+
+    // handle internal connections
     for (auto &w : wires) {
         // copy any internal connections
         if (selectedModules.count(w.connection.source.module) && selectedModules.count(w.connection.target.module)) {
             cgd.connections.push_back(w.connection);
         }
-        // store the external connections
+
+        // create aliases and expose external facing ports
         else if (selectedModules.count(w.connection.target.module)) {
-            auto mp = w.connection.target;
-            string alias = mp.port;
-            if (inModules.count((pss_t)mp) == 0) {
-                while (inAlias.count(alias)) { alias += "_"; }
-                inAlias.insert(alias);
-                PadDescription pd = { alias, "", 0 };
-                inBus.push_back(pd);
-                inModules.insert((pss_t)mp);
-            }
-            // store 'api' connection
-            cgd.connections.push_back(ModulePortConnection{{c_inBus.name, alias}, {w.connection.target.module, w.connection.target.port}});
-            // remap external connection graph
-            w.connection.target.module = name;
-            w.connection.target.port = alias;
+            createOrUpdateAlias(name, w.connection.target, inAlias, inModules, inBus, cgd.connections);
         }
         else if (selectedModules.count(w.connection.source.module)) {
-            auto mp = w.connection.source;
-            string alias = mp.port;
-            if (outModules.count((pss_t)mp) == 0) {
-                while (outAlias.count(alias)) { alias += "_"; }
-                outAlias.insert(alias);
-                PadDescription pd = { alias, "", 0 };
-                outBus.push_back(pd);
-                outModules.insert((pss_t)mp);
-            }
-            // store 'api' connectino
-            cgd.connections.push_back(ModulePortConnection{{w.connection.source.module, w.connection.source.port}, {c_outBus.name, alias}});
-            // remap external connection graph
-            w.connection.source.module = name;
-            w.connection.source.port = alias;
+            createOrUpdateAlias(name, w.connection.source, outAlias, outModules, outBus, cgd.connections);
         }
     }
 

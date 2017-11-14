@@ -18,11 +18,17 @@ class ComponentRegister;
 struct ModuleVariable {
     string name;
     string type;
+    bool operator ==(ModuleVariable const& other) {
+        return other.name == name && other.type == type;
+    }
 };
 
 struct ModulePort {
     string module;
     string port;
+    bool operator ==(ModulePort const& other) {
+        return other.module == module && other.port == port;
+    }
 };
 
 struct ModulePortConnection {
@@ -46,7 +52,7 @@ struct ConnectionGraphDescriptor {
 struct PadDescription {
     string name;
     string unit;
-    float value;
+    float defaultValue;
 };
 
 struct ComponentDescriptor {

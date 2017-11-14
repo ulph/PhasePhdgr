@@ -38,7 +38,7 @@ void DocListModel::listBoxItemClicked(int row, const MouseEvent &) {
         docTextView.insertTextAtCaret(doc.type + "\n\n");
         docTextView.insertTextAtCaret("inputs:\n");
         for (const auto & i : doc.inputs) {
-            docTextView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.value) + "\n");
+            docTextView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.defaultValue) + "\n");
         }
         docTextView.insertTextAtCaret("\noutputs:\n");
         for (const auto & o : doc.outputs) {

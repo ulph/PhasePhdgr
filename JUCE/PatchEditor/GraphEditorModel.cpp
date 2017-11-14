@@ -276,10 +276,10 @@ void GfxModule::designPorts(const Doc &doc, const std::vector<ModulePortValue> &
     if (d.count(module.type)) {
         const auto & dd = d.at(module.type);
         for (auto p : dd.inputs) {
-            inputs.emplace_back(GfxPort(p.name, p.unit, p.value, true)); // set default values
+            inputs.emplace_back(GfxPort(p.name, p.unit, p.defaultValue, true)); // set default values
         }
         for (auto p : dd.outputs) {
-            outputs.emplace_back(GfxPort(p.name, p.unit, p.value, false));
+            outputs.emplace_back(GfxPort(p.name, p.unit, p.defaultValue, false));
         }
     }
     for(auto &ip : inputs){
@@ -625,19 +625,21 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
             return false; // conflict
         }
     }
-     
+
     // 1b. change the pad and any internal connections to/from
     if(pad != nullptr){
         pad->name = newPort;
         // 1b. change internal connections
         for (auto& c : definition.graph.connections) {
             if (inputPort) {
-                if (c.source.module == "inBus" && c.source.port == port) {
+                ModulePort tmp = { c_inBus.name, port };
+                if (c.source == tmp) {
                     c.source.port = newPort;
                 }
             }
             else {
-                if (c.target.module == "outBus" && c.target.port == port) {
+                ModulePort tmp = { c_outBus.name, port };
+                if (c.target == tmp) {
                     c.target.port = newPort;
                 }
             }
@@ -652,9 +654,10 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
     // 2a. find all instances
     vector<GfxModule *> instances;
     for (auto& m : modules) {
-        if (m.module.type == componentType) {
+        if (m.type() == componentType) {
             instances.push_back(&m);
-            // no need to update the actual instances, as subsequent refresh of model will take care of that
+            // no need to update the actual instances, 
+            // as subsequent refresh of model will take care of that
         }
     }
 
@@ -662,15 +665,12 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
     // 2b. find any connections to/from renamed ports
     for(auto* m : instances){
         for(auto& w : wires){
-            if(inputPort){
-                if(w.connection.target.module == m->module.name && w.connection.target.port == port){
-                    w.connection.target.port = newPort;
-                }
+            ModulePort tmp = { m->module.name, port };
+            if(inputPort && w.connection.target == tmp){
+                w.connection.target.port = newPort;
             }
-            else{
-                if (w.connection.source.module == m->module.name && w.connection.source.port == port) {
-                    w.connection.source.port = newPort;
-                }
+            else if (w.connection.target == tmp) {
+                w.connection.source.port = newPort;
             }
         }
     }
@@ -840,7 +840,7 @@ PatchDescriptor GfxGraph::exportModelData(){
 
     for (const auto &m :modules) {
         graph.layout.emplace(m.module.name, ModulePosition{ (int)m.position.x, (int)m.position.y });
-        if (m.module.name == "inBus" || m.module.name == "outBus") continue;
+        if (m.module.name == c_inBus.name || m.module.name == c_outBus.name) continue;
         graph.root.graph.modules.emplace_back(m.module);
         for ( const auto &ip : m.inputs){
             if(ip.assignedValue){

@@ -22,8 +22,8 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
         parameterHandles,
         cp
     );
-    inBus = moduleHandles["inBus"];
-    outBus = moduleHandles["outBus"];
+    inBus = moduleHandles[c_inBus.name];
+    outBus = moduleHandles[c_outBus.name];
 
     parameterValues.clear();
     for(const auto &p : parameterHandles){

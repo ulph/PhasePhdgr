@@ -77,14 +77,14 @@ public:
             PhasePhckr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
-            pd.value = p.value;
+            pd.defaultValue = p.value;
             doc.inputs.push_back(pd);
         }
         for (const auto p : outputs) {
             PhasePhckr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
-            pd.value = p.value;
+            pd.defaultValue = p.value;
             doc.outputs.push_back(pd);
         }
         return doc;

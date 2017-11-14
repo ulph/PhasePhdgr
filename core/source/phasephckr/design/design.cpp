@@ -70,7 +70,7 @@ bool unpackComponent(
 
     // copy all values from inBus onto values
     for(const auto &i : current.inBus){
-        current.graph.values.push_back(ModulePortValue{{c_inBus.name, i.name}, i.value});
+        current.graph.values.push_back(ModulePortValue{{c_inBus.name, i.name}, i.defaultValue});
     }
 
     // find any values set on this component and reroute to inBus

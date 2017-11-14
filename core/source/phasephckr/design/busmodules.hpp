@@ -20,7 +20,7 @@ public:
         for(const auto &p : ports){
             const char * name = p.name.c_str();
             const char * unit = p.name.c_str();
-            Pad pad(name, p.value, unit);
+            Pad pad(name, p.defaultValue, unit);
             inputs.push_back(pad);
             outputs.push_back(pad);
         }

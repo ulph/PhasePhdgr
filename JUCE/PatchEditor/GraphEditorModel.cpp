@@ -723,7 +723,7 @@ void GfxGraph::designPorts(const Doc &doc){
 }
 
 
-void createOrUpdateAlias(const string& componentName, ModulePort& mp, set<string>& aliases, map<pair<string, string>, string>& modulePortAliases, vector<PadDescription>& bus, vector<ModulePortConnection>& connections, bool isInput) {
+void createOrUpdateAlias(const string& componentName, ModulePort& mp, set<string>& aliases, map<pair<string, string>, string>& modulePortAliases, vector<PadDescription>& bus, vector<ModulePortConnection>& connections, bool isInput, float defaultValue=0) {
     string alias = mp.port;
     auto mp_pair = (pair<string, string>)mp;
 
@@ -735,7 +735,7 @@ void createOrUpdateAlias(const string& componentName, ModulePort& mp, set<string
         }
 
         aliases.insert(alias);
-        PadDescription pd = { alias, "", 0 };
+        PadDescription pd = { alias, "", defaultValue };
         bus.push_back(pd);
         modulePortAliases[mp_pair] = alias;
 
@@ -770,17 +770,17 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
         }
     }
 
+    vector<PadDescription> inBus;
     set<string> inAlias;
     map<pair<string, string>, string> inModules;
 
+    vector<PadDescription> outBus;
     set<string> outAlias;
     map<pair<string, string>, string> outModules;
-    
-    vector<PadDescription> inBus;
-    vector<PadDescription> outBus;
-    
-    vector<ModulePortValue> values;
 
+    set<string> targets;
+    
+    // find a component name
     string componentName = "newComponent";
     int ctr = 0;
     while (hasModuleName(componentName + to_string(ctr))){
@@ -788,38 +788,39 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
     }
     componentName += to_string(ctr);
 
-    /*
-    // any (unconnected) ports with set values ... 
+    // handle internal connections
+    for (auto &w : wires) {
+        auto& tg = w.connection.target;
+        auto& src = w.connection.source;
+
+        // copy any internal connections
+        if (selectedModules.count(src.module) && selectedModules.count(tg.module)) {
+            targets.insert(tg.module);
+            cgd.connections.push_back(w.connection);
+        }
+        // create aliases and expose external facing ports
+        else if (selectedModules.count(tg.module)) { // selection is a target
+            targets.insert(tg.module);
+            createOrUpdateAlias(componentName, tg, inAlias, inModules, inBus, cgd.connections, true);
+        }
+        else if (selectedModules.count(src.module)) { // selection is a source
+            createOrUpdateAlias(componentName, src, outAlias, outModules, outBus, cgd.connections, false);
+        }
+    }
+
+    // expose any ports with set values of modules that are not targets... 
     // chances are quite good that a user wants to at least set them per instance of component
     for (const auto &mName : selectedModules) {
+        if (targets.count(mName)) continue;
         for (const auto &mObj : modules) {
             if (mObj.module.name == mName) {
                 for (const auto &p : mObj.inputs) {
-                    if (p.assignedValue) {
+                    if (p.assignedValue){
                         ModulePort tmp = { mName, p.port };
-                        createOrUpdateAlias(componentName, tmp, inAlias, inModules, inBus, cgd.connections);
-                        ModulePortValue mpv = { tmp, p.value };
-                        values.push_back(mpv);
+                        createOrUpdateAlias(componentName, tmp, inAlias, inModules, inBus, cgd.connections, true, p.value);
                     }
                 }
             }
-        }
-    }
-    */
-
-    // handle internal connections
-    for (auto &w : wires) {
-        // copy any internal connections
-        if (selectedModules.count(w.connection.source.module) && selectedModules.count(w.connection.target.module)) {
-            cgd.connections.push_back(w.connection);
-        }
-
-        // create aliases and expose external facing ports
-        else if (selectedModules.count(w.connection.target.module)) { // selection is a target
-            createOrUpdateAlias(componentName, w.connection.target, inAlias, inModules, inBus, cgd.connections, true);
-        }
-        else if (selectedModules.count(w.connection.source.module)) { // selection is a source
-            createOrUpdateAlias(componentName, w.connection.source, outAlias, outModules, outBus, cgd.connections, false);
         }
     }
 
@@ -842,12 +843,13 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
 
     // add it to graph
     ModuleVariable mv{ componentName, type };
+    vector<ModulePortValue> vs;
     GfxModule gfxM(
        mv,
        (position.x - 0.5f*c_NodeSize) / c_GridSize,
        (position.y - 0.5f*c_NodeSize) / c_GridSize,
        doc,
-       values
+       vs
     );
 
     modules.push_back(gfxM);

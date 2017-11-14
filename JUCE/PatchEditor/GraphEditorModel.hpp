@@ -86,10 +86,6 @@ struct GfxModule {
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
 
-    const string& type() {
-        return module.type;
-    }
-
     void designPorts(
         const Doc &doc,
         const std::vector<ModulePortValue> &mpvs

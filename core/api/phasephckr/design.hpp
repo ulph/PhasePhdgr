@@ -115,6 +115,16 @@ bool componentNameIsValid(const string& componentName); // TODO componentType
 
 // TODO isParameter, isComponent (that checks first char but ignores the validity at large)
 
+inline bool matches(const ModuleVariable& mv, const ModulePort& mp) {
+    return mv.name == mp.module;
+    // TODO make use of this
+}
+
+
+inline bool matches(const ModulePort& mp, const ModuleVariable& mv) {
+    return matches(mv, mp);
+}
+
 extern const vector<PadDescription> c_effectChainInBus;
 extern const vector<PadDescription> c_effectChainOutBus;
 
@@ -123,5 +133,6 @@ extern const vector<PadDescription> c_voiceChainOutBus;
 
 extern const ModuleVariable c_inBus;
 extern const ModuleVariable c_outBus;
+
 
 }

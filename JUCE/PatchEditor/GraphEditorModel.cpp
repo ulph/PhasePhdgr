@@ -553,8 +553,8 @@ bool GfxGraph::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
     return foundPort;
 }
 
-bool GfxGraph::rename(string module, string newName){
-    if(!moduleNameIsValid(newName)) return false;
+bool GfxGraph::rename(string moduleName, string newModuleName){
+    if(!moduleNameIsValid(newModuleName)) return false;
 
     bool foundModule = false;
 
@@ -562,12 +562,12 @@ bool GfxGraph::rename(string module, string newName){
     int i=0;
 
     for (const auto& m : modules) {
-        if (m.module.name == module) {
+        if (m.module.name == moduleName) {
             // found it
             foundModule = true;
             mIdx = i;
         }
-        if (m.module.name == newName) {
+        if (m.module.name == newModuleName) {
             // conflict
             return false;
         }
@@ -576,14 +576,14 @@ bool GfxGraph::rename(string module, string newName){
 
     if(!foundModule) return false;
 
-    modules.at(mIdx).module.name = newName;
+    modules.at(mIdx).module.name = newModuleName;
     auto wit = wires.begin();
     while (wit != wires.end()) {
-        if (wit->connection.source.module == module){
-            wit->connection.source.module = newName;
+        if (wit->connection.source.module == moduleName){
+            wit->connection.source.module = newModuleName;
         }
-        else if(wit->connection.target.module == module) {
-            wit->connection.target.module = newName;
+        if(wit->connection.target.module == moduleName) {
+            wit->connection.target.module = newModuleName;
         }
         wit++;
     }
@@ -626,52 +626,36 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
         }
     }
 
+    if (pad == nullptr) return false; // did not find that port!
+
     // 1b. change the pad and any internal connections to/from
-    if(pad != nullptr){
-        pad->name = newPort;
-        // 1b. change internal connections
-        for (auto& c : definition.graph.connections) {
-            if (inputPort) {
-                ModulePort tmp = { c_inBus.name, port };
-                if (c.source == tmp) {
-                    c.source.port = newPort;
-                }
-            }
-            else {
-                ModulePort tmp = { c_outBus.name, port };
-                if (c.target == tmp) {
-                    c.target.port = newPort;
-                }
-            }
-        }
+    pad->name = newPort;
+    // 1b. change internal connections
+    for (auto& c : definition.graph.connections) {
+        ModulePort referencePort = { inputPort ? c_inBus.name : c_outBus.name, port };
+        ModulePort *existingPort = inputPort ? &c.source : &c.target;
+        if (*existingPort == referencePort) existingPort->port = newPort;
     }
-    else{
-        return false;
-    }
+
 
     // 2. update connections to instances of component
 
     // 2a. find all instances
     vector<GfxModule *> instances;
     for (auto& m : modules) {
-        if (m.type() == componentType) {
+        if (m.module.type == componentType) {
             instances.push_back(&m);
             // no need to update the actual instances, 
             // as subsequent refresh of model will take care of that
         }
     }
 
-
     // 2b. find any connections to/from renamed ports
     for(auto* m : instances){
         for(auto& w : wires){
-            ModulePort tmp = { m->module.name, port };
-            if(inputPort && w.connection.target == tmp){
-                w.connection.target.port = newPort;
-            }
-            else if (w.connection.target == tmp) {
-                w.connection.source.port = newPort;
-            }
+            ModulePort referencePort = { m->module.name, port };
+            ModulePort *existingPort = inputPort ? &w.connection.source : &w.connection.target;
+            if(*existingPort == referencePort) existingPort->port = newPort;
         }
     }
 

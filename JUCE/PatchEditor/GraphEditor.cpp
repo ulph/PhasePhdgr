@@ -128,7 +128,7 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
     if(inputPort && !gfxModule.getValue(port, value)) return false; // error
 
     // TODO deletion of component ports
-    // TODO also handle output ports (rename/delete on component)
+    // TODO change port units/docstrings
 
     Label lbl(port+"_v", to_string(value));
     Label nameLbl(port, port);

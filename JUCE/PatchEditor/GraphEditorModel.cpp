@@ -1,5 +1,7 @@
 #include "GraphEditorModel.hpp"
 
+#include <map>
+#include <set>
 
 static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize) {
     x0 += 0.5f*r;
@@ -721,28 +723,34 @@ void GfxGraph::designPorts(const Doc &doc){
 }
 
 
-void createOrUpdateAlias(const string& componentName, ModulePort& connectionModulePort, set<string>& aliases, set<pss_t>& modulePortAliases, vector<PadDescription>& bus, vector<ModulePortConnection>& connections, bool isInput) {
-    string alias = connectionModulePort.port;
-
-    // helper function for createComponentFromSelection
+void createOrUpdateAlias(const string& componentName, ModulePort& mp, set<string>& aliases, map<pair<string, string>, string>& modulePortAliases, vector<PadDescription>& bus, vector<ModulePortConnection>& connections, bool isInput) {
+    string alias = mp.port;
+    auto mp_pair = (pair<string, string>)mp;
 
     // create new alias on bus if needed
-    if (modulePortAliases.count((pss_t)connectionModulePort) == 0) {
-        while (aliases.count(alias)) { alias += "_"; }
+    if (modulePortAliases.count(mp_pair) == 0) {
+        // find a new alias
+        while (aliases.count(alias)) { 
+            alias += "_"; 
+        }
+
         aliases.insert(alias);
         PadDescription pd = { alias, "", 0 };
         bus.push_back(pd);
-        modulePortAliases.insert((pss_t)connectionModulePort);
+        modulePortAliases[mp_pair] = alias;
+
+        // store internal bus connection
+        ModulePortConnection mpc;
+        mpc.source = isInput ? ModulePort{ c_inBus.name, alias } : mp;
+        mpc.target = isInput ? mp : ModulePort{ c_outBus.name, alias };
+        connections.push_back(mpc);
+    }
+    else {
+        alias = modulePortAliases[mp_pair];
     }
 
-    // store 'api' connection
-    ModulePortConnection mpc;
-    mpc.source = isInput ? ModulePort{ c_inBus.name, alias } : connectionModulePort;
-    mpc.target = isInput ? connectionModulePort : ModulePort{ c_outBus.name, alias };
-    connections.push_back(mpc);
-
     // remap external connection graph
-    connectionModulePort = { componentName, alias };
+    mp = { componentName, alias };
 }
 
 
@@ -763,10 +771,10 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
     }
 
     set<string> inAlias;
-    set<pss_t> inModules;
+    map<pair<string, string>, string> inModules;
 
     set<string> outAlias;
-    set<pss_t> outModules;
+    map<pair<string, string>, string> outModules;
     
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
@@ -807,10 +815,10 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
         }
 
         // create aliases and expose external facing ports
-        else if (selectedModules.count(w.connection.target.module)) {
+        else if (selectedModules.count(w.connection.target.module)) { // selection is a target
             createOrUpdateAlias(componentName, w.connection.target, inAlias, inModules, inBus, cgd.connections, true);
         }
-        else if (selectedModules.count(w.connection.source.module)) {
+        else if (selectedModules.count(w.connection.source.module)) { // selection is a source
             createOrUpdateAlias(componentName, w.connection.source, outAlias, outModules, outBus, cgd.connections, false);
         }
     }

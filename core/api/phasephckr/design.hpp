@@ -61,6 +61,7 @@ struct ComponentDescriptor {
     vector<PadDescription> outBus;
     ConnectionGraphDescriptor graph;
     string docString;
+    int removePort(const string & portName, bool inputPort);
 };
 
 /* Patch */

@@ -146,6 +146,7 @@ struct GfxGraph {
     void moveIntoView();
     void recalculateWires(const vector<GfxModule>& modules);
     bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
+    bool disconnectPort(const string& moduleName, const string& portName, bool inputPort);
     bool add(const string &type, const Doc & doc, const XY &pos);
     bool add(const ModuleVariable& module, const Doc & doc, const XY &pos, const std::vector<ModulePortValue> &mpv, bool absolutPositions=true);
     bool connect(const ModulePortConnection &connection);
@@ -154,6 +155,7 @@ struct GfxGraph {
     bool rename(string module, string newName);
     bool renameComponent(string componentType, string newComponentType);
     bool renameComponentPort(string componentType, string port, string newPort, bool inputPort);
+    bool removeComponentPort(const string& componentType, const string& newComponentType, bool inputPort);
     bool remove(const string &module);
     bool getModule(string name, const GfxModule** module);
     bool hasModuleName(string name);

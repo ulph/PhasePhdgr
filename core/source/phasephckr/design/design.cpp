@@ -220,7 +220,47 @@ void designPatch(
     );
 }
 
-const string bannedCharacters = " @!?.=-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
+
+int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
+    int idx = -1;
+    int ctr = 0;
+
+    auto& bus = inputPort ? inBus : outBus;
+    if (bus.size() <= 1) return -1; // keep at least one or stuff gets stupid
+
+    for (const auto& p : bus) {
+        if (p.name == portName) {
+            idx = ctr;
+            break;
+        }
+        ctr++;
+    }
+
+    if (idx == -1) return -1;
+
+    bus.erase(bus.begin() + idx);
+
+    auto wit = graph.connections.begin();
+    while (wit != graph.connections.end()) {
+        const auto &src = wit->source;
+        const auto &tg = wit->target;
+        if (
+            (inputPort && src.module == c_inBus.name && src.port == portName) ||
+            (!inputPort && tg.module == c_outBus.name && tg.port == portName))
+        {
+            wit = graph.connections.erase(wit);
+        }
+        else {
+            ++wit;
+        }
+    }
+
+    return 0;
+}
+
+
+const string 
+bannedCharacters = " @!?.=-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
 
 bool findAnyOf(const string& str, const string& chars){
     for(const auto& c: chars){

@@ -664,6 +664,51 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
     return true;
 }
 
+bool GfxGraph::disconnectPort(const string& moduleName, const string& portName, bool inputPort) {
+    bool didDisconnect = false;
+
+    auto wit = wires.begin();
+    while (wit != wires.end()) {
+        const auto &src = wit->connection.source;
+        const auto &tg = wit->connection.target;
+        if (
+            (!inputPort && src.module == moduleName && src.port == portName) || 
+            (inputPort && tg.module == moduleName && tg.port == portName))
+        {
+            wit = wires.erase(wit);
+            didDisconnect = true;
+        }
+        else {
+            ++wit;
+        }
+    }
+
+    return didDisconnect;
+}
+
+bool GfxGraph::removeComponentPort(const string& componentType, const string& portName, bool inputPort) {
+    if (!components.count(componentType)) return false;
+    ComponentDescriptor& definition = components[componentType];
+
+    if (definition.removePort(portName, inputPort) != 0) return false;
+
+    // remove external connections
+
+    vector<GfxModule *> instances;
+    for (auto& m : modules) {
+        if (m.module.type == componentType) {
+            instances.push_back(&m);
+        }
+    }
+
+    while (instances.size()) {
+        const string& moduleName = instances.back()->module.name; instances.pop_back();
+        disconnectPort(moduleName, portName, inputPort);
+    }
+
+    return true;
+}
+
 bool GfxGraph::remove(const string &module) {
     bool foundModule = false;
     int mIdx = 0;

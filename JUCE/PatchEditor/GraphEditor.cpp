@@ -137,12 +137,15 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
         lbl.setEditable(true, true, false);
         poop.addItem(1, port);
         poop.addCustomItem(2, &lbl, 20, 20, false);
-        poop.addItem(3, "clear");
+        poop.addItem(3, "clear value");
     }
+
+    poop.addItem(4, "disconnect all");
 
     nameLbl.setEditable(true, true, false);
     if(gfxModule.module.type.front() == componentMarker){
-        poop.addCustomItem(4, &nameLbl, 20, 20, false);
+        poop.addCustomItem(5, &nameLbl, 20, 20, false);
+        poop.addItem(6, "remove port");
     }
 
     int choice = poop.show();
@@ -161,6 +164,14 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
         }
     }
 
+    if (choice == 4) {
+        return gfxGraph.disconnectPort(
+            gfxModule.module.name,
+            port,
+            inputPort
+        );
+    }
+
     if(port != nameLbl.getText()){
         return gfxGraph.renameComponentPort(
             gfxModule.module.type,
@@ -169,6 +180,15 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
             inputPort
         );
     }
+
+    if (choice == 6) {
+        return gfxGraph.removeComponentPort(
+            gfxModule.module.type,
+            port,
+            inputPort
+        );
+    }
+
 
     return false;
 }

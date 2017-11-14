@@ -628,7 +628,7 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
         if(pad != nullptr){
             pad->name = newPort;
         }
-        else {
+        else{
             return false;
         }
     }
@@ -658,13 +658,16 @@ bool GfxGraph::renameComponentPort(string componentType, string port, string new
             if(inputPort){
                 if(w.connection.target.module == m->module.name && w.connection.target.port == port){
                     w.connection.target.port = newPort;
+                    cout << "DEBUG: " << "renamed port " << port << " to " << newPort;
                 }
             }
-            else {
+            else{
                 assert(0); return false;
             }
         }
     }
+
+    // 3. somehow find a way to squeeze in a component input/output alias change ... or stuff will always break
 
     return true;
 }
@@ -828,6 +831,7 @@ void GfxGraph::createComponentFromSelection(const set<string> & selectedModules,
 
 PatchDescriptor GfxGraph::exportModelData(){
     PatchDescriptor graph;
+
     for (const auto &m :modules) {
         graph.layout.emplace(m.module.name, ModulePosition{ (int)m.position.x, (int)m.position.y });
         if (m.module.name == "inBus" || m.module.name == "outBus") continue;
@@ -838,6 +842,7 @@ PatchDescriptor GfxGraph::exportModelData(){
             }
         }
     }
+
     for (const auto &w : wires) {
         graph.root.graph.connections.emplace_back(w.connection);
     }
@@ -846,5 +851,3 @@ PatchDescriptor GfxGraph::exportModelData(){
 
     return graph;
 }
-
-

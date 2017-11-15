@@ -4,13 +4,9 @@
 #include "module.hpp"
 #include "sinc.hpp"
 
-const int c_fractions = 1000;
 const float c_max_delay_t = 5.f;
 
 namespace DelayFactory {
-    template <int N>
-    const FractionalSincTable<N, c_fractions> & getFractionalSincTable();
-
     Module* (*makeFactory(int numFractions)) (void);
 }
 
@@ -21,9 +17,9 @@ private:
     float *buffer;
     int bufferSize;
     int readPosition;
-    const FractionalSincTable<N, c_fractions>& c_table;
+    const FractionalSincTable<N>& c_table;
 public:
-    Delay(const FractionalSincTable<N, c_fractions>& table)
+    Delay(const FractionalSincTable<N>& table)
         : buffer(nullptr)
         , bufferSize(0)
         , readPosition(0)
@@ -82,7 +78,7 @@ public:
         readPosition %= bufferSize;
     };
     
-    static Module* factory() { return new Delay<N>(DelayFactory::getFractionalSincTable<N>()); }
+    static Module* factory() { return new Delay<N>(getFractionalSincTable<N>()); }
 };
 
 #endif

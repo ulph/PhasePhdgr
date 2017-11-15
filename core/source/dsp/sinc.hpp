@@ -1,13 +1,17 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
 #include <math.h>
+
 #include <assert.h>
 
 static inline float sincf(float x){
     return x!=0 ? sinf(x)/x : 1;
 }
 
-template <int N, int numFractions>
+const int c_numFractions = 1000;
+
+template <int N>
 struct FractionalSincTable
 {
 protected:
@@ -17,14 +21,14 @@ protected:
 
 public:
 
-    FractionalSincTable(float normFreq, bool normAmp = true) 
-        : coeffs(new float[numFractions*N])
+    FractionalSincTable(float normFreq = (float)M_PI, bool normAmp = true)
+        : coeffs(new float[c_numFractions*N])
         , normFreq(normFreq)
         , normAmp(normAmp)
     {
-        for (auto i = 0; i < numFractions; ++i)
+        for (auto i = 0; i < c_numFractions; ++i)
         {
-            float frac = (float)i*1.0f / (float(numFractions));
+            float frac = (float)i*1.0f / (float(c_numFractions));
             float M = 0.f;
             for (auto n = 0; n < N; ++n)
             {
@@ -58,10 +62,10 @@ public:
             return 0;
         }
 
-        const float softIdx = fraction * (float)numFractions;
-        assert(softIdx < numFractions);
+        const float softIdx = fraction * (float)c_numFractions;
+        assert(softIdx < c_numFractions);
         const int tableIdx1 = (int)softIdx;
-        assert(tableIdx1 < numFractions);
+        assert(tableIdx1 < c_numFractions);
         // TODO - linearly interpolate between neighbouring sets of coefficients
 
         for (int n = 0; n<N; n++) {
@@ -73,3 +77,6 @@ public:
     };
 
 };
+
+template <int N>
+const FractionalSincTable<N> & getFractionalSincTable();

@@ -26,6 +26,100 @@ BlitOsc::BlitOsc()
     outputs.push_back(Pad("output"));
 }
 
+void BlitOsc::syncOnAuxPhase(uint32_t fs, float syncAmount, float syncNFreq, float nFreq, float shape) {
+    if (syncPhase > 1.f) {
+        bool resetPhase = false;
+        if (internalPhase >= syncAmount) {
+            resetPhase = true;
+            float interval = (1.f - (syncPhase - syncNFreq));
+            float syncFraction = interval / syncNFreq;
+
+            float freqFractionCorrection = (syncNFreq / nFreq); // this helps a tiny bit extra, need to do the math as of why :P
+            float sawCorrection = (1.f - shape)*nFreq*(1.f - syncFraction*freqFractionCorrection); // adjust for saw shape
+
+            float target = -1.0f + sawCorrection; // target value
+
+            float remainderTail = 0.f;
+            for (int n = 0; n<c_blitN; ++n) {
+                remainderTail += buf[(bufPos + n) % c_blitN];
+            }
+            float remainder = cumSum + remainderTail;
+
+            float pulse = target - remainder; // pulse that takes us to -1~
+
+            if (pulse) {
+                c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
+                for (int n = 0; n<c_blitN; ++n) {
+                    buf[(bufPos + n) % c_blitN] += pulse*blit[n];
+                }
+            }
+            stage = 0;
+        }
+        syncPhase -= 2.f;
+        if (resetPhase) {
+            internalPhase = syncPhase;
+        }
+    }
+}
+
+void BlitOsc::blitForward(float nFreq, float shape, float pwm) {
+    while (true) {
+        if (stage == 0) {
+            if (internalPhase <= pwm) break;
+            float interval = (pwm - (internalPhase - nFreq));
+            // deal with modulated pwm (not exactly correct but good enough)
+            while (interval > 1.f) interval -= nFreq;
+            while (interval < 0.f) interval += nFreq;
+            float fraction = interval / nFreq;
+            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+            for (int n = 0; n<c_blitN; ++n) {
+                buf[(bufPos + n) % c_blitN] += 2.f*shape*blit[n];
+            }
+            stage = 1;
+        }
+        if (stage == 1) {
+            if (internalPhase <= 1.0f) break;
+            float interval = (1.f - (internalPhase - nFreq));
+            float fraction = interval / nFreq;
+            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+            for (int n = 0; n<c_blitN; ++n) {
+                buf[(bufPos + n) % c_blitN] -= 2.f*blit[n];
+            }
+            stage = 0;
+            internalPhase -= 2.0f;
+        }
+    }
+}
+
+void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
+    syncPhase += syncNFreq;
+    internalPhase += nFreq;
+}
+
+void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, float freq) {
+    float prop_leak = nFreq * 0.01f;
+    float leak = 1.f - prop_leak;
+
+    float fc = freq*0.125f;
+
+    last_cumSum = cumSum; // x
+    cumSum = cumSum*leak + buf[bufPos] + (1.f - shape)*nFreq; // x+1
+
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, (float)fs);
+    buf[bufPos] = 0.f;
+    bufPos++;
+    bufPos %= c_blitN;
+}
+
+void BlitOsc::resetOnSignal(float resetSignal) {
+    // reset the clocks on an upflank through zero
+    if (resetSignal >= 0.f && last_resetSignal<0.f) {
+        syncPhase = -1.f;
+        internalPhase = -1.f;
+    }
+    last_resetSignal = resetSignal;
+}
+
 void BlitOsc::process(uint32_t fs)
 {
     float freq = limit(inputs[0].value, 1.f, float(fs)*0.5f);
@@ -39,88 +133,14 @@ void BlitOsc::process(uint32_t fs)
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    float prop_leak = nFreq * 0.01f;
-    float leak = 1.f - prop_leak;
+    resetOnSignal(inputs[5].value);
 
-    // reset the clocks on an upflank through zero
-    float reset = inputs[5].value;
-    if(reset>=0.f && last_reset<0.f){
-        syncPhase = -1.f;
-        internalPhase = -1.f;
-    }
-    last_reset = reset;
+    incrementClocks(nFreq, syncNFreq);
 
-    syncPhase += syncNFreq;
-    internalPhase += nFreq;
+    blitForward(nFreq, shape, pwm);
 
-    while(true){
-        if( stage == 0 ){
-            if(internalPhase <= pwm) break;
-            float interval = (pwm - (internalPhase-nFreq));
-            // deal with modulated pwm (not exactly correct but good enough)
-            while(interval > 1.f) interval -= nFreq;
-            while(interval < 0.f) interval += nFreq;
-            float fraction = interval / nFreq;
-            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] += 2.f*shape*blit[n];
-            }
-            stage = 1;
-        }
-        if( stage == 1 ){
-            if(internalPhase <= 1.0f) break;
-            float interval = (1.f - (internalPhase-nFreq));
-            float fraction = interval / nFreq;
-            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            for(int n=0; n<c_blitN; ++n){
-                buf[(bufPos+n)%c_blitN] -= 2.f*blit[n];
-            }
-            stage = 0;
-            internalPhase -= 2.0f;
-        }
-    }
+    syncOnAuxPhase(fs, syncAmount, syncNFreq, nFreq, shape);
 
-    if(syncPhase > 1.f){
-        bool resetPhase = false;
-        if(internalPhase >= syncAmount){
-            resetPhase = true;
-            float interval = (1.f - (syncPhase - syncNFreq));
-            float syncFraction =  interval / syncNFreq;
+    integrateBuffer(fs, nFreq, shape, freq);
 
-            float freqFractionCorrection = (syncNFreq/nFreq); // this helps a tiny bit extra, need to do the math as of why :P
-            float sawCorrection = (1.f-shape)*nFreq*(1.f-syncFraction*freqFractionCorrection); // adjust for saw shape
-
-            float target = -1.0f + sawCorrection; // target value
-
-            float remainderTail = 0.f;
-            for(int n=0; n<c_blitN; ++n){
-                remainderTail += buf[(bufPos+n)%c_blitN];
-            }
-            float remainder = cumSum + remainderTail;
-
-            float pulse = target - remainder; // pulse that takes us to -1~
-
-            if(pulse){
-                c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
-                for(int n=0; n<c_blitN; ++n){
-                    buf[(bufPos+n)%c_blitN] += pulse*blit[n];
-                }
-            }
-            stage = 0;
-        }
-        syncPhase -= 2.f;
-        if(resetPhase){
-            internalPhase = syncPhase;
-        }
-    }
-
-    last_cumSum = cumSum; // x
-    cumSum = cumSum*leak + buf[bufPos] + (1.f-shape)*nFreq; // x+1
-
-    float fc = freq*0.125f;
-
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, (float)fs);
-    buf[bufPos] = 0.f;
-    bufPos++;
-    bufPos %= c_blitN;
 }

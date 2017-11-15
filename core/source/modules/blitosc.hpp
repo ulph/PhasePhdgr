@@ -22,7 +22,7 @@ private:
     void incrementClocks(float nFreq, float syncNFreq);
     void blitForward(float nFreq, float shape, float pwm);
     void integrateBuffer(uint32_t fs, float nFreq, float shape, float freq);
-    void syncOnAuxPhase(uint32_t fs, float syncAmount, float syncNFreq, float nFreq, float shape);
+    void syncOnAuxPhase(float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();
     void process(uint32_t fs);

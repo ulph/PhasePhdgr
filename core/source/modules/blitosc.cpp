@@ -26,7 +26,7 @@ BlitOsc::BlitOsc()
     outputs.push_back(Pad("output"));
 }
 
-void BlitOsc::syncOnAuxPhase(uint32_t fs, float syncAmount, float syncNFreq, float nFreq, float shape) {
+void BlitOsc::syncOnAuxPhase(float syncAmount, float syncNFreq, float nFreq, float shape) {
     if (syncPhase > 1.f) {
         bool resetPhase = false;
         if (internalPhase >= syncAmount) {
@@ -113,6 +113,11 @@ void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, float freq)
 
 void BlitOsc::resetOnSignal(float resetSignal) {
     // reset the clocks on an upflank through zero
+
+    // TODO, either re-introduce the derived syncFreq or 
+    // do something sort of ok without it, 
+    // so that one can do sync using the reset signal
+
     if (resetSignal >= 0.f && last_resetSignal<0.f) {
         syncPhase = -1.f;
         internalPhase = -1.f;
@@ -139,7 +144,7 @@ void BlitOsc::process(uint32_t fs)
 
     blitForward(nFreq, shape, pwm);
 
-    syncOnAuxPhase(fs, syncAmount, syncNFreq, nFreq, shape);
+    syncOnAuxPhase(syncAmount, syncNFreq, nFreq, shape);
 
     integrateBuffer(fs, nFreq, shape, freq);
 

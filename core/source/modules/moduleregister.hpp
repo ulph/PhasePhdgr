@@ -19,7 +19,7 @@
 #include "scaleshift.hpp"
 #include "delay.hpp"
 #include "biquad.hpp"
-#include "bleposc.hpp"
+#include "blitosc.hpp"
 #include "chamberlin.hpp"
 #include "conversion.hpp"
 #include "samphold.hpp"
@@ -80,7 +80,8 @@ public:
         /* generators */
         cg.registerModule("PHASE", &(Phase::factory));
         cg.registerModule("NOISE", &(Noise::factory));
-        cg.registerModule("PBLOSC", &(BlitOsc::factory));
+        cg.registerModule("PBLOSC", &(BlitOsc::factory)); // DEPRECATED
+        cg.registerModule("OSC_BLIT", &(BlitOsc::factory));
 
         /* filters */
         cg.registerModule("BIQUAD", &(Biquad::factory));

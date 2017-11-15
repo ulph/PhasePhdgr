@@ -3,8 +3,8 @@ set(SRC
     abs.hpp
     biquad.cpp
     biquad.hpp
-    bleposc.cpp
-    bleposc.hpp
+    blitosc.cpp
+    blitosc.hpp
     camelenvelope.cpp
     camelenvelope.hpp
     chamberlin.cpp

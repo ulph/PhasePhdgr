@@ -1,10 +1,8 @@
-#include "bleposc.hpp"
+#include "blitosc.hpp"
 #include <string.h>
 #include "sinc.hpp"
 #include "inlines.hpp"
 #include "rlc.hpp"
-
-#define BLEP_DEBUG_PORTS 1
 
 const auto c_blitTable = FractionalSincTable<8>();
 // TODO; investigate something like fs/4 bandlimit on the sinc itself...

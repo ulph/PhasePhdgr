@@ -20,6 +20,7 @@ private:
     float last_resetSignal;
     void resetOnSignal(float resetSignal);
     void incrementClocks(float nFreq, float syncNFreq);
+    void blitOnePulse(float fraction, float multiplier);
     void blitForward(float& phase, float nFreq, float shape, float pwm);
     void integrateBuffer(uint32_t fs, float nFreq, float shape, float freq);
     void syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);

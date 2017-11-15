@@ -26,6 +26,13 @@ BlitOsc::BlitOsc()
     outputs.push_back(Pad("output"));
 }
 
+void BlitOsc::blitOnePulse(float fraction, float multiplier) {
+    c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+    for (int n = 0; n<c_blitN; ++n) {
+        buf[(bufPos + n) % c_blitN] += multiplier*blit[n];
+    }
+}
+
 void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
     if (syncPhase > 1.f) {
         bool resetPhase = false;
@@ -48,10 +55,7 @@ void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, f
             float pulse = target - remainder; // pulse that takes us to -1~
 
             if (pulse) {
-                c_blitTable.getCoefficients(syncFraction, &blit[0], c_blitN);
-                for (int n = 0; n<c_blitN; ++n) {
-                    buf[(bufPos + n) % c_blitN] += pulse*blit[n];
-                }
+                blitOnePulse(syncFraction, pulse);
             }
             stage = 0;
         }
@@ -71,20 +75,14 @@ void BlitOsc::blitForward(float& phase, float nFreq, float shape, float pwm) {
             while (interval > 1.f) interval -= nFreq;
             while (interval < 0.f) interval += nFreq;
             float fraction = interval / nFreq;
-            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            for (int n = 0; n<c_blitN; ++n) {
-                buf[(bufPos + n) % c_blitN] += 2.f*shape*blit[n];
-            }
+            blitOnePulse(fraction, 2.f*shape);
             stage = 1;
         }
         if (stage == 1) {
             if (phase <= 1.0f) break;
             float interval = (1.f - (phase - nFreq));
             float fraction = interval / nFreq;
-            c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
-            for (int n = 0; n<c_blitN; ++n) {
-                buf[(bufPos + n) % c_blitN] -= 2.f*blit[n];
-            }
+            blitOnePulse(fraction, -2.f);
             stage = 0;
             phase -= 2.0f;
         }

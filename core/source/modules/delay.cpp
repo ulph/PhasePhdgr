@@ -2,69 +2,43 @@
 #include "delay.hpp"
 #include "sinc.hpp"
 #include <assert.h>
+namespace DelayFactory {
 
-const int c_sincDelayN = 32;
-const int c_sincDelayNumFraction = 1000;
-const auto c_delayFracSincTable = FractionalSincTable(c_sincDelayN, c_sincDelayNumFraction, (float)M_PI, true);
-const float max_delay_t = 5.f;
+    const FractionalSincTable<4, c_fractions> c_fractionalSincTable_4(true);
+    const FractionalSincTable<8, c_fractions> c_fractionalSincTable_8(true);
+    const FractionalSincTable<16, c_fractions> c_fractionalSincTable_16(true);
+    const FractionalSincTable<32, c_fractions> c_fractionalSincTable_32(true);
 
-Delay::Delay()
-    : buffer(nullptr)
-    , bufferSize(0)
-    , readPosition(0)
-{
-    inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("time", 0.5f));
-    inputs.push_back(Pad("gain", 1.0f));
-    outputs.push_back(Pad("out"));
-}
-
-Delay::~Delay(){
-    delete[] buffer;
-}
-
-void Delay::process(uint32_t fs) {
-    // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
-
-    float t = inputs[1].value;
-    float g = inputs[2].value;
-
-    t = (t < 0.f) ? 0.f : ( t > max_delay_t ? max_delay_t : t);
-
-    const int N = c_sincDelayN; /*stupid msvcc */ //c_delayFracSincTable.N;
-
-    // account for filter delay
-    float tapeSamples = (t*fs)+N;
-    tapeSamples = tapeSamples < N ? N : tapeSamples;
-
-    if(tapeSamples > bufferSize){
-        // lazily grow the buffer ... TODO, proper memory chunk allocations
-        auto newBufferSize = 2*(int)tapeSamples;
-        auto newBuffer = new float[newBufferSize]();
-        memmove(newBuffer, buffer, sizeof(float)*bufferSize);
-        delete[] buffer;
-        buffer = newBuffer;
-        bufferSize = newBufferSize;
+    template <> const FractionalSincTable<4, c_fractions> & getFractionalSincTable() {
+        return c_fractionalSincTable_4;
     }
 
-    tapeSamples = ((tapeSamples+N) > bufferSize) ? (bufferSize-N) : tapeSamples;
-    const int writePosition = (readPosition + (int)tapeSamples);
-    const float frac = tapeSamples-(int)(tapeSamples);
-
-    // ... (interpolated) impulse response from a precalcuated buffer
-    float coeffs[N] = {0};
-    if(N != c_delayFracSincTable.getCoefficients(frac, &coeffs[0], N)){
-        assert(0);
+    template <> const FractionalSincTable<8, c_fractions> & getFractionalSincTable() {
+        return c_fractionalSincTable_8;
     }
 
-    // apply it on to write buffer (running convolution)
-    for(int n=0; n<N; n++){
-        buffer[(writePosition+n)%bufferSize] += coeffs[n]*g*inputs[0].value;
+    template <> const FractionalSincTable<16, c_fractions> & getFractionalSincTable() {
+        return c_fractionalSincTable_16;
     }
 
-    outputs[0].value = buffer[readPosition];
-    buffer[readPosition] = 0;
-    readPosition++;
-    readPosition %= bufferSize;
+    template <> const FractionalSincTable<32, c_fractions> & getFractionalSincTable() {
+        return c_fractionalSincTable_32;
+    }
 
+    Module* (*makeFactory(int numFractions)) (void) {
+        auto* factory = Delay<32>::factory;
+        switch (numFractions) {
+        case 4:
+            factory = Delay<4>::factory; break;
+        case 8:
+            factory = Delay<8>::factory; break;
+        case 16:
+            factory = Delay<16>::factory; break;
+        case 32:
+            factory = Delay<32>::factory; break;
+        default:
+            assert(0); break;
+        }
+        return factory;
+    }
 }

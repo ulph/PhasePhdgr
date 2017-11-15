@@ -7,7 +7,7 @@
 #define BLEP_DEBUG_PORTS 1
 
 const int c_numFraction = 1000;
-const auto c_blitTable = FractionalSincTable(BlitOsc::c_blitN, c_numFraction, (float)M_PI, true);
+const auto c_blitTable = FractionalSincTable<8, 1000>((float)M_PI, true);
 // TODO; investigate something like fs/4 bandlimit on the sinc itself...
 
 BlitOsc::BlitOsc()

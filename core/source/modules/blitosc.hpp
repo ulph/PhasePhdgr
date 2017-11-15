@@ -10,7 +10,6 @@ public:
     static const int c_blitN = 16; // TODO, find a sweet spot or at least use min-phase sinc
 private:
     float buf[c_blitN];
-    float blit[c_blitN];
     int bufPos;
     float cumSum;
     int stage;

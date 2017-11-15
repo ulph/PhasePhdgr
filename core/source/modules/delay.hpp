@@ -63,9 +63,9 @@ public:
         const int writePosition = (readPosition + (int)tapeSamples);
         const float frac = tapeSamples - (int)(tapeSamples);
 
-        float* coeffs = nullptr;
+        float *coeffs = nullptr;
         auto ret = c_table.getCoefficientTablePointer(frac, &coeffs, N);
-        assert(ret == 0);
+        assert(ret == N);
         assert(coeffs != nullptr);
 
         // apply it on to write buffer (running convolution)

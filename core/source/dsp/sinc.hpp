@@ -60,11 +60,11 @@ public:
         if (destinationBufferSize < N)
         {
             assert(0);
-            return -1;
+            return 0;
         }
         if (fraction > 1.0f || fraction < 0.f) {
             assert(0);
-            return -1;
+            return 0;
         }
 
         const float softIdx = fraction * (float)c_numFractions;
@@ -75,32 +75,8 @@ public:
         int ni_0 = makeIndex(N, 0, i);
         *destinationBuffer = &coeffs[ni_0];
 
-        return 0;
-    }
-
-    const int getCoefficients(const float fraction, float* destinationBuffer, const int destinationBufferSize) const {
-        if (destinationBufferSize < N)
-        {
-            assert(0);
-            return 0;
-        }
-        if (fraction > 1.0f || fraction < 0.f) {
-            assert(0);
-            return 0;
-        }
-
-        const float softIdx = fraction * (float)c_numFractions;
-        assert(softIdx < c_numFractions);
-        const int i = (int)softIdx;
-        assert(i < c_numFractions);
-
-        for (int n = 0; n<N; n++) {
-            int ni = makeIndex(N, n, i);
-            destinationBuffer[n] = coeffs[ni];
-        }
-
         return N;
-    };
+    }
 
 };
 

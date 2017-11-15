@@ -4,12 +4,11 @@
 #include "inlines.hpp"
 #include "rlc.hpp"
 
-const auto c_blitTable = FractionalSincTable<8>();
+const auto c_blitTable = FractionalSincTable<BlitOsc::c_blitN>();
 // TODO; investigate something like fs/4 bandlimit on the sinc itself...
 
 BlitOsc::BlitOsc()
     : buf{0.f}
-    , blit{0.f}
     , bufPos(0)
     , cumSum(0.f)
     , stage(0)
@@ -27,9 +26,12 @@ BlitOsc::BlitOsc()
 }
 
 void BlitOsc::blitOnePulse(float fraction, float multiplier) {
-    c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
+    float *sincPtr = nullptr;
+    auto ret = c_blitTable.getCoefficientTablePointer(fraction, &sincPtr, c_blitN);
+    assert(ret == c_blitN);
+    assert(sincPtr != nullptr);
     for (int n = 0; n<c_blitN; ++n) {
-        buf[(bufPos + n) % c_blitN] += multiplier*blit[n];
+        buf[(bufPos + n) % c_blitN] += multiplier*sincPtr[n];
     }
 }
 

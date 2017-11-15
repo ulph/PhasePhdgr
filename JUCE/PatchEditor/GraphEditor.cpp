@@ -55,18 +55,36 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
     poop.addCustomItem(nameMenuId, &nameLbl, 20, 20, false);
 
     int typeMenuId = 999;
+    int createInputMenuId = 999;
+    int createOutputMenuId = 999;
+
     if(moduleType.front() == componentMarker){
         typeMenuId = ctr++;
         poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
+
+        createInputMenuId = ctr++;
+        poop.addItem(createInputMenuId, "create input");
+
+        createOutputMenuId = ctr++;
+        poop.addItem(createOutputMenuId, "create output");
     }
 
     const int delMenuId = ctr++;
-    poop.addItem(delMenuId, "delete");
+    poop.addItem(delMenuId, "remove module");
 
     int choice = poop.show();
     if(choice == delMenuId){
         gfxGraph.remove(moduleName);
         return true;
+    }
+    else if (choice == createInputMenuId || choice == createOutputMenuId) {
+        return gfxGraph.createComponentPort(
+            moduleType,
+            "newPort",
+            "",
+            0.f,
+            choice == createInputMenuId
+        );
     }
 
     if(moduleName != nameLbl.getText().toStdString()){
@@ -101,6 +119,7 @@ void deleteSelectedModules(set<const GfxModule *> & selection, GfxGraph & gfxGra
 bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, GfxGraph & gfxGraph, Doc & doc, XY& position) {
     poop.addItem(1, "make component");
     poop.addItem(2, "delete");
+
     int choice = poop.show();
     switch (choice) {
     case 1:
@@ -188,7 +207,6 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
             inputPort
         );
     }
-
 
     return false;
 }

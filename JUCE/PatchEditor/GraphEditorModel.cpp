@@ -686,6 +686,12 @@ bool GfxGraph::disconnectPort(const string& moduleName, const string& portName, 
     return didDisconnect;
 }
 
+bool GfxGraph::createComponentPort(const string& componentType, const string& portName, const string & unit, const float & defaultValue, bool inputPort) {
+    if (!components.count(componentType)) return false;
+    ComponentDescriptor& def = components[componentType];    
+    return def.addPort(portName, inputPort, unit, defaultValue) == 0;
+}
+
 bool GfxGraph::removeComponentPort(const string& componentType, const string& portName, bool inputPort) {
     if (!components.count(componentType)) return false;
     ComponentDescriptor& definition = components[componentType];

@@ -62,6 +62,7 @@ struct ComponentDescriptor {
     ConnectionGraphDescriptor graph;
     string docString;
     int removePort(const string & portName, bool inputPort);
+    int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
 };
 
 /* Patch */

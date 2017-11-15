@@ -155,7 +155,8 @@ struct GfxGraph {
     bool rename(string module, string newName);
     bool renameComponent(string componentType, string newComponentType);
     bool renameComponentPort(string componentType, string port, string newPort, bool inputPort);
-    bool removeComponentPort(const string& componentType, const string& newComponentType, bool inputPort);
+    bool removeComponentPort(const string& componentType, const string& portName, bool inputPort);
+    bool createComponentPort(const string& componentType, const string& portName, const string & unit, const float & defaultValue, bool inputPort);
     bool remove(const string &module);
     bool getModule(string name, const GfxModule** module);
     bool hasModuleName(string name);

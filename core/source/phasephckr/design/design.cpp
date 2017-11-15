@@ -221,6 +221,29 @@ void designPatch(
 }
 
 
+int ComponentDescriptor::addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue) {
+    auto& bus = inputPort ? inBus : outBus;
+    string actualPortName = portName;
+    bool conflict = true;
+
+    // handle conflicts ...
+    while (conflict) {
+        for (const auto& p : bus) {
+            if (p.name == actualPortName) {
+                actualPortName += "_";
+                conflict = true;
+                break;
+            }
+        }
+        conflict = false;
+    }
+
+    bus.push_back({ actualPortName, unit, defaultValue });
+
+    return 0;
+}
+
+
 int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
     int idx = -1;
     int ctr = 0;

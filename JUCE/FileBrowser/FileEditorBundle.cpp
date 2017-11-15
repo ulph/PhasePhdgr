@@ -89,8 +89,9 @@ void FileEditorBundle::fileClicked(const File &file, const MouseEvent &e)  {
 void FileEditorBundle::fileDoubleClicked(const File &file)  {
     if (!file.existsAsFile()) return; // nonexistant or a directory
     json j = loadJson(file);
-    fileLoadedCallback(j);
-    filenameLabel.setText(file.getFileNameWithoutExtension(), sendNotificationAsync);
+    auto n = file.getFileNameWithoutExtension();
+    fileLoadedCallback(n.toStdString(), j);
+    filenameLabel.setText(n, sendNotificationAsync);
 }
 
 void FileEditorBundle::browserRootChanged(const File &newRoot)  {}
@@ -174,7 +175,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         "voice files",
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
-        [this](const json& j) {
+        [this](const string& n, const json& j) {
             processor.setPatch(VOICE, j);
         },
         [this](void) -> json {
@@ -185,7 +186,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         "effect files",
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread,
-        [this](const json& j) {
+        [this](const string& n, const json& j) {
             processor.setPatch(EFFECT, j);
         },
         [this](void) -> json {
@@ -196,7 +197,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         "preset files",
         PhasePhckrFileStuff::presetsDir,
         fileWatchThread,
-        [this](const json& j){
+        [this](const string& n, const json& j){
             processor.setPreset(j);
         },
         [this](void) -> json {
@@ -207,7 +208,19 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
         "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread,
-        [this](const json& j) {}, // non-sensical
+        [this](const string& n, const json& j) {
+            // set and get preset
+            auto preset = processor.getPreset();
+            auto tab = docViewTab.getCurrentTabName();
+            if (tab == "voice") {
+                preset.voice.components["@"+n] = j; 
+                processor.setPreset(preset);
+            }
+            else if (tab == "effect") {
+                preset.effect.components["@"+n] = j; 
+                processor.setPreset(preset);
+            }
+        },
         [this](void) -> json {
             return selectedComponent;
         }

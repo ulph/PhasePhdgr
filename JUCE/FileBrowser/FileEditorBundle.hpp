@@ -10,7 +10,7 @@
 
 class PhasePhckrAudioProcessorEditor;
 
-typedef std::function<void(const nlohmann::json&)> ProvideJsonCallBack;
+typedef std::function<void(const string& name, const nlohmann::json&)> ProvideJsonCallBack;
 typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
 using namespace PhasePhckrFileStuff;

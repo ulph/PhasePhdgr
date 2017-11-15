@@ -5,7 +5,6 @@
 #include "rlc.hpp"
 
 const auto c_blitTable = FractionalSincTable<BlitOsc::c_blitN>();
-// TODO; investigate something like fs/4 bandlimit on the sinc itself...
 
 BlitOsc::BlitOsc()
     : buf{0.f}

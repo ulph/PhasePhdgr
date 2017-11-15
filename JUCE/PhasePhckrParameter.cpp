@@ -21,9 +21,9 @@ void PhasePhckrParameters::initializeKnobs(PhasePhckrAudioProcessorEditor * e) {
         if (accessParameter(i, &p)) {
             auto knob = new ParameterKnob(p,
                 [this, e](string a, string b) {
-                swapParameterIndices(a, b);
-                e->guiUpdateTimer.timerCallback();
-            }
+                    swapParameterIndices(a, b);
+                    e->guiUpdateTimer.timerCallback();
+                }
             );
             e->parameterKnobs.push_back(knob);
             e->performGrid.addComponent(knob);

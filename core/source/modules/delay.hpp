@@ -5,6 +5,7 @@
 #include "sinc.hpp"
 
 const float c_max_delay_t = 5.f;
+const float c_min_delay_t = 0.0005f; // 0.5f * 32.f / 32000.f; // half of max sinc window for 32kHz
 
 namespace DelayFactory {
     Module* (*makeFactory(int numFractions)) (void);
@@ -17,6 +18,7 @@ private:
     float *buffer;
     int bufferSize;
     int readPosition;
+    float coeffs[N];
     const FractionalSincTable<N>& c_table;
 public:
     Delay(const FractionalSincTable<N>& table)
@@ -41,7 +43,7 @@ public:
         float t = inputs[1].value;
         float g = inputs[2].value;
 
-        t = (t < 0.f) ? 0.f : (t > c_max_delay_t ? c_max_delay_t : t);
+        t = (t < c_min_delay_t) ? c_min_delay_t : (t > c_max_delay_t ? c_max_delay_t : t);
 
         // account for filter delay
         float tapeSamples = (t*fs) + N;
@@ -61,11 +63,10 @@ public:
         const int writePosition = (readPosition + (int)tapeSamples);
         const float frac = tapeSamples - (int)(tapeSamples);
 
-        // ... (interpolated) impulse response from a precalcuated buffer
-        float coeffs[N] = { 0 };
-        if (N != c_table.getCoefficients(frac, &coeffs[0], N)) {
-            assert(0);
-        }
+        float* coeffs = nullptr;
+        auto ret = c_table.getCoefficientTablePointer(frac, &coeffs, N);
+        assert(ret == 0);
+        assert(coeffs != nullptr);
 
         // apply it on to write buffer (running convolution)
         for (int n = 0; n < N; n++) {

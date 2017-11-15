@@ -11,6 +11,10 @@ static inline float sincf(float x){
 
 const int c_numFractions = 1000;
 
+static inline int makeIndex(int N, int n, int i) {
+    return i*N + n;
+}
+
 template <int N>
 struct FractionalSincTable
 {
@@ -32,7 +36,7 @@ public:
             float M = 0.f;
             for (auto n = 0; n < N; ++n)
             {
-                int ni = i*N + n;
+                int ni = makeIndex(N, n, i);
                 float arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
                 float hamming = 0.54f + 0.46f*cosf((2.f*(float)M_PI*arg) / (float)(N - 1));
                 coeffs[ni] = hamming*sincf(arg * normFreq);
@@ -41,7 +45,7 @@ public:
             if (normAmp) {
                 for (auto n = 0; n < N; ++n)
                 {
-                    int ni = i*N + n;
+                    int ni = makeIndex(N, n, i);
                     coeffs[ni] /= M;
                 }
             }
@@ -52,9 +56,32 @@ public:
         delete[] coeffs;
     };
 
+    int getCoefficientTablePointer(const float fraction, float** destinationBuffer, const int destinationBufferSize) const {
+        if (destinationBufferSize < N)
+        {
+            assert(0);
+            return -1;
+        }
+        if (fraction > 1.0f || fraction < 0.f) {
+            assert(0);
+            return -1;
+        }
+
+        const float softIdx = fraction * (float)c_numFractions;
+        assert(softIdx < c_numFractions);
+        const int i = (int)softIdx;
+        assert(i < c_numFractions);
+        
+        int ni_0 = makeIndex(N, 0, i);
+        *destinationBuffer = &coeffs[ni_0];
+
+        return 0;
+    }
+
     const int getCoefficients(const float fraction, float* destinationBuffer, const int destinationBufferSize) const {
         if (destinationBufferSize < N)
         {
+            assert(0);
             return 0;
         }
         if (fraction > 1.0f || fraction < 0.f) {
@@ -64,13 +91,12 @@ public:
 
         const float softIdx = fraction * (float)c_numFractions;
         assert(softIdx < c_numFractions);
-        const int tableIdx1 = (int)softIdx;
-        assert(tableIdx1 < c_numFractions);
-        // TODO - linearly interpolate between neighbouring sets of coefficients
+        const int i = (int)softIdx;
+        assert(i < c_numFractions);
 
         for (int n = 0; n<N; n++) {
-            int ni_1 = tableIdx1*N + n;
-            destinationBuffer[n] = coeffs[ni_1];
+            int ni = makeIndex(N, n, i);
+            destinationBuffer[n] = coeffs[ni];
         }
 
         return N;

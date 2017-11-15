@@ -97,7 +97,10 @@ public:
         cg.registerModule("ENV", &(CamelEnvelope::factory));
 
         /* buffers */
-        cg.registerModule("DELAY", DelayFactory::makeFactory(32)); // etc, quality parameter
+        cg.registerModule("DELAY", DelayFactory::makeFactory(32));
+        cg.registerModule("DELAY_LOW_Q", DelayFactory::makeFactory(16));
+        cg.registerModule("DELAY_LOWER_Q", DelayFactory::makeFactory(8));
+        cg.registerModule("DELAY_LOWEST_Q", DelayFactory::makeFactory(4));
 
         /* shaping */
         cg.registerModule("SINE", &(Sine::factory));

@@ -14,7 +14,7 @@ BlitOsc::BlitOsc()
     , cumSum(0.f)
     , stage(0)
     , internalPhase(0.f)
-    , syncPhase(0.f)
+    , internalSyncPhase(0.f)
     , last_cumSum(0.f)
 {
     inputs.push_back(Pad("freq"));
@@ -26,10 +26,10 @@ BlitOsc::BlitOsc()
     outputs.push_back(Pad("output"));
 }
 
-void BlitOsc::syncOnAuxPhase(float syncAmount, float syncNFreq, float nFreq, float shape) {
+void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
     if (syncPhase > 1.f) {
         bool resetPhase = false;
-        if (internalPhase >= syncAmount) {
+        if (phase >= syncAmount) {
             resetPhase = true;
             float interval = (1.f - (syncPhase - syncNFreq));
             float syncFraction = interval / syncNFreq;
@@ -57,16 +57,16 @@ void BlitOsc::syncOnAuxPhase(float syncAmount, float syncNFreq, float nFreq, flo
         }
         syncPhase -= 2.f;
         if (resetPhase) {
-            internalPhase = syncPhase;
+            phase = syncPhase;
         }
     }
 }
 
-void BlitOsc::blitForward(float nFreq, float shape, float pwm) {
+void BlitOsc::blitForward(float& phase, float nFreq, float shape, float pwm) {
     while (true) {
         if (stage == 0) {
-            if (internalPhase <= pwm) break;
-            float interval = (pwm - (internalPhase - nFreq));
+            if (phase <= pwm) break;
+            float interval = (pwm - (phase - nFreq));
             // deal with modulated pwm (not exactly correct but good enough)
             while (interval > 1.f) interval -= nFreq;
             while (interval < 0.f) interval += nFreq;
@@ -78,21 +78,21 @@ void BlitOsc::blitForward(float nFreq, float shape, float pwm) {
             stage = 1;
         }
         if (stage == 1) {
-            if (internalPhase <= 1.0f) break;
-            float interval = (1.f - (internalPhase - nFreq));
+            if (phase <= 1.0f) break;
+            float interval = (1.f - (phase - nFreq));
             float fraction = interval / nFreq;
             c_blitTable.getCoefficients(fraction, &blit[0], c_blitN);
             for (int n = 0; n<c_blitN; ++n) {
                 buf[(bufPos + n) % c_blitN] -= 2.f*blit[n];
             }
             stage = 0;
-            internalPhase -= 2.0f;
+            phase -= 2.0f;
         }
     }
 }
 
 void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
-    syncPhase += syncNFreq;
+    internalSyncPhase += syncNFreq;
     internalPhase += nFreq;
 }
 
@@ -119,7 +119,7 @@ void BlitOsc::resetOnSignal(float resetSignal) {
     // so that one can do sync using the reset signal
 
     if (resetSignal >= 0.f && last_resetSignal<0.f) {
-        syncPhase = -1.f;
+        internalSyncPhase = -1.f;
         internalPhase = -1.f;
     }
     last_resetSignal = resetSignal;
@@ -142,9 +142,9 @@ void BlitOsc::process(uint32_t fs)
 
     incrementClocks(nFreq, syncNFreq);
 
-    blitForward(nFreq, shape, pwm);
+    blitForward(internalPhase, nFreq, shape, pwm);
 
-    syncOnAuxPhase(syncAmount, syncNFreq, nFreq, shape);
+    syncOnAuxPhase(internalPhase, internalSyncPhase, syncAmount, syncNFreq, nFreq, shape);
 
     integrateBuffer(fs, nFreq, shape, freq);
 

@@ -14,15 +14,15 @@ private:
     int bufPos;
     float cumSum;
     int stage;
-    float syncPhase;
+    float internalSyncPhase;
     float internalPhase;
     float last_cumSum; // for hp
     float last_resetSignal;
     void resetOnSignal(float resetSignal);
     void incrementClocks(float nFreq, float syncNFreq);
-    void blitForward(float nFreq, float shape, float pwm);
+    void blitForward(float& phase, float nFreq, float shape, float pwm);
     void integrateBuffer(uint32_t fs, float nFreq, float shape, float freq);
-    void syncOnAuxPhase(float syncAmount, float syncNFreq, float nFreq, float shape);
+    void syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();
     void process(uint32_t fs);

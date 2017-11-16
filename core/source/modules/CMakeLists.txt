@@ -17,6 +17,8 @@ set(SRC
     conversion.hpp
     crossfade.cpp
     crossfade.hpp
+    div.cpp
+    div.hpp
     delay.cpp
     delay.hpp
     foldback.cpp
@@ -42,6 +44,8 @@ set(SRC
     sympow.hpp
     samphold.cpp
     samphold.hpp
+    tanh.cpp
+    tanh.hpp
     inlines.hpp
 )
 

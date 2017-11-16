@@ -23,6 +23,8 @@
 #include "chamberlin.hpp"
 #include "conversion.hpp"
 #include "samphold.hpp"
+#include "tanh.hpp"
+#include "div.hpp"
 
 class Constant : public ModuleCRTP<Constant>
 {
@@ -66,6 +68,8 @@ public:
         cg.registerModule("MUL", &(Mul::factory));
         cg.registerModule("MULTRI", &(MulTri::factory));
         cg.registerModule("MULQUAD", &(MulQuad::factory));
+        cg.registerModule("DIV", &(Div::factory));
+        cg.registerModule("MOD", &(Mod::factory));
         cg.registerModule("ABS", &(Abs::factory));
         cg.registerModule("CINV", &(ClampInv::factory));
         cg.registerModule("SCLSHFT", &(ScaleShift::factory));
@@ -111,6 +115,7 @@ public:
         cg.registerModule("QUANT", &(Quantize::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
+        cg.registerModule("TANH", &(TanH::factory));
 
         /* stereo */
         cg.registerModule("GAIN", &(Gain::factory));

@@ -3,6 +3,14 @@
 
 #include "module.hpp"
 
+class Atan : public ModuleCRTP<Atan>
+{
+public:
+    Atan();
+    void process(uint32_t fs);
+    static Module* factory() { return new Atan(); }
+};
+
 class SaturatorAtan : public ModuleCRTP<SaturatorAtan>
 {
 public:

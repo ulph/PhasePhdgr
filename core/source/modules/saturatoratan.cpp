@@ -1,5 +1,16 @@
 #include "saturatoratan.hpp"
 
+Atan::Atan()
+{
+    inputs.push_back(Pad("in"));
+    outputs.push_back(Pad("out"));
+}
+
+void Atan::process(uint32_t fs)
+{
+    outputs[0].value = atanf(inputs[0].value);
+}
+
 SaturatorAtan::SaturatorAtan()
 {
     inputs.push_back(Pad("in"));

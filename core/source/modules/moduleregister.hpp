@@ -115,6 +115,7 @@ public:
         cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SPOW", &(SymPow::factory));
         cg.registerModule("QUANT", &(Quantize::factory));
+        cg.registerModule("ATAN", &(Atan::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("TANH", &(TanH::factory));

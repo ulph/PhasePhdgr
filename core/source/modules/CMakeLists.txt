@@ -30,8 +30,8 @@ set(SRC
     noise.hpp
     phase.cpp
     phase.hpp
-    quant8.cpp
-    quant8.hpp
+    quantize.cpp
+    quantize.hpp
     saturatoratan.cpp
     saturatoratan.hpp
     scaleshift.cpp

@@ -5,7 +5,7 @@
 #include "phase.hpp"
 #include "mul.hpp"
 #include "clamp.hpp"
-#include "quant8.hpp"
+#include "quantize.hpp"
 #include "noise.hpp"
 #include "sine.hpp"
 #include "saturatoratan.hpp"
@@ -108,7 +108,7 @@ public:
         /* shaping */
         cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SPOW", &(SymPow::factory));
-        cg.registerModule("QUANT8", &(Quant8::factory));
+        cg.registerModule("QUANT", &(Quantize::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
 

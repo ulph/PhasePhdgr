@@ -1,14 +1,18 @@
-#include "quant8.hpp"
+#include "quantize.hpp"
+#include <math.h>
 
-Quant8::Quant8()
+Quantize::Quantize()
 {
     inputs.push_back(Pad("in"));
+    inputs.push_back(Pad("reduction", 1.f));
     outputs.push_back(Pad("quant"));
 }
 
-void Quant8::process(uint32_t fs)
+void Quantize::process(uint32_t fs)
 {
-    const float invStepSize = 128.0f;
+    float bits = inputs[1].value*15.f; // one bit for sign
+
+    const float invStepSize = powf(2.f, bits);
     const float stepSize = 1.0f / invStepSize;
 
     float tmp = roundf(inputs[0].value * invStepSize);

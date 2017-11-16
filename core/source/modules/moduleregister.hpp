@@ -64,6 +64,8 @@ public:
     {
         /* logic */
         cg.registerModule("MUL", &(Mul::factory));
+        cg.registerModule("MULTRI", &(MulTri::factory));
+        cg.registerModule("MULQUAD", &(MulQuad::factory));
         cg.registerModule("ABS", &(Abs::factory));
         cg.registerModule("CINV", &(ClampInv::factory));
         cg.registerModule("SCLSHFT", &(ScaleShift::factory));

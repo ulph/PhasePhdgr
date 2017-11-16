@@ -11,6 +11,22 @@ public:
     static Module* factory() { return new Mul(); }
 };
 
+class MulTri : public ModuleCRTP<MulTri>
+{
+public:
+    MulTri();
+    void process(uint32_t fs);
+    static Module* factory() { return new MulTri(); }
+};
+
+class MulQuad : public ModuleCRTP<MulQuad>
+{
+public:
+    MulQuad();
+    void process(uint32_t fs);
+    static Module* factory() { return new MulQuad(); }
+};
+
 class Gain : public ModuleCRTP<Gain>
 {
 public:

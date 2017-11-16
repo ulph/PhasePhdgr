@@ -4,7 +4,7 @@
 Quantize::Quantize()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("reduction", 1.f));
+    inputs.push_back(Pad("factor", 1.f));
     outputs.push_back(Pad("quant"));
 }
 

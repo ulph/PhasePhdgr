@@ -20,16 +20,18 @@ private:
     int readPosition;
     float coeffs[N];
     const FractionalSincTable<N>& c_table;
+    float clearFlag;
 public:
     Delay(const FractionalSincTable<N>& table)
-        : buffer(nullptr)
-        , bufferSize(0)
+        : bufferSize(0)
+        , buffer(nullptr)
         , readPosition(0)
         , c_table(table)
     {
         Module::inputs.push_back(Pad("in"));
         Module::inputs.push_back(Pad("time", 0.5f));
         Module::inputs.push_back(Pad("gain", 1.0f));
+        Module::inputs.push_back(Pad("clear"));
         Module::outputs.push_back(Pad("out"));
     };
 
@@ -39,6 +41,11 @@ public:
 
     void process(uint32_t fs) {
         // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
+
+        if (clearFlag < 0.f && Module::inputs[3].value >= 0) {
+            memset(buffer, 0, sizeof(float)*bufferSize);
+        }
+        clearFlag = Module::inputs[3].value;
 
         float t = Module::inputs[1].value;
         float g = Module::inputs[2].value;
@@ -53,6 +60,7 @@ public:
             // lazily grow the buffer ... TODO, proper memory chunk allocations
             auto newBufferSize = 2 * (int)tapeSamples;
             auto newBuffer = new float[newBufferSize]();
+            memset(newBuffer, 0, sizeof(float)*newBufferSize);
             memmove(newBuffer, buffer, sizeof(float)*bufferSize);
             delete[] buffer;
             buffer = newBuffer;

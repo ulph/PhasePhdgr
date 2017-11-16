@@ -72,7 +72,9 @@ public:
         cg.registerModule("MOD", &(Mod::factory));
         cg.registerModule("ABS", &(Abs::factory));
         cg.registerModule("CINV", &(ClampInv::factory));
-        cg.registerModule("SCLSHFT", &(ScaleShift::factory));
+        cg.registerModule("SCLSHFT", &(ScaleShift::factory)); // hmm
+        cg.registerModule("SHFTSCL", &(ShiftScale::factory)); // uhh
+        cg.registerModule("SCLSHFTMUL", &(ScaleShiftMul::factory)); // ugh
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));

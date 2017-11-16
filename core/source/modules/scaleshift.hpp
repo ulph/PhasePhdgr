@@ -11,4 +11,20 @@ public:
     static Module* factory() { return new ScaleShift(); }
 };
 
+class ShiftScale : public ModuleCRTP<ShiftScale>
+{
+public:
+    ShiftScale();
+    void process(uint32_t fs);
+    static Module* factory() { return new ShiftScale(); }
+};
+
+class ScaleShiftMul : public ModuleCRTP<ScaleShiftMul>
+{
+public:
+    ScaleShiftMul();
+    void process(uint32_t fs);
+    static Module* factory() { return new ScaleShiftMul(); }
+};
+
 #endif

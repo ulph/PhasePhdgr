@@ -119,7 +119,8 @@ public:
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("TANH", &(TanH::factory));
-
+        cg.registerModule("NTANH", &(NormalizedTanH::factory));
+        
         /* stereo */
         cg.registerModule("GAIN", &(Gain::factory));
         cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));

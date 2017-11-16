@@ -27,10 +27,10 @@ public:
         , readPosition(0)
         , c_table(table)
     {
-        inputs.push_back(Pad("in"));
-        inputs.push_back(Pad("time", 0.5f));
-        inputs.push_back(Pad("gain", 1.0f));
-        outputs.push_back(Pad("out"));
+        Module::inputs.push_back(Pad("in"));
+        Module::inputs.push_back(Pad("time", 0.5f));
+        Module::inputs.push_back(Pad("gain", 1.0f));
+        Module::outputs.push_back(Pad("out"));
     };
 
     virtual ~Delay() {
@@ -40,8 +40,8 @@ public:
     void process(uint32_t fs) {
         // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
 
-        float t = inputs[1].value;
-        float g = inputs[2].value;
+        float t = Module::inputs[1].value;
+        float g = Module::inputs[2].value;
 
         t = (t < c_min_delay_t) ? c_min_delay_t : (t > c_max_delay_t ? c_max_delay_t : t);
 
@@ -70,10 +70,10 @@ public:
 
         // apply it on to write buffer (running convolution)
         for (int n = 0; n < N; n++) {
-            buffer[(writePosition + n) % bufferSize] += coeffs[n] * g*inputs[0].value;
+            buffer[(writePosition + n) % bufferSize] += coeffs[n] * g*Module::inputs[0].value;
         }
 
-        outputs[0].value = buffer[readPosition];
+        Module::outputs[0].value = buffer[readPosition];
         buffer[readPosition] = 0;
         readPosition++;
         readPosition %= bufferSize;

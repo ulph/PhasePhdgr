@@ -594,7 +594,7 @@ bool GfxGraph::rename(string moduleName, string newModuleName){
 }
 
 bool GfxGraph::renameComponent(string componentType, string newComponentType){
-    if(!componentNameIsValid(newComponentType)) return false;
+    if(!componentTypeIsValid(newComponentType)) return false;
     if(components.count(newComponentType)) return false;
     if(!components.count(componentType)) return false;
 

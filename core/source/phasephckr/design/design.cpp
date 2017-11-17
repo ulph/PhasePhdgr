@@ -22,12 +22,32 @@ void designChain(
     int depth
 );
 
-bool checkModuleName(const string& name){
-    if(!moduleNameIsValid(name)){
+bool checkName(const string& name) {
+    if (!moduleNameIsValid(name)) {
         cerr << "Error: \"" << name << "\" is not a valid Module name!" << endl;
         return false;
     }
     return true;
+}
+
+bool checkModule(const ModuleVariable& m){
+    if(!moduleTypeIsValid(m.type)){
+        cerr << "Error: \"" << m.type << "\" is not a valid Module type!" << endl;
+        return false;
+    }
+    return checkName(m.name);
+}
+
+bool checkComponent(const ModuleVariable& m, const PatchDescriptor& pd) {
+    if (!pd.components.count(m.type)) {
+        cerr << "Error: \"" << m.type << "\" is unknown Component type!" << endl;
+        return false;
+    }
+    if (!componentTypeIsValid(m.type)) {
+        cerr << "Error: \"" << m.type << "\" is not a valid Component type!" << endl;
+        return false;
+    }
+    return checkName(m.name);
 }
 
 bool unpackComponent(
@@ -82,7 +102,7 @@ bool unpackComponent(
 
     // prefix internals accordingly
     for (auto &m : current.graph.modules) {
-        if(!checkModuleName(m.name)) continue;
+        if(!checkModule(m)) continue;
         m.name = pfx + m.name;
     }
     for (auto &v : current.graph.values) {
@@ -113,14 +133,7 @@ void designChain(
     // find any components (module bundles) and unpack them
     for (const auto &m : cd.graph.modules) {
         if (m.type.front() == componentMarker) {
-            if(!pd.components.count( m.type )){
-                cerr << "Error: \"" << m.type << "\" is unknown Component type!" << endl;
-                continue;
-            }
-            if(!componentNameIsValid(m.type)){
-                cerr << "Error: \"" << m.type << "\" is not a valid Component name!" << endl;
-                continue;
-            }
+            if (!checkComponent(m, pd)) continue;
             ComponentDescriptor child_cd = pd.components.at(m.type);
             if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles, depth+1)){
                 components.insert(m.name);
@@ -130,7 +143,7 @@ void designChain(
 
     // create the modules and store their handles
     for (const auto &m : cd.graph.modules) {
-        if(depth == 0 && !checkModuleName(m.name)) continue;
+        if(depth == 0 && !checkModule(m)) continue;
         if (moduleHandles.count(m.name) > 0) {
             cerr << "Error: \"" << m.name << "\" name dupe! (modules)" << endl;
         }
@@ -282,8 +295,8 @@ int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
 }
 
 
-const string 
-bannedCharacters = " @!?.=-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
+const string bannedNameCharacters = " !?.-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
+const string bannedTypeCharacters = bannedNameCharacters + "=@";
 
 bool findAnyOf(const string& str, const string& chars){
     for(const auto& c: chars){
@@ -293,14 +306,19 @@ bool findAnyOf(const string& str, const string& chars){
 }
 
 bool moduleNameIsValid(const string& moduleName){
-    if(findAnyOf(moduleName, bannedCharacters)) return false;
-    return true;
+    return !findAnyOf(moduleName, bannedNameCharacters);
 }
 
-bool componentNameIsValid(const string& componentName){
-    if(componentName.front() != componentMarker) return false;
-    if(findAnyOf(componentName.substr(1), bannedCharacters)) return false;
-    return true;
+bool moduleTypeIsValid(const string& moduleType) {
+    if(moduleType.front() != componentMarker
+    || moduleType.front() != parameterMarker
+    ) return !findAnyOf(moduleType.substr(1), bannedTypeCharacters);
+    return !findAnyOf(moduleType, bannedTypeCharacters);
+}
+
+bool componentTypeIsValid(const string& componentType){
+    if(componentType.front() != componentMarker) return false;
+    return !findAnyOf(componentType.substr(1), bannedTypeCharacters);
 }
 
 const vector<PadDescription> c_effectChainInBus = {

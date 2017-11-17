@@ -112,7 +112,9 @@ const char parameterMarker = '=';
 const char componentMarker = '@';
 
 bool moduleNameIsValid(const string& moduleName);
-bool componentNameIsValid(const string& componentName); // TODO componentType
+bool moduleTypeIsValid(const string& componentName);
+bool componentTypeIsValid(const string& componentName);
+
 // TODO parameterTypeIsValid
 // TODO typeIsValid (checks that all uppercase?)
 

@@ -30,11 +30,13 @@ namespace PhasePhckr {
     void to_json(json& j, const PatchDescriptor& cgd);
     void from_json(const json& j, PatchDescriptor& cgd);
 
-    void to_json(json& j, const ParameterDescriptor& param);
-    void from_json(const json& j, ParameterDescriptor& param);
+    void to_json(json& j, const PatchParameterDescriptor& param);
+    void from_json(const json& j, PatchParameterDescriptor& param);
+
+    void to_json(json& j, const PresetParameterDescriptor& param);
+    void from_json(const json& j, PresetParameterDescriptor& param);
 
     void to_json(json& j, const PresetDescriptor& preset);
     void from_json(const json& j, PresetDescriptor& preset);
-
 
 }

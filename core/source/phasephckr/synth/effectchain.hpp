@@ -15,12 +15,11 @@ private:
     int inBus;
     int outBus;
     map<string, int> moduleHandles;
-    map<string, int> parameterHandles;
-    map<int, float> parameterValues;
+    ParameterHandleMap parameterHandles;
 public:
     EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp);
     void setParameter(int handle, float value);
-    const map<string, int>& getParameterHandles();
+    const ParameterHandleMap& getParameterHandles();
     void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const GlobalData& globalData);
     virtual ~EffectChain(){}
 };

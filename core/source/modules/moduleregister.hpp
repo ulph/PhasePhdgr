@@ -45,6 +45,8 @@ class Knob : public ModuleCRTP<Knob> {
     public:
     Knob() {
         inputs.push_back(Pad("value"));
+        inputs.push_back(Pad("min"));
+        inputs.push_back(Pad("max"));
         outputs.push_back(Pad("value"));
     }
     void process(uint32_t fs) {

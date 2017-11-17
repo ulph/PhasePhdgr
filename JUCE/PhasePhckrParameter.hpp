@@ -10,6 +10,7 @@
 #include "phasephckr.hpp"
 
 using namespace std;
+using namespace PhasePhckr;
 
 class PhasePhckrAudioProcessor;
 class PhasePhckrAudioProcessorEditor;
@@ -37,59 +38,58 @@ public:
         , active(false)
     {
     }
-    void clearName() {
+
+    void reset() {
+        range.start = 0.f;
+        range.end = 1.f;
         name = clearedName(idx);
         active = false;
-        setValueNotifyingHost(this->range.convertTo0to1(*this));
+        setValueNotifyingHost(this->range.convertTo0to1(0.f));
     }
-    void setName(string newName) {
+
+    void initialize(float newValue, float min, float max, string newName) {
         name = newName;
+        range.start = min;
+        range.end = max;
         active = true;
-        setValueNotifyingHost(this->range.convertTo0to1(*this));
+        setValueNotifyingHost(this->range.convertTo0to1(newValue));
     }
+
+    const string &getFullName() {
+        return name;
+    }
+
     virtual String getName(int maximumStringLength) const override {
         return name.substr(0, maximumStringLength);
     }
+
     bool isActive() {
         return active;
     }
+
 };
 
-
-// TODO, review/refactor this stuff again to see if some of the maps and types and whatnot can be simplified/removed...
-
-enum ParameterType {
-    VOICE,
-    EFFECT
-};
-
-typedef map<string, int> parameterHandleMap;
-typedef map<int, pair<ParameterType, int>> parameterRouteMap;
-
-typedef pair<pair<ParameterType, int>, string> parameterRoute; // ugh ...
+typedef pair<SynthGraphType, int> ParamterRoute;
+typedef map<int, ParamterRoute> ParameterSlotToRouteMap;
 
 class PhasePhckrParameters {
-    vector<PhasePhckrParameter *> floatParameters;
-    map<int, pair<ParameterType, int>> parameterRouting;
-    map<string, int> parameterNames;
-
-    parameterHandleMap effectParameters;
-    parameterHandleMap voiceParameters;
-
-    void updateOrFindNewParameters(list<parameterRoute>& newParams, string& firstNewName, const ParameterType& type, parameterHandleMap& newParameterNames, parameterRouteMap& newParameterRouting);
-
+    vector<PhasePhckrParameter *> floatParameters; // the actual JUCE parameter, also holds the preset level name
+    ParameterSlotToRouteMap parameterRouting; // maps index of floatParameters to a ROUTE (type and handle pair)
+    ParameterHandleMap effectParameters;
+    ParameterHandleMap voiceParameters;
+    vector<PresetParameterDescriptor> presetParameters;
     std::atomic_flag parameterLock = ATOMIC_FLAG_INIT;
+    void updateParameters();
 
 public:
     void initialize(PhasePhckrAudioProcessor * p);
     void initializeKnobs(PhasePhckrAudioProcessorEditor * e);
-    void refreshParameters();
     bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
-    void swapParameterIndices(string a, string b); // via gui
-    void setParametersHandleMap(ParameterType type, const parameterHandleMap& pv);
-    void visitHandleParameterValues(PhasePhckr::Synth* synth);
-    vector<PhasePhckr::ParameterDescriptor> serialize();
-    void deserialize(const vector<PhasePhckr::ParameterDescriptor>& pv);
+    void swapParameterIndices(int a_idx, int b_idx); // via gui
+    void setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv);
+    void visitHandleParameterValues(Synth* synth);
+    vector<PresetParameterDescriptor> serialize();
+    void deserialize(const vector<PresetParameterDescriptor>& pv);
 
 };

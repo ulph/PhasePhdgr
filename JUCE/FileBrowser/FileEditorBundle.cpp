@@ -179,7 +179,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
             processor.setPatch(VOICE, j);
         },
         [this](void) -> json {
-            return processor.getPatch(VOICE);
+            return processor.getPatch(VOICE, true);
         }
     )
     , effectFiles(
@@ -190,7 +190,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
             processor.setPatch(EFFECT, j);
         },
         [this](void) -> json {
-            return processor.getPatch(EFFECT);
+            return processor.getPatch(EFFECT, true);;
         }
     )
     , presetFiles(

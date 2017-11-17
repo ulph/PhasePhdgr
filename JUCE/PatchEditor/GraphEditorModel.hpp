@@ -140,6 +140,7 @@ struct GfxGraph {
     vector<GfxModule> modules;
     list<GfxWire> wires;
     map<string, ComponentDescriptor> components;
+//    PatchDescriptor patch;
 
     pair<XY, XY> getBounds();
     void moveDelta(XY delta);

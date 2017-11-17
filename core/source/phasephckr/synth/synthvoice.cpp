@@ -21,6 +21,7 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
         c_voiceChainInBus,
         c_voiceChainOutBus,
         moduleHandles,
+        VOICE,
         parameterHandles,
         cp
     );
@@ -28,10 +29,6 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     inBus = moduleHandles["inBus"];
     outBus = moduleHandles["outBus"];
 
-    parameterValues.clear();
-    for(const auto &p : parameterHandles){
-        parameterValues[p.second] = 0.f;
-    }
 }
 
 SynthVoice::~SynthVoice()
@@ -40,8 +37,8 @@ SynthVoice::~SynthVoice()
 
 void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
 {
-    for(const auto& p: parameterValues){
-        connectionGraph.setInput(p.first, 0, p.second);
+    for(const auto& p: parameterHandles){
+        connectionGraph.setInput(p.first, 0, p.second.value);
     }
     // Queue work for thread
     threadStuff.globalData = g;
@@ -114,15 +111,15 @@ void SynthVoice::threadedProcess()
 }
 
 void SynthVoice::setParameter(int handle, float value){
-    auto it = parameterValues.find(handle);
-    if(it == parameterValues.end()){
+    auto it = parameterHandles.find(handle);
+    if(it == parameterHandles.end()){
         assert(0);
         return;
     }
-    it->second = value;
+    it->second.value = value;
 }
 
-const map<string, int>& SynthVoice::getParameterHandles(){
+const ParameterHandleMap& SynthVoice::getParameterHandles(){
     return parameterHandles;
 }
 

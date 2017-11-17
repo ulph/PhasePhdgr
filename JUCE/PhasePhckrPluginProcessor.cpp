@@ -275,7 +275,7 @@ void PhasePhckrAudioProcessor::broadcastPatch() {
     subEffectChain.set(activeEffectHandle, effectChain);
 }
 
-PatchDescriptor PhasePhckrAudioProcessor::getPatch(ParameterType type) {
+PatchDescriptor PhasePhckrAudioProcessor::getPatch(SynthGraphType type, bool extractParameters) {
     PatchDescriptor patch;
 
     while (synthUpdateLock.test_and_set(std::memory_order_acquire));
@@ -283,10 +283,12 @@ PatchDescriptor PhasePhckrAudioProcessor::getPatch(ParameterType type) {
     else if (type == EFFECT) patch = effectChain;
     synthUpdateLock.clear(std::memory_order_release);
 
+    if (extractParameters) patch.parameters = getParameters(type);
+
     return patch;
 }
 
-void PhasePhckrAudioProcessor::setPatch(ParameterType type, const PatchDescriptor& patch) {
+void PhasePhckrAudioProcessor::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
     if (type == VOICE) {
         setVoiceChain(patch);
         subVoiceChain.set(activeVoiceHandle, patch);
@@ -307,10 +309,28 @@ PresetDescriptor PhasePhckrAudioProcessor::getPreset() {
     return preset;
 }
 
+vector<PresetParameterDescriptor> PhasePhckrAudioProcessor::getPresetParameters() {
+    return parameters.serialize();
+}
+
+vector<PatchParameterDescriptor> PhasePhckrAudioProcessor::getParameters(SynthGraphType type) {
+    vector<PresetParameterDescriptor> presetParams = parameters.serialize();
+    vector<PatchParameterDescriptor> params;
+
+    for (const auto& ppd : presetParams) {
+        if (ppd.p.type == type) {
+            auto pd = ppd.p;
+            params.emplace_back(pd);
+        }
+    }
+
+    return params;
+}
+
 void PhasePhckrAudioProcessor::setPreset(const PresetDescriptor& preset) {
-    parameters.deserialize(preset.parameters);
     setPatch(VOICE, preset.voice);
     setPatch(EFFECT, preset.effect);
+    parameters.deserialize(preset.parameters);
 }
 
 void PhasePhckrAudioProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {

@@ -77,10 +77,12 @@ public:
     SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
 
     void broadcastPatch();
-    PatchDescriptor getPatch(ParameterType type);
+    vector<PresetParameterDescriptor> getPresetParameters();
+    vector<PatchParameterDescriptor> getParameters(SynthGraphType type);
+    PatchDescriptor getPatch(SynthGraphType type, bool extractParameters=false);
     PresetDescriptor getPreset();
     void setPreset(const PresetDescriptor& preset);
-    void setPatch(ParameterType type, const PatchDescriptor& patch);
+    void setPatch(SynthGraphType type, const PatchDescriptor& patch);
 
     PhasePhckrParameters parameters;
 

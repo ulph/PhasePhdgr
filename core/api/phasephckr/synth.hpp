@@ -29,8 +29,8 @@ namespace PhasePhckr {
         void handleBPM(float bpm);
         void handlePosition(float ppqPosition);
         void handleTime(float time);
-        const map<string, int>& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
-        const map<string, int>& setVoiceChain(const PatchDescriptor & chain, const ComponentRegister & cp);
+        const ParameterHandleMap& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
+        const ParameterHandleMap& setVoiceChain(const PatchDescriptor & chain, const ComponentRegister & cp);
         void handleEffectParameter(int handle, float value);
         void handleVoiceParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;

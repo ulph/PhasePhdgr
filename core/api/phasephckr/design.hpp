@@ -56,6 +56,22 @@ struct PadDescription {
     float defaultValue;
 };
 
+enum SynthGraphType {
+    UNDEFINED = 0,
+    VOICE = 1,
+    EFFECT = 2
+};
+
+struct PatchParameterDescriptor {
+    SynthGraphType type;
+    string id;
+    float value;
+    float min;
+    float max;
+};
+
+typedef map<int, PatchParameterDescriptor> ParameterHandleMap;
+
 struct ComponentDescriptor {
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
@@ -76,23 +92,21 @@ struct PatchDescriptor {
     ComponentDescriptor root;
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout;
+    vector<PatchParameterDescriptor> parameters;
 };
 
 /* Preset (voice patch + effect patch + parameters) */
 // these are managed by JUCE layer
 
-struct ParameterDescriptor {
-    string id;
+struct PresetParameterDescriptor {
     int index;
-    float value;
-    float min;
-    float max;
+    PatchParameterDescriptor p;
 };
 
 struct PresetDescriptor {
     PatchDescriptor voice;
     PatchDescriptor effect;
-    vector<ParameterDescriptor> parameters;
+    vector<PresetParameterDescriptor> parameters;
 };
 
 /* Functions and aux types */
@@ -103,9 +117,12 @@ void designPatch(
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
-    map<string, int> &parameterHandles,
+    SynthGraphType type,
+    ParameterHandleMap &parameterHandles,
     const ComponentRegister & cp
 );
+
+// TODO, designPreset
 
 const char componentSeparator = '.';
 const char parameterMarker = '=';
@@ -115,7 +132,7 @@ bool moduleNameIsValid(const string& moduleName);
 bool moduleTypeIsValid(const string& componentName);
 bool componentTypeIsValid(const string& componentName);
 
-// TODO parameterTypeIsValid
+// TODO SynthGraphTypeIsValid
 // TODO typeIsValid (checks that all uppercase?)
 
 // TODO isParameter, isComponent (that checks first char but ignores the validity at large)

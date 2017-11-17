@@ -90,6 +90,7 @@ void to_json(json& j, const PatchDescriptor& p) {
     j["docString"] = p.root.docString;
     j["components"] = p.components;
     j["layout"] = p.layout;
+    j["parameters"] = p.parameters;
 }
 
 void from_json(const json& j, PatchDescriptor& p) {
@@ -97,6 +98,7 @@ void from_json(const json& j, PatchDescriptor& p) {
     p.root.docString = j.at("docString").get<string>();
     p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     p.layout = j.at("layout").get<map<string, ModulePosition>>();
+    if (j.count("parameters")) p.parameters = j.at("parameters").get<vector<PatchParameterDescriptor>>();
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
@@ -113,37 +115,59 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.docString = j.at("docString").get<string>();
 }
 
-void to_json(json& j, const ParameterDescriptor& param){
-    j["id"] = param.id;
-    j["index"] = param.index;
-    j["value"] = param.value;
-    j["min"] = param.min;
-    j["max"] = param.max;
+void to_json(json& j, const PatchParameterDescriptor& p) {
+    j["id"] = p.id;
+    j["type"] = p.type;
+    j["value"] = p.value;
+    j["min"] = p.min;
+    j["max"] = p.max;
 }
 
-void from_json(const json& j, ParameterDescriptor& param){
-    param.id = j.at("id").get<string>();
-    param.index = j.at("index").get<int>();
-    param.value = j.at("value").get<float>();
-    param.min = j.value("min", 0.f);
-    param.max = j.value("max", 1.f);
+void from_json(const json& j, PatchParameterDescriptor& p) {
+    p.id = j.at("id").get<string>();
+    if (j.count("type")) {
+        p.type = j.at("type");
+    }
+    else {
+        p.type = UNDEFINED;
+        if (p.id.substr(0, 2) == "e ") {
+            p.type = EFFECT;
+            p.id = p.id.substr(2);
+        }
+        else if (p.id.substr(0, 2) == "v ") {
+            p.type = VOICE;
+            p.id = p.id.substr(2);
+        }
+    }
+    p.value = j.at("value").get<float>();
+    p.min = j.value("min", 0.f);
+    p.max = j.value("max", 1.f);
 }
 
-void to_json(json& j, const PresetDescriptor& preset){
+void to_json(json& j, const PresetParameterDescriptor& p) {
+    j["index"] = p.index;
+    j["id"] = p.p.id;
+    j["type"] = p.p.type;
+    j["value"] = p.p.value;
+    j["min"] = p.p.min;
+    j["max"] = p.p.max;
+}
+
+void from_json(const json& j, PresetParameterDescriptor& p) {
+    p.index = j.at("index").get<int>();
+    p.p = j.get<PatchParameterDescriptor>();
+}
+
+void to_json(json& j, const PresetDescriptor& preset) {
     j["voice"] = preset.voice;
     j["effect"] = preset.effect;
     j["parameters"] = preset.parameters;
 }
 
-void from_json(const json& j, PresetDescriptor& preset){
+void from_json(const json& j, PresetDescriptor& preset) {
     preset.voice = j.at("voice").get<PatchDescriptor>();
     preset.effect = j.at("effect").get<PatchDescriptor>();
-    try {
-        preset.parameters = j.at("parameters").get<vector<ParameterDescriptor>>();
-    } catch (const std::exception& e) {
-        (void)e;
-        assert(0);
-    }
+    if(j.count("parameters")) preset.parameters = j.at("parameters").get<vector<PresetParameterDescriptor>>();
 }
 
 }

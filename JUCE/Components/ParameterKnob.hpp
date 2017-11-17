@@ -10,9 +10,9 @@ private:
     String lastText;
     float lastMin;
     float lastMax;
-    const function<void(string, string)> swapParameterIndicesCallback;
+    const function<void(int, int)> swapParameterIndicesCallback;
 public:
-    ParameterKnob(PhasePhckrParameter * parameter, const function<void(string, string)> &swapParameterIndicesCallback)
+    ParameterKnob(PhasePhckrParameter * parameter, const function<void(int, int)> &swapParameterIndicesCallback)
         : parameter(parameter)
         , swapParameterIndicesCallback(swapParameterIndicesCallback)
     {
@@ -116,7 +116,7 @@ public:
         if (dynamic_cast<Label*>(event.eventComponent)) {
             if (event.mods.isLeftButtonDown()) {
                 auto drg = DragAndDropContainer::findParentDragContainerFor(this);
-                var desc = label.getText();
+                var desc = this->parameter->getParameterIndex(); // TODO, weak assumption
                 drg->startDragging(desc, this);
             }
         }
@@ -149,9 +149,9 @@ public:
     }
 
     virtual void itemDropped(const SourceDetails &dragSourceDetails) override {
-        String desc = dragSourceDetails.description.toString();
-        if (desc == label.getText()) return;
-        swapParameterIndicesCallback(desc.toStdString(), label.getText().toStdString());
+        int this_idx = this->parameter->getParameterIndex(); // TODO, weak assumption
+        int other_idx = dragSourceDetails.description;
+        swapParameterIndicesCallback(this_idx, other_idx);
     }
 
 };

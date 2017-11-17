@@ -19,8 +19,9 @@ void designChain(
     ConnectionGraph &g,
     const PatchDescriptor &pd,
     ComponentDescriptor &cd,
-    map<string, int>& moduleHandles,
-    map<string, int>& parameterHandles,
+    map<string, int> &moduleHandles,
+    SynthGraphType type,
+    ParameterHandleMap &parameterHandles,
     int depth
 );
 
@@ -59,7 +60,8 @@ bool unpackComponent(
     ComponentDescriptor &parent,
     ComponentDescriptor &current,
     map<string, int> &moduleHandles,
-    map<string, int> &parameterHandles,
+    SynthGraphType type,
+    ParameterHandleMap &parameterHandles,
     int depth
 ) {
 
@@ -115,7 +117,7 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
-    designChain(g, pd, current, moduleHandles, parameterHandles, depth);
+    designChain(g, pd, current, moduleHandles, type, parameterHandles, depth);
 
     return true;
 }
@@ -126,7 +128,8 @@ void designChain(
     const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
-    map<string, int> &parameterHandles,
+    SynthGraphType type,
+    ParameterHandleMap &parameterHandles,
     int depth
 ){
 
@@ -137,7 +140,7 @@ void designChain(
         if (m.type.front() == componentMarker) {
             if (!checkComponent(m, pd)) continue;
             ComponentDescriptor child_cd = pd.components.at(m.type);
-            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles, depth+1)){
+            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, type, parameterHandles, depth+1)){
                 components.insert(m.name);
             }
         }
@@ -155,9 +158,14 @@ void designChain(
         moduleHandles[m.name] = handle;
         cout << handle << " : " << " " << m.name << std::endl;
         if(m.type.front() == parameterMarker){
-            parameterHandles[m.name] = handle;
+            PatchParameterDescriptor prm;
+            prm.min = 0.f;
+            prm.max = 1.f;
+            prm.value = 0.f;
+            prm.type = type;
+            prm.id = m.name;
+            parameterHandles[handle] = prm;
         }
-
     }
 
     // iterate over the connections
@@ -188,11 +196,19 @@ void designChain(
         if (h < 0) {
             cerr << "Error: " << v.target.module << " not found! (values)" << endl;
         }
+        else if (parameterHandles.count(h)) {
+            // bubble up any values set onto parameters as actual parameter data
+            if (v.target.port == "value") parameterHandles[h].value = v.value;
+            else if(v.target.port == "min") parameterHandles[h].min = v.value;
+            else if(v.target.port == "max") parameterHandles[h].max = v.value;
+        }
         else {
             g.setInput(h, v.target.port, v.value);
         }
     }
+
 }
+
 
 void designPatch(
     ConnectionGraph &connectionGraph,
@@ -200,7 +216,8 @@ void designPatch(
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
-    map<string, int> &parameterHandles,
+    SynthGraphType type,
+    ParameterHandleMap &parameterHandles,
     const ComponentRegister & cp
 ) {
 
@@ -230,9 +247,21 @@ void designPatch(
         p,
         p.root,
         moduleHandles,
+        type,
         parameterHandles,
         0
     );
+
+    map<string, const PatchParameterDescriptor *> patchParams;
+    for (const auto& pd : p_.parameters) {
+        patchParams[pd.id] = &pd;
+    }
+
+    for (auto& kv : parameterHandles) {
+        auto& pd = kv.second;
+        if (patchParams.count(pd.id)) pd = *patchParams.at(pd.id);
+    }
+
 }
 
 

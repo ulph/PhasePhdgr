@@ -25,13 +25,13 @@ Synth::~Synth(){
     delete globalData;
 }
 
-const map<string, int>& Synth::setEffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
+const ParameterHandleMap& Synth::setEffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);
     return effects->getParameterHandles();
 }
 
-const map<string, int>& Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
+const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
     assert(numVoices > 0);
     delete voiceBus;
     voiceBus = new VoiceBus();

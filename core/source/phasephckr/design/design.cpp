@@ -295,8 +295,8 @@ int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
 }
 
 
-const string bannedNameCharacters = " !?.-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
-const string bannedTypeCharacters = bannedNameCharacters + "=@";
+const string bannedNameCharacters = componentSeparator + " !?-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
+const string bannedTypeCharacters = bannedNameCharacters + parameterMarker + componentMarker;
 
 bool findAnyOf(const string& str, const string& chars){
     for(const auto& c: chars){

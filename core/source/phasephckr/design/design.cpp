@@ -5,6 +5,8 @@
 #include <set>
 #include <list>
 #include <queue>
+#include <locale>
+
 #include "busmodules.hpp"
 
 #include <assert.h>
@@ -294,31 +296,41 @@ int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
     return 0;
 }
 
+const locale ansi_loc("C");
 
-const string bannedNameCharacters = " !?-/\"\\"; // etc, quite a list ... make some utility function to build this list instead.
-const string bannedTypeCharacters = bannedNameCharacters + parameterMarker + componentMarker;
+bool characterIsValid_base(char c) {
+    return isupper(c, ansi_loc) || islower(c, ansi_loc) || isdigit(c, ansi_loc) || c == '.' || c == '_';
+}
 
-bool findAnyOf(const string& str, const string& chars){
-    for(const auto& c: chars){
-        if(str.find(c) != string::npos) return true;
+bool characterIsValid(char c, bool isName) {
+    bool isValid = characterIsValid_base(c);
+    if (isName && !isValid) {
+        return c == componentSeparator || c == parameterMarker || c == componentMarker;
     }
-    return false;
+    return isValid;
+}
+
+bool stringIsValid(string s, bool isName = false) {
+    for (auto c : s) {
+        if (!characterIsValid(c, isName)) return false;
+    }
+    return true;
 }
 
 bool moduleNameIsValid(const string& moduleName){
-    return !findAnyOf(moduleName, bannedNameCharacters);
+    return stringIsValid(moduleName, true);
 }
 
 bool moduleTypeIsValid(const string& moduleType) {
-    if(moduleType.front() != componentMarker
-    || moduleType.front() != parameterMarker
-    ) return !findAnyOf(moduleType.substr(1), bannedTypeCharacters);
-    return !findAnyOf(moduleType, bannedTypeCharacters);
+    if(moduleType.front() == componentMarker
+    || moduleType.front() == parameterMarker
+    ) return stringIsValid(moduleType.substr(1));
+    return stringIsValid(moduleType);
 }
 
 bool componentTypeIsValid(const string& componentType){
     if(componentType.front() != componentMarker) return false;
-    return !findAnyOf(componentType.substr(1), bannedTypeCharacters);
+    return stringIsValid(componentType.substr(1));
 }
 
 const vector<PadDescription> c_effectChainInBus = {

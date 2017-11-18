@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {
 private:
     Slider slider;
@@ -30,16 +32,25 @@ public:
     void update() {
         bool shouldRepaint = false;
 
-        if (*parameter != lastValue) {
-            slider.setValue(*parameter, dontSendNotification);
-            lastValue = *parameter;
+        float newMin = parameter->range.start;
+        float newMax = parameter->range.end;
+        if (lastMin != newMin || lastMax != newMax) {
+            slider.setRange(newMin, newMax);
             shouldRepaint = true;
         }
+        lastMin = newMin;
+        lastMax = newMax;
+
+        float newValue = *parameter;
+        if (newValue != lastValue) {
+            slider.setValue(newValue, dontSendNotification);
+            shouldRepaint = true;
+        }
+        lastValue = newValue;
 
         int isActive = (int)parameter->isActive();
 
         if (isActive != lastActivity) {
-            lastActivity = isActive;
             if (isActive) {
                 label.setColour(Label::textColourId, Colours::lightgrey);
                 slider.setColour(Slider::thumbColourId, Colours::lightgrey);
@@ -58,22 +69,14 @@ public:
             }
             shouldRepaint = true;
         }
+        lastActivity = isActive;
 
         String newText = parameter->getName(64);
         if (lastText != newText) {
-            lastText = newText;
             label.setText(newText, sendNotificationAsync);
             shouldRepaint = true;
         }
-
-        float newMin = parameter->range.start;
-        float newMax = parameter->range.end;
-        if (lastMin != newMin || lastMax != newMax) {
-            lastMin = newMin;
-            lastMax = newMax;
-            slider.setRange(newMin, newMax);
-            shouldRepaint = true;
-        }
+        lastText = newText;
 
         if (shouldRepaint) {
             repaint();

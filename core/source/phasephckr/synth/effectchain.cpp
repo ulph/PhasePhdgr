@@ -29,7 +29,7 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
 
 void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
     for(const auto& p: parameterHandles){
-        connectionGraph.setInput(p.first, 0, p.second.value);
+        connectionGraph.setInput(p.first, 0, p.second.val);
     }
 
     GlobalData globalDataCopy = globalData;
@@ -65,7 +65,7 @@ void EffectChain::setParameter(int handle, float value){
         assert(0);
         return;
     }
-    it->second.value = value;
+    it->second.val = value;
 }
 
 const ParameterHandleMap& EffectChain::getParameterHandles(){

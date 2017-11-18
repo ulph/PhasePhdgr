@@ -53,11 +53,6 @@ class Knob : public ModuleCRTP<Knob> {
         outputs[0].value = inputs[0].value;
     }
     static Module* factory() { return new Knob(); }
-    virtual PhasePhckr::ModuleDoc makeDoc() {
-        auto d = Module::makeDoc();
-        d.inputs.clear();
-        return d;
-    }
     virtual std::string docString() { return "A knob representing an automatable parameter. It will show up in the HOST as well as the parameters tab."; }
 };
 

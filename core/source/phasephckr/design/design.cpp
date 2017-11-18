@@ -161,7 +161,7 @@ void designChain(
             PatchParameterDescriptor prm;
             prm.min = 0.f;
             prm.max = 1.f;
-            prm.value = 0.f;
+            prm.val = 0.f;
             prm.type = type;
             prm.id = m.name;
             parameterHandles[handle] = prm;
@@ -198,7 +198,7 @@ void designChain(
         }
         else if (parameterHandles.count(h)) {
             // bubble up any values set onto parameters as actual parameter data
-            if (v.target.port == "value") parameterHandles[h].value = v.value;
+            if (v.target.port == "value")   parameterHandles[h].val = v.value;
             else if(v.target.port == "min") parameterHandles[h].min = v.value;
             else if(v.target.port == "max") parameterHandles[h].max = v.value;
         }

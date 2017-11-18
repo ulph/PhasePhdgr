@@ -65,7 +65,7 @@ enum SynthGraphType {
 struct PatchParameterDescriptor {
     SynthGraphType type;
     string id;
-    float value;
+    float val;
     float min;
     float max;
 };

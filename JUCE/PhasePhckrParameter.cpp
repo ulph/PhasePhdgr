@@ -104,7 +104,7 @@ void PhasePhckrParameters::updateParameters()
         TID tid = make_pair(param.type, param.id);
         assert(validParametersHandles.count(tid));
 
-        floatParameters[ppd.index]->initialize(param.value, param.min, param.max, name);
+        floatParameters[ppd.index]->initialize(param.val, param.min, param.max, name);
         parameterRouting[ppd.index] = make_pair(param.type, validParametersHandles.at(tid));
     }
     

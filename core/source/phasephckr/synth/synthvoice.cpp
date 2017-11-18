@@ -38,7 +38,7 @@ SynthVoice::~SynthVoice()
 void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalData& g)
 {
     for(const auto& p: parameterHandles){
-        connectionGraph.setInput(p.first, 0, p.second.value);
+        connectionGraph.setInput(p.first, 0, p.second.val);
     }
     // Queue work for thread
     threadStuff.globalData = g;
@@ -116,7 +116,7 @@ void SynthVoice::setParameter(int handle, float value){
         assert(0);
         return;
     }
-    it->second.value = value;
+    it->second.val = value;
 }
 
 const ParameterHandleMap& SynthVoice::getParameterHandles(){

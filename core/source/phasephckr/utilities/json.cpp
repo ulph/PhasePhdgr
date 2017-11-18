@@ -118,7 +118,7 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
 void to_json(json& j, const PatchParameterDescriptor& p) {
     j["id"] = p.id;
     j["type"] = p.type;
-    j["value"] = p.value;
+    j["value"] = p.val;
     j["min"] = p.min;
     j["max"] = p.max;
 }
@@ -139,7 +139,7 @@ void from_json(const json& j, PatchParameterDescriptor& p) {
             p.id = p.id.substr(2);
         }
     }
-    p.value = j.at("value").get<float>();
+    p.val = j.at("value").get<float>();
     p.min = j.value("min", 0.f);
     p.max = j.value("max", 1.f);
 }
@@ -148,7 +148,7 @@ void to_json(json& j, const PresetParameterDescriptor& p) {
     j["index"] = p.index;
     j["id"] = p.p.id;
     j["type"] = p.p.type;
-    j["value"] = p.p.value;
+    j["value"] = p.p.val;
     j["min"] = p.p.min;
     j["max"] = p.p.max;
 }

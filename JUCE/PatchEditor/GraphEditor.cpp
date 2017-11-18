@@ -322,6 +322,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 modelChanged = makePortPoopUp(poop, m, port, gfxGraph, inputPort);
             }
             else{
+                auto l = gfxGraphLock.make_scoped_lock();
                 looseWire.isValid = true;
                 looseWire.destination = mouseDownPos;
                 looseWire.attachedAtSource = !inputPort;
@@ -343,6 +344,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 }
             }
             else if (event.mods.isShiftDown()) {
+                auto l = gfxGraphLock.make_scoped_lock();
                 if (selectedModules.count(&m)) {
                     selectedModules.erase(&m);
                 }
@@ -377,6 +379,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             userInteraction = true;
         }
         else {
+            auto l = gfxGraphLock.make_scoped_lock();
             selectedModules.clear();
         }
     }
@@ -437,10 +440,11 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     bool modelChanged = false;
     draggedModule = nullptr;
     if (looseWire.isValid) {
-        auto scoped_lock = gfxGraphLock.make_scoped_lock();
+        auto l = gfxGraphLock.make_scoped_lock();
         modelChanged = gfxGraph.connect(looseWire, mousePos);
     }
     if (selecting) {
+        auto l = gfxGraphLock.make_scoped_lock();
         auto selectionRegion = Rectangle<float>(selectionStart, selectionStop);
         for (const auto &m : gfxGraph.modules) {
             if(m.module.name == c_inBus.name || m.module.name == c_outBus.name) continue;
@@ -459,14 +463,41 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
 
 
 void GraphEditor::mouseMove(const MouseEvent & event) {
-    auto scoped_lock = gfxGraphLock.make_scoped_lock();
     XY mousePos((float)event.x, (float)event.y);
-    // a little hack for now
+
+    auto l = gfxGraphLock.make_scoped_lock();
+
+    // replace with something less terrible that doesn't search the whole bloody graph every pixel
+
+    for (auto& m : gfxGraph.modules) {
+        for (auto& p : m.inputs) {
+            if (p.within(mousePos)) {
+                p.latched_mouseHover = true;
+                repaint();
+                mouseIsHovering = true;
+                return;
+            }
+        }
+        for (auto& p : m.outputs) {
+            if (p.within(mousePos)) {
+                p.latched_mouseHover = true;
+                repaint();
+                mouseIsHovering = true;
+                return;
+            }
+        }
+        if (m.within(mousePos)) {
+            m.latched_mouseHover = true;
+            repaint();
+            mouseIsHovering = true;
+            return;
+        }
+    }
+
     for (auto wit = gfxGraph.wires.begin(); wit != gfxGraph.wires.end(); ++wit) {
         bool nearestSource = false;
         if (wit->within(mousePos, nearestSource)) {
             wit->latched_mouseHover = true;
-            lastHoveredConnectedPort = nearestSource ? wit->connection.source : wit->connection.target;
             repaint();
             mouseIsHovering = true;
             return;
@@ -487,7 +518,7 @@ void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
 
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
-    auto scoped_lock = gfxGraphLock.make_scoped_lock();
+    gfxGraphLock.lock();
 
     auto thing = dragSourceDetails.description.toString().toStdString();
     auto dropPos = dragSourceDetails.localPosition;
@@ -496,6 +527,8 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
         doc, 
         XY((float)dropPos.x, (float)dropPos.y)
     );
+
+    gfxGraphLock.unlock();
 
     if (modelChanged) propagateUserModelChange();
 }

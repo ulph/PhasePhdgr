@@ -37,7 +37,6 @@ private:
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
 public:
-    MPEVoice mpe;
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
     virtual ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
@@ -46,6 +45,7 @@ public:
     void setParameter(int handle, float value);
     const ParameterHandleMap& getParameterHandles();
     bool isSilent();
+    MPEVoice mpe;
 };
 
 }

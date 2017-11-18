@@ -82,7 +82,6 @@ private:
     GfxModule *draggedModule = nullptr;
     GfxLooseWire looseWire;
     bool mouseIsHovering = false;
-    ModulePort lastHoveredConnectedPort;
 
     bool selecting;
     Point<float> selectionStart;

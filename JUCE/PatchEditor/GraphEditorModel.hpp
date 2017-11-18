@@ -63,11 +63,13 @@ struct GfxPort {
     bool assignedValue = false;
     XY position;
 
+    bool latched_mouseHover = false;
+
     bool within(XY p) const;
     void clearValue();
     void setValue(float v);
     float getValue();
-    void draw(Graphics & g, int rowIndex=-1) const;
+    void draw(Graphics & g, int rowIndex=-1);
     void updateValue(const string& module, const std::vector<ModulePortValue> &mpvs);
 
     GfxPort();
@@ -78,6 +80,7 @@ struct GfxPort {
 
 struct GfxModule {
     bool isParameter = false;
+    bool latched_mouseHover = false;
 
     vector<GfxPort> inputs;
     vector<GfxPort> outputs;
@@ -94,7 +97,7 @@ struct GfxModule {
     void repositionPorts();
     bool within(XY p) const;
     bool withinPort(XY p, XY& portPosition, string &port, bool & inputPort);
-    virtual void draw(Graphics & g, bool selected=false) const;
+    virtual void draw(Graphics & g, bool selected=false);
     bool getValue(const string& port, float& value);
     void clearValue(const string& port);
     bool setValue(const string& port, float value);

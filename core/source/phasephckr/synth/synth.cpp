@@ -42,6 +42,7 @@ const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain
     SynthVoice v = SynthVoice(voiceChain, cp);
     for (int i = 0; i<numVoices; ++i) {
         SynthVoice *v_ = new SynthVoice(v);
+        v_->mpe.setIndex(i, numVoices);
         voices.push_back(v_);
     }
     return voices[0]->getParameterHandles(); // they're identical

@@ -80,9 +80,12 @@ float GfxPort::getValue(){
     return defaultValue;
 }
 
-void GfxPort::draw(Graphics & g, int rowIndex) const {
+void GfxPort::draw(Graphics & g, int rowIndex) {
     g.setColour(Colours::black);
-    if(assignedValue){
+    if (latched_mouseHover) {
+        g.setColour(Colours::cyan);
+    }
+    else if(assignedValue){
         g.setColour(Colours::darkgrey);
     }
     g.fillEllipse(position.x, position.y, c_PortSize, c_PortSize);
@@ -109,6 +112,8 @@ void GfxPort::draw(Graphics & g, int rowIndex) const {
         Justification::centred,
         1
     );
+
+    latched_mouseHover = false;
 }
 
 GfxPort::GfxPort()
@@ -174,8 +179,11 @@ bool GfxModule::withinPort(XY p, XY& portPosition, string &port, bool & inputPor
     return false;
 }
 
-void GfxModule::draw(Graphics & g, bool selected) const {
-    if (selected) {
+void GfxModule::draw(Graphics & g, bool selected) {
+    if (latched_mouseHover) {
+        g.setColour(Colours::cyan);
+    }
+    else if (selected) {
         g.setColour(Colour(0x66888888));
     }
     else {
@@ -230,16 +238,17 @@ void GfxModule::draw(Graphics & g, bool selected) const {
 
     int row = 0;
     int numRows = (inputs.size() > 4) ? 2 : 1;
-    for (const auto &i : inputs) {
+    for (auto &i : inputs) {
         i.draw(g, (row++ % numRows));
     }
 
     row = 0;
     numRows = (outputs.size() > 4) ? 2 : 1;
-    for (const auto &o : outputs) {
+    for (auto &o : outputs) {
         o.draw(g, (row++ % numRows));
     }
 
+    latched_mouseHover = false;
 }
 
 bool GfxModule::getValue(const string& port, float& value){

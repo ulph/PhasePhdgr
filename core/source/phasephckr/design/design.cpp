@@ -399,7 +399,11 @@ const vector<PadDescription> c_voiceChainInBus = {
     { "sigDen", "", 0 },
     { "bpm", "", 0 },
     { "pos", "", 0 },
-    { "time", "", 0 }
+    { "time", "", 0 },
+
+    { "noteIndex", "", 0 },
+    { "voiceIndex", "", 0 },
+    { "polyphony", "" , 0 }
 };
 
 const vector<PadDescription> c_voiceChainOutBus = {

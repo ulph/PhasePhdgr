@@ -29,6 +29,7 @@ void MPEVoice::on(int note, float velocity) {
     st.gate = 1.f;
     rootNote = note;
     st.strikeZ = velocity;
+    st.noteIndex = (float)note / 127.f;
     calculatePitchHz();
 }
 
@@ -62,9 +63,16 @@ void MPEVoice::update() {
 }
 
 void MPEVoice::reset() {
+    auto vi = st.voiceIndex;
+    auto p = st.polyphony;
+    
     memset(&st, 0, sizeof(st));
     memset(&tg, 0, sizeof(tg));
     age = UINT_MAX;
+
+    // retain a couple of things across a reset
+    st.voiceIndex = vi;
+    st.polyphony = p;
 }
 
 unsigned int MPEVoice::getAge() {
@@ -73,6 +81,11 @@ unsigned int MPEVoice::getAge() {
 
 const MPEVoiceState & MPEVoice::getState() {
     return st;
+}
+
+void MPEVoice::setIndex(int index, int polyPhony) {
+    st.voiceIndex = (float)index / float(polyPhony);
+    st.polyphony = (float)polyPhony;
 }
 
 }

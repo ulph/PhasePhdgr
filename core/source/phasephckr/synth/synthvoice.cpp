@@ -28,7 +28,6 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
 
     inBus = moduleHandles["inBus"];
     outBus = moduleHandles["outBus"];
-
 }
 
 SynthVoice::~SynthVoice()
@@ -97,6 +96,10 @@ void SynthVoice::threadedProcess()
             connectionGraph.setInput(inBus, 12, t.bpm);
             connectionGraph.setInput(inBus, 13, t.position);
             connectionGraph.setInput(inBus, 14, t.time);
+
+            connectionGraph.setInput(inBus, 15, v.noteIndex);
+            connectionGraph.setInput(inBus, 16, v.voiceIndex);
+            connectionGraph.setInput(inBus, 17, v.polyphony);
 
             connectionGraph.process(outBus, threadStuff.sampleRate);
             float sampleL = connectionGraph.getOutput(outBus, 0);

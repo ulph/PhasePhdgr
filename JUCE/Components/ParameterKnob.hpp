@@ -30,28 +30,20 @@ public:
     }
 
     void update() {
-        bool shouldRepaint = false;
-
         float newMin = parameter->range.start;
         float newMax = parameter->range.end;
         if (lastMin != newMin || lastMax != newMax) {
             slider.setRange(newMin, newMax);
-            shouldRepaint = true;
         }
-        lastMin = newMin;
-        lastMax = newMax;
 
         float newValue = *parameter;
         if (newValue != lastValue) {
             slider.setValue(newValue, dontSendNotification);
-            shouldRepaint = true;
         }
-        lastValue = newValue;
 
-        int isActive = (int)parameter->isActive();
-
-        if (isActive != lastActivity) {
-            if (isActive) {
+        int newActivity = (int)parameter->isActive();
+        if (newActivity != lastActivity) {
+            if (newActivity) {
                 label.setColour(Label::textColourId, Colours::lightgrey);
                 slider.setColour(Slider::thumbColourId, Colours::lightgrey);
                 slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
@@ -67,20 +59,28 @@ public:
                 slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
                 slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
             }
-            shouldRepaint = true;
         }
-        lastActivity = isActive;
 
         String newText = parameter->getName(64);
         if (lastText != newText) {
             label.setText(newText, sendNotificationAsync);
-            shouldRepaint = true;
         }
-        lastText = newText;
 
-        if (shouldRepaint) {
+        if(lastMin != newMin
+        || lastMax != newMax
+        || lastValue != newValue
+        || lastActivity != newActivity
+        || lastText != newText
+        ){
             repaint();
         }
+
+        lastMin = newMin;
+        lastMax = newMax;
+        lastValue = newValue;
+        lastActivity = newActivity;
+        lastText = newText;
+
     }
 
     void resized() override {

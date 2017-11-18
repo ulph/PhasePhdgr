@@ -119,8 +119,10 @@ public:
     XY position;
     XY destination;
 
+    bool latched_mouseHover = false;
+
     bool within(XY p, bool & nearSource) const;
-    void draw(Graphics & g) const;
+    void draw(Graphics & g);
     void calculatePath(const vector<GfxModule> & modules);
     GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules);
 };

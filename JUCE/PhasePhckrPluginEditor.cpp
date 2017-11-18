@@ -20,9 +20,9 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
     , voiceScopeXY(processor.getSynth()->getVoiceScope(0), processor.getSynth()->getVoiceScope(1))
-    , outputScopeL(processor.getSynth()->getOutputScope(0))
-    , outputScopeR(processor.getSynth()->getOutputScope(1))
-    , outputScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
+    , outputScopeL(processor.getSynth()->getEffectScope(0))
+    , outputScopeR(processor.getSynth()->getEffectScope(1))
+    , outputScopeXY(processor.getSynth()->getEffectScope(0), processor.getSynth()->getEffectScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
 
     , voiceEditor(

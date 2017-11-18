@@ -327,9 +327,16 @@ bool GfxWire::within(XY p, bool & nearSource) const {
     return false;
 }
 
-void GfxWire::draw(Graphics & g) const {
-    g.setGradientFill(grad);
-    g.fillPath(path);
+void GfxWire::draw(Graphics & g) {
+    if (latched_mouseHover) {
+        g.setColour(Colours::cyan);
+        g.fillPath(path);
+    }
+    else {
+        g.setGradientFill(grad);
+        g.fillPath(path);
+    }
+    latched_mouseHover = false;
 }
 
 void GfxWire::calculatePath(const vector<GfxModule> & modules) {

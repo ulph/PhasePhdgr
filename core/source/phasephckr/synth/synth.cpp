@@ -120,7 +120,7 @@ const Scope& Synth::getVoiceScope(int i) const {
     return voiceScopeL;
 }
 
-const Scope& Synth::getOutputScope(int i) const {
+const Scope& Synth::getEffectScope(int i) const {
     if(i==0) return outputScopeL;
     if(i==1) return outputScopeR;
     return outputScopeL;

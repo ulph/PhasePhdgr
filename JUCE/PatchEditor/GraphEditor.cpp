@@ -459,7 +459,25 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
 
 
 void GraphEditor::mouseMove(const MouseEvent & event) {
+    auto scoped_lock = gfxGraphLock.make_scoped_lock();
+    XY mousePos((float)event.x, (float)event.y);
+    // a little hack for now
+    for (auto wit = gfxGraph.wires.begin(); wit != gfxGraph.wires.end(); ++wit) {
+        bool nearestSource = false;
+        if (wit->within(mousePos, nearestSource)) {
+            wit->latched_mouseHover = true;
+            lastHoveredConnectedPort = nearestSource ? wit->connection.source : wit->connection.target;
+            repaint();
+            mouseIsHovering = true;
+            return;
+        }
+    }
 
+    if (mouseIsHovering) {
+        repaint();
+    }
+
+    mouseIsHovering = false;
 }
 
 
@@ -515,7 +533,6 @@ void GraphEditor::paint(Graphics& g){
         g.setColour(Colour(0x44ffffff));
         g.fillRect(Rectangle<float>(selectionStart, selectionStop));
     }
-
 }
 
 
@@ -603,6 +620,5 @@ void GraphEditor::updateRenderComponents()
         updateBounds(bounds);
         patchIsDirty = false;
     }
-    
 
 }

@@ -34,7 +34,7 @@ namespace PhasePhckr {
         void handleEffectParameter(int handle, float value);
         void handleVoiceParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;
-        const Scope& getOutputScope(int i) const;
+        const Scope& getEffectScope(int i) const;
     private:
         VoiceBus *voiceBus;
         vector<SynthVoice*> voices;

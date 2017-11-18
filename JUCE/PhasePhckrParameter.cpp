@@ -16,7 +16,6 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
     }
 }
 
-
 void PhasePhckrParameters::initializeKnobs(PhasePhckrAudioProcessorEditor * e) {
     for (int i = 0; i<numberOfParameters(); i++) {
         PhasePhckrParameter* p = nullptr;
@@ -33,7 +32,9 @@ void PhasePhckrParameters::initializeKnobs(PhasePhckrAudioProcessorEditor * e) {
     }
 }
 
+
 typedef pair<SynthGraphType, string> TID;
+
 
 void PhasePhckrParameters::updateParameters()
 {
@@ -110,7 +111,6 @@ void PhasePhckrParameters::updateParameters()
     
 }
 
-
 bool PhasePhckrParameters::accessParameter(int index, PhasePhckrParameter ** param) {
     // potentially unsafe hack
     if (index >= numberOfParameters()) return false;
@@ -118,11 +118,9 @@ bool PhasePhckrParameters::accessParameter(int index, PhasePhckrParameter ** par
     return true;
 }
 
-
 size_t PhasePhckrParameters::numberOfParameters() {
     return floatParameters.size();
 }
-
 
 void PhasePhckrParameters::swapParameterIndices(int a_idx, int b_idx) {
 
@@ -133,7 +131,7 @@ void PhasePhckrParameters::swapParameterIndices(int a_idx, int b_idx) {
     PresetParameterDescriptor * a = nullptr;
     PresetParameterDescriptor * b = nullptr;
 
-    while (parameterLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (auto& ppd : presetParameters) {
         if (ppd.index == a_idx) a = &ppd;
@@ -146,30 +144,25 @@ void PhasePhckrParameters::swapParameterIndices(int a_idx, int b_idx) {
         updateParameters();
     }
 
-    parameterLock.clear(std::memory_order_release);
 }
-
 
 void PhasePhckrParameters::setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv) {
     // from synth
+    auto scoped_lock = parameterLock.make_scoped_lock();
+
     if (type == VOICE) {
-        while (parameterLock.test_and_set(std::memory_order_acquire));
         voiceParameters = pv;
         updateParameters();
-        parameterLock.clear(std::memory_order_release);
     }
     else if (type == EFFECT) {
-        while (parameterLock.test_and_set(std::memory_order_acquire));
         effectParameters = pv;
         updateParameters();
-        parameterLock.clear(std::memory_order_release);
     }
 }
 
-
 void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
     // to synth
-    while (parameterLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {
         auto idx = kv.first;
@@ -189,32 +182,20 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) 
             break;
         }
     }
-
-    parameterLock.clear(std::memory_order_release);
-
 }
-
 
 vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
     // from patch serialization - convert to a struct with strings
-
-    while (parameterLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = parameterLock.make_scoped_lock();
 
     auto pv = presetParameters;
-
-    parameterLock.clear(std::memory_order_release);
-
     return pv;
 }
 
-
 void PhasePhckrParameters::deserialize(const vector<PresetParameterDescriptor>& pv) {
     // from patch deserialization - convert from struct with strings
-
-    while (parameterLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = parameterLock.make_scoped_lock();
 
     presetParameters = pv;
     updateParameters();
-
-    parameterLock.clear(std::memory_order_release);
 }

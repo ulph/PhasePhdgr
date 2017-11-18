@@ -284,9 +284,9 @@ GraphEditor::~GraphEditor() {
 
 
 void GraphEditor::propagateUserModelChange() {
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    gfxGraphLock.lock();
     patch = gfxGraph.exportModelData();
-    gfxGraphLock.clear(std::memory_order_release);
+    gfxGraphLock.unlock();
 
     subPatch.set(subPatchHandle, patch);
     repaint();
@@ -360,12 +360,11 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 
     // disconnect a wire
     if (!userInteraction) {
-        while (gfxGraphLock.test_and_set(memory_order_acquire));
+        auto scoped_lock = gfxGraphLock.make_scoped_lock();
         if (gfxGraph.disconnect(mouseDownPos, looseWire)) {
             modelChanged = true;
             userInteraction = true;
         }
-        gfxGraphLock.clear(memory_order_release);
     }
 
     // select region start/stop
@@ -411,9 +410,11 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         draggedModule->position += delta;
         draggedModule->repositionPorts();
         auto mv = vector<GfxModule>{ *draggedModule };
-        while (gfxGraphLock.test_and_set(memory_order_acquire));
+
+        gfxGraphLock.lock();
         gfxGraph.recalculateWires(mv);
-        gfxGraphLock.clear(memory_order_release);
+        gfxGraphLock.unlock();
+
         updateBounds(gfxGraph.getBounds());
         repaint();
     }
@@ -436,9 +437,8 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     bool modelChanged = false;
     draggedModule = nullptr;
     if (looseWire.isValid) {
-        while (gfxGraphLock.test_and_set(memory_order_acquire));
+        auto scoped_lock = gfxGraphLock.make_scoped_lock();
         modelChanged = gfxGraph.connect(looseWire, mousePos);
-        gfxGraphLock.clear(memory_order_release);
     }
     if (selecting) {
         auto selectionRegion = Rectangle<float>(selectionStart, selectionStop);
@@ -469,7 +469,8 @@ void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
 
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
-    while (gfxGraphLock.test_and_set(memory_order_acquire));
+    auto scoped_lock = gfxGraphLock.make_scoped_lock();
+
     auto thing = dragSourceDetails.description.toString().toStdString();
     auto dropPos = dragSourceDetails.localPosition;
     bool modelChanged = gfxGraph.add(
@@ -477,7 +478,7 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
         doc, 
         XY((float)dropPos.x, (float)dropPos.y)
     );
-    gfxGraphLock.clear(memory_order_release);
+
     if (modelChanged) propagateUserModelChange();
 }
 
@@ -495,7 +496,7 @@ void GraphEditor::updateBounds(const XY & position, const XY & size){
 
 
 void GraphEditor::paint(Graphics& g){
-    while (gfxGraphLock.test_and_set(memory_order_acquire));
+    auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
     updateRenderComponents();
 
@@ -515,12 +516,11 @@ void GraphEditor::paint(Graphics& g){
         g.fillRect(Rectangle<float>(selectionStart, selectionStop));
     }
 
-    gfxGraphLock.clear(std::memory_order_release);
 }
 
 
 void GraphEditor::setDoc(const Doc& newDoc){
-    while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
     doc = newDoc;
     auto inBus_ = Doc::makeBusModuleDoc(inBus, true);
@@ -530,19 +530,15 @@ void GraphEditor::setDoc(const Doc& newDoc){
 
     docIsDirty = true;
 
-    gfxGraphLock.clear(std::memory_order_release);
-
     repaint();
 }
 
 
 void GraphEditor::setGraph(const PatchDescriptor& newPatch) {
-  while (gfxGraphLock.test_and_set(std::memory_order_acquire));
+  auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
   patch = newPatch;
   patchIsDirty = true;
-
-  gfxGraphLock.clear(std::memory_order_release);
 
   repaint();
 }

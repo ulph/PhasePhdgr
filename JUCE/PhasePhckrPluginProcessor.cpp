@@ -132,7 +132,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     _mm_setcsr( newMXCSR); /*write the new MXCSR setting to the MXCSR */
 #endif
 
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     const int numOutputChannels = getTotalNumOutputChannels();
 //    const int numMidiMessages = midiMessages.getNumEvents();
@@ -216,8 +216,6 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
 
-    synthUpdateLock.clear(std::memory_order_release);
-
 #if FORCE_FTZ_DAZ
     _mm_setcsr( oldMXCSR );
 #endif
@@ -278,10 +276,10 @@ void PhasePhckrAudioProcessor::broadcastPatch() {
 PatchDescriptor PhasePhckrAudioProcessor::getPatch(SynthGraphType type, bool extractParameters) {
     PatchDescriptor patch;
 
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+
     if (type == VOICE) patch = voiceChain;
     else if (type == EFFECT) patch = effectChain;
-    synthUpdateLock.clear(std::memory_order_release);
 
     if (extractParameters) patch.parameters = getParameters(type);
 
@@ -334,22 +332,18 @@ void PhasePhckrAudioProcessor::setPreset(const PresetDescriptor& preset) {
 }
 
 void PhasePhckrAudioProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     voiceChain = p;
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
     parameters.setParametersHandleMap(VOICE, pv);
 
-    synthUpdateLock.clear(std::memory_order_release);
-
 }
 
 void PhasePhckrAudioProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
-    while (synthUpdateLock.test_and_set(std::memory_order_acquire));
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     effectChain = p;
     auto pv = synth->setEffectChain(effectChain, componentRegister);
     parameters.setParametersHandleMap(EFFECT, pv);
-
-    synthUpdateLock.clear(std::memory_order_release);
 }

@@ -6,3 +6,4 @@
 #include "phasephckr/examples.hpp"
 #include "phasephckr/scope.hpp"
 #include "phasephckr/synth.hpp"
+#include "phasephckr/locks.hpp"

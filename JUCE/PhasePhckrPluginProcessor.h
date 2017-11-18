@@ -39,7 +39,7 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
-    std::atomic_flag synthUpdateLock = ATOMIC_FLAG_INIT;
+    mutex synthUpdateLock;
 
 public:
     PhasePhckrAudioProcessor();

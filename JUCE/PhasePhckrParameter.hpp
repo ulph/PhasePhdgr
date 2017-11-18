@@ -78,7 +78,7 @@ class PhasePhckrParameters {
     ParameterHandleMap effectParameters;
     ParameterHandleMap voiceParameters;
     vector<PresetParameterDescriptor> presetParameters;
-    std::atomic_flag parameterLock = ATOMIC_FLAG_INIT;
+    mutex parameterLock;
     void updateParameters();
 
 public:

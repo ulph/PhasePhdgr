@@ -30,6 +30,7 @@ set(API_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/examples.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/scope.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/synth.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/locks.hpp
 )
 
 add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack

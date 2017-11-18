@@ -24,6 +24,7 @@ set( PHASEPHCKR_SRC
     $<TARGET_OBJECTS:dsp_obj>
     $<TARGET_OBJECTS:modules_obj>
     $<TARGET_OBJECTS:phasephckr_obj>
+    $<TARGET_OBJECTS:threading_obj>
 )
 
 if(${BUILD_JUCE})

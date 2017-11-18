@@ -76,7 +76,8 @@ private:
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
 
-    atomic_flag gfxGraphLock = ATOMIC_FLAG_INIT;
+    mutex gfxGraphLock;
+
     GfxGraph gfxGraph;
     GfxModule *draggedModule = nullptr;
     GfxLooseWire looseWire;

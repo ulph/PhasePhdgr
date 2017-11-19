@@ -239,8 +239,10 @@ void GfxModule::draw(Graphics & g, bool selected) {
 
     int row = 0;
     int numRows = (inputs.size() > 4) ? 2 : 1;
-    for (auto &i : inputs) {
-        i.draw(g, (row++ % numRows));
+    if (!isParameter) {
+        for (auto &i : inputs) {
+            i.draw(g, (row++ % numRows));
+        }
     }
 
     row = 0;

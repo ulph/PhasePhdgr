@@ -68,6 +68,9 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
         createOutputMenuId = ctr++;
         poop.addItem(createOutputMenuId, "create output");
     }
+    else if (moduleType.front() == parameterMarker) {
+        // TODO, value, min, max editable
+    }
 
     const int delMenuId = ctr++;
     poop.addItem(delMenuId, "remove module");

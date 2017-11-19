@@ -212,6 +212,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         synth->handleBPM((float)info.bpm);
         synth->handlePosition((float)info.ppqPosition);
         synth->handleTime((float)info.timeInSeconds);
+        synth->handleBarPosition((float)info.ppqPosition-(float)info.ppqPositionOfLastBarStart);
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);

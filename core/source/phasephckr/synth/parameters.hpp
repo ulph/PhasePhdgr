@@ -9,6 +9,7 @@ namespace PhasePhckr {
             : nominator(4)
             , denominator(4)
             , bpm(120)
+            , barPosition(0)
             , position(0)
             , time(0)
         {}
@@ -16,6 +17,7 @@ namespace PhasePhckr {
         int denominator;
         float bpm;
         float position;
+        float barPosition;
         float time;
     };
 
@@ -43,6 +45,7 @@ namespace PhasePhckr {
         void signature(int num, int den) { timeSt.nominator = num; timeSt.denominator = den; }
         void bpm(float bpm) { timeSt.bpm = bpm; }
         void position(float pos) { timeSt.position = pos; }
+        void barPosition(float pos) { timeSt.barPosition = pos; }
         void time(float t) { timeSt.time = t; }
         GlobalData() : slewFactor(c_slewFactor) {}
         void update() {

@@ -373,8 +373,10 @@ const vector<PadDescription> c_effectChainInBus = {
     { "sigNom", "", 0 },
     { "sigDen", "", 0 },
     { "bpm", "", 0 },
+    { "barPos", "", 0 },
     { "pos", "", 0 },
     { "time", "", 0 }
+
 };
 
 const vector<PadDescription> c_effectChainOutBus = {
@@ -398,6 +400,7 @@ const vector<PadDescription> c_voiceChainInBus = {
     { "sigNom", "", 0 },
     { "sigDen", "", 0 },
     { "bpm", "", 0 },
+    { "barPos", "", 0 },
     { "pos", "", 0 },
     { "time", "", 0 },
 

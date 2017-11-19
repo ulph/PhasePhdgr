@@ -104,7 +104,9 @@ void Synth::handleBreath(float a) { globalData->breath(a); }
 void Synth::handleModWheel(float a) { globalData->modwheel(a); }
 void Synth::handleTimeSignature(int num, int den){ globalData->signature(num, den); }
 void Synth::handleBPM(float bpm){ globalData->bpm(bpm); }
-void Synth::handlePosition(float pos){ globalData->position(pos); }
+void Synth::handlePosition(float ppqPosition){ globalData->position(ppqPosition); }
+void Synth::handleBarPosition(float ppqPosition){ globalData->barPosition(ppqPosition); }
+
 void Synth::handleTime(float t){ globalData->time(t); }
 
 void Synth::handleEffectParameter(int handle, float value){

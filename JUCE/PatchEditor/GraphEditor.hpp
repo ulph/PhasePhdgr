@@ -76,7 +76,7 @@ private:
     vector<PadDescription> inBus;
     vector<PadDescription> outBus;
 
-    mutex gfxGraphLock;
+    simple_lock gfxGraphLock;
 
     GfxGraph gfxGraph;
     GfxModule *draggedModule = nullptr;

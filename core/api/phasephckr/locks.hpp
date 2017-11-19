@@ -4,20 +4,20 @@
 
 using namespace std;
 
-class mutex;
+class simple_lock;
 
-class scoped_lock {
-    mutex * m;
+class scoped_simple_lock {
+    simple_lock * l;
 public:
-    scoped_lock(mutex * m);
-    ~scoped_lock();
+    scoped_simple_lock(simple_lock * l);
+    ~scoped_simple_lock();
 };
 
-class mutex {
+class simple_lock {
 private:
     atomic_flag flag = ATOMIC_FLAG_INIT;
 public:
     void lock();
     void unlock();
-    scoped_lock make_scoped_lock();
+    scoped_simple_lock make_scoped_lock();
 };

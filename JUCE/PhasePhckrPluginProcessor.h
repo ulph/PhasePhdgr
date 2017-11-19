@@ -39,7 +39,7 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
-    mutex synthUpdateLock;
+    simple_lock synthUpdateLock;
 
 public:
     PhasePhckrAudioProcessor();

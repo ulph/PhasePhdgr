@@ -63,15 +63,15 @@ void SynthVoice::threadedProcess()
 {
     int numSamples = threadStuff.samplesToProcess;
     if(threadStuff.samplesToProcess > 0) {
-        for (int i = 0; i < numSamples; ++i) {
+        for (int j = 0; j < numSamples; ++j) {
             mpe.update();
             threadStuff.globalData.update();
             const MPEVoiceState &v = mpe.getState();
             const GlobalDataState &g = threadStuff.globalData.getState();
             const GlobalTimeDataState &t = threadStuff.globalData.getTimeState();
 
-            internalBuffer[0][i] = 0.0f;
-            internalBuffer[1][i] = 0.0f;
+            internalBuffer[0][j] = 0.0f;
+            internalBuffer[1][j] = 0.0f;
 
             if (v.gate) {
                 rms = 1;
@@ -79,33 +79,35 @@ void SynthVoice::threadedProcess()
                 continue;
             }
 
-            connectionGraph.setInput(inBus, 0, v.gate);
-            connectionGraph.setInput(inBus, 1, v.strikeZ);
-            connectionGraph.setInput(inBus, 2, v.liftZ);
-            connectionGraph.setInput(inBus, 3, v.pitchHz);
-            connectionGraph.setInput(inBus, 4, v.glideX);
-            connectionGraph.setInput(inBus, 5, v.slideY);
-            connectionGraph.setInput(inBus, 6, v.pressZ);
+            int i=0;
+            connectionGraph.setInput(inBus, i++, v.gate);
+            connectionGraph.setInput(inBus, i++, v.strikeZ);
+            connectionGraph.setInput(inBus, i++, v.liftZ);
+            connectionGraph.setInput(inBus, i++, v.pitchHz);
+            connectionGraph.setInput(inBus, i++, v.glideX);
+            connectionGraph.setInput(inBus, i++, v.slideY);
+            connectionGraph.setInput(inBus, i++, v.pressZ);
 
-            connectionGraph.setInput(inBus, 7, g.mod);
-            connectionGraph.setInput(inBus, 8, g.exp);
-            connectionGraph.setInput(inBus, 9, g.brt);
+            connectionGraph.setInput(inBus, i++, g.mod);
+            connectionGraph.setInput(inBus, i++, g.exp);
+            connectionGraph.setInput(inBus, i++, g.brt);
 
-            connectionGraph.setInput(inBus, 10, (float)t.nominator);
-            connectionGraph.setInput(inBus, 11, (float)t.denominator);
-            connectionGraph.setInput(inBus, 12, t.bpm);
-            connectionGraph.setInput(inBus, 13, t.position);
-            connectionGraph.setInput(inBus, 14, t.time);
+            connectionGraph.setInput(inBus, i++, (float)t.nominator);
+            connectionGraph.setInput(inBus, i++, (float)t.denominator);
+            connectionGraph.setInput(inBus, i++, t.bpm);
+            connectionGraph.setInput(inBus, i++, t.barPosition);
+            connectionGraph.setInput(inBus, i++, t.position);
+            connectionGraph.setInput(inBus, i++, t.time);
 
-            connectionGraph.setInput(inBus, 15, v.noteIndex);
-            connectionGraph.setInput(inBus, 16, v.voiceIndex);
-            connectionGraph.setInput(inBus, 17, v.polyphony);
+            connectionGraph.setInput(inBus, i++, v.noteIndex);
+            connectionGraph.setInput(inBus, i++, v.voiceIndex);
+            connectionGraph.setInput(inBus, i++, v.polyphony);
 
             connectionGraph.process(outBus, threadStuff.sampleRate);
             float sampleL = connectionGraph.getOutput(outBus, 0);
             float sampleR = connectionGraph.getOutput(outBus, 1);
-            internalBuffer[0][i] = sampleL;
-            internalBuffer[1][i] = sampleR;
+            internalBuffer[0][j] = sampleL;
+            internalBuffer[1][j] = sampleR;
             rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
         }
 

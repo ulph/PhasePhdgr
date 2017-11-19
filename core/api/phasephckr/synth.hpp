@@ -28,6 +28,7 @@ namespace PhasePhckr {
         void handleTimeSignature(int numerator, int denominator);
         void handleBPM(float bpm);
         void handlePosition(float ppqPosition);
+        void handleBarPosition(float ppqPosition);
         void handleTime(float time);
         const ParameterHandleMap& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
         const ParameterHandleMap& setVoiceChain(const PatchDescriptor & chain, const ComponentRegister & cp);

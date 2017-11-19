@@ -78,7 +78,7 @@ class PhasePhckrParameters {
     ParameterHandleMap effectParameters;
     ParameterHandleMap voiceParameters;
     vector<PresetParameterDescriptor> presetParameters;
-    mutex parameterLock;
+    simple_lock parameterLock;
     void updateParameters();
 
 public:

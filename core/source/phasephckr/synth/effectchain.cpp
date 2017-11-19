@@ -33,29 +33,33 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
     }
 
     GlobalData globalDataCopy = globalData;
-    for (int i = 0; i < numSamples; ++i) {
+    for (int j = 0; j < numSamples; ++j) {
         globalDataCopy.update();
-        connectionGraph.setInput(inBus, 0, bufferL[i]);
-        connectionGraph.setInput(inBus, 1, bufferR[i]);
 
         const GlobalDataState& g = globalDataCopy.getState();
-        connectionGraph.setInput(inBus, 2, g.mod);
-        connectionGraph.setInput(inBus, 3, g.exp);
-        connectionGraph.setInput(inBus, 4, g.brt);
-
         const GlobalTimeDataState &t = globalData.getTimeState();
-        connectionGraph.setInput(inBus, 5, (float)t.nominator);
-        connectionGraph.setInput(inBus, 6, (float)t.denominator);
-        connectionGraph.setInput(inBus, 7, t.bpm);
-        connectionGraph.setInput(inBus, 8, t.position);
-        connectionGraph.setInput(inBus, 9, t.time);
+
+        int i=0;
+        connectionGraph.setInput(inBus, i++, bufferL[j]);
+        connectionGraph.setInput(inBus, i++, bufferR[j]);
+
+        connectionGraph.setInput(inBus, i++, g.mod);
+        connectionGraph.setInput(inBus, i++, g.exp);
+        connectionGraph.setInput(inBus, i++, g.brt);
+
+        connectionGraph.setInput(inBus, i++, (float)t.nominator);
+        connectionGraph.setInput(inBus, i++, (float)t.denominator);
+        connectionGraph.setInput(inBus, i++, t.bpm);
+        connectionGraph.setInput(inBus, i++, t.barPosition);
+        connectionGraph.setInput(inBus, i++, t.position);
+        connectionGraph.setInput(inBus, i++, t.time);
 
         connectionGraph.process(outBus, sampleRate);
 
         float sampleL = connectionGraph.getOutput(outBus, 0);
         float sampleR = connectionGraph.getOutput(outBus, 1);
-        bufferL[i] = sampleL;
-        bufferR[i] = sampleR;
+        bufferL[j] = sampleL;
+        bufferR[j] = sampleR;
     }
 }
 

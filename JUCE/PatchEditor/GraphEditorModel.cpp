@@ -181,7 +181,8 @@ bool GfxModule::withinPort(XY p, XY& portPosition, string &port, bool & inputPor
 
 void GfxModule::draw(Graphics & g, bool selected) {
     if (latched_mouseHover) {
-        g.setColour(Colours::cyan);
+        auto c = Colours::cyan;
+        g.setColour(c.withAlpha(0.25f));
     }
     else if (selected) {
         g.setColour(Colour(0x66888888));

@@ -39,6 +39,8 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
+    float barPosition = 0.f;
+
     simple_lock synthUpdateLock;
 
 public:

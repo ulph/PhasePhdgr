@@ -25,6 +25,7 @@
 #include "samphold.hpp"
 #include "tanh.hpp"
 #include "div.hpp"
+#include "logic.hpp"
 
 class Constant : public ModuleCRTP<Constant>
 {
@@ -76,7 +77,8 @@ public:
         cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));
         cg.registerModule("SAMPHOLD", &(SampleAndHold::factory));
-        // todo: counters, sample-and-hold, etc
+        cg.registerModule("TRESH", &(Threshold::factory));
+        // todo: counters, etc
 
         /* conversions */
         cg.registerModule("TEMPO2TIME", &(TempoToTime::factory));

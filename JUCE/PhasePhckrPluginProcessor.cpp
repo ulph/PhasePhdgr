@@ -132,7 +132,7 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     _mm_setcsr( newMXCSR); /*write the new MXCSR setting to the MXCSR */
 #endif
 
-    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+    auto l = synthUpdateLock.make_scoped_lock();
 
     const int numOutputChannels = getTotalNumOutputChannels();
 //    const int numMidiMessages = midiMessages.getNumEvents();
@@ -212,7 +212,17 @@ void PhasePhckrAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         synth->handleBPM((float)info.bpm);
         synth->handlePosition((float)info.ppqPosition);
         synth->handleTime((float)info.timeInSeconds);
-        synth->handleBarPosition((float)info.ppqPosition-(float)info.ppqPositionOfLastBarStart);
+        if (info.isPlaying) {
+            barPosition = (float)info.ppqPosition - (float)info.ppqPositionOfLastBarStart;
+        }
+        else {
+            auto timedelta = (float)blockSize / sampleRate;
+            auto quarterdelta = timedelta * (float)info.bpm / 60.f;
+            auto barLength = 4.f * (float)info.timeSigNumerator / (float)info.timeSigDenominator;
+            barPosition += quarterdelta;
+            barPosition = fmod(barPosition, barLength);
+        }
+        synth->handleBarPosition(barPosition);
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);

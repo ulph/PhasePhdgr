@@ -44,6 +44,8 @@ set(SRC
     sympow.hpp
     samphold.cpp
     samphold.hpp
+    logic.cpp
+    logic.hpp
     tanh.cpp
     tanh.hpp
     inlines.hpp

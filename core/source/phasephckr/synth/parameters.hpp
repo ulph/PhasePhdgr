@@ -17,6 +17,7 @@ namespace PhasePhckr {
         int denominator;
         float bpm;
         float position;
+        float barLength;
         float barPosition;
         float time;
     };
@@ -42,7 +43,11 @@ namespace PhasePhckr {
         void modwheel(float v) { tg.mod = v; }
         void expression(float v) { tg.exp = v; }
         void breath(float v) { tg.brt = v; }
-        void signature(int num, int den) { timeSt.nominator = num; timeSt.denominator = den; }
+        void signature(int num, int den) { 
+            timeSt.nominator = num;
+            timeSt.denominator = den;
+            timeSt.barLength = 4.f*(float)num / float(den); 
+        }
         void bpm(float bpm) { timeSt.bpm = bpm; }
         void position(float pos) { timeSt.position = pos; }
         void barPosition(float pos) { timeSt.barPosition = pos; }

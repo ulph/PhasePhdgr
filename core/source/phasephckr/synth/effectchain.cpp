@@ -49,6 +49,7 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
 
         connectionGraph.setInput(inBus, i++, (float)t.nominator);
         connectionGraph.setInput(inBus, i++, (float)t.denominator);
+        connectionGraph.setInput(inBus, i++, t.barLength);
         connectionGraph.setInput(inBus, i++, t.bpm);
         connectionGraph.setInput(inBus, i++, t.barPosition);
         connectionGraph.setInput(inBus, i++, t.position);

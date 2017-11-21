@@ -100,6 +100,7 @@ public:
         cg.registerModule("RCLP", &(RcLp::factory));
         cg.registerModule("ORCHP", &(OpenRcHp::factory));
         cg.registerModule("ORCLP", &(OpenRcLp::factory));
+        cg.registerModule("LAG", &(Lag::factory));
 
         /* envelopes */
         cg.registerModule("ENV", &(CamelEnvelope::factory));

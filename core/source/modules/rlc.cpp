@@ -72,3 +72,21 @@ void OpenRcHp::process(uint32_t fs)
     outputs[0].value = y1;
     outputs[1].value = x1;
 }
+
+Lag::Lag()
+{
+    inputs.push_back(Pad("in"));
+    inputs.push_back(Pad("wc_up"));
+    inputs.push_back(Pad("wc_down"));
+    outputs.push_back(Pad("out"));
+}
+
+void Lag::process(uint32_t fs)
+{
+    float x1 = inputs[0].value;
+    float y0 = outputs[0].value;
+    float wc = inputs[1].value;
+    if (x1 < y0) wc = inputs[2].value;
+    float y1 = CalcRcLp(x1, y0, wc, (float)fs);
+    outputs[0].value = y1;
+}

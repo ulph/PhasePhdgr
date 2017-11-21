@@ -107,8 +107,8 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
 #endif
 
     processor.broadcastPatch();
-
-    guiUpdateTimer.startTimer((int)(1.f/60.f * 1000.f));
+    float fps = 60.f;
+    guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
     resized();
 }

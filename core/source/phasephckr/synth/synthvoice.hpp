@@ -33,7 +33,7 @@ private:
     float rms;
     SynthVoiceThreading threadStuff;
     void threadedProcess();
-    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH];
+    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { 0 };
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
 public:

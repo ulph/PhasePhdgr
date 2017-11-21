@@ -48,4 +48,12 @@ public:
     static Module* factory() { return new OpenRcHp(); }
 };
 
+class Lag : public ModuleCRTP<Lag>
+{
+public:
+    Lag();
+    void process(uint32_t fs);
+    static Module* factory() { return new Lag(); }
+};
+
 #endif

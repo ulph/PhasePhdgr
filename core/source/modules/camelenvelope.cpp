@@ -82,12 +82,12 @@ void CamelEnvelope::process(uint32_t fs) {
         break;
 
     case OnAttack:
-        if (stageSamples > onAttackSamples) changeState(OnDecay);
+        if (stageSamples >= onAttackSamples) changeState(OnDecay);
         else targetValue = gateOnTargetValue = (sustainHeight + onBumpHeight) * powf(stageSamples * stageScale, onAttackPow);
         break;
 
     case OnDecay:
-        if (stageSamples > onDecaySamples) changeState(Sustain);
+        if (stageSamples >= onDecaySamples) changeState(Sustain);
         else targetValue = gateOnTargetValue = sustainHeight + onBumpHeight * powf((1 - stageSamples * stageScale), onDecayPow);
         break;
 
@@ -96,12 +96,12 @@ void CamelEnvelope::process(uint32_t fs) {
         break;
 
     case OffAttack:
-        if (stageSamples > offAttackSamples) changeState(OffDecay);
+        if (stageSamples >= offAttackSamples) changeState(OffDecay);
         else targetValue = hangoverValue + offBumpHeight * powf(stageSamples * stageScale, offAttackPow);
         break;
 
     case OffDecay:
-        if (stageSamples > offDecaySamples) changeState(Idle);
+        if (stageSamples >= offDecaySamples) changeState(Idle);
         else targetValue = (hangoverValue + offBumpHeight) * powf((1 - stageSamples * stageScale), offDecayPow);
         break;
 

@@ -31,45 +31,48 @@ public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
     virtual void process(uint32_t fs) = 0;
-    float getOutput(int outputPad) { 
+
+    float getOutput(int outputPad) const {
         return outputs[outputPad].value;
     }
+
     void setInput(int inputPad, float value) {
         inputs[inputPad].value = value;
     }
+
     void addToInput(int inputPad, float value) {
         inputs[inputPad].value += value;
     }
-    int getNumInputPads() { return (int)inputs.size(); }
-    int getNumOutputPads() { return (int)outputs.size(); }
+
+    int getNumInputPads() const { return (int)inputs.size(); }
+
+    int getNumOutputPads() const { return (int)outputs.size(); }
     
-    int getInputPadFromName(std::string padName) {
+    int getInputPadFromName(std::string padName) const {
         for(int i = 0; i < (int)inputs.size(); i++) {
             if(inputs[i].name == padName) {
                 return i;
             }
         }
-        // Not found
-        std::cerr << "Error: Cannot find input pad " << padName << " (" << name << ")" << std::endl;
         return -1;
     }
     
-    int getOutputPadFromName(std::string padName) {
+    int getOutputPadFromName(std::string padName) const {
         for(int i = 0; i < (int)outputs.size(); i++) {
             if(outputs[i].name == padName) {
                 return i;
             }
         }
-        // Not found
-        std::cerr << "Error: Cannot find output pad " << padName << " (" << name << ")" << std::endl;
         return -1;
     }
 
     void setName(const std::string &n) { name = n; }
-    std::string getName() { return name; }
 
-    virtual std::string docString() { return "..."; }
-    virtual PhasePhckr::ModuleDoc makeDoc() {
+    std::string getName() const { return name; }
+
+    virtual std::string docString() const { return "..."; }
+
+    virtual PhasePhckr::ModuleDoc makeDoc() const {
         PhasePhckr::ModuleDoc doc;
         doc.type = name;
         doc.docString = docString();

@@ -25,7 +25,7 @@ BlitOsc::BlitOsc()
     outputs.push_back(Pad("output"));
 }
 
-void BlitOsc::blitOnePulse(float fraction, float multiplier) {
+inline void BlitOsc::blitOnePulse(float fraction, float multiplier) {
     float *sincPtr = nullptr;
     auto ret = c_blitTable.getCoefficientTablePointer(fraction, &sincPtr, c_blitN);
     assert(ret == c_blitN);
@@ -35,7 +35,7 @@ void BlitOsc::blitOnePulse(float fraction, float multiplier) {
     }
 }
 
-void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
+inline void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
     if (syncPhase > 1.f) {
         bool resetPhase = false;
         if (phase >= syncAmount) {
@@ -68,7 +68,7 @@ void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, f
     }
 }
 
-void BlitOsc::blitForward(float& phase, float nFreq, float shape, float pwm) {
+inline void BlitOsc::blitForward(float& phase, float nFreq, float shape, float pwm) {
     while (true) {
         if (stage == 0) {
             if (phase <= pwm) break;
@@ -91,12 +91,12 @@ void BlitOsc::blitForward(float& phase, float nFreq, float shape, float pwm) {
     }
 }
 
-void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
+inline void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
     internalSyncPhase += syncNFreq;
     internalPhase += nFreq;
 }
 
-void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, float freq) {
+inline void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, float freq) {
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
 
@@ -111,7 +111,7 @@ void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, float freq)
     bufPos %= c_blitN;
 }
 
-void BlitOsc::resetOnSignal(float resetSignal) {
+inline void BlitOsc::resetOnSignal(float resetSignal) {
     // reset the clocks on an upflank through zero
 
     // TODO, either re-introduce the derived syncFreq or 

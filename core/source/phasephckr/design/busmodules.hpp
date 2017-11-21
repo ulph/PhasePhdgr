@@ -25,12 +25,14 @@ public:
             outputs.push_back(pad);
         }
     }
+
     virtual void process(uint32_t fs)
     {
         for(int i = 0; i < (int)outputs.size(); i++) {
             outputs[i].value = inputs[i].value;
         }
     }
+
     virtual PhasePhckr::ModuleDoc makeDoc() {
         auto d = Module::makeDoc();
         if(isInput)

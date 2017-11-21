@@ -23,7 +23,7 @@ private:
     float gateOnTargetValue = 0.f;
     const float slew = 0.9f;
     float stageSamples = 0.f;
-    void changeState(EnvelopeStage newState);
+    inline void changeState(EnvelopeStage newState);
     EnvelopeStage stage = Idle;
     float stageScale = 1.f;
     float onAttackSamples = 0.f;

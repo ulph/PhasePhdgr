@@ -17,12 +17,12 @@ private:
     float internalPhase;
     float last_cumSum; // for hp
     float last_resetSignal;
-    void resetOnSignal(float resetSignal);
-    void incrementClocks(float nFreq, float syncNFreq);
-    void blitOnePulse(float fraction, float multiplier);
-    void blitForward(float& phase, float nFreq, float shape, float pwm);
-    void integrateBuffer(uint32_t fs, float nFreq, float shape, float freq);
-    void syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
+    inline void resetOnSignal(float resetSignal);
+    inline void incrementClocks(float nFreq, float syncNFreq);
+    inline void blitOnePulse(float fraction, float multiplier);
+    inline void blitForward(float& phase, float nFreq, float shape, float pwm);
+    inline void integrateBuffer(uint32_t fs, float nFreq, float shape, float freq);
+    inline void syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();
     void process(uint32_t fs);

@@ -23,15 +23,15 @@ CamelEnvelope::CamelEnvelope()
     inputs.push_back(Pad("offDecayPow", 4.0f));
 }
 
-static float limitValue(float value, float low, float high) {
+static inline float limitValue(float value, float low, float high) {
     return value > high ? high : value < low ? low : value;
 }
 
-static float limitValueLow(float value, float low) {
+static inline float limitValueLow(float value, float low) {
     return value < low ? low : value;
 }
 
-void CamelEnvelope::changeState(EnvelopeStage newState) {
+inline void CamelEnvelope::changeState(EnvelopeStage newState) {
     if (newState == OnAttack) stageScale = onAttackSamples ? 1.f / onAttackSamples : stageScale;
     else if (newState == OnDecay) stageScale = onDecaySamples ? 1.f / onDecaySamples : stageScale;
     else if (newState == OffAttack) stageScale = offAttackSamples ? 1.f / offAttackSamples : stageScale;

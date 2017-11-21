@@ -33,7 +33,7 @@ Transpose::Transpose() {
 void Transpose::process(uint32_t fs) {
     float freq_in = inputs[0].value;
     if(freq_in <= 0){
-        outputs[0].value = 0;
+        outputs[0].value = 0.f;
         return;
     }
 
@@ -41,8 +41,11 @@ void Transpose::process(uint32_t fs) {
     float semi = inputs[2].value;
     float cent = inputs[3].value;
 
-    semi += cent / 100.f;
-    octave += semi / 12.f;
+    const float cent_to_semi = 1.f / 100.f;
+    const float semi_to_oct = 1.f / 12.f;
+
+    semi += cent * cent_to_semi;
+    octave += semi * semi_to_oct;
 
     float freq_out = freq_in * powf(2.0, octave);
     outputs[0].value = freq_out;

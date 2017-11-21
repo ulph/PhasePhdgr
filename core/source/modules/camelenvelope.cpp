@@ -34,8 +34,8 @@ static float limitValueLow(float value, float low) {
 void CamelEnvelope::changeState(EnvelopeStage newState) {
     if (newState == OnAttack) stageScale = onAttackSamples ? 1.f / onAttackSamples : stageScale;
     else if (newState == OnDecay) stageScale = onDecaySamples ? 1.f / onDecaySamples : stageScale;
-    else if (newState == OffAttack) stageScale = offAttackSamples ? 1.f / offAttackSamples : offAttackSamples;
-    else if (newState == OffDecay) stageScale = offDecaySamples ? 1.f / offDecaySamples : offDecaySamples;
+    else if (newState == OffAttack) stageScale = offAttackSamples ? 1.f / offAttackSamples : stageScale;
+    else if (newState == OffDecay) stageScale = offDecaySamples ? 1.f / offDecaySamples : stageScale;
     stage = newState;
     stageSamples = 0.f;
 }

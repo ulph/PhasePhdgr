@@ -125,23 +125,13 @@ void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toP
 
 void ConnectionGraph::setInput(int module, int pad, float value)
 {
-    Module *m = nullptr;
-    if(module >= 0 && module < (int)modules.size()) {
-        m = modules[module];
-    }
-    
-    if(m) {
-        m->setInput(pad, value);
-    }
+    modules[module]->setInput(pad, value);
 }
 
 void ConnectionGraph::setInput(int module, std::string pad, float value){
-    if(module >= 0 && module < (int)modules.size()) {
-        Module *m = getModule(module);
-        if(m){
-            setInput(module, m->getInputPadFromName(pad), value);
-        }
-    }
+    if (module < 0 || module >= (int)modules.size()) return;
+    Module *m = getModule(module);
+    if(m) m->setInput(m->getInputPadFromName(pad), value);
 }
 
 float ConnectionGraph::getOutput(int module, int pad)

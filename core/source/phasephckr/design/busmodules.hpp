@@ -13,23 +13,17 @@ public:
         : isInput(isInput)
         , numPads(ports.size())
     {
-        if(isInput){
-            name = PhasePhckr::c_inBus.type;
-        }
-        else {
-            name = PhasePhckr::c_outBus.type;
-        }
+        name = isInput ? PhasePhckr::c_inBus.type : PhasePhckr::c_outBus.type;
         for(const auto &p : ports){
             const char * name = p.name.c_str();
             const char * unit = p.name.c_str();
             Pad pad(name, p.defaultValue, unit);
             inputs.push_back(pad);
-            outputs.push_back(pad);
         }
+        outputs = inputs;
     }
 
-    virtual void process(uint32_t fs)
-    {
+    virtual void process(uint32_t fs) {
         for(size_t i = 0; i < numPads; i++) outputs[i].value = inputs[i].value;
     }
 

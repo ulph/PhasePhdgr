@@ -2,6 +2,9 @@
 
 #include <map>
 #include <string>
+#include <vector>
+
+#include "ThreadPool.h"
 
 #include "design.hpp"
 #include "scope.hpp"
@@ -47,5 +50,6 @@ namespace PhasePhckr {
         Scope outputScopeL;
         Scope outputScopeR;
         GlobalData *globalData;
+        progschj::ThreadPool pool;
     };
 }

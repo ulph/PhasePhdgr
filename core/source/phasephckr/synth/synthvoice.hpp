@@ -32,7 +32,6 @@ private:
     float rmsSlew;
     float rms;
     SynthVoiceThreading threadStuff;
-    void threadedProcess();
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { 0 };
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
@@ -40,6 +39,7 @@ public:
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
     virtual ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
+    void threadedProcess();
     virtual void processingFinish(float * bufferL, float * bufferR, int numSamples);
     const float* getInternalBuffer(int channel) { return &internalBuffer[channel][0]; }
     void setParameter(int handle, float value);

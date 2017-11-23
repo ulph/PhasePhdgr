@@ -13,6 +13,7 @@ Synth::Synth()
     , globalData(new GlobalData())
     , scopeHz(0.f)
     , scopeVoiceIndex(-1)
+    , pool(std::thread::hardware_concurrency()) 
 {
 }
 
@@ -67,8 +68,17 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     while(samplesLeft > 0) {
         int chunkSize = (samplesLeft < maxChunk) ? samplesLeft : maxChunk;
 
-        for(auto & v : voices) v->processingStart(chunkSize, sampleRate, *globalData);
-        for(auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);
+        for (auto & v : voices) v->processingStart(chunkSize, sampleRate, *globalData);
+
+        std::vector< std::future<void> > results;
+        for (auto & v : voices) {
+            results.emplace_back(
+                pool.enqueue([v]{v->threadedProcess();})
+            );
+        }
+        for (auto && result : results) result.get(); // get all the futures
+
+        for (auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);
 
         samplesLeft -= chunkSize;
         bufL += chunkSize;

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "phasephckr.hpp"
+
 #include "JuceHeader.h"
 
 #include "PhasePhckrGrid.h"

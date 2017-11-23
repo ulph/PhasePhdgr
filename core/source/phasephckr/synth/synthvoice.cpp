@@ -43,7 +43,6 @@ void SynthVoice::processingStart(int numSamples, float sampleRate, const GlobalD
     threadStuff.globalData = g;
     threadStuff.sampleRate = sampleRate;
     threadStuff.samplesToProcess = numSamples;
-    this->threadedProcess();
 }
 
 void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSamples)

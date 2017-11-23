@@ -15,6 +15,7 @@ option(FORCE_FTZ_DAZ OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(nlohmann_json)
+include(progschj_threadpool)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)

@@ -7,9 +7,11 @@
 class BusModule : public ModuleCRTP<BusModule> {
 private:
     bool isInput;
+    const size_t numPads;
 public:
     BusModule(const vector<PhasePhckr::PadDescription>& ports, bool isInput)
         : isInput(isInput)
+        , numPads(ports.size())
     {
         if(isInput){
             name = PhasePhckr::c_inBus.type;
@@ -28,9 +30,7 @@ public:
 
     virtual void process(uint32_t fs)
     {
-        for(int i = 0; i < (int)outputs.size(); i++) {
-            outputs[i].value = inputs[i].value;
-        }
+        for(size_t i = 0; i < numPads; i++) outputs[i].value = inputs[i].value;
     }
 
     virtual PhasePhckr::ModuleDoc makeDoc() {

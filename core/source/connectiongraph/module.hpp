@@ -26,11 +26,18 @@ protected:
     std::string name;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
+//    uint32_t fs;
 
 public:
+//    Module(uint32_t fs) : fs(fs) {}
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    virtual void process(uint32_t fs) = 0;
+    /*
+    template <size_t N> virtual void processBlock<N>() {
+        for (int i = 0; i < N; ++i) { process(); }
+    }
+    */
+    virtual void process(uint32_t fs) = 0; // TODO, remove -- and make processBlock the abstract one instead
 
     float getOutput(int outputPad) const {
         return outputs[outputPad].value;

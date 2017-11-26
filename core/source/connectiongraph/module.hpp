@@ -31,9 +31,9 @@ class Module
     friend ConnectionGraph;
 
 protected:
-    std::string name;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
+    void setName(const std::string &n);
 
 public:
     virtual ~Module() {}
@@ -47,6 +47,8 @@ public:
     int getOutputPadFromName(std::string padName) const;
 
 private:
+    std::string name;
+
     // sample processing
     virtual void process(uint32_t fs) = 0;
     float sample_getOutput(int outputPad) const;
@@ -69,8 +71,6 @@ private:
     void block_setInput(int inputPad, const float* buffer);
     void block_resetInput(int inputPad);
     void block_addToInput(int inputPad, const float* buffer);
-
-    void setName(const std::string &n);
 
 };
 

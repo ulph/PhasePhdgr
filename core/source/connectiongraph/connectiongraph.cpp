@@ -236,10 +236,8 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
         }
     }
     else {
-
         // process per block
 
-        // actual process
         for (const Instruction &i : program) {
             switch (i.opcode) {
             case OP_PROCESS:

@@ -67,7 +67,7 @@ private:
     // block processing
     virtual void block_process(uint32_t fs);
     void block_getOutput(int outputPad, float* buffer) const;
-    void block_setInput(int inputPad, float value);
+    void block_fillInput(int inputPad, float value);
     void block_setInput(int inputPad, const float* buffer);
     void block_resetInput(int inputPad);
     void block_addToInput(int inputPad, const float* buffer);

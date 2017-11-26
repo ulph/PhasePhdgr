@@ -2,7 +2,7 @@
 
 void Module::setInput(int inputPad, float value) {
     sample_setInput(inputPad, value);
-    block_setInput(inputPad, value);
+    block_fillInput(inputPad, value);
 }
 
 float Module::sample_getOutput(int outputPad) const {
@@ -39,7 +39,7 @@ void Module::block_getOutput(int outputPad, float* buffer) const {
     memcpy(buffer, outputs[outputPad].values, sizeof(float)*ConnectionGraph::k_blockSize);
 }
 
-void Module::block_setInput(int inputPad, float value) {
+void Module::block_fillInput(int inputPad, float value) {
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         inputs[inputPad].values[i] = value;
     }

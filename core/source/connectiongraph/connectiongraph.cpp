@@ -128,6 +128,11 @@ void ConnectionGraph::setInput(int module, int pad, float value)
     modules[module]->setInput(pad, value);
 }
 
+void ConnectionGraph::block_setInput(int module, int pad, const float* buffer)
+{
+    modules[module]->block_setInput(pad, buffer);
+}
+
 void ConnectionGraph::setInput(int module, std::string pad, float value){
     if (module < 0 || module >= (int)modules.size()) return;
     Module *m = getModule(module);

@@ -65,7 +65,6 @@ void SynthVoice::threadedProcess()
         rms = 1;
     }
     else if (v.gate == 0 && isSilent()) {
-        threadStuff.samplesToProcess = 0;
         return;
     }
 
@@ -114,11 +113,7 @@ void SynthVoice::threadedProcess()
             internalBuffer[1][j + i] = sampleR;
             rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL + sampleR)*(sampleL + sampleR));
         }
-
-        threadStuff.samplesToProcess -= ConnectionGraph::k_blockSize;
     }
-
-//    assert(threadStuff.samplesToProcess == 0);
 }
 
 void SynthVoice::setParameter(int handle, float value){

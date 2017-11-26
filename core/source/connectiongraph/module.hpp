@@ -78,6 +78,12 @@ public:
         }
     }
 
+    void block_setInput(int inputPad, const float* buffer) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = buffer[i];
+        }
+    }
+
     void block_resetInput(int inputPad) {
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
             inputs[inputPad].values[i] = 0.0f;

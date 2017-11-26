@@ -87,6 +87,8 @@ void SynthVoice::threadedProcess()
     connectionGraph.setInput(inBus, 18, v.voiceIndex);
     connectionGraph.setInput(inBus, 19, v.polyphony);
 
+    vector<ConnectionGraph::SampleBuffer> inBuffers;
+
     vector<ConnectionGraph::SampleBuffer> outBuffers;
     outBuffers.push_back({ outBus, 0, {0.f} });
     outBuffers.push_back({ outBus, 1, {0.f} });
@@ -105,7 +107,7 @@ void SynthVoice::threadedProcess()
         connectionGraph.setInput(inBus, 8, g.exp);
         connectionGraph.setInput(inBus, 9, g.brt);
 
-        connectionGraph.processBlock(outBus, threadStuff.sampleRate, outBuffers);
+        connectionGraph.processBlock(outBus, threadStuff.sampleRate, inBuffers, outBuffers);
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
             float sampleL = outBuffers[0].buf[i];
             float sampleR = outBuffers[1].buf[i];

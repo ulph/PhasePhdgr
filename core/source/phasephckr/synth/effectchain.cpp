@@ -44,6 +44,10 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
     connectionGraph.setInput(inBus, 10, t.position);
     connectionGraph.setInput(inBus, 11, t.time);
 
+    vector<ConnectionGraph::SampleBuffer> inBuffers;
+    inBuffers.push_back({ inBus, 0,{ 0.f } });
+    inBuffers.push_back({ inBus, 1,{ 0.f } });
+
     vector<ConnectionGraph::SampleBuffer> outBuffers;
     outBuffers.push_back({ outBus, 0, { 0.f } });
     outBuffers.push_back({ outBus, 1, { 0.f } });
@@ -51,20 +55,22 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
     for (int j = 0; j < numSamples; j += ConnectionGraph::k_blockSize) {
         globalDataCopy.update();
 
-        connectionGraph.block_setInput(inBus, 0, &bufferL[j]);
-        connectionGraph.block_setInput(inBus, 1, &bufferR[j]);
-
         connectionGraph.setInput(inBus, 2, g.mod);
         connectionGraph.setInput(inBus, 3, g.exp);
         connectionGraph.setInput(inBus, 4, g.brt);
 
-        connectionGraph.processBlock(outBus, sampleRate, outBuffers);
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            float sampleL = outBuffers[0].buf[i];
-            float sampleR = outBuffers[1].buf[i];
-            bufferL[j + i] = sampleL;
-            bufferR[j + i] = sampleR;
+            inBuffers[0].buf[i] = bufferL[j + i];
+            inBuffers[1].buf[i] = bufferR[j + i];
         }
+
+        connectionGraph.processBlock(outBus, sampleRate, inBuffers, outBuffers);
+
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            bufferL[j + i] = outBuffers[0].buf[i];
+            bufferR[j + i] = outBuffers[1].buf[i];
+        }
+
     }
 }
 

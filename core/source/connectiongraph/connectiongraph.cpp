@@ -128,11 +128,6 @@ void ConnectionGraph::setInput(int module, int pad, float value)
     modules[module]->setInput(pad, value);
 }
 
-void ConnectionGraph::block_setInput(int module, int pad, const float* buffer)
-{
-    modules[module]->block_setInput(pad, buffer);
-}
-
 void ConnectionGraph::setInput(int module, std::string pad, float value){
     if (module < 0 || module >= (int)modules.size()) return;
     Module *m = getModule(module);
@@ -204,18 +199,24 @@ void ConnectionGraph::processSample(int module, float fs)
     }
 }
 
-void ConnectionGraph::processBlock(int module, float fs, vector<SampleBuffer>& outBuffers) {
+void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers) {
     if (module != compilationStatus) compileProgram(module);
 
     if (hasRecursion) {
         for (uint32_t i = 0; i < k_blockSize; ++i) {
+            for (int n = 0; n < inBuffers.size(); ++n) {
+                modules[inBuffers[n].module]->sample_setInput(inBuffers[n].pad, inBuffers[n].buf[i]);
+            }
             processSample(module, fs);
             for (int n = 0; n < outBuffers.size(); ++n) {
-                outBuffers[n].buf[i] = getOutput(outBuffers[n].module, outBuffers[n].pad);
+                outBuffers[n].buf[i] = modules[outBuffers[n].module]->sample_getOutput(outBuffers[n].pad);
             }
         }
     }
     else {
+        for (int n = 0; n < inBuffers.size(); ++n) {
+            modules[inBuffers[n].module]->block_setInput(inBuffers[n].pad, inBuffers[n].buf);
+        }
         for (const Instruction &i : program) {
             switch (i.opcode) {
             case OP_PROCESS:
@@ -235,22 +236,6 @@ void ConnectionGraph::processBlock(int module, float fs, vector<SampleBuffer>& o
             modules[outBuffers[n].module]->block_getOutput(outBuffers[n].pad, outBuffers[n].buf);
         }
     }
-}
-
-std::string ConnectionGraph::graphviz()
-{
-    std::stringstream ss;
-
-    ss << "digraph connections {" << std::endl;
-    for(const Cable *c : cables) {
-        int fromModule = c->getFromModule();
-        int toModule = c->getToModule();
-        ss << "   \"" << modules[fromModule]->getName() << "(" << fromModule << ")\" -> ";
-        ss << "\"" << modules[toModule]->getName() << "(" << toModule << ")\"" << std::endl;
-    }
-    ss << "}" << std::endl;
-
-    return ss.str();
 }
 
 void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList) {

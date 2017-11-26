@@ -44,13 +44,11 @@ public:
     void connect(int fromModule, int toModule, int toPad) { connect(fromModule, 0, toModule, toPad); }
     void connect(int fromModule, int toModule) { connect(fromModule, 0, toModule, 0); }
     void setInput(int module, int pad, float value);
-    void block_setInput(int module, int pad, const float* buffer);
     void setInput(int module, std::string pad, float value);
     float getOutput(int module, int pad);
     void processSample(int module, float fs);
-    void processBlock(int module, float fs, vector<SampleBuffer>& outBuffers);
+    void processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers);
 
-    std::string graphviz();
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
 };
 

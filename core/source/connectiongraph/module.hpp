@@ -28,6 +28,8 @@ public:
 
 class Module
 {
+    friend ConnectionGraph;
+
 protected:
     std::string name;
     std::vector<Pad> inputs;
@@ -37,18 +39,20 @@ public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
 
+    void setInput(int inputPad, float value) {
+        sample_setInput(inputPad, value);
+        block_setInput(inputPad, value);
+    }
+
     virtual void process(uint32_t fs) = 0;
 
+private:
     float sample_getOutput(int outputPad) const {
         return outputs[outputPad].value;
     }
 
-    void setInput(int inputPad, float value) {
+    void sample_setInput(int inputPad, float value) {
         inputs[inputPad].value = value;
-        // tmp hack, do both
-        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            inputs[inputPad].values[i] = value;
-        }
     }
 
     void sample_resetInput(int inputPad) {
@@ -61,7 +65,6 @@ public:
 
     virtual void block_process(uint32_t fs) {
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            // tmp hack, use sample processing copying values back and forth
             for (int k = 0; k < inputs.size(); ++k) {
                 inputs[k].value = inputs[k].values[i];
             }
@@ -75,6 +78,12 @@ public:
     void block_getOutput(int outputPad, float* buffer) const {
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
             buffer[i] = outputs[outputPad].values[i];
+        }
+    }
+
+    void block_setInput(int inputPad, float value) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = value;
         }
     }
 
@@ -120,10 +129,9 @@ public:
 
     void setName(const std::string &n) { name = n; }
 
-    std::string getName() const { return name; }
-
     virtual std::string docString() const { return "..."; }
 
+public:
     virtual PhasePhckr::ModuleDoc makeDoc() const {
         PhasePhckr::ModuleDoc doc;
         doc.type = name;

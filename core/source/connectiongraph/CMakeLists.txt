@@ -1,6 +1,7 @@
 set(SRC
     connectiongraph.cpp
     connectiongraph.hpp
+    module.cpp
     module.hpp
     instruction.hpp
 )

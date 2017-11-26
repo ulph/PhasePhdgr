@@ -202,19 +202,22 @@ void ConnectionGraph::processSample(int module, float fs)
 void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers) {
     if (module != compilationStatus) compileProgram(module);
 
+    const size_t inBufferSize = inBuffers.size();
+    const size_t outBufferSize = outBuffers.size();
+
     if (hasRecursion) {
         for (uint32_t i = 0; i < k_blockSize; ++i) {
-            for (int n = 0; n < inBuffers.size(); ++n) {
+            for (size_t n = 0; n < inBufferSize; ++n) {
                 modules[inBuffers[n].module]->sample_setInput(inBuffers[n].pad, inBuffers[n].buf[i]);
             }
             processSample(module, fs);
-            for (int n = 0; n < outBuffers.size(); ++n) {
+            for (size_t n = 0; n < outBufferSize; ++n) {
                 outBuffers[n].buf[i] = modules[outBuffers[n].module]->sample_getOutput(outBuffers[n].pad);
             }
         }
     }
     else {
-        for (int n = 0; n < inBuffers.size(); ++n) {
+        for (size_t n = 0; n < inBufferSize; ++n) {
             modules[inBuffers[n].module]->block_setInput(inBuffers[n].pad, inBuffers[n].buf);
         }
         for (const Instruction &i : program) {
@@ -232,7 +235,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
                 break;
             }
         }
-        for (int n = 0; n < outBuffers.size(); ++n) {
+        for (size_t n = 0; n < outBufferSize; ++n) {
             modules[outBuffers[n].module]->block_getOutput(outBuffers[n].pad, outBuffers[n].buf);
         }
     }

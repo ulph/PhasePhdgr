@@ -13,9 +13,14 @@ option(BUILD_CLI OFF)
 
 option(FORCE_FTZ_DAZ OFF)
 
+option(BUILD_GTEST OFF)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(nlohmann_json)
 include(progschj_threadpool)
+if(${BUILD_GTEST})
+include(gtest)
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)

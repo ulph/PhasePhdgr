@@ -13,11 +13,21 @@ find_package(Threads)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 include(nlohmann_json)
 
-add_definitions(-msse2 -mfpmath=sse)
-option(FAST_MATH OFF)
-if(${FAST_MATH})
+option(OPT_SSE2 ON)
+if(${OPT_SSE2})
+    add_definitions(-msse2 -mfpmath=sse)
+    add_definitions(/arch:SSE2)
+endif()
+
+option(OPT_FAST_MATH ON)
+if(${OPT_FAST_MATH})
     add_definitions(-ffast-math)
-else()
+    add_definitions(/fp:fast)
+endif()
+
+option(DIAGNOSTICS ON)
+if(${DIAGNOSTICS})
+    add_definitions(/Qvec-report:2)
 endif()
 
 set(API_INC

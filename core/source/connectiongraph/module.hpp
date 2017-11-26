@@ -7,17 +7,23 @@
 #include <vector>
 #include <string>
 
+#include "connectiongraph.hpp"
+
 #include "phasephckr/docs.hpp"
 
 struct Pad
 {
+private:
+    void init() { for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) values[i] = value; }
+public:
     std::string name;
     float value;
+    float values[ConnectionGraph::k_blockSize];
     std::string unit;
-    Pad(const char *name) : name(name), value(0.0f), unit("") {}
-    Pad(const char *name, float value) : name(name), value(value), unit("") {}
-    Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) {}
-    Pad(const char *name, const char *unit) : name(name), value(0.0f), unit(unit) {}
+    Pad(const char *name) : name(name), value(0.0f), unit("") { init(); }
+    Pad(const char *name, float value) : name(name), value(value), unit("") { init(); }
+    Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) { init(); }
+    Pad(const char *name, const char *unit) : name(name), value(0.0f), unit(unit) { init(); }
 };
 
 class Module
@@ -26,27 +32,62 @@ protected:
     std::string name;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
-//    uint32_t fs;
 
 public:
-//    Module(uint32_t fs) : fs(fs) {}
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    virtual void processBlock(uint32_t fs, const int blockSize) {
-        for (int i = 0; i < blockSize; ++i) { process(fs); }
-    }
+
     virtual void process(uint32_t fs) = 0;
 
-    float getOutput(int outputPad) const {
+    float sample_getOutput(int outputPad) const {
         return outputs[outputPad].value;
     }
 
     void setInput(int inputPad, float value) {
         inputs[inputPad].value = value;
+        // tmp hack, do both
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = value;
+        }
     }
 
-    void addToInput(int inputPad, float value) {
+    void sample_resetInput(int inputPad) {
+        inputs[inputPad].value = 0.0f;
+    }
+
+    void sample_addToInput(int inputPad, float value) {
         inputs[inputPad].value += value;
+    }
+
+    virtual void block_process(uint32_t fs) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            // tmp hack, use sample processing copying values back and forth
+            for (int k = 0; k < inputs.size(); ++k) {
+                inputs[k].value = inputs[k].values[i];
+            }
+            process(fs);
+            for (int k = 0; k < outputs.size(); ++k) {
+                outputs[k].values[i] = outputs[k].value;
+            }
+        }
+    }
+
+    void block_getOutput(int outputPad, float* buffer) const {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            buffer[i] = outputs[outputPad].values[i];
+        }
+    }
+
+    void block_resetInput(int inputPad) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = 0.0f;
+        }
+    }
+
+    void block_addToInput(int inputPad, const float* buffer) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] += buffer[i];
+        }
     }
 
     int getNumInputPads() const { return (int)inputs.size(); }

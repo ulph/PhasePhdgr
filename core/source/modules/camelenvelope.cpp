@@ -113,5 +113,6 @@ void CamelEnvelope::process(uint32_t fs) {
     stageSamples++;
 
     // limit, apply power law and slew
-    outputs[0].value = slew*outputs[0].value + (1-slew)*targetValue;
+    outputs[0].value = slew*outputs[0].value + (1 - slew)*targetValue;
+
 }

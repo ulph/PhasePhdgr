@@ -137,7 +137,7 @@ void ConnectionGraph::setInput(int module, std::string pad, float value){
 float ConnectionGraph::getOutput(int module, int pad)
 {
     Module *m = getModule(module);
-    return m->getOutput(pad);
+    return m->sample_getOutput(pad);
 }
 
 void ConnectionGraph::compileProgram(int module)
@@ -189,20 +189,21 @@ void ConnectionGraph::processSample(int module, float fs)
             modules[i.param0]->process((uint32_t)fs);
             break;
         case OP_RESET_INPUT:
-            modules[i.param0]->setInput(i.param1, 0.0f);
+            modules[i.param0]->sample_resetInput(i.param1);
             break;
         case OP_ADD_OUTPUT_TO_INPUT:
-            modules[i.param2]->addToInput(i.param3, modules[i.param0]->getOutput(i.param1));
+            float out = modules[i.param0]->sample_getOutput(i.param1);
+            modules[i.param2]->sample_addToInput(i.param3, out);
             break;
         }
     }
 }
 
-void ConnectionGraph::processBlock(int module, float fs, float* tmpBuffer, uint32_t blockSize, vector<SampleBuffer>& outBuffers) {
+void ConnectionGraph::processBlock(int module, float fs, vector<SampleBuffer>& outBuffers) {
     if (module != compilationStatus) compileProgram(module);
 
     if (hasRecursion) {
-        for (uint32_t i = 0; i < blockSize; ++i) {
+        for (uint32_t i = 0; i < k_blockSize; ++i) {
             processSample(module, fs);
             for (int n = 0; n < outBuffers.size(); ++n) {
                 outBuffers[n].buf[i] = getOutput(outBuffers[n].module, outBuffers[n].pad);
@@ -210,7 +211,24 @@ void ConnectionGraph::processBlock(int module, float fs, float* tmpBuffer, uint3
         }
     }
     else {
-         // NYI
+        for (const Instruction &i : program) {
+            switch (i.opcode) {
+            case OP_PROCESS:
+                modules[i.param0]->block_process((uint32_t)fs);
+                break;
+            case OP_RESET_INPUT:
+                modules[i.param0]->block_resetInput(i.param1);
+                break;
+            case OP_ADD_OUTPUT_TO_INPUT:
+                float out[ConnectionGraph::k_blockSize] = { 0.f };
+                modules[i.param0]->block_getOutput(i.param1, out);
+                modules[i.param2]->block_addToInput(i.param3, out);
+                break;
+            }
+        }
+        for (int n = 0; n < outBuffers.size(); ++n) {
+            modules[outBuffers[n].module]->block_getOutput(outBuffers[n].pad, outBuffers[n].buf);
+        }
     }
 }
 

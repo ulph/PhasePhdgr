@@ -30,6 +30,7 @@ private:
     float onDecaySamples = 0.f;
     float offAttackSamples = 0.f;
     float offDecaySamples = 0.f;
+    float output = 0.f;
 };
 
 #endif

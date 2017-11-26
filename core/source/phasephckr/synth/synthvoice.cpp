@@ -69,8 +69,6 @@ void SynthVoice::threadedProcess()
         return;
     }
 
-    int numSamples = threadStuff.samplesToProcess;
-
     const GlobalDataState &g = threadStuff.globalData.getState();
     const GlobalTimeDataState &t = threadStuff.globalData.getTimeState();
 
@@ -90,42 +88,37 @@ void SynthVoice::threadedProcess()
     connectionGraph.setInput(inBus, 18, v.voiceIndex);
     connectionGraph.setInput(inBus, 19, v.polyphony);
 
-    const int blkSz = 32;
     vector<ConnectionGraph::SampleBuffer> outBuffers;
-    float tmpBuf[blkSz] = { 0.f };
-    float outLeft[blkSz] = { 0.f };
-    float outRight[blkSz] = { 0.f };
-    outBuffers.push_back({ outBus, 0, outLeft });
-    outBuffers.push_back({ outBus, 1, outRight });
+    outBuffers.push_back({ outBus, 0, {0.f} });
+    outBuffers.push_back({ outBus, 1, {0.f} });
 
-    if(threadStuff.samplesToProcess > 0) {
-        for (int j = 0; j < numSamples; j += blkSz) {
-            mpe.update();
-            threadStuff.globalData.update();
+    int numSamples = threadStuff.samplesToProcess;
+    for (int j = 0; j < numSamples; j += ConnectionGraph::k_blockSize) {
+        mpe.update();
+        threadStuff.globalData.update();
 
-            connectionGraph.setInput(inBus, 3, v.pitchHz);
-            connectionGraph.setInput(inBus, 4, v.glideX);
-            connectionGraph.setInput(inBus, 5, v.slideY);
-            connectionGraph.setInput(inBus, 6, v.pressZ);
+        connectionGraph.setInput(inBus, 3, v.pitchHz);
+        connectionGraph.setInput(inBus, 4, v.glideX);
+        connectionGraph.setInput(inBus, 5, v.slideY);
+        connectionGraph.setInput(inBus, 6, v.pressZ);
 
-            connectionGraph.setInput(inBus, 7, g.mod);
-            connectionGraph.setInput(inBus, 8, g.exp);
-            connectionGraph.setInput(inBus, 9, g.brt);
+        connectionGraph.setInput(inBus, 7, g.mod);
+        connectionGraph.setInput(inBus, 8, g.exp);
+        connectionGraph.setInput(inBus, 9, g.brt);
 
-            connectionGraph.processBlock(outBus, threadStuff.sampleRate, tmpBuf, 32, outBuffers);
-            for (int i = 0; i < blkSz; ++i) {
-                float sampleL = outBuffers[0].buf[i];
-                float sampleR = outBuffers[1].buf[i];
-                internalBuffer[0][j + i] = sampleL;
-                internalBuffer[1][j + i] = sampleR;
-                rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL + sampleR)*(sampleL + sampleR)); // without the root
-            }
+        connectionGraph.processBlock(outBus, threadStuff.sampleRate, outBuffers);
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            float sampleL = outBuffers[0].buf[i];
+            float sampleR = outBuffers[1].buf[i];
+            internalBuffer[0][j + i] = sampleL;
+            internalBuffer[1][j + i] = sampleR;
+            rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL + sampleR)*(sampleL + sampleR));
         }
 
-        threadStuff.samplesToProcess -= numSamples;
+        threadStuff.samplesToProcess -= ConnectionGraph::k_blockSize;
     }
 
-    assert(threadStuff.samplesToProcess == 0);
+//    assert(threadStuff.samplesToProcess == 0);
 }
 
 void SynthVoice::setParameter(int handle, float value){

@@ -26,11 +26,11 @@ protected:
     bool hasRecursion = false;
 
 public:
-
+    static const int k_blockSize = 32;
     struct SampleBuffer {
         int module;
         int pad;
-        float* buf;
+        float buf[k_blockSize];
     };
 
     ConnectionGraph();
@@ -47,7 +47,7 @@ public:
     void setInput(int module, std::string pad, float value);
     float getOutput(int module, int pad);
     void processSample(int module, float fs);
-    void processBlock(int module, float fs, float* tmpBuffer, uint32_t blockSize, vector<SampleBuffer>& outBuffers);
+    void processBlock(int module, float fs, vector<SampleBuffer>& outBuffers);
 
     std::string graphviz();
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);

@@ -54,7 +54,7 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
         connectionGraph.setInput(inBus, 3, g.exp);
         connectionGraph.setInput(inBus, 4, g.brt);
 
-        connectionGraph.process(outBus, sampleRate);
+        connectionGraph.processSample(outBus, sampleRate);
 
         float sampleL = connectionGraph.getOutput(outBus, 0);
         float sampleR = connectionGraph.getOutput(outBus, 1);

@@ -143,22 +143,23 @@ float ConnectionGraph::getOutput(int module, int pad)
 void ConnectionGraph::compileProgram(int module)
 {
     program.clear();
-    std::vector<int> processedModules;
+    std::set<int> processedModules;
     
-    compileModule(module, processedModules);
+    compileModule(module, processedModules, std::set<int>());
     compilationStatus = module;
 }
 
-void ConnectionGraph::compileModule(int module, std::vector<int> &processedModules)
+void ConnectionGraph::compileModule(int module, std::set<int> &processedModules, std::set<int> processedModulesToHere)
 {
     Module *m = getModule(module);
 
+    if (processedModulesToHere.count(module)) hasRecursion = true;
+    processedModulesToHere.insert(module);
+
     // Check if this module is already processed by the compiler
-    for(int processedModule : processedModules) {
-        if(module == processedModule) return;
-    }
-    processedModules.push_back(module);
-        
+    if (processedModules.count(module)) return;
+    processedModules.insert(module);
+
     // Iterate over all input pads
     for(int pad = 0; pad < m->getNumInputPads(); pad++) {
         bool padIsConnected = false;
@@ -169,7 +170,7 @@ void ConnectionGraph::compileModule(int module, std::vector<int> &processedModul
                     padIsConnected = true;
                     program.push_back(Instruction(OP_RESET_INPUT, module, pad));
                 }
-                compileModule(c->getFromModule(), processedModules);
+                compileModule(c->getFromModule(), processedModules, processedModulesToHere);
                 program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, c->getFromModule(), c->getFromPad(), module, pad));
             }
         }
@@ -178,12 +179,10 @@ void ConnectionGraph::compileModule(int module, std::vector<int> &processedModul
     program.push_back(Instruction(OP_PROCESS, module));
 }
 
-void ConnectionGraph::process(int module, float fs)
+void ConnectionGraph::processSample(int module, float fs)
 {
-    // Recompile if needed
-    if(module != compilationStatus) compileProgram(module);
-    
-    // Run program
+    if (module != compilationStatus) compileProgram(module);
+
     for(const Instruction &i : program) {
         switch(i.opcode) {
         case OP_PROCESS:
@@ -196,6 +195,22 @@ void ConnectionGraph::process(int module, float fs)
             modules[i.param2]->addToInput(i.param3, modules[i.param0]->getOutput(i.param1));
             break;
         }
+    }
+}
+
+void ConnectionGraph::processBlock(int module, float fs, float* tmpBuffer, uint32_t blockSize, vector<SampleBuffer>& outBuffers) {
+    if (module != compilationStatus) compileProgram(module);
+
+    if (hasRecursion) {
+        for (uint32_t i = 0; i < blockSize; ++i) {
+            processSample(module, fs);
+            for (int n = 0; n < outBuffers.size(); ++n) {
+                outBuffers[n].buf[i] = getOutput(outBuffers[n].module, outBuffers[n].pad);
+            }
+        }
+    }
+    else {
+         // NYI
     }
 }
 

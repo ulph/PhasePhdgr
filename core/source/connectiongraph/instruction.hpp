@@ -1,7 +1,11 @@
 #ifndef INSTRUCTION_HPP
 #define INSTRUCTION_HPP
 
-enum Opcode { OP_PROCESS, OP_RESET_INPUT, OP_ADD_OUTPUT_TO_INPUT };
+enum Opcode { 
+    OP_PROCESS,
+    OP_RESET_INPUT,
+    OP_ADD_OUTPUT_TO_INPUT
+};
 
 struct Instruction {
     int opcode;

@@ -90,13 +90,18 @@ void SynthVoice::threadedProcess()
     connectionGraph.setInput(inBus, 18, v.voiceIndex);
     connectionGraph.setInput(inBus, 19, v.polyphony);
 
+    const int blkSz = 32;
+    vector<ConnectionGraph::SampleBuffer> outBuffers;
+    float tmpBuf[blkSz] = { 0.f };
+    float outLeft[blkSz] = { 0.f };
+    float outRight[blkSz] = { 0.f };
+    outBuffers.push_back({ outBus, 0, outLeft });
+    outBuffers.push_back({ outBus, 1, outRight });
+
     if(threadStuff.samplesToProcess > 0) {
-        for (int j = 0; j < numSamples; ++j) {
+        for (int j = 0; j < numSamples; j += blkSz) {
             mpe.update();
             threadStuff.globalData.update();
-
-            internalBuffer[0][j] = 0.0f;
-            internalBuffer[1][j] = 0.0f;
 
             connectionGraph.setInput(inBus, 3, v.pitchHz);
             connectionGraph.setInput(inBus, 4, v.glideX);
@@ -107,16 +112,20 @@ void SynthVoice::threadedProcess()
             connectionGraph.setInput(inBus, 8, g.exp);
             connectionGraph.setInput(inBus, 9, g.brt);
 
-            connectionGraph.process(outBus, threadStuff.sampleRate);
-            float sampleL = connectionGraph.getOutput(outBus, 0);
-            float sampleR = connectionGraph.getOutput(outBus, 1);
-            internalBuffer[0][j] = sampleL;
-            internalBuffer[1][j] = sampleR;
-            rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL+sampleR)*(sampleL+sampleR)); // without the root
+            connectionGraph.processBlock(outBus, threadStuff.sampleRate, tmpBuf, 32, outBuffers);
+            for (int i = 0; i < blkSz; ++i) {
+                float sampleL = outBuffers[0].buf[i];
+                float sampleR = outBuffers[1].buf[i];
+                internalBuffer[0][j + i] = sampleL;
+                internalBuffer[1][j + i] = sampleR;
+                rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL + sampleR)*(sampleL + sampleR)); // without the root
+            }
         }
 
         threadStuff.samplesToProcess -= numSamples;
     }
+
+    assert(threadStuff.samplesToProcess == 0);
 }
 
 void SynthVoice::setParameter(int handle, float value){

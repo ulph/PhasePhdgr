@@ -32,12 +32,10 @@ public:
 //    Module(uint32_t fs) : fs(fs) {}
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    /*
-    template <size_t N> virtual void processBlock<N>() {
-        for (int i = 0; i < N; ++i) { process(); }
+    virtual void processBlock(uint32_t fs, const int blockSize) {
+        for (int i = 0; i < blockSize; ++i) { process(fs); }
     }
-    */
-    virtual void process(uint32_t fs) = 0; // TODO, remove -- and make processBlock the abstract one instead
+    virtual void process(uint32_t fs) = 0;
 
     float getOutput(int outputPad) const {
         return outputs[outputPad].value;

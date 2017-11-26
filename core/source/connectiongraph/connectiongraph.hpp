@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 #include "phasephckr/docs.hpp"
 
@@ -20,9 +21,18 @@ protected:
     std::vector<Instruction> program;
     int compilationStatus;
     void compileProgram(int module);
-    void compileModule(int module, std::vector<int> &processedModules);
+    void compileModule(int module, std::set<int> &processedModules, std::set<int> processedModulesToHere);
     Module* getModule(int id);
+    bool hasRecursion = false;
+
 public:
+
+    struct SampleBuffer {
+        int module;
+        int pad;
+        float* buf;
+    };
+
     ConnectionGraph();
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
@@ -36,7 +46,9 @@ public:
     void setInput(int module, int pad, float value);
     void setInput(int module, std::string pad, float value);
     float getOutput(int module, int pad);
-    void process(int module, float fs);
+    void processSample(int module, float fs);
+    void processBlock(int module, float fs, float* tmpBuffer, uint32_t blockSize, vector<SampleBuffer>& outBuffers);
+
     std::string graphviz();
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
 };

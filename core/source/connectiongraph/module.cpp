@@ -26,11 +26,11 @@ void Module::block_process(uint32_t fs) {
     const size_t outputsSize = outputs.size();
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         for (int k = 0; k < inputsSize; ++k) {
-            inputs[k].value = inputs[k].values[i];
+            unbuffer_input(k, i);
         }
         process(fs);
         for (int k = 0; k < outputsSize; ++k) {
-            outputs[k].values[i] = outputs[k].value;
+            buffer_output(k, i);
         }
     }
 }

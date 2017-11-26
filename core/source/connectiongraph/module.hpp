@@ -47,12 +47,22 @@ public:
     int getOutputPadFromName(std::string padName) const;
 
 private:
+    // sample processing
     virtual void process(uint32_t fs) = 0;
     float sample_getOutput(int outputPad) const;
     void sample_setInput(int inputPad, float value);
     void sample_resetInput(int inputPad);
     void sample_addToInput(int inputPad, float value);
 
+    // sample to block helpers
+    void unbuffer_input(int inputPad, int i) {
+        inputs[inputPad].value = inputs[inputPad].values[i];
+    }
+    void buffer_output(int outputPad, int i) {
+        outputs[outputPad].values[i] = outputs[outputPad].value;
+    }
+
+    // block processing
     virtual void block_process(uint32_t fs);
     void block_getOutput(int outputPad, float* buffer) const;
     void block_setInput(int inputPad, float value);

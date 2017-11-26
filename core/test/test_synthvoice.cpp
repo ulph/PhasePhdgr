@@ -10,7 +10,7 @@ using namespace PhasePhckr;
 
 int main()
 {
-    const int s = 120;
+    const int s = 60*10;
     const float fs = 48000;
     float bufferL[SYNTH_VOICE_BUFFER_LENGTH];
     float bufferR[SYNTH_VOICE_BUFFER_LENGTH];

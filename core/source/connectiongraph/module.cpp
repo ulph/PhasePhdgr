@@ -46,7 +46,7 @@ void Module::block_setInput(int inputPad, float value) {
 }
 
 void Module::block_setInput(int inputPad, const float* buffer) {
-    memcpy(outputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
+    memcpy(inputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
 }
 
 void Module::block_resetInput(int inputPad) {

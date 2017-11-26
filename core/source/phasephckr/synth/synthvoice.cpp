@@ -108,13 +108,16 @@ void SynthVoice::threadedProcess()
         connectionGraph.setInput(inBus, 9, g.brt);
 
         connectionGraph.processBlock(outBus, threadStuff.sampleRate, inBuffers, outBuffers);
+
+        memcpy(&internalBuffer[0][j], &outBuffers[0].buf, sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(&internalBuffer[1][j], &outBuffers[1].buf, sizeof(float)*ConnectionGraph::k_blockSize);
+
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            float sampleL = outBuffers[0].buf[i];
-            float sampleR = outBuffers[1].buf[i];
-            internalBuffer[0][j + i] = sampleL;
-            internalBuffer[1][j + i] = sampleR;
-            rms = rms*rmsSlew + (1 - rmsSlew)*((sampleL + sampleR)*(sampleL + sampleR));
+            float v = outBuffers[0].buf[i] + outBuffers[1].buf[i];
+            v *= v;
+            rms = rms*rmsSlew + (1 - rmsSlew)*v;
         }
+
     }
 }
 

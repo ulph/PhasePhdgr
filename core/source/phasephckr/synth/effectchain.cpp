@@ -59,17 +59,13 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
         connectionGraph.setInput(inBus, 3, g.exp);
         connectionGraph.setInput(inBus, 4, g.brt);
 
-        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            inBuffers[0].buf[i] = bufferL[j + i];
-            inBuffers[1].buf[i] = bufferR[j + i];
-        }
+        memcpy(inBuffers[0].buf, &bufferL[j], sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(inBuffers[1].buf, &bufferR[j], sizeof(float)*ConnectionGraph::k_blockSize);
 
         connectionGraph.processBlock(outBus, sampleRate, inBuffers, outBuffers);
 
-        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            bufferL[j + i] = outBuffers[0].buf[i];
-            bufferR[j + i] = outBuffers[1].buf[i];
-        }
+        memcpy(&bufferL[j], inBuffers[0].buf, sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(&bufferR[j], inBuffers[1].buf, sizeof(float)*ConnectionGraph::k_blockSize);
 
     }
 }

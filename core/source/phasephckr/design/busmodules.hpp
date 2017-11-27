@@ -28,6 +28,12 @@ public:
         for(size_t i = 0; i < numPads; i++) outputs[i].value = inputs[i].value;
     }
 
+    virtual void block_process(uint32_t fs) {
+        for (size_t i = 0; i < numPads; i++) {
+            memcpy(outputs[i].values, inputs[i].values, sizeof(float)*ConnectionGraph::k_blockSize);
+        }
+    }
+
     virtual PhasePhckr::ModuleDoc makeDoc() {
         auto d = Module::makeDoc();
         if(isInput)

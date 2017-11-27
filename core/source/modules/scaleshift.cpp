@@ -73,7 +73,7 @@ void ScaleShiftMul::block_process(uint32_t fs) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];
         auto c = inputs[2].values[i];
-        auto d = inputs[2].values[i];
+        auto d = inputs[3].values[i];
         outputs[0].values[i] = (a * b + c) * d;
     }
 }

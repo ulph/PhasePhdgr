@@ -38,11 +38,14 @@ protected:
 public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    void setInput(int inputPad, float value);
+    void setInput(int inputPad, float value) {
+        sample_setInput(inputPad, value);
+        block_fillInput(inputPad, value);
+    }
     virtual PhasePhckr::ModuleDoc makeDoc() const;
     virtual std::string docString() const;
-    int getNumInputPads() const;
-    int getNumOutputPads() const;
+    int getNumInputPads() const { return (int)inputs.size(); }
+    int getNumOutputPads() const { return (int)outputs.size(); }
     int getInputPadFromName(std::string padName) const;
     int getOutputPadFromName(std::string padName) const;
 
@@ -51,10 +54,19 @@ private:
 
     // sample processing
     virtual void process(uint32_t fs) = 0;
-    float sample_getOutput(int outputPad) const;
-    void sample_setInput(int inputPad, float value);
-    void sample_resetInput(int inputPad);
-    void sample_addToInput(int inputPad, float value);
+    float sample_getOutput(int outputPad) const {
+        return outputs[outputPad].value;
+    }
+    void sample_setInput(int inputPad, float value) {
+        inputs[inputPad].value = value;
+    }
+    void sample_resetInput(int inputPad) {
+        inputs[inputPad].value = 0.0f;
+    }
+    void sample_addToInput(int inputPad, float value) {
+        inputs[inputPad].value += value;
+    }
+
 
     // sample to block helpers
     void unbuffer_input(int inputPad, int i) {
@@ -66,11 +78,29 @@ private:
 
     // block processing
     virtual void block_process(uint32_t fs);
-    void block_getOutput(int outputPad, float* buffer) const;
-    void block_fillInput(int inputPad, float value);
-    void block_setInput(int inputPad, const float* buffer);
-    void block_resetInput(int inputPad);
-    void block_addToInput(int inputPad, const float* buffer);
+    void block_getOutput(int outputPad, float* buffer) const {
+        memcpy(buffer, outputs[outputPad].values, sizeof(float)*ConnectionGraph::k_blockSize);
+    }
+    void block_fillInput(int inputPad, float value) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = value;
+        }
+    }
+    void block_setInput(int inputPad, const float* buffer) {
+        memcpy(inputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
+    }
+    void block_resetInput(int inputPad) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = 0.0f;
+        }
+    }
+    void block_addToInput(int inputPad, const float* buffer) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            auto v = inputs[inputPad].values[i];
+            v += buffer[i];
+            inputs[inputPad].values[i] = v;
+        }
+    }
 
 };
 

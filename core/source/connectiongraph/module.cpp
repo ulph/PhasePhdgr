@@ -1,26 +1,5 @@
 #include "module.hpp"
 
-void Module::setInput(int inputPad, float value) {
-    sample_setInput(inputPad, value);
-    block_fillInput(inputPad, value);
-}
-
-float Module::sample_getOutput(int outputPad) const {
-    return outputs[outputPad].value;
-}
-
-void Module::sample_setInput(int inputPad, float value) {
-    inputs[inputPad].value = value;
-}
-
-void Module::sample_resetInput(int inputPad) {
-    inputs[inputPad].value = 0.0f;
-}
-
-void Module::sample_addToInput(int inputPad, float value) {
-    inputs[inputPad].value += value;
-}
-
 void Module::block_process(uint32_t fs) {
     const size_t inputsSize = inputs.size();
     const size_t outputsSize = outputs.size();
@@ -34,38 +13,6 @@ void Module::block_process(uint32_t fs) {
         }
     }
 }
-
-void Module::block_getOutput(int outputPad, float* buffer) const {
-    memcpy(buffer, outputs[outputPad].values, sizeof(float)*ConnectionGraph::k_blockSize);
-}
-
-void Module::block_fillInput(int inputPad, float value) {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-        inputs[inputPad].values[i] = value;
-    }
-}
-
-void Module::block_setInput(int inputPad, const float* buffer) {
-    memcpy(inputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
-}
-
-void Module::block_resetInput(int inputPad) {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-        inputs[inputPad].values[i] = 0.0f;
-    }
-}
-
-void Module::block_addToInput(int inputPad, const float* buffer) {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-        auto v = inputs[inputPad].values[i];
-        v += buffer[i];
-        inputs[inputPad].values[i] = v;
-    }
-}
-
-int Module::getNumInputPads() const { return (int)inputs.size(); }
-
-int Module::getNumOutputPads() const { return (int)outputs.size(); }
 
 int Module::getInputPadFromName(std::string padName) const {
     for (int i = 0; i < (int)inputs.size(); i++) {

@@ -7,6 +7,7 @@ class Phase : public ModuleCRTP<Phase>
 {
 private:
     float trig;
+    float phase;
 public:
     Phase();
     void process(uint32_t fs);

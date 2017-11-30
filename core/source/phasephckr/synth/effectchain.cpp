@@ -64,8 +64,8 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
 
         connectionGraph.processBlock(outBus, sampleRate, inBuffers, outBuffers);
 
-        memcpy(&bufferL[j], inBuffers[0].buf, sizeof(float)*ConnectionGraph::k_blockSize);
-        memcpy(&bufferR[j], inBuffers[1].buf, sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(&bufferL[j], outBuffers[0].buf, sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(&bufferR[j], outBuffers[1].buf, sizeof(float)*ConnectionGraph::k_blockSize);
 
     }
 }

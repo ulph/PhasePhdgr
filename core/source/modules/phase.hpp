@@ -11,6 +11,7 @@ private:
 public:
     Phase();
     void process(uint32_t fs);
+    void block_process(uint32_t fs);
     static Module* factory() { return new Phase(); }
 };
 

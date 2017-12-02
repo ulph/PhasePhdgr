@@ -36,7 +36,7 @@ protected:
     ProccesingType getProcessingType(int module);
 
 public:
-    static const int k_blockSize = 1;
+    static const int k_blockSize = 32;
     struct SampleBuffer {
         int module;
         int pad;

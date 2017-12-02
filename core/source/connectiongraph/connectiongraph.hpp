@@ -21,12 +21,22 @@ protected:
     std::vector<Instruction> program;
     int compilationStatus;
     void compileProgram(int module);
-    void compileModule(int module, std::set<int> &processedModules, std::set<int> processedModulesToHere);
+    void findRecursionGroups(int module, std::vector<int> processedModulesToHere);
+    void compileModule(int module, std::set<int> &processedModules);
     Module* getModule(int id);
-    bool hasRecursion = false;
+
+    void printProgram();
+
+    enum ProccesingType{
+        BlockWise,
+        SampleWise,
+    };
+
+    std::map<int, set<int>> moduleRecursionGroups;
+    ProccesingType getProcessingType(int module);
 
 public:
-    static const int k_blockSize = 32;
+    static const int k_blockSize = 1;
     struct SampleBuffer {
         int module;
         int pad;

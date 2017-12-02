@@ -35,6 +35,8 @@ private:
     float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { 0 };
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
+    bool buffersSilenced = false;
+
 public:
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
     virtual ~SynthVoice();
@@ -44,8 +46,9 @@ public:
     const float* getInternalBuffer(int channel) { return &internalBuffer[channel][0]; }
     void setParameter(int handle, float value);
     const ParameterHandleMap& getParameterHandles();
-    bool isSilent();
     MPEVoice mpe;
+    bool isSilent();
+
 };
 
 }

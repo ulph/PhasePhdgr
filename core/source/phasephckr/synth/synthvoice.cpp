@@ -65,6 +65,13 @@ void SynthVoice::threadedProcess()
         rms = 1;
     }
     else if (v.gate == 0 && isSilent()) {
+        if (!buffersSilenced) {
+            for (int i = 0; i < SYNTH_VOICE_BUFFER_LENGTH; i++) {
+                internalBuffer[0][i] = 0.f;
+                internalBuffer[1][i] = 0.f;
+            }
+        }
+        buffersSilenced = true;
         return;
     }
 

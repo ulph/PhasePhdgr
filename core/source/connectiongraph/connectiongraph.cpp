@@ -187,7 +187,33 @@ void ConnectionGraph::compileProgram(int module)
 
 void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     assert(!forceSampleWise);
-    assert(0); // NYI
+    assert(program.size() == 0);
+
+    if (moduleRecursionGroups.size() == 0) {
+        // straight copy to blockwise possible
+        for (int i = 0; i < protoProgram.size(); ++i) {
+            auto instr = protoProgram.at(i);
+            switch (instr.opcode) {
+            case OP_PROCESS:
+                instr.opcode = OP_B_PROCESS;
+                break;
+            case OP_RESET_INPUT:
+                instr.opcode = OP_B_RESET_INPUT;
+                break;
+            case OP_ADD_OUTPUT_TO_INPUT:
+                instr.opcode = OP_B_ADD_OUTPUT_TO_INPUT;
+                break;
+            default:
+                assert(0);
+                break;
+            }
+            program.emplace_back(instr);
+        }
+    }
+    else {
+        assert(0); // NYI
+    }
+
 }
 
 void ConnectionGraph::printProgram() {

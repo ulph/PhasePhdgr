@@ -6,6 +6,7 @@
 #include <sstream>
 #include "connectiongraph.hpp"
 #include "module.hpp"
+#include <assert.h>
 
 #define NOT_COMPILED (-1)
 
@@ -27,13 +28,16 @@ public:
     }
 };
 
-ConnectionGraph::ConnectionGraph() : compilationStatus(NOT_COMPILED)
+ConnectionGraph::ConnectionGraph(bool forceSampleWise) 
+    : compilationStatus(NOT_COMPILED)
+    , forceSampleWise(forceSampleWise)
 {
 
 }
 
 ConnectionGraph::ConnectionGraph(const ConnectionGraph& other)
     : compilationStatus(NOT_COMPILED)
+    , forceSampleWise(other.forceSampleWise)
 {
     // copy constructor that creates an non-compiled version
     for(int i=0; i < (int)other.modules.size(); ++i){
@@ -145,29 +149,45 @@ void ConnectionGraph::compileProgram(int module)
 {
     // parse the graph once to find all modules involved in recursion loops
     moduleRecursionGroups.clear();
-    findRecursionGroups(module, std::vector<int>());
 
-    // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first
-    std::sort(
-        cables.begin(),
-        cables.end(),
-        [this](const Cable *a, const Cable *b) {
-            auto aFromType = getProcessingType(a->getFromModule());
-            auto aToType = getProcessingType(a->getToModule());
+    if (!forceSampleWise) {
+        findRecursionGroups(module, std::vector<int>());
 
-            auto bFromType = getProcessingType(b->getFromModule());
-            auto bToType = getProcessingType(b->getToModule());
+        // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first
+        std::sort(
+            cables.begin(),
+            cables.end(),
+            [this](const Cable *a, const Cable *b) {
+                auto aFromType = getProcessingType(a->getFromModule());
+                auto aToType = getProcessingType(a->getToModule());
 
-            return aFromType != aToType;
-        }
-    );
+                auto bFromType = getProcessingType(b->getFromModule());
+                auto bToType = getProcessingType(b->getToModule());
+
+                return aFromType != aToType;
+            }
+        );
+    }
 
     program.clear();
+    std::vector<Instruction> protoProgram;
     std::set<int> processedModules;
-    compileModule(module, processedModules);
+    compileModule(protoProgram, module, processedModules);
     compilationStatus = module;
 
+    if (!forceSampleWise) {
+        finalizeProgram(protoProgram);
+    }
+    else {
+        program = protoProgram;
+    }
+
     printProgram();
+}
+
+void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
+    assert(!forceSampleWise);
+    assert(0); // NYI
 }
 
 void ConnectionGraph::printProgram() {
@@ -175,6 +195,7 @@ void ConnectionGraph::printProgram() {
         const auto& instr = program[i];
         std::cout << i << ": ";
         switch (instr.opcode) {
+
         case OP_PROCESS:
             std::cout << "OP_PROCESS " << instr.param0; 
             break;
@@ -184,12 +205,24 @@ void ConnectionGraph::printProgram() {
         case OP_ADD_OUTPUT_TO_INPUT:
             std::cout << "OP_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3; 
             break;
-        case MARKER_SAMPLEWISE:
-            std::cout << "MARKER_SAMPLEWISE " << instr.param0 << " -> " << instr.param1; 
+
+        case OP_X_UNBUFFER_INPUT:
+            std::cout << "OP_X_UNBUFFER_INPUT " << "NYI";
             break;
-        case MARKER_BLOCKWISE:
-            std::cout << "MARKER_BLOCKWISE " << instr.param0 << " -> " << instr.param1; 
+        case OP_X_BUFFER_OUTPUT:
+            std::cout << "OP_X_BUFFER_OUTPUT " << "NYI";
             break;
+
+        case OP_B_PROCESS:
+            std::cout << "OP_B_PROCESS " << instr.param0;
+            break;
+        case OP_B_RESET_INPUT:
+            std::cout << "OP_B_RESET_INPUT " << instr.param0 << "," << instr.param1;
+            break;
+        case OP_B_ADD_OUTPUT_TO_INPUT:
+            std::cout << "OP_B_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
+            break;
+
         default:
             break;
         }
@@ -220,11 +253,12 @@ void ConnectionGraph::findRecursionGroups(int module, std::vector<int> processed
 }
 
 ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
+    assert(!forceSampleWise);
     if (moduleRecursionGroups.count(module)) return SampleWise;
     return BlockWise;
 }
 
-void ConnectionGraph::compileModule(int module, std::set<int> &processedModules)
+void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules)
 {
     Module *m = getModule(module);
 
@@ -242,28 +276,28 @@ void ConnectionGraph::compileModule(int module, std::set<int> &processedModules)
             if (c->isConnected(module, pad)) {
                 auto fromModule = c->getFromModule();
 
-                compileModule(fromModule, processedModules);
+                compileModule(protoProgram, fromModule, processedModules);
 
                 if (!connectedPads.count(pad)) 
-                    program.push_back(Instruction(OP_RESET_INPUT, module, pad));
+                    protoProgram.push_back(Instruction(OP_RESET_INPUT, module, pad));
 
                 connectedPads.insert(pad);
 
-                program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
 
             }
         }
     }
 
-    program.push_back(Instruction(OP_PROCESS, module));
-
-    auto fromType = getProcessingType(module);
+    protoProgram.push_back(Instruction(OP_PROCESS, module));
 
 }
 
 void ConnectionGraph::processSample(int module, float fs)
 {
     if (module != compilationStatus) compileProgram(module);
+
+    float out = 0.0f;
 
     for(const Instruction &i : program) {
         switch(i.opcode) {
@@ -274,8 +308,11 @@ void ConnectionGraph::processSample(int module, float fs)
             modules[i.param0]->sample_resetInput(i.param1);
             break;
         case OP_ADD_OUTPUT_TO_INPUT:
-            float out = modules[i.param0]->sample_getOutput(i.param1);
+            out = modules[i.param0]->sample_getOutput(i.param1);
             modules[i.param2]->sample_addToInput(i.param3, out);
+            break;
+        default:
+            assert(0); 
             break;
         }
     }
@@ -295,25 +332,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
         m->block_setInput(p, src);
     }
 
-    if (moduleRecursionGroups.size() == 0) {
-        // process per block
-        for (const Instruction &i : program) {
-            switch (i.opcode) {
-            case OP_PROCESS:
-                modules[i.param0]->block_process((uint32_t)fs);
-                break;
-            case OP_RESET_INPUT:
-                modules[i.param0]->block_resetInput(i.param1);
-                break;
-            case OP_ADD_OUTPUT_TO_INPUT:
-                float out[ConnectionGraph::k_blockSize] = { 0.f };
-                modules[i.param0]->block_getOutput(i.param1, out);
-                modules[i.param2]->block_addToInput(i.param3, out);
-                break;
-            }
-        }
-    }
-    else {
+    if (forceSampleWise) {
         // process per sample
         for (uint32_t i = 0; i < k_blockSize; ++i) {
             // unbuffer input sample
@@ -331,6 +350,49 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
                 auto* m = modules[outBuffers[n].module];
                 auto p = outBuffers[n].pad;
                 m->buffer_output(p, i);
+            }
+        }
+    }
+    else {
+        // process per block
+        float buf[ConnectionGraph::k_blockSize] = { 0.f };
+        float out = 0.0f;
+
+        for (const Instruction &i : program) {
+            switch (i.opcode) {
+
+            case OP_PROCESS:
+                modules[i.param0]->process((uint32_t)fs);
+                break;
+            case OP_RESET_INPUT:
+                modules[i.param0]->sample_resetInput(i.param1);
+                break;
+            case OP_ADD_OUTPUT_TO_INPUT:
+                out = modules[i.param0]->sample_getOutput(i.param1);
+                modules[i.param2]->sample_addToInput(i.param3, out);
+                break;
+
+            case OP_X_UNBUFFER_INPUT:
+                modules[i.param0]->unbuffer_input(i.param1, i.param2);
+                break;
+            case OP_X_BUFFER_OUTPUT:
+                modules[i.param0]->buffer_output(i.param1, i.param2);
+                break;
+
+            case OP_B_PROCESS:
+                modules[i.param0]->block_process((uint32_t)fs);
+                break;
+            case OP_B_RESET_INPUT:
+                modules[i.param0]->block_resetInput(i.param1);
+                break;
+            case OP_B_ADD_OUTPUT_TO_INPUT:
+                modules[i.param0]->block_getOutput(i.param1, buf);
+                modules[i.param2]->block_addToInput(i.param3, buf);
+                break;
+
+            default:
+                assert(0);
+                break;
             }
         }
     }

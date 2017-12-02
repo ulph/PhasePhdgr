@@ -6,8 +6,12 @@ enum Opcode {
     OP_RESET_INPUT,
     OP_ADD_OUTPUT_TO_INPUT,
 
-    MARKER_SAMPLEWISE,
-    MARKER_BLOCKWISE,
+    OP_X_UNBUFFER_INPUT,
+    OP_X_BUFFER_OUTPUT,
+
+    OP_B_PROCESS,
+    OP_B_RESET_INPUT,
+    OP_B_ADD_OUTPUT_TO_INPUT,
 };
 
 struct Instruction {

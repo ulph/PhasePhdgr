@@ -22,7 +22,9 @@ protected:
     int compilationStatus;
     void compileProgram(int module);
     void findRecursionGroups(int module, std::vector<int> processedModulesToHere);
-    void compileModule(int module, std::set<int> &processedModules);
+    void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules);
+    void finalizeProgram(std::vector<Instruction>& protoProgram);
+
     Module* getModule(int id);
 
     void printProgram();
@@ -35,15 +37,17 @@ protected:
     std::map<int, set<int>> moduleRecursionGroups;
     ProccesingType getProcessingType(int module);
 
+    const bool forceSampleWise;
+
 public:
-    static const int k_blockSize = 1;
+    static const int k_blockSize = 32;
     struct SampleBuffer {
         int module;
         int pad;
         float buf[k_blockSize];
     };
 
-    ConnectionGraph();
+    ConnectionGraph(bool forceSampleWise=true);
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
     int addModule(std::string type);

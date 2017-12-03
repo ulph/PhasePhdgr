@@ -189,44 +189,80 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     assert(!forceSampleWise);
     assert(program.size() == 0);
 
+    std::map<int, std::set<int>> sampleWiseEntrypoints;
+
     for (int i = 0; i < protoProgram.size(); ++i) {
         auto instr = protoProgram.at(i);
         auto type = getProcessingType(instr.param0);
-        if (type == SampleWise) {
+
+        if (type == SampleWise) 
+        {
             std::vector<Instruction> segment;
             while (type == SampleWise) {
-                instr = protoProgram.at(i);
-                type = getProcessingType(instr.param0);
-                segment.push_back(instr);
+                auto instr_ = protoProgram.at(i);
+                type = getProcessingType(instr_.param0);
+                segment.push_back(instr_);
                 i++;
             }
 
-            std::vector<Instruction> preLoopInstructions;
             std::vector<Instruction> expandedSegment;
-            std::vector<Instruction> postLoopInstructions;
+            std::map<int, Instruction> postLoopInstructions;
 
             for (int n = 0; n < k_blockSize; ++n) {
                 for (int j = 0; j < segment.size(); ++j) {
-                    // ...
+                    auto instr_ = segment.at(j);
+                    switch (instr_.opcode) {
+                    case OP_PROCESS:
+                        if (sampleWiseEntrypoints.count(instr_.param0)) {
+                            for (int port : sampleWiseEntrypoints.at(instr_.param0))
+                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_INPUT, instr_.param0, port, n));
+                        }
+                        expandedSegment.push_back(instr_);
+                        break;
+                    case OP_SET_OUTPUT_TO_INPUT:
+                    case OP_ADD_OUTPUT_TO_INPUT:
+                        if (getProcessingType(instr_.param2) == BlockWise) {
+                            if (!postLoopInstructions.count(j)) {
+                                auto instr__ = instr_;
+                                instr__.opcode = OP_SET_OUTPUT_TO_INPUT ? OP_B_SET_OUTPUT_TO_INPUT : OP_B_ADD_OUTPUT_TO_INPUT;
+                                postLoopInstructions[j] = instr__;
+                            }
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_OUTPUT, instr_.param0, instr_.param1, n));
+                        }
+                        else {
+                            expandedSegment.push_back(instr_);
+                        }
+                        break;
+                    default:
+                        assert(0);
+                        break;
+                    }
                 }
             }
 
-            program.insert(program.end(), preLoopInstructions.begin(), preLoopInstructions.end());
             program.insert(program.end(), expandedSegment.begin(), expandedSegment.end());
-            program.insert(program.end(), postLoopInstructions.begin(), postLoopInstructions.end());
+            for (const auto& kv : postLoopInstructions)
+                program.push_back(kv.second);
 
         }
-        else if (type == BlockWise) {
+        else if (type == BlockWise) 
+        {
             switch (instr.opcode) {
             case OP_PROCESS:
                 instr.opcode = OP_B_PROCESS; break;
             case OP_SET_OUTPUT_TO_INPUT:
-                instr.opcode = OP_B_SET_OUTPUT_TO_INPUT; break;
+                instr.opcode = OP_B_SET_OUTPUT_TO_INPUT; 
+                break;
             case OP_ADD_OUTPUT_TO_INPUT:
-                instr.opcode = OP_B_ADD_OUTPUT_TO_INPUT; break;
+                instr.opcode = OP_B_ADD_OUTPUT_TO_INPUT; 
+                break;
             default:
                 assert(0);
                 break;
+            }
+            if (getProcessingType(instr.param2) == SampleWise && instr.opcode == OP_B_SET_OUTPUT_TO_INPUT || instr.opcode == OP_B_ADD_OUTPUT_TO_INPUT) {
+                if (!sampleWiseEntrypoints.count(instr.param2)) sampleWiseEntrypoints[instr.param2] = std::set<int>();
+                sampleWiseEntrypoints[instr.param2].insert(instr.param3);
             }
             program.emplace_back(instr);
         }
@@ -253,10 +289,10 @@ void ConnectionGraph::printProgram() {
             break;
 
         case OP_X_UNBUFFER_INPUT:
-            std::cout << "OP_X_UNBUFFER_INPUT " << "NYI";
+            std::cout << "OP_X_UNBUFFER_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
             break;
         case OP_X_BUFFER_OUTPUT:
-            std::cout << "OP_X_BUFFER_OUTPUT " << "NYI";
+            std::cout << "OP_X_BUFFER_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
             break;
 
         case OP_B_PROCESS:

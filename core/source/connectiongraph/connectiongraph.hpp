@@ -47,7 +47,7 @@ public:
         float buf[k_blockSize];
     };
 
-    ConnectionGraph(bool forceSampleWise=true);
+    ConnectionGraph(bool forceSampleWise=false);
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
     int addModule(std::string type);

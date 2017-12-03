@@ -198,10 +198,10 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
         {
             std::vector<Instruction> segment;
             while (type == SampleWise) {
-                auto instr_ = protoProgram.at(i);
-                type = getProcessingType(instr_.param0);
+                instr = protoProgram.at(i);
+                type = getProcessingType(instr.param0);
                 if (type == BlockWise) break;
-                segment.push_back(instr_);
+                segment.push_back(instr);
                 i++;
             }
 
@@ -249,7 +249,8 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 program.push_back(kv.second);
 
         }
-        else if (type == BlockWise) 
+
+        if (type == BlockWise) 
         {
             switch (instr.opcode) {
             case OP_PROCESS:

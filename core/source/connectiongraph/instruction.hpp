@@ -2,16 +2,16 @@
 #define INSTRUCTION_HPP
 
 enum Opcode { 
-    OP_PROCESS,
-    OP_RESET_INPUT,
+    OP_SET_OUTPUT_TO_INPUT,
     OP_ADD_OUTPUT_TO_INPUT,
+    OP_PROCESS,
 
     OP_X_UNBUFFER_INPUT,
     OP_X_BUFFER_OUTPUT,
 
-    OP_B_PROCESS,
-    OP_B_RESET_INPUT,
+    OP_B_SET_OUTPUT_TO_INPUT,
     OP_B_ADD_OUTPUT_TO_INPUT,
+    OP_B_PROCESS,
 };
 
 struct Instruction {

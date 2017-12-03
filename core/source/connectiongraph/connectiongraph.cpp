@@ -189,31 +189,51 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     assert(!forceSampleWise);
     assert(program.size() == 0);
 
-    if (moduleRecursionGroups.size() == 0) {
-        // straight copy to blockwise possible
-        for (int i = 0; i < protoProgram.size(); ++i) {
-            auto instr = protoProgram.at(i);
+    for (int i = 0; i < protoProgram.size(); ++i) {
+        auto instr = protoProgram.at(i);
+        auto type = getProcessingType(instr.param0);
+        if (type == SampleWise) {
+            std::vector<Instruction> segment;
+            while (type == SampleWise) {
+                instr = protoProgram.at(i);
+                type = getProcessingType(instr.param0);
+                segment.push_back(instr);
+                i++;
+            }
+
+            std::vector<Instruction> preLoopInstructions;
+            std::vector<Instruction> expandedSegment;
+            std::vector<Instruction> postLoopInstructions;
+
+            for (int n = 0; n < k_blockSize; ++n) {
+                for (int j = 0; j < segment.size(); ++j) {
+                    // ...
+                }
+            }
+
+            program.insert(program.end(), preLoopInstructions.begin(), preLoopInstructions.end());
+            program.insert(program.end(), expandedSegment.begin(), expandedSegment.end());
+            program.insert(program.end(), postLoopInstructions.begin(), postLoopInstructions.end());
+
+        }
+        else if (type == BlockWise) {
             switch (instr.opcode) {
             case OP_PROCESS:
-                instr.opcode = OP_B_PROCESS;
-                break;
-            case OP_RESET_INPUT:
-                instr.opcode = OP_B_RESET_INPUT;
-                break;
+                instr.opcode = OP_B_PROCESS; break;
+            case OP_SET_OUTPUT_TO_INPUT:
+                instr.opcode = OP_B_SET_OUTPUT_TO_INPUT; break;
             case OP_ADD_OUTPUT_TO_INPUT:
-                instr.opcode = OP_B_ADD_OUTPUT_TO_INPUT;
-                break;
+                instr.opcode = OP_B_ADD_OUTPUT_TO_INPUT; break;
             default:
                 assert(0);
                 break;
             }
             program.emplace_back(instr);
         }
+        else {
+            assert(0);
+        }
     }
-    else {
-        assert(0); // NYI
-    }
-
 }
 
 void ConnectionGraph::printProgram() {
@@ -225,8 +245,8 @@ void ConnectionGraph::printProgram() {
         case OP_PROCESS:
             std::cout << "OP_PROCESS " << instr.param0; 
             break;
-        case OP_RESET_INPUT:
-            std::cout << "OP_RESET_INPUT " << instr.param0 << "," << instr.param1; 
+        case OP_SET_OUTPUT_TO_INPUT:
+            std::cout << "OP_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
             break;
         case OP_ADD_OUTPUT_TO_INPUT:
             std::cout << "OP_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3; 
@@ -242,8 +262,8 @@ void ConnectionGraph::printProgram() {
         case OP_B_PROCESS:
             std::cout << "OP_B_PROCESS " << instr.param0;
             break;
-        case OP_B_RESET_INPUT:
-            std::cout << "OP_B_RESET_INPUT " << instr.param0 << "," << instr.param1;
+        case OP_B_SET_OUTPUT_TO_INPUT:
+            std::cout << "OP_B_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
             break;
         case OP_B_ADD_OUTPUT_TO_INPUT:
             std::cout << "OP_B_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
@@ -279,8 +299,8 @@ void ConnectionGraph::findRecursionGroups(int module, std::vector<int> processed
 }
 
 ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
-    assert(!forceSampleWise);
-    if (moduleRecursionGroups.count(module)) return SampleWise;
+    if(forceSampleWise) return SampleWise;
+    else if (moduleRecursionGroups.count(module)) return SampleWise;
     return BlockWise;
 }
 
@@ -305,12 +325,11 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
                 compileModule(protoProgram, fromModule, processedModules);
 
                 if (!connectedPads.count(pad)) 
-                    protoProgram.push_back(Instruction(OP_RESET_INPUT, module, pad));
+                    protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                else
+                    protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
 
                 connectedPads.insert(pad);
-
-                protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
-
             }
         }
     }
@@ -330,9 +349,8 @@ void ConnectionGraph::processSample(int module, float fs)
         case OP_PROCESS:
             modules[i.param0]->process((uint32_t)fs);
             break;
-        case OP_RESET_INPUT:
-            modules[i.param0]->sample_resetInput(i.param1);
-            break;
+        case OP_SET_OUTPUT_TO_INPUT:
+            modules[i.param2]->sample_resetInput(i.param3);
         case OP_ADD_OUTPUT_TO_INPUT:
             out = modules[i.param0]->sample_getOutput(i.param1);
             modules[i.param2]->sample_addToInput(i.param3, out);
@@ -390,9 +408,8 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             case OP_PROCESS:
                 modules[i.param0]->process((uint32_t)fs);
                 break;
-            case OP_RESET_INPUT:
-                modules[i.param0]->sample_resetInput(i.param1);
-                break;
+            case OP_SET_OUTPUT_TO_INPUT:
+                modules[i.param2]->sample_resetInput(i.param3);
             case OP_ADD_OUTPUT_TO_INPUT:
                 out = modules[i.param0]->sample_getOutput(i.param1);
                 modules[i.param2]->sample_addToInput(i.param3, out);
@@ -408,9 +425,8 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             case OP_B_PROCESS:
                 modules[i.param0]->block_process((uint32_t)fs);
                 break;
-            case OP_B_RESET_INPUT:
-                modules[i.param0]->block_resetInput(i.param1);
-                break;
+            case OP_B_SET_OUTPUT_TO_INPUT:
+                modules[i.param2]->block_resetInput(i.param3);
             case OP_B_ADD_OUTPUT_TO_INPUT:
                 modules[i.param0]->block_getOutput(i.param1, buf);
                 modules[i.param2]->block_addToInput(i.param3, buf);

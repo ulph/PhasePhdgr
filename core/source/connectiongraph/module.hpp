@@ -69,8 +69,11 @@ private:
 
 
     // sample to block helpers
-    void unbuffer_input(int inputPad, int i) {
+    void unbuffer_set_input(int inputPad, int i) {
         inputs[inputPad].value = inputs[inputPad].values[i];
+    }
+    void unbuffer_add_input(int inputPad, int i) {
+        inputs[inputPad].value += inputs[inputPad].values[i];
     }
     void unbuffer_clear(int inputPad, int i) {
         inputs[inputPad].values[i] = 0.0f;
@@ -78,7 +81,10 @@ private:
     void buffer_clear(int outputPad, int i) {
         outputs[outputPad].values[i] = 0.0f;
     }
-    void buffer_output(int outputPad, int i) {
+    void buffer_set_output(int outputPad, int i) {
+        outputs[outputPad].values[i] = outputs[outputPad].value;
+    }
+    void buffer_add_output(int outputPad, int i) {
         outputs[outputPad].values[i] += outputs[outputPad].value;
     }
 

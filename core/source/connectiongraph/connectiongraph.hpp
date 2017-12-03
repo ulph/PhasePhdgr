@@ -41,7 +41,7 @@ protected:
     const bool forceSampleWise;
 
 public:
-    static const int k_blockSize = 2;
+    static const int k_blockSize = 1;//32;
     struct SampleBuffer {
         int module;
         int pad;

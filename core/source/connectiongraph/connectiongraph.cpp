@@ -215,14 +215,20 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                     case OP_PROCESS:
                         if (sampleWiseEntrypoints.count(instr_.param0)) {
                             for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
-                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_INPUT, instr_.param0, port, n));
+                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_ADD_INPUT, instr_.param0, port, n));
+                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_CLEAR_INPUT, instr_.param0, port, n));
                             }
                         }
                         expandedSegment.push_back(instr_);
+                        if (sampleWiseEntrypoints.count(instr_.param0)) {
+                            for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
+                                expandedSegment.push_back(Instruction(OP_CLEAR_INPUT, instr_.param0, port));
+                            }
+                        }
                         break;
                     case OP_SET_OUTPUT_TO_INPUT:
                         if (getProcessingType(instr_.param2) == BlockWise) {
-                            expandedSegment.push_back(Instruction(OP_X_BUFFER_CLEAR, instr_.param0, instr_.param1, n));
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_CLEAR_OUTPUT, instr_.param0, instr_.param1, n));
                         }
                     case OP_ADD_OUTPUT_TO_INPUT:
                         if (getProcessingType(instr_.param2) == BlockWise) {
@@ -231,7 +237,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                                 instr__.opcode = instr__.opcode == OP_SET_OUTPUT_TO_INPUT ? OP_B_SET_OUTPUT_TO_INPUT : OP_B_ADD_OUTPUT_TO_INPUT;
                                 postLoopInstructions[j] = instr__;
                             }
-                            expandedSegment.push_back(Instruction(OP_X_BUFFER_OUTPUT, instr_.param0, instr_.param1, n));
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_ADD_OUTPUT, instr_.param0, instr_.param1, n));
                         }
                         else {
                             expandedSegment.push_back(instr_);
@@ -278,6 +284,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
 }
 
 void ConnectionGraph::printProgram(const vector<Instruction>& p) {
+    // TODO - not threadsafe
     for (int i = 0; i < p.size(); ++i) {
         const auto& instr = p[i];
         std::cout << i << ": ";
@@ -286,6 +293,9 @@ void ConnectionGraph::printProgram(const vector<Instruction>& p) {
         case OP_PROCESS:
             std::cout << "OP_PROCESS " << instr.param0; 
             break;
+        case OP_CLEAR_INPUT:
+            std::cout << "OP_CLEAR_INPUT " << instr.param0 << "," << instr.param1;
+            break;
         case OP_SET_OUTPUT_TO_INPUT:
             std::cout << "OP_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
             break;
@@ -293,17 +303,24 @@ void ConnectionGraph::printProgram(const vector<Instruction>& p) {
             std::cout << "OP_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3; 
             break;
 
-        case OP_X_UNBUFFER_CLEAR:
-            std::cout << "OP_X_UNBUFFER_CLEAR " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+        case OP_X_UNBUFFER_CLEAR_INPUT:
+            std::cout << "OP_X_UNBUFFER_CLEAR_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
             break;
-        case OP_X_BUFFER_CLEAR:
-            std::cout << "OP_X_BUFFER_CLEAR " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+        case OP_X_BUFFER_CLEAR_OUTPUT:
+            std::cout << "OP_X_BUFFER_CLEAR_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
             break;
 
-        case OP_X_UNBUFFER_INPUT:
+        case OP_X_UNBUFFER_SET_INPUT:
+            std::cout << "OP_X_UNBUFFER_SET_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+        case OP_X_BUFFER_SET_OUTPUT:
+            std::cout << "OP_X_BUFFER_SET_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+
+        case OP_X_UNBUFFER_ADD_INPUT:
             std::cout << "OP_X_UNBUFFER_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
             break;
-        case OP_X_BUFFER_OUTPUT:
+        case OP_X_BUFFER_ADD_OUTPUT:
             std::cout << "OP_X_BUFFER_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
             break;
 
@@ -433,7 +450,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             for (size_t n = 0; n < inBufferSize; ++n) {
                 auto* m = modules[inBuffers[n].module];
                 auto p = inBuffers[n].pad;
-                m->unbuffer_input(p, i);
+                m->unbuffer_set_input(p, i);
             }
 
             // actual process
@@ -443,7 +460,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             for (size_t n = 0; n < outBufferSize; ++n) {
                 auto* m = modules[outBuffers[n].module];
                 auto p = outBuffers[n].pad;
-                m->buffer_output(p, i);
+                m->buffer_set_output(p, i);
             }
         }
     }
@@ -458,6 +475,9 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             case OP_PROCESS:
                 modules[i.param0]->process((uint32_t)fs);
                 break;
+            case OP_CLEAR_INPUT:
+                modules[i.param0]->sample_resetInput(i.param1);
+                break;
             case OP_SET_OUTPUT_TO_INPUT:
                 modules[i.param2]->sample_resetInput(i.param3);
             case OP_ADD_OUTPUT_TO_INPUT:
@@ -465,17 +485,23 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
                 modules[i.param2]->sample_addToInput(i.param3, out);
                 break;
 
-            case OP_X_UNBUFFER_CLEAR:
+            case OP_X_UNBUFFER_CLEAR_INPUT:
                 modules[i.param0]->unbuffer_clear(i.param1, i.param2);
                 break;
-            case OP_X_UNBUFFER_INPUT:
-                modules[i.param0]->unbuffer_input(i.param1, i.param2);
+            case OP_X_UNBUFFER_SET_INPUT:
+                modules[i.param0]->unbuffer_set_input(i.param1, i.param2);
                 break;
-            case OP_X_BUFFER_CLEAR:
+            case OP_X_UNBUFFER_ADD_INPUT:
+                modules[i.param0]->unbuffer_add_input(i.param1, i.param2);
+                break;
+            case OP_X_BUFFER_CLEAR_OUTPUT:
                 modules[i.param0]->buffer_clear(i.param1, i.param2);
                 break;
-            case OP_X_BUFFER_OUTPUT:
-                modules[i.param0]->buffer_output(i.param1, i.param2);
+            case OP_X_BUFFER_SET_OUTPUT:
+                modules[i.param0]->buffer_set_output(i.param1, i.param2);
+                break;
+            case OP_X_BUFFER_ADD_OUTPUT:
+                modules[i.param0]->buffer_add_output(i.param1, i.param2);
                 break;
 
             case OP_B_PROCESS:

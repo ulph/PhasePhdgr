@@ -154,16 +154,12 @@ void ConnectionGraph::compileProgram(int module)
         findRecursionGroups(module, std::vector<int>());
 
         // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first
-        std::sort(
+        std::partition(
             cables.begin(),
             cables.end(),
-            [this](const Cable *a, const Cable *b) {
+            [this](const Cable *a) {
                 auto aFromType = getProcessingType(a->getFromModule());
                 auto aToType = getProcessingType(a->getToModule());
-
-                auto bFromType = getProcessingType(b->getFromModule());
-                auto bToType = getProcessingType(b->getToModule());
-
                 return aFromType != aToType;
             }
         );
@@ -176,13 +172,16 @@ void ConnectionGraph::compileProgram(int module)
     compilationStatus = module;
 
     if (!forceSampleWise) {
+        std::cout << "protoProgram" << std::endl;
+        printProgram(protoProgram);
         finalizeProgram(protoProgram);
     }
     else {
         program = protoProgram;
     }
 
-    printProgram();
+    std::cout << "program" << std::endl;
+    printProgram(program);
 }
 
 void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
@@ -201,6 +200,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
             while (type == SampleWise) {
                 auto instr_ = protoProgram.at(i);
                 type = getProcessingType(instr_.param0);
+                if (type == BlockWise) break;
                 segment.push_back(instr_);
                 i++;
             }
@@ -276,9 +276,9 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     }
 }
 
-void ConnectionGraph::printProgram() {
-    for (int i = 0; i < program.size(); ++i) {
-        const auto& instr = program[i];
+void ConnectionGraph::printProgram(const vector<Instruction>& p) {
+    for (int i = 0; i < p.size(); ++i) {
+        const auto& instr = p[i];
         std::cout << i << ": ";
         switch (instr.opcode) {
 
@@ -364,9 +364,10 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
 
     std::set<int> connectedPads;
     for (int i = 0; i < cables.size(); ++i) {
+        const auto* c = cables.at(i);
+
         // Check if other modules are connected to this pad
         for (int pad = 0; pad < m->getNumInputPads(); pad++) {
-            const auto* c = cables.at(i);
             if (c->isConnected(module, pad)) {
                 auto fromModule = c->getFromModule();
 

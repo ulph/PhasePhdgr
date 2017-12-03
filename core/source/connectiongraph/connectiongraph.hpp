@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <functional>
 
 #include "phasephckr/docs.hpp"
 
@@ -27,7 +28,7 @@ protected:
 
     Module* getModule(int id);
 
-    void printProgram();
+    void printProgram(const vector<Instruction>& p);
 
     enum ProccesingType{
         BlockWise,
@@ -40,7 +41,7 @@ protected:
     const bool forceSampleWise;
 
 public:
-    static const int k_blockSize = 32;
+    static const int k_blockSize = 2;
     struct SampleBuffer {
         int module;
         int pad;

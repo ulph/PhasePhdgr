@@ -9,6 +9,7 @@ void Module::block_process(uint32_t fs) {
         }
         process(fs);
         for (int k = 0; k < outputsSize; ++k) {
+            buffer_clear(k, i);
             buffer_output(k, i);
         }
     }

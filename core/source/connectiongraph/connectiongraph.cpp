@@ -26,6 +26,10 @@ public:
     bool isConnected(int _toModule, int _toPad) const {
         return toModule == _toModule && toPad == _toPad;
     }
+    bool isConnectedFrom(int _fromModule, int _fromPad) const {
+        return fromModule == _fromModule && fromPad == _fromPad;
+    }
+
 };
 
 ConnectionGraph::ConnectionGraph(bool forceSampleWise) 
@@ -168,7 +172,8 @@ void ConnectionGraph::compileProgram(int module)
     program.clear();
     std::vector<Instruction> protoProgram;
     std::set<int> processedModules;
-    compileModule(protoProgram, module, processedModules);
+    std::set<int> visitedModules;
+    compileModule(protoProgram, module, processedModules, visitedModules);
     compilationStatus = module;
 
     if (!forceSampleWise) {
@@ -370,13 +375,50 @@ ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
     return BlockWise;
 }
 
-void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules)
+void ConnectionGraph::compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules)
 {
+    if (visitedModules.count(module)) return;
+    visitedModules.insert(module);
+
+    if (processedModules.count(module)) return;
+
     Module *m = getModule(module);
+    
+    std::set<int> connectedPads;
+
+    for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+        for (int i = 0; i < cables.size(); ++i) {
+            const auto* c = cables.at(i);
+            if (c->isConnected(module, pad)) {
+                auto fromModule = c->getFromModule();
+                auto type = getProcessingType(fromModule);
+                if (type == SampleWise) {
+                    compileAllEntryPoints(protoProgram, fromModule, processedModules, visitedModules);
+                }
+                else if (type == BlockWise) {
+                    compileModule(protoProgram, fromModule, processedModules, visitedModules);
+                    if (!connectedPads.count(pad))
+                        protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                    else
+                        protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                    connectedPads.insert(pad);
+                }
+            }
+        }
+    }
+}
+
+void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules)
+{
+    if (getProcessingType(module) == SampleWise) {
+        compileAllEntryPoints(protoProgram, module, processedModules, visitedModules);
+    }
 
     // Check if this module is already processed by the compiler
     if (processedModules.count(module)) return;
     processedModules.insert(module);
+
+    Module *m = getModule(module);
 
     // Iterate over all input pads
 
@@ -389,7 +431,12 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
             if (c->isConnected(module, pad)) {
                 auto fromModule = c->getFromModule();
 
-                compileModule(protoProgram, fromModule, processedModules);
+                if (getProcessingType(module) == SampleWise && getProcessingType(fromModule) == BlockWise) {
+                    assert(visitedModules.count(module)); // should be no need to pass visitedModules around
+                    continue;
+                }
+
+                compileModule(protoProgram, fromModule, processedModules, visitedModules);
 
                 if (!connectedPads.count(pad)) 
                     protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));

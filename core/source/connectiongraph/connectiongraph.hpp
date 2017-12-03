@@ -23,7 +23,8 @@ protected:
     int compilationStatus;
     void compileProgram(int module);
     void findRecursionGroups(int module, std::vector<int> processedModulesToHere);
-    void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules);
+    void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
+    void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void finalizeProgram(std::vector<Instruction>& protoProgram);
 
     Module* getModule(int id);
@@ -41,7 +42,7 @@ protected:
     const bool forceSampleWise;
 
 public:
-    static const int k_blockSize = 1;//32;
+    static const int k_blockSize = 32;
     struct SampleBuffer {
         int module;
         int pad;

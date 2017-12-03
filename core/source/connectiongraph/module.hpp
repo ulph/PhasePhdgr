@@ -18,7 +18,7 @@ private:
 public:
     std::string name;
     float value;
-    float values[ConnectionGraph::k_blockSize];
+    float values[ConnectionGraph::k_blockSize] = { 0.0f };
     std::string unit;
     Pad(const char *name) : name(name), value(0.0f), unit("") { init(); }
     Pad(const char *name, float value) : name(name), value(value), unit("") { init(); }
@@ -72,7 +72,14 @@ private:
     void unbuffer_input(int inputPad, int i) {
         inputs[inputPad].value = inputs[inputPad].values[i];
     }
+    void unbuffer_clear(int inputPad, int i) {
+        inputs[inputPad].values[i] = 0.0f;
+    }
+    void buffer_clear(int outputPad, int i) {
+        outputs[outputPad].values[i] = 0.0f;
+    }
     void buffer_output(int outputPad, int i) {
+//        outputs[outputPad].values[i] += outputs[outputPad].value;
         outputs[outputPad].values[i] = outputs[outputPad].value;
     }
 

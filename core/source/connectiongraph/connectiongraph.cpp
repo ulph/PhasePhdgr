@@ -179,16 +179,11 @@ void ConnectionGraph::compileProgram(int module, float fs)
     compilationStatus = module;
 
     if (!forceSampleWise) {
-//        std::cout << "protoProgram" << std::endl;
-//        printProgram(protoProgram);
         finalizeProgram(protoProgram);
     }
     else {
         program = protoProgram;
     }
-
-//    std::cout << "program" << std::endl;
-//    printProgram(program);
 }
 
 void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {

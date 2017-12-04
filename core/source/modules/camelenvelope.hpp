@@ -19,6 +19,7 @@ public:
         OffDecay
     };
 private:
+    float targetValue = 0.f;
     float value = 0.f;
     float gate = 0.f;
     float gateOnTargetValue = 0.f;

@@ -58,8 +58,6 @@ void CamelEnvelope::process() {
     float offAttackPow = limitValueLow(inputs[10].value, 0.f);
     float offDecayPow = limitValueLow(inputs[11].value, 0.f);
 
-    float targetValue = 0.f;
-
     // no targets can be greater than 1
     onBumpHeight = (sustainHeight + onBumpHeight) > 1.0f ? 1.0f - sustainHeight : onBumpHeight;
     float hangoverValue = (gateOnTargetValue + offBumpHeight) > 1.0 ? 1.0f - offBumpHeight : gateOnTargetValue;

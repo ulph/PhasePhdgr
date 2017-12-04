@@ -15,8 +15,9 @@ ChamberlinFilter::ChamberlinFilter()
 }
 
 void ChamberlinFilter::process() {
+    const float stabF = 1.f / 6.f;
     float x = inputs[0].value;
-    float wc = limit(inputs[1].value, 0.f, fs * 0.125f);
+    float wc = limit(inputs[1].value, 0.f, fs * stabF);
     float q = 1.f - limit(inputs[2].value, 0.f, 1.f);
     float f = 2.f * sinf((float)M_PI*wc / (float)fs);
     low += f * band;
@@ -44,8 +45,9 @@ OpenChamberlinFilter::OpenChamberlinFilter()
 }
 
 void OpenChamberlinFilter::process() {
+    const float stabF = 1.f / 6.f;
     float x = inputs[0].value;
-    float wc = limit(inputs[1].value, 0.f, fs * 0.125f);
+    float wc = limit(inputs[1].value, 0.f, fs * stabF);
     float q = 1.f - limit(inputs[2].value, 0.f, 1.f);
     float f = 2.f * sinf((float)M_PI*wc / (float)fs);
     float low = inputs[3].value;

@@ -97,7 +97,7 @@ public:
 
         cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory)); // DEPRECATE ?
         cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // DEPRECATE ?
-        cg.registerModule("SVF", &(TrapezoidalSVF::factory));
+        cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
         // TODO: the mixing variant of SVF (or suchlike) for an 'open' circuit implementation
 
         cg.registerModule("RCHP", &(RcHp::factory));

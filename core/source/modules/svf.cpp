@@ -95,10 +95,11 @@ void TrapezoidalTanSVF::process() {
     float v1 = a1*ic1eq + a2*v3;
     float v2 = ic2eq + a2*ic1eq + a3*v3;
 
+    // store states
     ic1eq = 2.0f * v1 - ic1eq;
     ic2eq = 2.0f * v2 - ic2eq;
 
-    // store
+    // store outputs
     float low = v2;
     float band = v1;
     float high = v0 - k*v1 - v2;

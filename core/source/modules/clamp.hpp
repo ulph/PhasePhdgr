@@ -7,7 +7,7 @@ class Clamp : public ModuleCRTP<Clamp>
 {
 public:
     Clamp();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new Clamp(); }
 };
 

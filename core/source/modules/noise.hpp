@@ -9,7 +9,7 @@ private:
     uint32_t val;
 public:
     Noise();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new Noise(); }
     virtual Module *clone() const; // to initialize seed
 };

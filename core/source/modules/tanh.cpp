@@ -5,7 +5,7 @@ TanH::TanH() {
     outputs.push_back(Pad("tanh"));
 }
 
-void TanH::process(uint32_t fs) {
+void TanH::process() {
     outputs[0].value = tanhf(inputs[0].value);
 }
 
@@ -15,7 +15,7 @@ NormalizedTanH::NormalizedTanH() {
     outputs.push_back(Pad("tanh"));
 }
 
-void NormalizedTanH::process(uint32_t fs) {
+void NormalizedTanH::process() {
     float s = inputs[1].value;
     float f = 1.0f / tanhf(s);
     outputs[0].value = tanhf(inputs[0].value * s) * f;

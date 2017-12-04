@@ -8,14 +8,14 @@ ScaleShift::ScaleShift() {
     outputs.push_back(Pad("output"));
 }
 
-void ScaleShift::process(uint32_t fs) {
+void ScaleShift::process() {
     auto a = inputs[0].value;
     auto b = inputs[1].value;
     auto c = inputs[2].value;
     outputs[0].value = a * b + c;
 }
 
-void ScaleShift::block_process(uint32_t fs) {
+void ScaleShift::block_process() {
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];
@@ -32,7 +32,7 @@ ShiftScale::ShiftScale() {
     outputs.push_back(Pad("output"));
 }
 
-void ShiftScale::process(uint32_t fs) {
+void ShiftScale::process() {
     auto a = inputs[0].value;
     auto b = inputs[1].value;
     auto c = inputs[2].value;
@@ -40,7 +40,7 @@ void ShiftScale::process(uint32_t fs) {
     outputs[0].value = (a + b) * c;
 }
 
-void ShiftScale::block_process(uint32_t fs) {
+void ShiftScale::block_process() {
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];
@@ -59,7 +59,7 @@ ScaleShiftMul::ScaleShiftMul() {
     outputs.push_back(Pad("output"));
 }
 
-void ScaleShiftMul::process(uint32_t fs) {
+void ScaleShiftMul::process() {
     auto a = inputs[0].value;
     auto b = inputs[1].value;
     auto c = inputs[2].value;
@@ -68,7 +68,7 @@ void ScaleShiftMul::process(uint32_t fs) {
     outputs[0].value = (a * b + c) * d;
 }
 
-void ScaleShiftMul::block_process(uint32_t fs) {
+void ScaleShiftMul::block_process() {
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];

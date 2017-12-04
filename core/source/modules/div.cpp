@@ -8,7 +8,7 @@ Div::Div()
     outputs.push_back(Pad("NaN"));
 }
 
-void Div::process(uint32_t fs) {
+void Div::process() {
     auto n = inputs[0].value;
     auto d = inputs[1].value;
     if (d == 0.f) {
@@ -29,7 +29,7 @@ Mod::Mod()
     outputs.push_back(Pad("NaN"));
 }
 
-void Mod::process(uint32_t fs) {
+void Mod::process() {
     auto n = inputs[0].value;
     auto d = inputs[1].value;
     if (d == 0.f) {

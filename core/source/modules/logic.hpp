@@ -6,6 +6,6 @@ class Threshold : public ModuleCRTP<Threshold>
 {
 public:
     Threshold();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new Threshold(); }
 };

@@ -8,7 +8,7 @@ TempoToTime::TempoToTime() {
     outputs.push_back(Pad("freq"));
 }
 
-void TempoToTime::process(uint32_t fs) {
+void TempoToTime::process() {
     float beats = inputs[0].value;
     float bpm = inputs[1].value;
     if(beats <= 0 || bpm <= 0) {
@@ -30,7 +30,7 @@ Transpose::Transpose() {
     outputs.push_back(Pad("freq"));
 }
 
-void Transpose::process(uint32_t fs) {
+void Transpose::process() {
     float freq_in = inputs[0].value;
     if(freq_in <= 0){
         outputs[0].value = 0.f;

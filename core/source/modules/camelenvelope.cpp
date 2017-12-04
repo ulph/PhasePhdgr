@@ -41,18 +41,16 @@ inline void CamelEnvelope::changeState(EnvelopeStage newState) {
     stageSamples = 0.f;
 }
 
-void CamelEnvelope::process(uint32_t fs) {
+void CamelEnvelope::process() {
     float newGate = inputs[0].value;
 
-    float f_fs = (float)fs;
-
     float onBumpHeight = limitValue(inputs[1].value, 0.0f, 1.0f);
-    onAttackSamples = limitValueLow(inputs[2].value, 0.f) * f_fs;
-    onDecaySamples = limitValueLow(inputs[3].value, 0.f) * f_fs;
+    onAttackSamples = limitValueLow(inputs[2].value, 0.f) * fs;
+    onDecaySamples = limitValueLow(inputs[3].value, 0.f) * fs;
     float sustainHeight = limitValue(inputs[4].value, 0.0f, 1.0f);
     float offBumpHeight = limitValue(inputs[5].value, 0.0f, 1.0f);
-    offAttackSamples = limitValueLow(inputs[6].value, 0.f) * f_fs;
-    offDecaySamples = limitValueLow(inputs[7].value, 0.f) * f_fs;
+    offAttackSamples = limitValueLow(inputs[6].value, 0.f) * fs;
+    offDecaySamples = limitValueLow(inputs[7].value, 0.f) * fs;
 
     float onAttackPow = limitValueLow(inputs[8].value, 0.f);
     float onDecayPow = limitValueLow(inputs[9].value, 0.f);

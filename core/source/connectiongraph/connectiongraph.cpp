@@ -149,8 +149,10 @@ float ConnectionGraph::getOutput(int module, int pad)
     return m->sample_getOutput(pad);
 }
 
-void ConnectionGraph::compileProgram(int module)
+void ConnectionGraph::compileProgram(int module, float fs)
 {
+    fsCompiled = fs;
+
     // parse the graph once to find all modules involved in recursion loops
     moduleRecursionGroups.clear();
 
@@ -420,6 +422,8 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
 
     Module *m = getModule(module);
 
+    m->setFs(fsCompiled);
+
     // Iterate over all input pads
 
     std::set<int> connectedPads;
@@ -454,14 +458,15 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
 
 void ConnectionGraph::processSample(int module, float fs)
 {
-    if (module != compilationStatus) compileProgram(module);
+    if (fs != fsCompiled) compilationStatus = NOT_COMPILED;
+    if (module != compilationStatus) compileProgram(module, fs);
 
     float out = 0.0f;
 
     for(const Instruction &i : program) {
         switch(i.opcode) {
         case OP_PROCESS:
-            modules[i.param0]->process((uint32_t)fs);
+            modules[i.param0]->process();
             break;
         case OP_SET_OUTPUT_TO_INPUT:
             modules[i.param2]->sample_resetInput(i.param3);
@@ -477,7 +482,8 @@ void ConnectionGraph::processSample(int module, float fs)
 }
 
 void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers) {
-    if (module != compilationStatus) compileProgram(module);
+    if (fs != fsCompiled) compilationStatus = NOT_COMPILED;
+    if (module != compilationStatus) compileProgram(module, fs);
 
     const size_t inBufferSize = inBuffers.size();
     const size_t outBufferSize = outBuffers.size();
@@ -520,7 +526,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             switch (i.opcode) {
 
             case OP_PROCESS:
-                modules[i.param0]->process((uint32_t)fs);
+                modules[i.param0]->process();
                 break;
             case OP_CLEAR_INPUT:
                 modules[i.param0]->sample_resetInput(i.param1);
@@ -552,7 +558,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
                 break;
 
             case OP_B_PROCESS:
-                modules[i.param0]->block_process((uint32_t)fs);
+                modules[i.param0]->block_process();
                 break;
             case OP_B_SET_OUTPUT_TO_INPUT:
                 modules[i.param2]->block_resetInput(i.param3);

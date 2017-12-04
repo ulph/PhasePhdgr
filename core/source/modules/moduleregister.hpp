@@ -34,7 +34,7 @@ public:
         inputs.push_back(Pad("value"));
         outputs.push_back(Pad("value"));
     }
-    void process(uint32_t fs) {
+    void process() {
         outputs[0].value = inputs[0].value;
     }
     virtual std::string docString() { return "A 'constant' of questionable value."; }
@@ -50,7 +50,7 @@ class Knob : public ModuleCRTP<Knob> {
         inputs.push_back(Pad("max"));
         outputs.push_back(Pad("value"));
     }
-    void process(uint32_t fs) {
+    void process() {
         outputs[0].value = inputs[0].value;
     }
     static Module* factory() { return new Knob(); }

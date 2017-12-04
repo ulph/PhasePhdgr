@@ -39,7 +39,7 @@ public:
         delete[] buffer;
     };
 
-    void process(uint32_t fs) {
+    void process() {
         // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
 
         if (clearFlag < 0.f && Module::inputs[3].value >= 0) {

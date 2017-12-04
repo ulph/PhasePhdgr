@@ -10,8 +10,8 @@ private:
     float phase;
 public:
     Phase();
-    void process(uint32_t fs);
-    void block_process(uint32_t fs);
+    void process();
+    void block_process();
     static Module* factory() { return new Phase(); }
 };
 

@@ -8,7 +8,7 @@ Clamp::Clamp()
     outputs.push_back(Pad("clamp"));
 }
 
-void Clamp::process(uint32_t fs)
+void Clamp::process()
 {
     auto v = inputs[0].value;
     auto lo = inputs[1].value;

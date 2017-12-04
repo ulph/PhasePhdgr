@@ -7,7 +7,7 @@ class CrossFade : public ModuleCRTP<CrossFade>
 {
 public:
     CrossFade();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new CrossFade(); }
 };
 

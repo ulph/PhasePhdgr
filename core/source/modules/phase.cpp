@@ -18,7 +18,7 @@ static inline float incrementPhase(float p, float p0, float f, float t, float t_
     return p;
 }
 
-void Phase::process(uint32_t fs)
+void Phase::process()
 {
     auto f_fs = (float)fs;
 
@@ -32,7 +32,7 @@ void Phase::process(uint32_t fs)
     outputs[0].value = phase;
 }
 
-void Phase::block_process(uint32_t fs)
+void Phase::block_process()
 {
     auto f_fs = (float)fs;
     

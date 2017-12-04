@@ -8,7 +8,7 @@ Quantize::Quantize()
     outputs.push_back(Pad("quant"));
 }
 
-void Quantize::process(uint32_t fs)
+void Quantize::process()
 {
     float bits = inputs[1].value*15.f; // one bit for sign
 

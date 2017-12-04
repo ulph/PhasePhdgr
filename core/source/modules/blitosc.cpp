@@ -89,7 +89,7 @@ inline void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
     internalPhase += nFreq;
 }
 
-inline void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, float freq) {
+inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
 
@@ -98,7 +98,7 @@ inline void BlitOsc::integrateBuffer(uint32_t fs, float nFreq, float shape, floa
     last_cumSum = cumSum; // x
     cumSum = cumSum*leak + buf[bufPos] + (1.f - shape)*nFreq; // x+1
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, (float)fs);
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fsInv);
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;
@@ -118,16 +118,16 @@ inline void BlitOsc::resetOnSignal(float resetSignal) {
     last_resetSignal = resetSignal;
 }
 
-void BlitOsc::process(uint32_t fs)
+void BlitOsc::process()
 {
-    float freq = limit(inputs[0].value, 1.f, float(fs)*0.5f);
+    float freq = limit(inputs[0].value, 1.f, fs*0.5f);
     float shape = limit(inputs[1].value, 0.0f, 1.0f);
     float pwm = limit(inputs[2].value);
     float syncFreq = inputs[3].value;
     float syncAmount = 2.f*(1.f-limit(inputs[4].value, 0.f, 1.f)) - 1.f;
 
-    float nFreq = 2.f*freq/(float)fs; // TODO get this from inBus wall directly
-    float syncNFreq = 2.f*syncFreq/(float)fs; // TODO get this from inBus wall directly
+    float nFreq = 2.f*freq * fsInv; // TODO get this from inBus wall directly
+    float syncNFreq = 2.f*syncFreq * fsInv; // TODO get this from inBus wall directly
 
     if(nFreq == 0) return; // nothing to do, just exit
 
@@ -139,6 +139,6 @@ void BlitOsc::process(uint32_t fs)
 
     syncOnAuxPhase(internalPhase, internalSyncPhase, syncAmount, syncNFreq, nFreq, shape);
 
-    integrateBuffer(fs, nFreq, shape, freq);
+    integrateBuffer(nFreq, shape, freq);
 
 }

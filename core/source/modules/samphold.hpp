@@ -10,7 +10,7 @@ private:
     float heldValue;
 public:
     SampleAndHold();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new SampleAndHold(); }
 };
 

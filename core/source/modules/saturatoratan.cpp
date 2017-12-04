@@ -6,12 +6,12 @@ Atan::Atan()
     outputs.push_back(Pad("out"));
 }
 
-void Atan::process(uint32_t fs)
+void Atan::process()
 {
     outputs[0].value = atanf(inputs[0].value);
 }
 
-void Atan::block_process(uint32_t fs)
+void Atan::block_process()
 {
     for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         outputs[0].values[i] = atanf(inputs[0].values[i]);
@@ -26,14 +26,14 @@ SaturatorAtan::SaturatorAtan()
     outputs.push_back(Pad("out"));
 }
 
-void SaturatorAtan::process(uint32_t fs)
+void SaturatorAtan::process()
 {
     float s = inputs[1].value;
     float f = 1.0f/atanf(s);
     outputs[0].value = atanf(inputs[0].value * s) * f;
 }
 
-void SaturatorAtan::block_process(uint32_t fs)
+void SaturatorAtan::block_process()
 {
     for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         float s = inputs[1].values[i];
@@ -52,7 +52,7 @@ StereoSaturatorAtan::StereoSaturatorAtan()
     outputs.push_back(Pad("right"));
 }
 
-void StereoSaturatorAtan::process(uint32_t fs)
+void StereoSaturatorAtan::process()
 {
     float s = inputs[2].value;
     float f = 1.0f/atanf(s);
@@ -60,7 +60,7 @@ void StereoSaturatorAtan::process(uint32_t fs)
     outputs[1].value = atanf(inputs[1].value * s) * f;
 }
 
-void StereoSaturatorAtan::block_process(uint32_t fs)
+void StereoSaturatorAtan::block_process()
 {
     for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         float s = inputs[2].values[i];

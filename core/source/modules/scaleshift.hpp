@@ -7,8 +7,8 @@ class ScaleShift : public ModuleCRTP<ScaleShift>
 {
 public:
     ScaleShift();
-    void process(uint32_t fs);
-    void block_process(uint32_t fs) override;
+    void process();
+    void block_process() override;
     virtual std::string docString() {
         return "a * b + c";
     }
@@ -19,8 +19,8 @@ class ShiftScale : public ModuleCRTP<ShiftScale>
 {
 public:
     ShiftScale();
-    void process(uint32_t fs);
-    void block_process(uint32_t fs) override;
+    void process();
+    void block_process() override;
     virtual std::string docString() {
         return "(a + b) * c";
     }
@@ -31,8 +31,8 @@ class ScaleShiftMul : public ModuleCRTP<ScaleShiftMul>
 {
 public:
     ScaleShiftMul();
-    void process(uint32_t fs);
-    void block_process(uint32_t fs) override;
+    void process();
+    void block_process() override;
     virtual std::string docString() {
         return "(a * b + c) * d";
     }

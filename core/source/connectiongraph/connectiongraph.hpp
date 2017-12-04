@@ -21,7 +21,7 @@ protected:
     std::vector<Cable*> cables;
     std::vector<Instruction> program;
     int compilationStatus;
-    void compileProgram(int module);
+    void compileProgram(int module, float fs);
     void findRecursionGroups(int module, std::vector<int> processedModulesToHere);
     void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
@@ -40,6 +40,8 @@ protected:
     ProccesingType getProcessingType(int module);
 
     const bool forceSampleWise;
+
+    float fsCompiled = 48000.f;
 
 public:
     static const int k_blockSize = 32;

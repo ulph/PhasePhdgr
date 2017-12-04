@@ -28,7 +28,7 @@ void Biquad::init_state()
  *
  * a0 is assumed to be equal to 1. If not, all coefficients should be normalized by a0
  */
-void Biquad::process(uint32_t fs) {
+void Biquad::process() {
   float a1, a2, b0, b1, b2;
   a1 = inputs[1].value;
   a2 = inputs[2].value;
@@ -67,9 +67,9 @@ LowPass::LowPass()
  *        a1 =  -2*cos(w0)
  *        a2 =   1 - alpha
  */
-void LowPass::process(uint32_t fs)
+void LowPass::process()
 {
-  float f0 = inputs[0].value / (float)fs;
+  float f0 = inputs[0].value * fsInv;
   f0 = f0>0.49f?0.49f:f0;
 
   float w0 = 2.f * (float)M_PI * f0;
@@ -110,9 +110,9 @@ PeakingEQ::PeakingEQ()
  *   a1 =  -2*cos(w0)
  *   a2 =   1 - alpha/A
  */
-void PeakingEQ::process(uint32_t fs)
+void PeakingEQ::process()
 {
-    float w0 = 2.f * (float)M_PI * inputs[0].value / fs;
+    float w0 = 2.f * (float)M_PI * inputs[0].value * fsInv;
     float alpha = sinf(w0) / (2.0f * inputs[2].value);
     float A = powf(10.f, inputs[1].value/40.f);
 

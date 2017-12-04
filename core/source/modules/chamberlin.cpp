@@ -14,7 +14,7 @@ ChamberlinFilter::ChamberlinFilter()
     outputs.push_back(Pad("notch"));
 }
 
-void ChamberlinFilter::process(uint32_t fs) {
+void ChamberlinFilter::process() {
     float x = inputs[0].value;
     float wc = limit(inputs[1].value, 0.f, fs * 0.125f);
     float q = 1.f - limit(inputs[2].value, 0.f, 1.f);
@@ -43,7 +43,7 @@ OpenChamberlinFilter::OpenChamberlinFilter()
     outputs.push_back(Pad("notch"));
 }
 
-void OpenChamberlinFilter::process(uint32_t fs) {
+void OpenChamberlinFilter::process() {
     float x = inputs[0].value;
     float wc = limit(inputs[1].value, 0.f, fs * 0.125f);
     float q = 1.f - limit(inputs[2].value, 0.f, 1.f);

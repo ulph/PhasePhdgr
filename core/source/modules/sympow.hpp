@@ -7,7 +7,7 @@ class SymPow : public ModuleCRTP<SymPow>
 {
 public:
     SymPow();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new SymPow(); }
 };
 

@@ -6,7 +6,7 @@ class Biquad : public ModuleCRTP<Biquad>
 {
 public:
     Biquad();
-    virtual void process(uint32_t fs);
+    virtual void process();
     static Module* factory() { return new Biquad(); }
 
 private:
@@ -22,7 +22,7 @@ class LowPass : public ModuleCRTP<LowPass>
 {
 public:
     LowPass();
-    virtual void process(uint32_t fs);
+    virtual void process();
     static Module* factory() { return new LowPass(); }
 };
 
@@ -30,6 +30,6 @@ class PeakingEQ : public ModuleCRTP<PeakingEQ>
 {
 public:
   PeakingEQ();
-  virtual void process(uint32_t fs);
+  virtual void process();
   static Module *factory() {return new PeakingEQ(); }
 };

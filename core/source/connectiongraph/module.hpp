@@ -34,6 +34,8 @@ protected:
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
     void setName(const std::string &n);
+    float fs = 48000;
+    float fsInv = 1.f / fs;
 
 public:
     virtual ~Module() {}
@@ -52,8 +54,13 @@ public:
 private:
     std::string name;
 
+    void setFs(float newFs) {
+        fs = newFs;
+        fsInv = 1.f / fs;
+    }
+
     // sample processing
-    virtual void process(uint32_t fs) = 0;
+    virtual void process() = 0;
     float sample_getOutput(int outputPad) const {
         return outputs[outputPad].value;
     }
@@ -89,7 +96,7 @@ private:
     }
 
     // block processing
-    virtual void block_process(uint32_t fs);
+    virtual void block_process();
     void block_getOutput(int outputPad, float* buffer) const {
         memcpy(buffer, outputs[outputPad].values, sizeof(float)*ConnectionGraph::k_blockSize);
     }

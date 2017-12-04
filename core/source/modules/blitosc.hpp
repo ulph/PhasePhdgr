@@ -21,11 +21,11 @@ private:
     inline void incrementClocks(float nFreq, float syncNFreq);
     inline void blitOnePulse(float fraction, float multiplier);
     inline void blitForward(float& phase, float nFreq, float shape, float pwm);
-    inline void integrateBuffer(uint32_t fs, float nFreq, float shape, float freq);
+    inline void integrateBuffer(float nFreq, float shape, float freq);
     inline void syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new BlitOsc(); }
 };
 

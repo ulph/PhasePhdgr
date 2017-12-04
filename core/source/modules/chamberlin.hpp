@@ -11,7 +11,7 @@ private:
     float high;
 public:
     ChamberlinFilter();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new ChamberlinFilter(); }
 };
 
@@ -20,7 +20,7 @@ class OpenChamberlinFilter : public ModuleCRTP<OpenChamberlinFilter>
 {
 public:
     OpenChamberlinFilter();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new OpenChamberlinFilter(); }
 };
 

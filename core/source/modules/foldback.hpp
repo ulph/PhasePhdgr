@@ -9,7 +9,7 @@ protected:
     bool iterate(float *v, float scale);
 public:
     FoldBack();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new FoldBack(); }
 };
 

@@ -1,13 +1,13 @@
 #include "module.hpp"
 
-void Module::block_process(uint32_t fs) {
+void Module::block_process() {
     const size_t inputsSize = inputs.size();
     const size_t outputsSize = outputs.size();
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         for (int k = 0; k < inputsSize; ++k) {
             unbuffer_set_input(k, i);
         }
-        process(fs);
+        process();
         for (int k = 0; k < outputsSize; ++k) {
             buffer_set_output(k, i);
         }

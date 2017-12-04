@@ -9,7 +9,7 @@ SampleAndHold::SampleAndHold() :
     outputs.push_back(Pad("value"));
 }
 
-void SampleAndHold::process(uint32_t fs)
+void SampleAndHold::process()
 {
     float value = inputs[0].value;
     float trigger = inputs[1].value;

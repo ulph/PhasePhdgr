@@ -7,7 +7,7 @@ ClampInv::ClampInv() {
     outputs.push_back(Pad("output"));
 }
 
-void ClampInv::process(uint32_t fs) {
+void ClampInv::process() {
     float v = inputs[0].value;
     float lo = inputs[1].value;
     float hi = inputs[2].value;

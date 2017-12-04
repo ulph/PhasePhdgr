@@ -6,7 +6,7 @@ class TanH : public ModuleCRTP<TanH>
 {
 public:
     TanH();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new TanH(); }
 };
 
@@ -14,6 +14,6 @@ class NormalizedTanH : public ModuleCRTP<NormalizedTanH>
 {
 public:
     NormalizedTanH();
-    void process(uint32_t fs);
+    void process();
     static Module* factory() { return new NormalizedTanH(); }
 };

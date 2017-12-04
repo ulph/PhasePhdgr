@@ -6,11 +6,11 @@ Abs::Abs()
     outputs.push_back(Pad("abs"));
 }
 
-void Abs::process(uint32_t fs) {
+void Abs::process() {
     outputs[0].value = fabsf(inputs[0].value);
 }
 
-void Abs::block_process(uint32_t fs) {
+void Abs::block_process() {
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         outputs[0].values[i] = fabsf(inputs[0].values[i]);
     }

@@ -7,6 +7,6 @@ Threshold::Threshold()
     outputs.push_back(Pad("binary"));
 }
 
-void Threshold::process(uint32_t fs) {
+void Threshold::process() {
     outputs[0].value = inputs[0].value >= inputs[1].value;
 }

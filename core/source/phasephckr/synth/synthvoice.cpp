@@ -55,7 +55,7 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
 }
 
 bool SynthVoice::isSilent(){
-    return rms < 0.0000001;
+    return rms < 0.00000001;
 }
 
 void SynthVoice::threadedProcess()
@@ -63,6 +63,7 @@ void SynthVoice::threadedProcess()
     const MPEVoiceState &v = mpe.getState();
     if (v.gate) {
         rms = 1;
+        buffersSilenced = false;
     }
     else if (v.gate == 0 && isSilent()) {
         if (!buffersSilenced) {

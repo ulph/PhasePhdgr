@@ -62,7 +62,6 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     }
     else if(scopeVoiceIndex != -1 && voices[scopeVoiceIndex]->isSilent()){
         scopeVoiceIndex = -1;
-        scopeHz = 0.f;
     }
 
     while(samplesLeft > 0) {

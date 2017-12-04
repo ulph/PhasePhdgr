@@ -23,8 +23,15 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
         parameterHandles,
         cp
     );
+    
     inBus = moduleHandles[c_inBus.name];
     outBus = moduleHandles[c_outBus.name];
+
+    inBuffers.push_back({ inBus, 0,{ 0.f } });
+    inBuffers.push_back({ inBus, 1,{ 0.f } });
+
+    outBuffers.push_back({ outBus, 0,{ 0.f } });
+    outBuffers.push_back({ outBus, 1,{ 0.f } });
 }
 
 void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
@@ -43,14 +50,6 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
     connectionGraph.setInput(inBus, 9, t.barPosition);
     connectionGraph.setInput(inBus, 10, t.position);
     connectionGraph.setInput(inBus, 11, t.time);
-
-    vector<ConnectionGraph::SampleBuffer> inBuffers;
-    inBuffers.push_back({ inBus, 0,{ 0.f } });
-    inBuffers.push_back({ inBus, 1,{ 0.f } });
-
-    vector<ConnectionGraph::SampleBuffer> outBuffers;
-    outBuffers.push_back({ outBus, 0, { 0.f } });
-    outBuffers.push_back({ outBus, 1, { 0.f } });
 
     for (int j = 0; j < numSamples; j += ConnectionGraph::k_blockSize) {
         globalDataCopy.update();

@@ -7,13 +7,6 @@
 const auto c_blitTable = FractionalSincTable<BlitOsc::c_blitN>();
 
 BlitOsc::BlitOsc()
-    : buf{0.f}
-    , bufPos(0)
-    , cumSum(0.f)
-    , stage(0)
-    , internalPhase(0.f)
-    , internalSyncPhase(0.f)
-    , last_cumSum(0.f)
 {
     inputs.push_back(Pad("freq"));
     inputs.push_back(Pad("shape")); // saw <-> square

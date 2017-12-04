@@ -19,6 +19,7 @@ public:
         OffDecay
     };
 private:
+    float value = 0.f;
     float gate = 0.f;
     float gateOnTargetValue = 0.f;
     const float slew = 0.9f;

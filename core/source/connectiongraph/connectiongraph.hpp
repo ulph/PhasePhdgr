@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <set>
+#include <functional>
 
 #include "phasephckr/docs.hpp"
 
@@ -20,10 +22,34 @@ protected:
     std::vector<Instruction> program;
     int compilationStatus;
     void compileProgram(int module);
-    void compileModule(int module, std::vector<int> &processedModules);
+    void findRecursionGroups(int module, std::vector<int> processedModulesToHere);
+    void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
+    void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
+    void finalizeProgram(std::vector<Instruction>& protoProgram);
+
     Module* getModule(int id);
+
+    void printProgram(const vector<Instruction>& p);
+
+    enum ProccesingType{
+        BlockWise,
+        SampleWise,
+    };
+
+    std::map<int, set<int>> moduleRecursionGroups;
+    ProccesingType getProcessingType(int module);
+
+    const bool forceSampleWise;
+
 public:
-    ConnectionGraph();
+    static const int k_blockSize = 32;
+    struct SampleBuffer {
+        int module;
+        int pad;
+        float buf[k_blockSize];
+    };
+
+    ConnectionGraph(bool forceSampleWise=false);
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
     int addModule(std::string type);
@@ -36,8 +62,9 @@ public:
     void setInput(int module, int pad, float value);
     void setInput(int module, std::string pad, float value);
     float getOutput(int module, int pad);
-    void process(int module, float fs);
-    std::string graphviz();
+    void processSample(int module, float fs);
+    void processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers);
+
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
 };
 

@@ -1,4 +1,5 @@
 #include "camelenvelope.hpp"
+#include "inlines.hpp"
 
 CamelEnvelope::CamelEnvelope()
 {
@@ -65,12 +66,10 @@ void CamelEnvelope::process(uint32_t fs) {
     onBumpHeight = (sustainHeight + onBumpHeight) > 1.0f ? 1.0f - sustainHeight : onBumpHeight;
     float hangoverValue = (gateOnTargetValue + offBumpHeight) > 1.0 ? 1.0f - offBumpHeight : gateOnTargetValue;
 
-    float currentValue = outputs[0].value;
-
-    if (!gate && newGate) {
+    if (!isHigh(gate) && isHigh(newGate)) {
         changeState(OnAttack);
     }
-    else if(gate && !newGate) {
+    else if(isHigh(gate) && !isHigh(newGate)) {
         changeState(OffAttack);
     }
     gate = newGate;
@@ -112,6 +111,9 @@ void CamelEnvelope::process(uint32_t fs) {
 
     stageSamples++;
 
+    value = slew*value + (1 - slew)*targetValue;
+
     // limit, apply power law and slew
-    outputs[0].value = slew*outputs[0].value + (1-slew)*targetValue;
+    outputs[0].value = value;
+
 }

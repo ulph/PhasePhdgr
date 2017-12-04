@@ -1,10 +1,12 @@
 #include <iostream>
 #include <vector>
+#include <algorithm> 
 #include <cmath>
 #include <cstring>
 #include <sstream>
 #include "connectiongraph.hpp"
 #include "module.hpp"
+#include <assert.h>
 
 #define NOT_COMPILED (-1)
 
@@ -24,15 +26,22 @@ public:
     bool isConnected(int _toModule, int _toPad) const {
         return toModule == _toModule && toPad == _toPad;
     }
+    bool isConnectedFrom(int _fromModule, int _fromPad) const {
+        return fromModule == _fromModule && fromPad == _fromPad;
+    }
+
 };
 
-ConnectionGraph::ConnectionGraph() : compilationStatus(NOT_COMPILED)
+ConnectionGraph::ConnectionGraph(bool forceSampleWise) 
+    : compilationStatus(NOT_COMPILED)
+    , forceSampleWise(forceSampleWise)
 {
 
 }
 
 ConnectionGraph::ConnectionGraph(const ConnectionGraph& other)
     : compilationStatus(NOT_COMPILED)
+    , forceSampleWise(other.forceSampleWise)
 {
     // copy constructor that creates an non-compiled version
     for(int i=0; i < (int)other.modules.size(); ++i){
@@ -137,82 +146,436 @@ void ConnectionGraph::setInput(int module, std::string pad, float value){
 float ConnectionGraph::getOutput(int module, int pad)
 {
     Module *m = getModule(module);
-    return m->getOutput(pad);
+    return m->sample_getOutput(pad);
 }
 
 void ConnectionGraph::compileProgram(int module)
 {
+    // parse the graph once to find all modules involved in recursion loops
+    moduleRecursionGroups.clear();
+
+    if (!forceSampleWise) {
+        findRecursionGroups(module, std::vector<int>());
+
+        // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first
+        std::partition(
+            cables.begin(),
+            cables.end(),
+            [this](const Cable *a) {
+                auto aFromType = getProcessingType(a->getFromModule());
+                auto aToType = getProcessingType(a->getToModule());
+                return aFromType != aToType;
+            }
+        );
+    }
+
     program.clear();
-    std::vector<int> processedModules;
-    
-    compileModule(module, processedModules);
+    std::vector<Instruction> protoProgram;
+    std::set<int> processedModules;
+    std::set<int> visitedModules;
+    compileModule(protoProgram, module, processedModules, visitedModules);
     compilationStatus = module;
+
+    if (!forceSampleWise) {
+//        std::cout << "protoProgram" << std::endl;
+//        printProgram(protoProgram);
+        finalizeProgram(protoProgram);
+    }
+    else {
+        program = protoProgram;
+    }
+
+//    std::cout << "program" << std::endl;
+//    printProgram(program);
 }
 
-void ConnectionGraph::compileModule(int module, std::vector<int> &processedModules)
-{
-    Module *m = getModule(module);
+void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
+    assert(!forceSampleWise);
+    assert(program.size() == 0);
 
-    // Check if this module is already processed by the compiler
-    for(int processedModule : processedModules) {
-        if(module == processedModule) return;
-    }
-    processedModules.push_back(module);
-        
-    // Iterate over all input pads
-    for(int pad = 0; pad < m->getNumInputPads(); pad++) {
-        bool padIsConnected = false;
-        // Check if other modules are connected to this pad
-        for(const Cable *c : cables) {
-            if(c->isConnected(module, pad)) {
-                if(!padIsConnected) {
-                    padIsConnected = true;
-                    program.push_back(Instruction(OP_RESET_INPUT, module, pad));
+    std::map<int, std::set<int>> sampleWiseEntrypoints;
+
+    for (int i = 0; i < protoProgram.size(); ++i) {
+        auto instr = protoProgram.at(i);
+        auto type = getProcessingType(instr.param0);
+
+        if (type == SampleWise) 
+        {
+            std::vector<Instruction> segment;
+            while (type == SampleWise) {
+                instr = protoProgram.at(i);
+                type = getProcessingType(instr.param0);
+                if (type == BlockWise) break;
+                segment.push_back(instr);
+                i++;
+            }
+
+            std::vector<Instruction> expandedSegment;
+            std::map<int, Instruction> postLoopInstructions;
+
+            for (int n = 0; n < k_blockSize; ++n) {
+                for (int j = 0; j < segment.size(); ++j) {
+                    auto instr_ = segment.at(j);
+                    switch (instr_.opcode) {
+                    case OP_PROCESS:
+                        if (sampleWiseEntrypoints.count(instr_.param0)) {
+                            for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
+                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_ADD_INPUT, instr_.param0, port, n));
+                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_CLEAR_INPUT, instr_.param0, port, n));
+                            }
+                        }
+                        expandedSegment.push_back(instr_);
+                        if (sampleWiseEntrypoints.count(instr_.param0)) {
+                            for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
+                                expandedSegment.push_back(Instruction(OP_CLEAR_INPUT, instr_.param0, port));
+                            }
+                        }
+                        break;
+                    case OP_SET_OUTPUT_TO_INPUT:
+                        if (getProcessingType(instr_.param2) == BlockWise) {
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_CLEAR_OUTPUT, instr_.param0, instr_.param1, n));
+                        }
+                    case OP_ADD_OUTPUT_TO_INPUT:
+                        if (getProcessingType(instr_.param2) == BlockWise) {
+                            if (!postLoopInstructions.count(j)) {
+                                auto instr__ = instr_;
+                                instr__.opcode = instr__.opcode == OP_SET_OUTPUT_TO_INPUT ? OP_B_SET_OUTPUT_TO_INPUT : OP_B_ADD_OUTPUT_TO_INPUT;
+                                postLoopInstructions[j] = instr__;
+                            }
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_ADD_OUTPUT, instr_.param0, instr_.param1, n));
+                        }
+                        else {
+                            expandedSegment.push_back(instr_);
+                        }
+                        break;
+                    default:
+                        assert(0);
+                        break;
+                    }
                 }
-                compileModule(c->getFromModule(), processedModules);
-                program.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, c->getFromModule(), c->getFromPad(), module, pad));
+            }
+
+            program.insert(program.end(), expandedSegment.begin(), expandedSegment.end());
+            for (const auto& kv : postLoopInstructions)
+                program.push_back(kv.second);
+
+        }
+
+        if (type == BlockWise) 
+        {
+            switch (instr.opcode) {
+            case OP_PROCESS:
+                instr.opcode = OP_B_PROCESS; break;
+            case OP_SET_OUTPUT_TO_INPUT:
+                instr.opcode = OP_B_SET_OUTPUT_TO_INPUT; 
+                break;
+            case OP_ADD_OUTPUT_TO_INPUT:
+                instr.opcode = OP_B_ADD_OUTPUT_TO_INPUT; 
+                break;
+            default:
+                assert(0);
+                break;
+            }
+            if (getProcessingType(instr.param2) == SampleWise && instr.opcode == OP_B_SET_OUTPUT_TO_INPUT || instr.opcode == OP_B_ADD_OUTPUT_TO_INPUT) {
+                if (!sampleWiseEntrypoints.count(instr.param2)) sampleWiseEntrypoints[instr.param2] = std::set<int>();
+                sampleWiseEntrypoints[instr.param2].insert(instr.param3);
+            }
+            program.emplace_back(instr);
+        }
+        else {
+            assert(0);
+        }
+    }
+}
+
+void ConnectionGraph::printProgram(const vector<Instruction>& p) {
+    // TODO - not threadsafe
+    for (int i = 0; i < p.size(); ++i) {
+        const auto& instr = p[i];
+        std::cout << i << ": ";
+        switch (instr.opcode) {
+
+        case OP_PROCESS:
+            std::cout << "OP_PROCESS " << instr.param0; 
+            break;
+        case OP_CLEAR_INPUT:
+            std::cout << "OP_CLEAR_INPUT " << instr.param0 << "," << instr.param1;
+            break;
+        case OP_SET_OUTPUT_TO_INPUT:
+            std::cout << "OP_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
+            break;
+        case OP_ADD_OUTPUT_TO_INPUT:
+            std::cout << "OP_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3; 
+            break;
+
+        case OP_X_UNBUFFER_CLEAR_INPUT:
+            std::cout << "OP_X_UNBUFFER_CLEAR_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+        case OP_X_BUFFER_CLEAR_OUTPUT:
+            std::cout << "OP_X_BUFFER_CLEAR_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+
+        case OP_X_UNBUFFER_SET_INPUT:
+            std::cout << "OP_X_UNBUFFER_SET_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+        case OP_X_BUFFER_SET_OUTPUT:
+            std::cout << "OP_X_BUFFER_SET_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+
+        case OP_X_UNBUFFER_ADD_INPUT:
+            std::cout << "OP_X_UNBUFFER_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+        case OP_X_BUFFER_ADD_OUTPUT:
+            std::cout << "OP_X_BUFFER_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
+            break;
+
+        case OP_B_PROCESS:
+            std::cout << "OP_B_PROCESS " << instr.param0;
+            break;
+        case OP_B_SET_OUTPUT_TO_INPUT:
+            std::cout << "OP_B_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
+            break;
+        case OP_B_ADD_OUTPUT_TO_INPUT:
+            std::cout << "OP_B_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
+            break;
+
+        default:
+            std::cout << "? " << instr.opcode;
+            break;
+        }
+        std::cout << std::endl;
+    }
+}
+
+void ConnectionGraph::findRecursionGroups(int module, std::vector<int> processedModulesToHere) {
+    bool foundSelf = false;
+    for (auto otherModule : processedModulesToHere) {
+        if (otherModule == module) foundSelf = true;
+        if (foundSelf) {
+            if (!moduleRecursionGroups.count(otherModule)) moduleRecursionGroups[otherModule] = std::set<int>();
+            moduleRecursionGroups[otherModule].insert(module);
+        }
+    }
+    if (foundSelf) return;
+    processedModulesToHere.push_back(module);
+
+    Module *m = getModule(module);
+    for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+        for (const Cable *c : cables) {
+            if (c->isConnected(module, pad)) {
+                findRecursionGroups(c->getFromModule(), processedModulesToHere);
             }
         }
     }
-    
-    program.push_back(Instruction(OP_PROCESS, module));
 }
 
-void ConnectionGraph::process(int module, float fs)
+ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
+    if(forceSampleWise) return SampleWise;
+    else if (moduleRecursionGroups.count(module)) return SampleWise;
+    return BlockWise;
+}
+
+void ConnectionGraph::compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules)
 {
-    // Recompile if needed
-    if(module != compilationStatus) compileProgram(module);
+    if (visitedModules.count(module)) return;
+    visitedModules.insert(module);
+
+    if (processedModules.count(module)) return;
+
+    Module *m = getModule(module);
     
-    // Run program
+    std::set<int> connectedPads;
+
+    for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+        for (int i = 0; i < cables.size(); ++i) {
+            const auto* c = cables.at(i);
+            if (c->isConnected(module, pad)) {
+                auto fromModule = c->getFromModule();
+                auto type = getProcessingType(fromModule);
+                if (type == SampleWise) {
+                    compileAllEntryPoints(protoProgram, fromModule, processedModules, visitedModules);
+                }
+                else if (type == BlockWise) {
+                    compileModule(protoProgram, fromModule, processedModules, visitedModules);
+                    if (!connectedPads.count(pad))
+                        protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                    else
+                        protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                    connectedPads.insert(pad);
+                }
+            }
+        }
+    }
+}
+
+void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules)
+{
+    if (getProcessingType(module) == SampleWise) {
+        compileAllEntryPoints(protoProgram, module, processedModules, visitedModules);
+    }
+
+    // Check if this module is already processed by the compiler
+    if (processedModules.count(module)) return;
+    processedModules.insert(module);
+
+    Module *m = getModule(module);
+
+    // Iterate over all input pads
+
+    std::set<int> connectedPads;
+    for (int i = 0; i < cables.size(); ++i) {
+        const auto* c = cables.at(i);
+
+        // Check if other modules are connected to this pad
+        for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+            if (c->isConnected(module, pad)) {
+                auto fromModule = c->getFromModule();
+
+                if (getProcessingType(module) == SampleWise && getProcessingType(fromModule) == BlockWise) {
+                    assert(visitedModules.count(module)); // should be no need to pass visitedModules around
+                    continue;
+                }
+
+                compileModule(protoProgram, fromModule, processedModules, visitedModules);
+
+                if (!connectedPads.count(pad)) 
+                    protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                else
+                    protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+
+                connectedPads.insert(pad);
+            }
+        }
+    }
+
+    protoProgram.push_back(Instruction(OP_PROCESS, module));
+
+}
+
+void ConnectionGraph::processSample(int module, float fs)
+{
+    if (module != compilationStatus) compileProgram(module);
+
+    float out = 0.0f;
+
     for(const Instruction &i : program) {
         switch(i.opcode) {
         case OP_PROCESS:
             modules[i.param0]->process((uint32_t)fs);
             break;
-        case OP_RESET_INPUT:
-            modules[i.param0]->setInput(i.param1, 0.0f);
-            break;
+        case OP_SET_OUTPUT_TO_INPUT:
+            modules[i.param2]->sample_resetInput(i.param3);
         case OP_ADD_OUTPUT_TO_INPUT:
-            modules[i.param2]->addToInput(i.param3, modules[i.param0]->getOutput(i.param1));
+            out = modules[i.param0]->sample_getOutput(i.param1);
+            modules[i.param2]->sample_addToInput(i.param3, out);
+            break;
+        default:
+            assert(0); 
             break;
         }
     }
 }
 
-std::string ConnectionGraph::graphviz()
-{
-    std::stringstream ss;
+void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers) {
+    if (module != compilationStatus) compileProgram(module);
 
-    ss << "digraph connections {" << std::endl;
-    for(const Cable *c : cables) {
-        int fromModule = c->getFromModule();
-        int toModule = c->getToModule();
-        ss << "   \"" << modules[fromModule]->getName() << "(" << fromModule << ")\" -> ";
-        ss << "\"" << modules[toModule]->getName() << "(" << toModule << ")\"" << std::endl;
+    const size_t inBufferSize = inBuffers.size();
+    const size_t outBufferSize = outBuffers.size();
+
+    // write input buffers
+    for (size_t n = 0; n < inBufferSize; ++n) {
+        auto* m = modules[inBuffers[n].module];
+        auto p = inBuffers[n].pad;
+        const auto* src = inBuffers[n].buf;
+        m->block_setInput(p, src);
     }
-    ss << "}" << std::endl;
 
-    return ss.str();
+    if (forceSampleWise) {
+        // process per sample
+        for (uint32_t i = 0; i < k_blockSize; ++i) {
+            // unbuffer input sample
+            for (size_t n = 0; n < inBufferSize; ++n) {
+                auto* m = modules[inBuffers[n].module];
+                auto p = inBuffers[n].pad;
+                m->unbuffer_set_input(p, i);
+            }
+
+            // actual process
+            processSample(module, fs);
+
+            // buffer output sample
+            for (size_t n = 0; n < outBufferSize; ++n) {
+                auto* m = modules[outBuffers[n].module];
+                auto p = outBuffers[n].pad;
+                m->buffer_set_output(p, i);
+            }
+        }
+    }
+    else {
+        // process per block
+        float buf[ConnectionGraph::k_blockSize] = { 0.f };
+        float out = 0.0f;
+
+        for (const Instruction &i : program) {
+            switch (i.opcode) {
+
+            case OP_PROCESS:
+                modules[i.param0]->process((uint32_t)fs);
+                break;
+            case OP_CLEAR_INPUT:
+                modules[i.param0]->sample_resetInput(i.param1);
+                break;
+            case OP_SET_OUTPUT_TO_INPUT:
+                modules[i.param2]->sample_resetInput(i.param3);
+            case OP_ADD_OUTPUT_TO_INPUT:
+                out = modules[i.param0]->sample_getOutput(i.param1);
+                modules[i.param2]->sample_addToInput(i.param3, out);
+                break;
+
+            case OP_X_UNBUFFER_CLEAR_INPUT:
+                modules[i.param0]->unbuffer_clear(i.param1, i.param2);
+                break;
+            case OP_X_UNBUFFER_SET_INPUT:
+                modules[i.param0]->unbuffer_set_input(i.param1, i.param2);
+                break;
+            case OP_X_UNBUFFER_ADD_INPUT:
+                modules[i.param0]->unbuffer_add_input(i.param1, i.param2);
+                break;
+            case OP_X_BUFFER_CLEAR_OUTPUT:
+                modules[i.param0]->buffer_clear(i.param1, i.param2);
+                break;
+            case OP_X_BUFFER_SET_OUTPUT:
+                modules[i.param0]->buffer_set_output(i.param1, i.param2);
+                break;
+            case OP_X_BUFFER_ADD_OUTPUT:
+                modules[i.param0]->buffer_add_output(i.param1, i.param2);
+                break;
+
+            case OP_B_PROCESS:
+                modules[i.param0]->block_process((uint32_t)fs);
+                break;
+            case OP_B_SET_OUTPUT_TO_INPUT:
+                modules[i.param2]->block_resetInput(i.param3);
+            case OP_B_ADD_OUTPUT_TO_INPUT:
+                modules[i.param0]->block_getOutput(i.param1, buf);
+                modules[i.param2]->block_addToInput(i.param3, buf);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+        }
+    }
+
+    // collect output buffers
+    for (size_t n = 0; n < outBufferSize; ++n) {
+        auto* m = modules[outBuffers[n].module];
+        auto p = outBuffers[n].pad;
+        auto* dst = outBuffers[n].buf;
+        m->block_getOutput(p, dst);
+    }
+
 }
 
 void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList) {

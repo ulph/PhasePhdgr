@@ -7,90 +7,111 @@
 #include <vector>
 #include <string>
 
+#include "connectiongraph.hpp"
+
 #include "phasephckr/docs.hpp"
 
 struct Pad
 {
+private:
+    void init() { for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) values[i] = value; }
+public:
     std::string name;
-    float value;
+    float value = 0.0f;
+    float values[ConnectionGraph::k_blockSize] = { 0.0f };
     std::string unit;
-    Pad(const char *name) : name(name), value(0.0f), unit("") {}
-    Pad(const char *name, float value) : name(name), value(value), unit("") {}
-    Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) {}
-    Pad(const char *name, const char *unit) : name(name), value(0.0f), unit(unit) {}
+    Pad(const char *name) : name(name), value(0.0f), unit("") { init(); }
+    Pad(const char *name, float value) : name(name), value(value), unit("") { init(); }
+    Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) { init(); }
+    Pad(const char *name, const char *unit) : name(name), value(0.0f), unit(unit) { init(); }
 };
 
 class Module
 {
+    friend ConnectionGraph;
+
 protected:
-    std::string name;
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
+    void setName(const std::string &n);
 
 public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    virtual void process(uint32_t fs) = 0;
+    void setInput(int inputPad, float value) {
+        sample_setInput(inputPad, value);
+        block_fillInput(inputPad, value);
+    }
+    virtual PhasePhckr::ModuleDoc makeDoc() const;
+    virtual std::string docString() const;
+    int getNumInputPads() const { return (int)inputs.size(); }
+    int getNumOutputPads() const { return (int)outputs.size(); }
+    int getInputPadFromName(std::string padName) const;
+    int getOutputPadFromName(std::string padName) const;
 
-    float getOutput(int outputPad) const {
+private:
+    std::string name;
+
+    // sample processing
+    virtual void process(uint32_t fs) = 0;
+    float sample_getOutput(int outputPad) const {
         return outputs[outputPad].value;
     }
-
-    void setInput(int inputPad, float value) {
+    void sample_setInput(int inputPad, float value) {
         inputs[inputPad].value = value;
     }
-
-    void addToInput(int inputPad, float value) {
+    void sample_resetInput(int inputPad) {
+        inputs[inputPad].value = 0.0f;
+    }
+    void sample_addToInput(int inputPad, float value) {
         inputs[inputPad].value += value;
     }
 
-    int getNumInputPads() const { return (int)inputs.size(); }
 
-    int getNumOutputPads() const { return (int)outputs.size(); }
-    
-    int getInputPadFromName(std::string padName) const {
-        for(int i = 0; i < (int)inputs.size(); i++) {
-            if(inputs[i].name == padName) {
-                return i;
-            }
-        }
-        return -1;
+    // sample to block helpers
+    void unbuffer_set_input(int inputPad, int i) {
+        inputs[inputPad].value = inputs[inputPad].values[i];
     }
-    
-    int getOutputPadFromName(std::string padName) const {
-        for(int i = 0; i < (int)outputs.size(); i++) {
-            if(outputs[i].name == padName) {
-                return i;
-            }
-        }
-        return -1;
+    void unbuffer_add_input(int inputPad, int i) {
+        inputs[inputPad].value += inputs[inputPad].values[i];
+    }
+    void unbuffer_clear(int inputPad, int i) {
+        inputs[inputPad].values[i] = 0.0f;
+    }
+    void buffer_clear(int outputPad, int i) {
+        outputs[outputPad].values[i] = 0.0f;
+    }
+    void buffer_set_output(int outputPad, int i) {
+        outputs[outputPad].values[i] = outputs[outputPad].value;
+    }
+    void buffer_add_output(int outputPad, int i) {
+        outputs[outputPad].values[i] += outputs[outputPad].value;
     }
 
-    void setName(const std::string &n) { name = n; }
-
-    std::string getName() const { return name; }
-
-    virtual std::string docString() const { return "..."; }
-
-    virtual PhasePhckr::ModuleDoc makeDoc() const {
-        PhasePhckr::ModuleDoc doc;
-        doc.type = name;
-        doc.docString = docString();
-        for (const auto p : inputs) {
-            PhasePhckr::PadDescription pd;
-            pd.name = p.name;
-            pd.unit = p.unit;
-            pd.defaultValue = p.value;
-            doc.inputs.push_back(pd);
+    // block processing
+    virtual void block_process(uint32_t fs);
+    void block_getOutput(int outputPad, float* buffer) const {
+        memcpy(buffer, outputs[outputPad].values, sizeof(float)*ConnectionGraph::k_blockSize);
+    }
+    void block_fillInput(int inputPad, float value) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = value;
         }
-        for (const auto p : outputs) {
-            PhasePhckr::PadDescription pd;
-            pd.name = p.name;
-            pd.unit = p.unit;
-            pd.defaultValue = p.value;
-            doc.outputs.push_back(pd);
+    }
+    void block_setInput(int inputPad, const float* buffer) {
+        memcpy(inputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
+    }
+    void block_resetInput(int inputPad) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            inputs[inputPad].values[i] = 0.0f;
         }
-        return doc;
+    }
+    void block_addToInput(int inputPad, const float* buffer) {
+        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+            auto v = inputs[inputPad].values[i];
+            v += buffer[i];
+            inputs[inputPad].values[i] = v;
+        }
     }
 
 };

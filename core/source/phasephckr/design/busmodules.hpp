@@ -13,7 +13,8 @@ public:
         : isInput(isInput)
         , numPads(ports.size())
     {
-        name = isInput ? PhasePhckr::c_inBus.type : PhasePhckr::c_outBus.type;
+        auto newName = isInput ? PhasePhckr::c_inBus.type : PhasePhckr::c_outBus.type;
+        setName(newName);
         for(const auto &p : ports){
             const char * name = p.name.c_str();
             const char * unit = p.name.c_str();
@@ -25,6 +26,12 @@ public:
 
     virtual void process(uint32_t fs) {
         for(size_t i = 0; i < numPads; i++) outputs[i].value = inputs[i].value;
+    }
+
+    virtual void block_process(uint32_t fs) {
+        for (size_t i = 0; i < numPads; i++) {
+            memcpy(outputs[i].values, inputs[i].values, sizeof(float)*ConnectionGraph::k_blockSize);
+        }
     }
 
     virtual PhasePhckr::ModuleDoc makeDoc() {

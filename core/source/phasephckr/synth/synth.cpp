@@ -62,7 +62,6 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     }
     else if(scopeVoiceIndex != -1 && voices[scopeVoiceIndex]->isSilent()){
         scopeVoiceIndex = -1;
-        scopeHz = 0.f;
     }
 
     while(samplesLeft > 0) {
@@ -98,7 +97,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
 
     for (int i = 0; i < numSamples; i++) {
-        globalData->update();
+        globalData->update(); // TODO - compute a buffer before processing and pass that in instead
     }
 
     voiceBus->update();

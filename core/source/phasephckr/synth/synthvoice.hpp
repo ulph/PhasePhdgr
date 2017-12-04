@@ -32,9 +32,13 @@ private:
     float rmsSlew;
     float rms;
     SynthVoiceThreading threadStuff;
-    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { 0 };
+    vector<ConnectionGraph::SampleBuffer> inBuffers;
+    vector<ConnectionGraph::SampleBuffer> outBuffers;
+    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { 0.0f };
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
+    bool buffersSilenced = false;
+
 public:
     SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
     virtual ~SynthVoice();
@@ -44,8 +48,9 @@ public:
     const float* getInternalBuffer(int channel) { return &internalBuffer[channel][0]; }
     void setParameter(int handle, float value);
     const ParameterHandleMap& getParameterHandles();
-    bool isSilent();
     MPEVoice mpe;
+    bool isSilent();
+
 };
 
 }

@@ -11,6 +11,12 @@ void Mul::process(uint32_t fs) {
     outputs[0].value = inputs[0].value * inputs[1].value;
 }
 
+void Mul::block_process(uint32_t fs) {
+    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+        outputs[0].values[i] = inputs[0].values[i] * inputs[1].values[i];
+    }
+}
+
 MulTri::MulTri()
 {
     inputs.push_back(Pad("in1", 1.f));
@@ -21,6 +27,12 @@ MulTri::MulTri()
 
 void MulTri::process(uint32_t fs) {
     outputs[0].value = inputs[0].value * inputs[1].value * inputs[2].value;
+}
+
+void MulTri::block_process(uint32_t fs) {
+    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+        outputs[0].values[i] = inputs[0].values[i] * inputs[1].values[i] * inputs[2].values[i];
+    }
 }
 
 MulQuad::MulQuad()
@@ -36,6 +48,12 @@ void MulQuad::process(uint32_t fs) {
     outputs[0].value = inputs[0].value * inputs[1].value * inputs[2].value * inputs[3].value;
 }
 
+void MulQuad::block_process(uint32_t fs) {
+    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+        outputs[0].values[i] = inputs[0].values[i] * inputs[1].values[i] * inputs[2].values[i] * inputs[3].values[i];
+    }
+}
+
 Gain::Gain()
 {
     inputs.push_back(Pad("left"));
@@ -48,4 +66,11 @@ Gain::Gain()
 void Gain::process(uint32_t fs) {
     outputs[0].value = inputs[0].value * inputs[2].value;
     outputs[1].value = inputs[1].value * inputs[2].value;
+}
+
+void Gain::block_process(uint32_t fs) {
+    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+        outputs[0].values[i] = inputs[0].values[i] * inputs[2].values[i];
+        outputs[1].values[i] = inputs[1].values[i] * inputs[2].values[i];
+    }
 }

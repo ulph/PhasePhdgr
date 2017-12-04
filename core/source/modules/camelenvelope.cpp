@@ -42,7 +42,7 @@ inline void CamelEnvelope::changeState(EnvelopeStage newState) {
 }
 
 void CamelEnvelope::process() {
-    float newGate = inputs[0].value;
+    const float newGate = inputs[0].value;
 
     float onBumpHeight = limitValue(inputs[1].value, 0.0f, 1.0f);
     onAttackSamples = limitValueLow(inputs[2].value, 0.f) * fs;

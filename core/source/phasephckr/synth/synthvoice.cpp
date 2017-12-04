@@ -29,8 +29,8 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     inBus = moduleHandles["inBus"];
     outBus = moduleHandles["outBus"];
 
-    outBuffers.push_back({ outBus, 0,{ 0.f } });
-    outBuffers.push_back({ outBus, 1,{ 0.f } });
+    outBuffers.push_back({ outBus, 0, { 0.f } });
+    outBuffers.push_back({ outBus, 1, { 0.f } });
 }
 
 SynthVoice::~SynthVoice()

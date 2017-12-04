@@ -20,7 +20,7 @@
 #include "delay.hpp"
 #include "biquad.hpp"
 #include "blitosc.hpp"
-#include "chamberlin.hpp"
+#include "svf.hpp"
 #include "conversion.hpp"
 #include "samphold.hpp"
 #include "tanh.hpp"
@@ -94,8 +94,12 @@ public:
         cg.registerModule("BIQUAD", &(Biquad::factory));
         cg.registerModule("BQLPF", &(LowPass::factory));
         cg.registerModule("BQPEAK", &(PeakingEQ::factory));
-        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory));
-        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory));
+
+        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory)); // DEPRECATE ?
+        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // DEPRECATE ?
+        cg.registerModule("SVF", &(TrapezoidalSVF::factory));
+        // TODO: the mixing variant of SVF (or suchlike) for an 'open' circuit implementation
+
         cg.registerModule("RCHP", &(RcHp::factory));
         cg.registerModule("RCLP", &(RcLp::factory));
         cg.registerModule("ORCHP", &(OpenRcHp::factory));

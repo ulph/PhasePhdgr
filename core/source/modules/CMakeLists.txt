@@ -7,8 +7,8 @@ set(SRC
     blitosc.hpp
     camelenvelope.cpp
     camelenvelope.hpp
-    chamberlin.cpp
-    chamberlin.hpp
+    svf.cpp
+    svf.hpp
     clamp.cpp
     clamp.hpp
     clampinv.cpp

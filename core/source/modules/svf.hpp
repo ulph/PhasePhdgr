@@ -1,10 +1,10 @@
-#ifndef CHAMBERLIN_HPP
-#define CHAMBERLIN_HPP
+#pragma once
 
 #include "module.hpp"
 
 class ChamberlinFilter : public ModuleCRTP<ChamberlinFilter>
 {
+    // musicdsp.org
 private:
     float band;
     float low;
@@ -15,7 +15,6 @@ public:
     static Module* factory() { return new ChamberlinFilter(); }
 };
 
-
 class OpenChamberlinFilter : public ModuleCRTP<OpenChamberlinFilter>
 {
 public:
@@ -25,4 +24,15 @@ public:
 };
 
 
-#endif
+class TrapezoidalTanSVF :  public ModuleCRTP<TrapezoidalTanSVF>
+{
+    // cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+    // TOOD: cytomic.com/files/dsp/SvfLinearTrapezoidalSin.pdf instead
+private:
+    float ic1eq = 0.0f;
+    float ic2eq = 0.0f;
+public:
+    TrapezoidalTanSVF();
+    void process();
+    static Module* factory() { return new TrapezoidalTanSVF(); }
+};

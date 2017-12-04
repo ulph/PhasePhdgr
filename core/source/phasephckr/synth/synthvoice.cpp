@@ -119,8 +119,7 @@ void SynthVoice::threadedProcess()
 
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
             float v = outBuffers[0].buf[i] + outBuffers[1].buf[i];
-            v *= v;
-            rms = rms*rmsSlew + (1 - rmsSlew)*v;
+            rms = rms*rmsSlew + (1 - rmsSlew)*v*v;
         }
 
     }

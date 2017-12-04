@@ -19,11 +19,11 @@ public:
     std::string name;
     float value = 0.0f;
     float values[ConnectionGraph::k_blockSize] = { 0.0f };
-    std::string unit;
-    Pad(const char *name) : name(name), value(0.0f), unit("") { init(); }
-    Pad(const char *name, float value) : name(name), value(value), unit("") { init(); }
+    std::string unit = "";
+    Pad(const char *name) : name(name) { init(); }
+    Pad(const char *name, float value) : name(name), value(value) { init(); }
     Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) { init(); }
-    Pad(const char *name, const char *unit) : name(name), value(0.0f), unit(unit) { init(); }
+    Pad(const char *name, const char *unit) : name(name), unit(unit) { init(); }
 };
 
 class Module

@@ -221,7 +221,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                         if (sampleWiseEntrypoints.count(instr_.param0)) {
                             for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
                                 expandedSegment.push_back(Instruction(OP_X_UNBUFFER_ADD_INPUT, instr_.param0, port, n));
-                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_CLEAR_INPUT, instr_.param0, port, n));
+//                                expandedSegment.push_back(Instruction(OP_X_UNBUFFER_CLEAR_INPUT, instr_.param0, port, n));
                             }
                         }
                         expandedSegment.push_back(instr_);

@@ -66,6 +66,14 @@ struct ConnectionGraphDescriptor {
         pruneDanglingConnections();
     }
 
+    int add(const string& module, const string& type) {
+        // TODO; NYI
+    }
+
+    int clone(const string& module, const string& clone) {
+        // TODO; NYI
+    }
+
     int connect(const ModulePortConnection& from, const ModulePortConnection& to) {
         // TODO; NYI
     }

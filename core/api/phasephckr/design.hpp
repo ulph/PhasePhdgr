@@ -151,8 +151,12 @@ struct ModulePosition {
 struct PatchDescriptor {
     ComponentDescriptor root;
     map<string, ComponentDescriptor> components;
-    map<string, ModulePosition> layout;
+    map<string, ModulePosition> layout; // TODO; move onto ComponentDescriptor?
     vector<PatchParameterDescriptor> parameters;
+
+    int renameComponentType(const string& type) {
+        //TODO NYI
+    }
 
     void pruneUnusedComponents() {
         set<string> usedTypes;

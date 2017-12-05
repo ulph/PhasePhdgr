@@ -47,6 +47,53 @@ struct ConnectionGraphDescriptor {
     vector<ModuleVariable> modules;
     vector<ModulePortConnection> connections;
     vector<ModulePortValue> values;
+
+    void pruneDuplicatModules() {
+        // TODO; NYI
+    }
+
+    void pruneDuplicateValues() {
+        // TODO; NYI
+    }
+
+    void pruneDanglingConnections() {
+        // TODO; NYI
+    }
+
+    void cleanUp() {
+        pruneDuplicatModules();
+        pruneDuplicateValues();
+        pruneDanglingConnections();
+    }
+
+    int connect(const ModulePortConnection& from, const ModulePortConnection& to) {
+        // TODO; NYI
+    }
+
+    int disconnect(const ModulePortConnection& from, const ModulePortConnection& to, bool all=false) {
+        // TODO; NYI
+    }
+
+    int clearValue(const ModulePortConnection& target) {
+        // TODO; NYI
+    }
+
+    int disconnect(const string& module) {
+        // TODO; NYI
+    }
+
+    int clearValues(const string& module) {
+        // TODO; NYI
+    }
+
+    int setValue(const ModulePortConnection& target) {
+        // TODO; NYI
+    }
+
+    int remove(const string& module) {
+        // TODO; NYI
+    }
+
 };
 
 /* Component (subgraph) stuff */
@@ -80,6 +127,18 @@ struct ComponentDescriptor {
     string docString;
     int removePort(const string & portName, bool inputPort);
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
+    int renamePort(const string & portName, const string & newPortName, bool inputPort) {
+        // TODO NYI
+    }
+
+    void pruneUnusedPorts() {
+        // TODO NYI
+    }
+    void cleanUp() {
+        pruneUnusedPorts();
+        graph.cleanUp();
+    }
+
 };
 
 /* Patch */
@@ -94,6 +153,7 @@ struct PatchDescriptor {
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout;
     vector<PatchParameterDescriptor> parameters;
+
     void pruneUnusedComponents() {
         set<string> usedTypes;
         for (const auto& m : root.graph.modules) {
@@ -109,6 +169,15 @@ struct PatchDescriptor {
             }
         }
     }
+
+    void cleanUp() {
+        pruneUnusedComponents();
+        root.cleanUp();
+        for (auto& kv : components) {
+            kv.second.cleanUp();
+        }
+    }
+
 };
 
 /* Preset (voice patch + effect patch + parameters) */

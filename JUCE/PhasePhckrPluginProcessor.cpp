@@ -294,14 +294,14 @@ PatchDescriptor PhasePhckrAudioProcessor::getPatch(SynthGraphType type, bool ext
 
     if (extractParameters) patch.parameters = getParameters(type);
 
-    patch.pruneUnusedComponents();
+    patch.cleanUp();
 
     return patch;
 }
 
 void PhasePhckrAudioProcessor::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
     auto patchCopy = patch;
-    patchCopy.pruneUnusedComponents();
+    patchCopy.cleanUp();
     if (type == VOICE) {
         setVoiceChain(patchCopy);
         subVoiceChain.set(activeVoiceHandle, patchCopy);

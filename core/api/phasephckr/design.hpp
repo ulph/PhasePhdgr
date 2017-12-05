@@ -22,6 +22,9 @@ struct ModuleVariable {
     bool operator ==(ModuleVariable const& other) {
         return other.name == name && other.type == type;
     }
+    bool conflicts(ModuleVariable const& other) {
+        return name == other.name;
+    }
 };
 
 struct ModulePort {
@@ -44,9 +47,13 @@ struct ModulePortValue {
 };
 
 struct ConnectionGraphDescriptor {
-    vector<ModuleVariable> modules;
+    vector<ModuleVariable> modules; // TODO, make a set instead, where existance uses only module name
     vector<ModulePortConnection> connections;
-    vector<ModulePortValue> values;
+    vector<ModulePortValue> values; // TODO, make a set, where existance is based on ModulePort
+
+    void sanitizeModuleNames() {
+        // TODO; NYI
+    }
 
     void pruneDuplicatModules() {
         // TODO; NYI
@@ -64,6 +71,7 @@ struct ConnectionGraphDescriptor {
         pruneDuplicatModules();
         pruneDuplicateValues();
         pruneDanglingConnections();
+        sanitizeModuleNames();
     }
 
     int add(const string& module, const string& type) {
@@ -71,6 +79,10 @@ struct ConnectionGraphDescriptor {
     }
 
     int clone(const string& module, const string& clone) {
+        // TODO; NYI
+    }
+
+    int createNewComponent(const set<string*>& modules, const string& type) {
         // TODO; NYI
     }
 
@@ -166,6 +178,10 @@ struct PatchDescriptor {
         //TODO NYI
     }
 
+    void sanitizeComponentTypes() {
+        //TODO NYI
+    }
+
     void pruneUnusedComponents() {
         set<string> usedTypes;
         for (const auto& m : root.graph.modules) {
@@ -184,6 +200,7 @@ struct PatchDescriptor {
 
     void cleanUp() {
         pruneUnusedComponents();
+        sanitizeComponentTypes();
         root.cleanUp();
         for (auto& kv : components) {
             kv.second.cleanUp();

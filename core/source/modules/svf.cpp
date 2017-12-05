@@ -113,3 +113,58 @@ void TrapezoidalTanSVF::process() {
     outputs[3].value = notch;
     outputs[4].value = all;
 }
+
+// ...
+
+OpenTrapezoidalTanSVF::OpenTrapezoidalTanSVF()
+{
+    inputs.push_back(Pad("input"));
+    inputs.push_back(Pad("fc", 100.f));
+    inputs.push_back(Pad("res"));
+    inputs.push_back(Pad("low"));
+    inputs.push_back(Pad("band"));
+    outputs.push_back(Pad("low"));
+    outputs.push_back(Pad("high"));
+    outputs.push_back(Pad("band"));
+    outputs.push_back(Pad("notch"));
+    outputs.push_back(Pad("all"));
+}
+
+void OpenTrapezoidalTanSVF::process() {
+    // new state
+    float oldBand = inputs[4].value;
+    float oldLow = inputs[3].value;
+    ic1eq = 2.0f * oldBand - ic1eq;
+    ic2eq = 2.0f * oldLow - ic2eq;
+
+    // inputs
+    float v0 = inputs[0].value;
+    float fc = limit(inputs[1].value, 0.0f, 0.5f*fs);
+    float res = limit(inputs[2].value, 0.0f, 1.0f);
+
+    // design
+    float g = tanf((float)M_PI*fc / fs);
+    float k = 2.0f - 2.0f * res;
+    float a1 = 1.f / (1.f + g*(g + k));
+    float a2 = g*a1;
+    float a3 = g*a2;
+
+    // compute
+    float v3 = v0 - ic2eq;
+    float v1 = a1*ic1eq + a2*v3;
+    float v2 = ic2eq + a2*ic1eq + a3*v3;
+
+    // store outputs
+    float low = v2;
+    float band = v1;
+    float high = v0 - k*v1 - v2;
+    float notch = low + high;
+    float peak = low - high;
+    float all = low + high - k*band;
+
+    outputs[0].value = low;
+    outputs[1].value = high;
+    outputs[2].value = band;
+    outputs[3].value = notch;
+    outputs[4].value = all;
+}

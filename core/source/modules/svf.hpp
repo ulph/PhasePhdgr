@@ -36,3 +36,14 @@ public:
     void process();
     static Module* factory() { return new TrapezoidalTanSVF(); }
 };
+
+class OpenTrapezoidalTanSVF : public ModuleCRTP<OpenTrapezoidalTanSVF>
+{
+private:
+    float ic1eq = 0.0f;
+    float ic2eq = 0.0f;
+public:
+    OpenTrapezoidalTanSVF();
+    void process();
+    static Module* factory() { return new OpenTrapezoidalTanSVF(); }
+};

@@ -154,8 +154,8 @@ OpenTrapezoidalTanSVF::OpenTrapezoidalTanSVF()
 }
 
 void OpenTrapezoidalTanSVF::process() {
-    float low  = inputs[inPadOffest +1].value;
-    float band = inputs[inPadOffest +2].value;
+    float low  = inputs[inPadOffest+0].value;
+    float band = inputs[inPadOffest+1].value;
     TrapezoidalTanSVFUpdateState(band, low, ic1eq, ic2eq);
     TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low);
 }

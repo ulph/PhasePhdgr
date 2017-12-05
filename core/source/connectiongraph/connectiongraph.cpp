@@ -519,7 +519,10 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
         float buf[ConnectionGraph::k_blockSize] = { 0.f };
         float out = 0.0f;
 
-        for (const Instruction &i : program) {
+        for (size_t j = 0; j < program.size(); ++j) {
+
+            const auto& i = program.at(j);
+
             switch (i.opcode) {
 
             case OP_PROCESS:

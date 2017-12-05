@@ -45,5 +45,5 @@ public:
     OpenTrapezoidalTanSVF();
     virtual void process();
     static Module* factory() { return new OpenTrapezoidalTanSVF(); }
-    virtual Module *clone() const { return new OpenTrapezoidalTanSVF(); }
+    virtual Module *clone() const { return new OpenTrapezoidalTanSVF(*this); }
 };

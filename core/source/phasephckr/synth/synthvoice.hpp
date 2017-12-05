@@ -50,7 +50,7 @@ public:
     const ParameterHandleMap& getParameterHandles();
     MPEVoice mpe;
     bool isSilent();
-
+    void preCompile(float fs);
 };
 
 }

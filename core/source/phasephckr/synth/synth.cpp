@@ -45,12 +45,20 @@ const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain
         SynthVoice *v_ = new SynthVoice(v);
         v_->mpe.setIndex(i, numVoices);
         voices.push_back(v_);
+        v_->preCompile(lastKnownSampleRate);
     }
     return voices[0]->getParameterHandles(); // they're identical
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
+    if (sampleRate != lastKnownSampleRate) {
+        for (auto* v : voices) {
+            v->preCompile(sampleRate);
+        }
+    }
+    lastKnownSampleRate = sampleRate;
+
     int samplesLeft = numSamples;
     int maxChunk = SYNTH_VOICE_BUFFER_LENGTH;
     float *bufL = leftChannelbuffer, *bufR = rightChannelbuffer;

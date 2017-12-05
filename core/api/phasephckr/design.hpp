@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <set>
 #include <iostream>
 
 class ConnectionGraph;
@@ -93,6 +94,21 @@ struct PatchDescriptor {
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout;
     vector<PatchParameterDescriptor> parameters;
+    void pruneUnusedComponents() {
+        set<string> usedTypes;
+        for (const auto& m : root.graph.modules) {
+            usedTypes.insert(m.type);
+        }
+        auto it = components.begin();
+        while (it != components.end()) {
+            if (!usedTypes.count(it->first)) {
+                it = components.erase(it);
+            }
+            else {
+                it++;
+            }
+        }
+    }
 };
 
 /* Preset (voice patch + effect patch + parameters) */

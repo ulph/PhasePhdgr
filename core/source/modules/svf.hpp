@@ -42,6 +42,7 @@ class OpenTrapezoidalTanSVF : public ModuleCRTP<OpenTrapezoidalTanSVF>
 private:
     float ic1eq = 0.0f;
     float ic2eq = 0.0f;
+    size_t inPadOffest = 0;
 public:
     OpenTrapezoidalTanSVF();
     virtual void process();

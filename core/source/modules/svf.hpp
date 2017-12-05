@@ -27,13 +27,13 @@ public:
 class TrapezoidalTanSVF :  public ModuleCRTP<TrapezoidalTanSVF>
 {
     // cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
-    // TOOD: cytomic.com/files/dsp/SvfLinearTrapezoidalSin.pdf instead
+    // TODO: cytomic.com/files/dsp/SvfLinearTrapezoidalSin.pdf instead
 private:
     float ic1eq = 0.0f;
     float ic2eq = 0.0f;
 public:
     TrapezoidalTanSVF();
-    void process();
+    virtual void process();
     static Module* factory() { return new TrapezoidalTanSVF(); }
 };
 
@@ -44,6 +44,6 @@ private:
     float ic2eq = 0.0f;
 public:
     OpenTrapezoidalTanSVF();
-    void process();
+    virtual void process();
     static Module* factory() { return new OpenTrapezoidalTanSVF(); }
 };

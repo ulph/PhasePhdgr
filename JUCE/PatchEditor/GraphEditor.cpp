@@ -42,6 +42,147 @@ void GraphEditorBundle::resized()
 }
 
 
+bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType, PatchDescriptor& patch) {
+    Label nameLbl(moduleName, moduleName);
+    nameLbl.setEditable(true, true, false);
+
+    Label typeLbl(moduleType, moduleType);
+    typeLbl.setEditable(true, true, false);
+
+    int ctr = 1;
+
+    const int nameMenuId = ctr++;
+    poop.addCustomItem(nameMenuId, &nameLbl, 20, 20, false);
+
+    int typeMenuId = 999;
+    int createInputMenuId = 999;
+    int createOutputMenuId = 999;
+
+    if (moduleType.front() == componentMarker) {
+        typeMenuId = ctr++;
+        poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
+
+        createInputMenuId = ctr++;
+        poop.addItem(createInputMenuId, "create input");
+
+        createOutputMenuId = ctr++;
+        poop.addItem(createOutputMenuId, "create output");
+    }
+    else if (moduleType.front() == parameterMarker) {
+        // TODO, value, min, max editable
+    }
+
+    const int delMenuId = ctr++;
+    poop.addItem(delMenuId, "remove module");
+
+    int choice = poop.show();
+    if (choice == delMenuId) {
+        return 0 == patch.root.graph.remove(moduleName);
+    }
+    else if (choice == createInputMenuId || choice == createOutputMenuId) {
+        if (!patch.components.count(moduleType)) return false;
+        auto & comp = patch.components.at(moduleType);
+        return 0 == patch.components.at(moduleType).addPort("newPort", choice == createInputMenuId, "", 0.0f);
+    }
+
+    if (moduleName != nameLbl.getText().toStdString()) {
+        return 0 == patch.root.graph.rename(moduleName, nameLbl.getText().toStdString());
+    }
+    else if (moduleType != typeLbl.getText().toStdString()) {
+        return 0 == patch.renameComponentType(moduleType, typeLbl.getText().toStdString());
+    }
+
+    return false;
+}
+
+
+bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, PatchDescriptor& patch, Doc & doc, XY& position) {
+    poop.addItem(1, "make component");
+    poop.addItem(2, "delete");
+
+    int choice = poop.show();
+    switch (choice) {
+    case 1:
+    {
+        set<string> selectedModules;
+        for (const auto s : selection) {
+            selectedModules.insert(s->module.name);
+        }
+        selection.clear();
+        NYI; //gfxGraph.createComponentFromSelection(selectedModules, doc, position);
+    }
+    return true;
+    case 2:
+        for (const auto* m : selection) {
+            patch.root.graph.remove(m->module.name);
+            NYI; // delete also from _modules_
+        }
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+
+bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, PatchDescriptor& patch, bool inputPort) {
+    float value = 0.f;
+    if (inputPort && !gfxModule.getValue(port, value)) return false; // error
+    
+    Label lbl(port + "_v", to_string(value));
+    Label nameLbl(port, port);
+
+    if (inputPort) {
+        lbl.setEditable(true, true, false);
+        poop.addItem(1, port);
+        poop.addCustomItem(2, &lbl, 20, 20, false);
+        poop.addItem(3, "clear value");
+    }
+
+    poop.addItem(4, "disconnect all");
+
+    nameLbl.setEditable(true, true, false);
+    if (gfxModule.module.type.front() == componentMarker) {
+        poop.addCustomItem(5, &nameLbl, 20, 20, false);
+        poop.addItem(6, "remove port");
+    }
+
+    int choice = poop.show();
+
+    if (inputPort) {
+        if (choice == 3) {
+            gfxModule.clearValue(port);
+            return true;
+        }
+
+        if (value != lbl.getText().getFloatValue()) {
+            return gfxModule.setValue(
+                port,
+                lbl.getText().getFloatValue()
+            );
+        }
+    }
+
+    if (choice == 4) {
+        return 0 == patch.root.graph.disconnect(ModulePort(gfxModule.module.name, port));
+    }
+
+    if (port != nameLbl.getText()) {
+        if (!patch.components.count(gfxModule.module.type)) return false;
+        auto& comp = patch.components.at(gfxModule.module.type);
+        return 0 == comp.renamePort(port, nameLbl.getText().toStdString(), inputPort);
+    }
+
+    if (choice == 6) {
+        if (!patch.components.count(gfxModule.module.type)) return false;
+        auto& comp = patch.components.at(gfxModule.module.type);
+        return 0 == comp.removePort(port, inputPort);
+    }
+
+    return false;
+}
+
+
 GraphEditor::GraphEditor(
     PatchEditor &patchEditor,
     Viewport &viewPort,
@@ -114,7 +255,7 @@ GraphEditor::~GraphEditor() {
 
 
 void GraphEditor::propagateUserModelChange() {
-    subPatch.set(subPatchHandle, patch);
+    subPatch.set(-1, patch);
     repaint();
 }
 
@@ -145,8 +286,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         if (m.withinPort(mouseDownPos, position, port, inputPort)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                NYI;
-//                modelChanged = makePortPoopUp(poop, m, port, gfxGraph, inputPort);
+                modelChanged = makePortPoopUp(poop, m, port, patch, inputPort);
             }
             else{
                 auto l = gfxGraphLock.make_scoped_lock();
@@ -164,12 +304,10 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 if (selectedModules.count(&m)) {
-                    NYI;
-//                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, gfxGraph, doc, mouseDownPos);
+                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, patch, doc, mouseDownPos);
                 }
                 else {
-                    NYI;
-//                    modelChanged = makeModulePoopUp(poop, m.module.name, m.module.type, gfxGraph);
+                    modelChanged = makeModulePoopUp(poop, m.module.name, m.module.type, patch);
                 }
             }
             else if (event.mods.isShiftDown()) {
@@ -347,17 +485,24 @@ void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
 
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
-    bool modelChanged = false;
-
     gfxGraphLock.lock();
 
     auto thing = dragSourceDetails.description.toString().toStdString();
     auto dropPos = dragSourceDetails.localPosition;
-    NYI; //add module
+
+    string name = "new_" + thing+"_";
+    int i = 0;
+
+    if (!componentTypeIsValid(thing)) return;
+
+    while (patch.root.graph.add(name + to_string(i), thing)) {
+        if (!moduleNameIsValid(name + to_string(i))) return;
+        i++;
+    }
 
     gfxGraphLock.unlock();
 
-    if (modelChanged) propagateUserModelChange();
+    propagateUserModelChange();
 }
 
 

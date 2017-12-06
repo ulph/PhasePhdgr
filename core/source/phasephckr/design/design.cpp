@@ -289,10 +289,18 @@ void PatchDescriptor::pruneUnusedComponents() {
     }
 }
 
+bool ConnectionGraphDescriptor::validConnection(const ModulePortConnection& connection) {
+    const auto& src = connection.source.module;
+    const auto& trg = connection.target.module;
+    bool validSource = modules.count(src) || src == c_inBus.name;
+    bool validTarget = modules.count(trg) || trg == c_outBus.name;
+    return validSource && validTarget;
+}
+
 void ConnectionGraphDescriptor::pruneDanglingConnections() {
     auto it = connections.begin();
     while (it != connections.end()) {
-        if (!modules.count(it->source.module) && !modules.count(it->target.module))
+        if (!validConnection(*it))
             it = connections.erase(it);
         else
             ++it;
@@ -312,6 +320,13 @@ void ConnectionGraphDescriptor::pruneBusModules() {
         }
         if (!prunedStuff) ++it;
     }
+}
+
+int ConnectionGraphDescriptor::add(const string& module, const string& type) {
+    if (!moduleNameIsValid(type)) return -2;
+    if (!componentTypeIsValid(type)) return -2;
+    if (modules.count(module)) return -3;
+    return 0;
 }
 
 int ComponentDescriptor::addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue) {

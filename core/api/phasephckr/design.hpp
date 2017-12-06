@@ -9,7 +9,7 @@
 
 class ConnectionGraph;
 
-#define NYI //assert(0)
+#define NYI assert(0)
 
 using namespace std;
 
@@ -78,57 +78,69 @@ struct ConnectionGraphDescriptor {
 
     void pruneDanglingConnections();
 
+    void pruneInvalidConnections() {
+        NYI; // to inBus, from outBus
+    }
+
     void cleanUp() {
         pruneBusModules();
         pruneDanglingConnections();
+        pruneInvalidConnections();
     }
 
-    int get(const string& module, const ModuleVariable& descriptor) {
-        NYI;
-    }
-
-    int add(const string& module, const string& type) {
-        NYI;
-    }
+    int add(const string& module, const string& type);
 
     int remove(const string& module) {
-        NYI;
+        if (!modules.count(module)) return -1;
+        modules.erase(module);
+        pruneDanglingConnections();
+        return 0;
+    }
+
+    int rename(const string& module, const string& newModule) {
+        NYI; return -1;
     }
 
     int clone(const string& module, const string& clone) {
-        NYI;
+        NYI; return -1;
     }
 
     int clone(const set<string*>& modules) {
-        NYI;
+        NYI; return -1;
     }
 
     int createNewComponent(const set<string*>& modules, const string& type) {
-        NYI;
+        NYI; return -1;
     }
 
+    bool validConnection(const ModulePortConnection& connection);
+
     int connect(const ModulePortConnection& from, const ModulePortConnection& to) {
-        NYI;
+        NYI; return -1;
     }
 
     int disconnect(const ModulePortConnection& from, const ModulePortConnection& to, bool all=false) {
-        NYI;
+        NYI; return -1;
+    }
+
+    int disconnect(const ModulePort& target) {
+        NYI; return -1;
     }
 
     int disconnect(const string& module) {
-        NYI;
+        NYI; return -1;
     }
 
     int clearValue(const ModulePortConnection& target) {
-        NYI;
+        NYI; return -1;
     }
 
     int clearValues(const string& module) {
-        NYI;
+        NYI; return -1;
     }
 
     int setValue(const ModulePortConnection& target) {
-        NYI;
+        NYI; return -1;
     }
 
 };
@@ -165,7 +177,7 @@ struct ComponentDescriptor {
     int removePort(const string & portName, bool inputPort);
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort) {
-        NYI;
+        NYI; return -1;
     }
 
     void pruneUnusedPorts() {
@@ -192,20 +204,20 @@ struct PatchDescriptor {
     map<string, ModulePosition> layout; // TODO; move onto ComponentDescriptor?
     vector<PatchParameterDescriptor> parameters;
 
-    int renameComponentType(const string& type) {
-        NYI;
+    int renameComponentType(const string& type, const string& newType) {
+        NYI; return -1;
     }
 
     int removeComponentType(const string& type) {
-        NYI;
+        NYI; return -1;
     }
 
     int addComponentType(const string& type, const ComponentDescriptor& descriptor) {
-        NYI;
+        NYI; return -1;
     }
 
     int getComponentType(const string& type, const ComponentDescriptor& descriptor) {
-        NYI;
+        NYI; return -1;
     }
 
     void pruneUnusedComponents();

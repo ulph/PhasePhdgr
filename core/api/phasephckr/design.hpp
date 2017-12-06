@@ -20,8 +20,11 @@ class ComponentRegister;
 /* Graph stuff */
 
 struct ModuleVariable {
-    string name;
-    string type;
+    string name = "";
+    string type = "";
+    ModuleVariable() {};
+    ModuleVariable(const pair<string, string>& kv) : name(kv.first), type(kv.second) {};
+    ModuleVariable(const string& n, const string& t) : name(n), type(t) {};
     bool operator ==(ModuleVariable const& other) const {
         return other.name == name && other.type == type;
     }
@@ -60,17 +63,13 @@ struct ModulePortValue {
 };
 
 struct ConnectionGraphDescriptor {
-    vector<ModuleVariable> modules; // TODO, make a set instead, where existance uses only module name
+    map<string, string> modules;
     vector<ModulePortConnection> connections;
     vector<ModulePortValue> values; // TODO, make a set, where existance is based on ModulePort
 
     void pruneBusModules();
 
     void sanitizeModuleNames() {
-        NYI;
-    }
-
-    void pruneDuplicatModules() {
         NYI;
     }
 
@@ -84,7 +83,6 @@ struct ConnectionGraphDescriptor {
 
     void cleanUp() {
         pruneBusModules();
-        pruneDuplicatModules();
         pruneDuplicateValues();
         pruneDanglingConnections();
         sanitizeModuleNames();
@@ -220,7 +218,8 @@ struct PatchDescriptor {
 
     void pruneUnusedComponents() {
         set<string> usedTypes;
-        for (const auto& m : root.graph.modules) {
+        for (const auto& kv : root.graph.modules) {
+            ModuleVariable m(kv);
             usedTypes.insert(m.type);
         }
         auto it = components.begin();

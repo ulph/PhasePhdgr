@@ -27,7 +27,7 @@ const ComponentDescriptor stereoTape = {
         {"right", "", 0.f},
     },
     ConnectionGraphDescriptor{
-        vector<ModuleVariable>{
+        map<string, string>{
             {"leftDelay", "DELAY"},
             {"rightDelay", "DELAY"},
             {"lfoPhase", "PHASE"},
@@ -102,7 +102,7 @@ const ComponentDescriptor adsr = {
         {"value", "", 0.f}
     },
     ConnectionGraphDescriptor{
-        vector<ModuleVariable>{
+        map<string, string>{
             {"env", "ENV"}
         },
         vector<ModulePortConnection>{

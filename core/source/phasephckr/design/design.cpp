@@ -105,7 +105,8 @@ bool unpackComponent(
     }
 
     // prefix internals accordingly
-    for (auto &m : current.graph.modules) {
+    for (auto &kv : current.graph.modules) {
+        ModuleVariable m(kv);
         if(!checkModule(m)) continue;
         m.name = pfx + m.name;
     }
@@ -136,7 +137,8 @@ void designChain(
     set<string> components;
 
     // find any components (module bundles) and unpack them
-    for (const auto &m : cd.graph.modules) {
+    for (const auto &kv : cd.graph.modules) {
+        ModuleVariable m(kv);
         if (m.type.front() == componentMarker) {
             if (!checkComponent(m, pd)) continue;
             ComponentDescriptor child_cd = pd.components.at(m.type);
@@ -147,7 +149,8 @@ void designChain(
     }
 
     // create the modules and store their handles
-    for (const auto &m : cd.graph.modules) {
+    for (const auto &kv : cd.graph.modules) {
+        ModuleVariable m(kv);
         if(depth == 0 && !checkModule(m)) continue;
         if (moduleHandles.count(m.name) > 0) {
             cerr << "Error: \"" << m.name << "\" name dupe! (modules)" << endl;
@@ -273,7 +276,7 @@ void ConnectionGraphDescriptor::pruneBusModules() {
     while (it != modules.end()) {
         bool prunedStuff = false;
         for (const auto& m : toPrune) {
-            if (it->name == m) {
+            if (it->first == m) {
                 it = modules.erase(it);
                 prunedStuff = true;
             }

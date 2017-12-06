@@ -66,11 +66,19 @@ void from_json(const json& j, ModulePortConnection& mpc) {
 void to_json(json& j, const ConnectionGraphDescriptor& cgd) {
     j["modules"] = cgd.modules;
     j["connections"] = cgd.connections;
-    j["values"] = cgd.values;
+    vector<ModuleVariable> mvs;
+    for (const auto& kv : cgd.modules) {
+        mvs.emplace_back(ModuleVariable(kv.first, kv.second));
+    }
+    j["values"] = mvs;
 }
 
 void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
-    cgd.modules = j.at("modules").get<vector<ModuleVariable>>();
+    auto mvs = j.at("modules").get<vector<ModuleVariable>>();
+    cgd.modules.clear();
+    for (const auto& v : mvs) {
+        cgd.modules[v.name] = v.type;
+    }
     cgd.connections = j.at("connections").get<vector<ModulePortConnection>>();
     cgd.values = j.at("values").get<vector<ModulePortValue>>();
 }

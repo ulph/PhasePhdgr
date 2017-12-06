@@ -433,8 +433,8 @@ void GraphEditor::updateRenderComponents()
 
     if (patchIsDirty) {
 
-        patch.root.graph.modules.push_back(c_inBus);
-        patch.root.graph.modules.push_back(c_outBus);
+        patch.root.graph.modules[c_inBus.name] = c_inBus.type;
+        patch.root.graph.modules[c_outBus.name] = c_outBus.type;
 
         const string start = c_inBus.name;
         const string stop = c_outBus.name;
@@ -444,7 +444,8 @@ void GraphEditor::updateRenderComponents()
         modules.clear();
         wires.clear();
 
-        for (const auto & m : patch.root.graph.modules) {
+        for (const auto & kv : patch.root.graph.modules) {
+            ModuleVariable m(kv);
             XY xy(mp.at(m.name).x, mp.at(m.name).y);
             if (patch.layout.count(m.name)) {
                 auto xy_ = patch.layout.at(m.name);

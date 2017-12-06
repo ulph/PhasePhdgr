@@ -237,8 +237,9 @@ void setNodePositions(
     }
 
     // initial positions
-    for (const auto &mv : connectionGraphDescriptor.modules) {
-        modulePositions[mv.name] = XY(FLT_MAX, INT_MIN);
+    for (const auto &kv : connectionGraphDescriptor.modules) {
+        ModuleVariable m(kv);
+        modulePositions[m.name] = XY(FLT_MAX, INT_MIN);
     }
     modulePositions[start] = XY(FLT_MAX, INT_MIN);
     modulePositions[stop] = XY(FLT_MAX, INT_MIN);

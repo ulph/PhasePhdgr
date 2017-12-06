@@ -3,7 +3,7 @@
 namespace PhasePhckr {
 
     const ConnectionGraphDescriptor exFxChain = {
-        std::vector<ModuleVariable>{
+        std::map<string, string>{
             { "outPreGain", "GAIN" },
             { "outSaturation", "SSATAN" },
             { "outPostGain", "GAIN" },
@@ -50,7 +50,7 @@ namespace PhasePhckr {
     }
 
     const ConnectionGraphDescriptor exVoiceChain = {
-        std::vector<ModuleVariable>{
+        std::map<string, string>{
             {"ampEnv", "ENV"},
             {"filtEnv", "ENV"},
             {"clk1", "SCLSHFT"},

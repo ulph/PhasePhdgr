@@ -272,6 +272,32 @@ void designPatch(
 
 }
 
+void PatchDescriptor::pruneUnusedComponents() {
+    set<string> usedTypes;
+    for (const auto& kv : root.graph.modules) {
+        ModuleVariable m(kv);
+        usedTypes.insert(m.type);
+    }
+    auto it = components.begin();
+    while (it != components.end()) {
+        if (!usedTypes.count(it->first)) {
+            it = components.erase(it);
+        }
+        else {
+            it++;
+        }
+    }
+}
+
+void ConnectionGraphDescriptor::pruneDanglingConnections() {
+    auto it = connections.begin();
+    while (it != connections.end()) {
+        if (!modules.count(it->source.module) && !modules.count(it->target.module))
+            it = connections.erase(it);
+        else
+            ++it;
+    }
+}
 
 void ConnectionGraphDescriptor::pruneBusModules() {
     vector<string> toPrune = { c_inBus.name, c_outBus.name };
@@ -370,6 +396,7 @@ bool stringIsValid(string s, bool isName = false) {
 }
 
 bool moduleNameIsValid(const string& moduleName){
+    if (moduleName == c_inBus.name || moduleName == c_outBus.name) return false;
     return stringIsValid(moduleName, true);
 }
 

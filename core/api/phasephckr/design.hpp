@@ -76,23 +76,11 @@ struct ConnectionGraphDescriptor {
 
     void pruneBusModules();
 
-    void sanitizeModuleNames() {
-        NYI;
-    }
-
-    void pruneDuplicateValues() {
-        NYI;
-    }
-
-    void pruneDanglingConnections() {
-        NYI; // remember inBus and outBus are not present in modules
-    }
+    void pruneDanglingConnections();
 
     void cleanUp() {
         pruneBusModules();
-        pruneDuplicateValues();
         pruneDanglingConnections();
-        sanitizeModuleNames();
     }
 
     int get(const string& module, const ModuleVariable& descriptor) {
@@ -183,6 +171,7 @@ struct ComponentDescriptor {
     void pruneUnusedPorts() {
         NYI;
     }
+
     void cleanUp() {
         pruneUnusedPorts();
         graph.cleanUp();
@@ -203,10 +192,6 @@ struct PatchDescriptor {
     map<string, ModulePosition> layout; // TODO; move onto ComponentDescriptor?
     vector<PatchParameterDescriptor> parameters;
 
-    void sanitizeComponentTypes() {
-        NYI;
-    }
-
     int renameComponentType(const string& type) {
         NYI;
     }
@@ -223,26 +208,10 @@ struct PatchDescriptor {
         NYI;
     }
 
-    void pruneUnusedComponents() {
-        set<string> usedTypes;
-        for (const auto& kv : root.graph.modules) {
-            ModuleVariable m(kv);
-            usedTypes.insert(m.type);
-        }
-        auto it = components.begin();
-        while (it != components.end()) {
-            if (!usedTypes.count(it->first)) {
-                it = components.erase(it);
-            }
-            else {
-                it++;
-            }
-        }
-    }
+    void pruneUnusedComponents();
 
     void cleanUp() {
         pruneUnusedComponents();
-        sanitizeComponentTypes();
         root.cleanUp();
         for (auto& kv : components) {
             kv.second.cleanUp();

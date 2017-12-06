@@ -441,11 +441,8 @@ void GraphEditor::updateRenderComponents()
         ModulePositionMap mp;
         setNodePositions(patch.root.graph, mp, start, stop);
 
-        components.clear();
         modules.clear();
         wires.clear();
-
-        components = patch.components;
 
         for (const auto & m : patch.root.graph.modules) {
             XY xy(mp.at(m.name).x, mp.at(m.name).y);

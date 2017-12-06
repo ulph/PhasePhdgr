@@ -63,7 +63,6 @@ private:
     // stuff migrated from GfxGraph
     vector<GfxModule> modules;
     list<GfxWire> wires;
-    map<string, ComponentDescriptor> components;
 
     pair<XY, XY> getVirtualBounds();
     bool connect(const GfxLooseWire &looseWire, const XY &mousePos);

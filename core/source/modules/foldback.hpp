@@ -6,7 +6,7 @@
 class FoldBack : public ModuleCRTP<FoldBack>
 {
 protected:
-    bool iterate(float *v, float scale);
+    bool iterate(float *v, float scale, float th);
 public:
     FoldBack();
     void process();

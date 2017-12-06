@@ -24,14 +24,6 @@ CamelEnvelope::CamelEnvelope()
     inputs.push_back(Pad("offDecayPow", 4.0f));
 }
 
-static inline float limitValue(float value, float low, float high) {
-    return value > high ? high : value < low ? low : value;
-}
-
-static inline float limitValueLow(float value, float low) {
-    return value < low ? low : value;
-}
-
 inline void CamelEnvelope::changeState(EnvelopeStage newState) {
     if (newState == OnAttack) stageScale = onAttackSamples ? 1.f / onAttackSamples : stageScale;
     else if (newState == OnDecay) stageScale = onDecaySamples ? 1.f / onDecaySamples : stageScale;
@@ -44,19 +36,19 @@ inline void CamelEnvelope::changeState(EnvelopeStage newState) {
 void CamelEnvelope::process() {
     const float newGate = inputs[0].value;
 
-    float onBumpHeight = limitValue(inputs[1].value, 0.0f, 1.0f);
-    onAttackSamples = limitValueLow(inputs[2].value, 0.f) * fs;
-    onDecaySamples = limitValueLow(inputs[3].value, 0.f) * fs;
-    float sustainHeight = limitValue(inputs[4].value, 0.0f, 1.0f);
-    float offBumpHeight = limitValue(inputs[5].value, 0.0f, 1.0f);
-    offAttackSamples = limitValueLow(inputs[6].value, 0.f) * fs;
-    offDecaySamples = limitValueLow(inputs[7].value, 0.f) * fs;
+    float onBumpHeight = limit(inputs[1].value, 0.0f, 1.0f);
+    onAttackSamples = limitLow(inputs[2].value, 0.f) * fs;
+    onDecaySamples = limitLow(inputs[3].value, 0.f) * fs;
+    float sustainHeight = limit(inputs[4].value, 0.0f, 1.0f);
+    float offBumpHeight = limit(inputs[5].value, 0.0f, 1.0f);
+    offAttackSamples = limitLow(inputs[6].value, 0.f) * fs;
+    offDecaySamples = limitLow(inputs[7].value, 0.f) * fs;
 
-    float onAttackPow = limitValueLow(inputs[8].value, 0.f);
-    float onDecayPow = limitValueLow(inputs[9].value, 0.f);
+    float onAttackPow = limitLow(inputs[8].value, 0.f);
+    float onDecayPow = limitLow(inputs[9].value, 0.f);
 
-    float offAttackPow = limitValueLow(inputs[10].value, 0.f);
-    float offDecayPow = limitValueLow(inputs[11].value, 0.f);
+    float offAttackPow = limitLow(inputs[10].value, 0.f);
+    float offDecayPow = limitLow(inputs[11].value, 0.f);
 
     // no targets can be greater than 1
     onBumpHeight = (sustainHeight + onBumpHeight) > 1.0f ? 1.0f - sustainHeight : onBumpHeight;

@@ -357,9 +357,10 @@ void ConnectionGraphDescriptor::pruneBusModules() {
 }
 
 int ConnectionGraphDescriptor::add(const string& module, const string& type) {
-    if (!moduleNameIsValid(type)) return -2;
-    if (!componentTypeIsValid(type)) return -2;
+    if (!moduleNameIsValid(module)) return -1;
+    if (!moduleTypeIsValid(type)) return -2;
     if (modules.count(module)) return -3;
+    modules[module] = type;
     return 0;
 }
 

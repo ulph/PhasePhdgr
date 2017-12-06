@@ -493,22 +493,30 @@ void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
 
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
-    gfxGraphLock.lock();
 
     auto thing = dragSourceDetails.description.toString().toStdString();
     auto dropPos = dragSourceDetails.localPosition;
 
-    string name = "new_" + thing+"_";
-    int i = 0;
+    {
+        auto l = gfxGraphLock.make_scoped_lock();
+        string name = "new_" + thing.substr(1) + "_";
+        int i = 0;
 
-    if (!componentTypeIsValid(thing)) return;
+        if (!moduleTypeIsValid(thing)) return;
 
-    while (patch.root.graph.add(name + to_string(i), thing)) {
-        if (!moduleNameIsValid(name + to_string(i))) return;
-        i++;
+        string fullName = name + to_string(i);
+
+        while (patch.root.graph.add(fullName, thing)) {
+            if (!moduleNameIsValid(fullName)) return;
+            i++;
+            fullName = name + to_string(i);
+        }
+
+        patch.layout[fullName] = ModulePosition(
+            (float)dropPos.x - 0.5f*c_NodeSize,
+            (float)dropPos.y - 0.5f*c_NodeSize
+        );
     }
-
-    gfxGraphLock.unlock();
 
     propagateUserModelChange();
 }

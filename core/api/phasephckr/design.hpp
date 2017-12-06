@@ -78,14 +78,9 @@ struct ConnectionGraphDescriptor {
 
     void pruneDanglingConnections();
 
-    void pruneInvalidConnections() {
-        NYI; // to inBus, from outBus
-    }
-
     void cleanUp() {
         pruneBusModules();
         pruneDanglingConnections();
-        pruneInvalidConnections();
     }
 
     int add(const string& module, const string& type);

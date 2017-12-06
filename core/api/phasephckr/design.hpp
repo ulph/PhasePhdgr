@@ -28,9 +28,6 @@ struct ModuleVariable {
     bool operator ==(ModuleVariable const& other) const {
         return other.name == name && other.type == type;
     }
-    bool conflicts(ModuleVariable const& other) const {
-        return name == other.name;
-    }
 };
 
 struct ModulePort {
@@ -62,9 +59,6 @@ struct ModulePortValue {
     float value;
     ModulePortValue(){}
     ModulePortValue(const ModulePort& mp, float v) : target(mp), value(v) {}
-    bool conflicts(ModulePortValue const& other) const {
-        return target == other.target;
-    }
 };
 
 struct ConnectionGraphDescriptor {
@@ -183,7 +177,9 @@ struct PatchDescriptor {
     }
 
     int removeComponentType(const string& type) {
-        NYI; return -1;
+        if (!components.count(type)) return -1;
+        components.erase(type);
+        return 0;
     }
 
     int addComponentType(const string& type, const ComponentDescriptor& descriptor) {

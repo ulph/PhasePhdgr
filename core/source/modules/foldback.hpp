@@ -13,4 +13,14 @@ public:
     static Module* factory() { return new FoldBack(); }
 };
 
+class Wrap : public ModuleCRTP<Wrap>
+{
+protected:
+    bool iterate(float *v, float th);
+public:
+    Wrap();
+    void process();
+    static Module* factory() { return new Wrap(); }
+};
+
 #endif

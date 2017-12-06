@@ -145,28 +145,14 @@ struct GfxGraph {
     vector<GfxModule> modules;
     list<GfxWire> wires;
     map<string, ComponentDescriptor> components;
-//    PatchDescriptor patch;
 
     pair<XY, XY> getBounds();
+    bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
+    bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
+    void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
     void moveDelta(XY delta);
     void moveIntoView();
-    void recalculateWires(const vector<GfxModule>& modules);
-    bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
-    bool disconnectPort(const string& moduleName, const string& portName, bool inputPort);
-    bool add(const string &type, const Doc & doc, const XY &pos);
-    bool add(const ModuleVariable& module, const Doc & doc, const XY &pos, const std::vector<ModulePortValue> &mpv, bool absolutPositions=true);
-    bool connect(const ModulePortConnection &connection);
-    bool connect(const ModulePort &source, const ModulePort &target);
-    bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
-    bool rename(string module, string newName);
-    bool renameComponent(string componentType, string newComponentType);
-    bool renameComponentPort(string componentType, string port, string newPort, bool inputPort);
-    bool removeComponentPort(const string& componentType, const string& portName, bool inputPort);
-    bool createComponentPort(const string& componentType, const string& portName, const string & unit, const float & defaultValue, bool inputPort);
-    bool remove(const string &module);
-    bool getModule(string name, const GfxModule** module);
-    bool hasModuleName(string name);
     void designPorts(const Doc &doc);
-    void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
-    PatchDescriptor exportModelData();
+    void recalculateWires();
+
 };

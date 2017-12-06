@@ -405,7 +405,6 @@ GfxWire::GfxWire(const ModulePortConnection &connection, const vector<GfxModule>
     calculatePath(modules);
 }
 
-
 void GfxLooseWire::draw(Graphics & g) const {
     g.setColour(Colours::green);
     g.drawLine(
@@ -416,7 +415,6 @@ void GfxLooseWire::draw(Graphics & g) const {
         c_PortSize * 0.5f
     );
 }
-
 
 pair<XY, XY> GfxGraph::getBounds() {
     XY min(FLT_MAX, FLT_MAX);
@@ -464,10 +462,8 @@ void GfxGraph::moveIntoView() {
     }
 }
 
-void GfxGraph::recalculateWires(const vector<GfxModule>& modules) {
-    for (auto &w : wires) {
-        w.calculatePath(modules);
-    }
+void GfxGraph::recalculateWires() {
+    NYI;
 }
 
 bool GfxGraph::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
@@ -493,291 +489,10 @@ bool GfxGraph::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
     return false;
 }
 
-bool GfxGraph::add(const string &type, const Doc & doc, const XY &pos) {
-    bool didAdd = false;
-    auto d = doc.get();
-    auto mIt = d.find(type);
-    if (mIt != d.end()) {
-        vector<ModulePortValue> mpv;
-        string name = "new" + type;
-        int ctr = 0;
-        while (hasModuleName(name + to_string(ctr))) {
-            ctr++;
-        }
-        name += to_string(ctr);
-        didAdd = add(
-            ModuleVariable{ name, type },
-            doc,
-            pos,
-            mpv
-        );
-    }
-    return didAdd;
-}
-
-bool GfxGraph::add(const ModuleVariable& module, const Doc & doc, const XY &pos, const std::vector<ModulePortValue> &mpv, bool absolutPositions) {
-    if (hasModuleName(module.name)) {
-        assert(0);
-        return false;
-    }
-    auto position = pos;
-    if (absolutPositions) {
-        position.x = (position.x - 0.5f*c_NodeSize) / c_GridSize;
-        position.y = (position.y - 0.5f*c_NodeSize) / c_GridSize;
-    }
-    auto gfxMv = GfxModule(
-        module,
-        position.x,
-        position.y,
-        doc,
-        mpv
-    );
-    modules.emplace_back(gfxMv);
-    return true;
-}
-
-bool GfxGraph::connect(const ModulePortConnection &connection) {
-    wires.emplace_back(GfxWire(connection, modules));
-    return true;
-}
-
-bool GfxGraph::connect(const ModulePort &source, const ModulePort &target) {
-    ModulePortConnection newCon;
-    newCon.source = source;
-    newCon.target = target;
-    return connect(newCon);
-}
-
 bool GfxGraph::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
     bool foundPort = false;
-    for (auto &m : modules) {
-        if (foundPort) break;
-        if (looseWire.attachedAtSource) {
-            for (const auto& p : m.inputs) {
-                if (p.within(mousePos)) {
-                    connect(looseWire.attachedPort, ModulePort{ m.module.name, p.port });
-                    foundPort = true;
-                    break;
-                }
-            }
-        }
-        else {
-            for (const auto& p : m.outputs) {
-                if (p.within(mousePos)) {
-                    connect(ModulePort{ m.module.name, p.port }, looseWire.attachedPort);
-                    foundPort = true;
-                    break;
-                }
-            }
-        }
-    }
+    NYI;
     return foundPort;
-}
-
-bool GfxGraph::rename(string moduleName, string newModuleName){
-    if(!moduleNameIsValid(newModuleName)) return false;
-
-    bool foundModule = false;
-
-    int mIdx = 0;
-    int i=0;
-
-    for (const auto& m : modules) {
-        if (m.module.name == moduleName) {
-            // found it
-            foundModule = true;
-            mIdx = i;
-        }
-        if (m.module.name == newModuleName) {
-            // conflict
-            return false;
-        }
-        i++;
-    }
-
-    if(!foundModule) return false;
-
-    modules.at(mIdx).module.name = newModuleName;
-    auto wit = wires.begin();
-    while (wit != wires.end()) {
-        if (wit->connection.source.module == moduleName){
-            wit->connection.source.module = newModuleName;
-        }
-        if(wit->connection.target.module == moduleName) {
-            wit->connection.target.module = newModuleName;
-        }
-        wit++;
-    }
-
-    return true;
-}
-
-bool GfxGraph::renameComponent(string componentType, string newComponentType){
-    if(!componentTypeIsValid(newComponentType)) return false;
-    if(components.count(newComponentType)) return false;
-    if(!components.count(componentType)) return false;
-
-    for(auto& m: modules){
-        if(m.module.type == componentType){
-            m.module.type = newComponentType;
-        }
-    }
-    components[newComponentType] = components[componentType];
-    components.erase(componentType);
-
-    return true;
-}
-
-bool GfxGraph::renameComponentPort(string componentType, string port, string newPort, bool inputPort){
-    if(!components.count(componentType)) return false;
-
-    // 1. change component definition
-    ComponentDescriptor& definition = components[componentType];
-    PadDescription* pad = nullptr;
-
-    // 1a. find the pad
-    auto * bus = &definition.outBus;
-    if(inputPort) bus = &definition.inBus;
-    for(auto &p : *bus){
-        if(p.name == port){
-            pad = &p;
-        }
-        if(p.name == newPort){
-            return false; // conflict
-        }
-    }
-
-    if (pad == nullptr) return false; // did not find that port!
-
-    // 1b. change the pad and any internal connections to/from
-    pad->name = newPort;
-    // 1b. change internal connections
-    for (auto& c : definition.graph.connections) {
-        ModulePort referencePort = { inputPort ? c_inBus.name : c_outBus.name, port };
-        ModulePort *existingPort = inputPort ? &c.source : &c.target;
-        if (*existingPort == referencePort) existingPort->port = newPort;
-    }
-
-
-    // 2. update connections to instances of component
-
-    // 2a. find all instances
-    vector<GfxModule *> instances;
-    for (auto& m : modules) {
-        if (m.module.type == componentType) {
-            instances.push_back(&m);
-            // no need to update the actual instances, 
-            // as subsequent refresh of model will take care of that
-        }
-    }
-
-    // 2b. find any connections to/from renamed ports
-    for(auto* m : instances){
-        for(auto& w : wires){
-            ModulePort referencePort = { m->module.name, port };
-            ModulePort *existingPort = inputPort ? &w.connection.source : &w.connection.target;
-            if(*existingPort == referencePort) existingPort->port = newPort;
-        }
-    }
-
-    return true;
-}
-
-bool GfxGraph::disconnectPort(const string& moduleName, const string& portName, bool inputPort) {
-    bool didDisconnect = false;
-
-    auto wit = wires.begin();
-    while (wit != wires.end()) {
-        const auto &src = wit->connection.source;
-        const auto &tg = wit->connection.target;
-        if (
-            (!inputPort && src.module == moduleName && src.port == portName) || 
-            (inputPort && tg.module == moduleName && tg.port == portName))
-        {
-            wit = wires.erase(wit);
-            didDisconnect = true;
-        }
-        else {
-            ++wit;
-        }
-    }
-
-    return didDisconnect;
-}
-
-bool GfxGraph::createComponentPort(const string& componentType, const string& portName, const string & unit, const float & defaultValue, bool inputPort) {
-    if (!components.count(componentType)) return false;
-    ComponentDescriptor& def = components[componentType];    
-    return def.addPort(portName, inputPort, unit, defaultValue) == 0;
-}
-
-bool GfxGraph::removeComponentPort(const string& componentType, const string& portName, bool inputPort) {
-    if (!components.count(componentType)) return false;
-    ComponentDescriptor& definition = components[componentType];
-
-    if (definition.removePort(portName, inputPort) != 0) return false;
-
-    // remove external connections
-
-    vector<GfxModule *> instances;
-    for (auto& m : modules) {
-        if (m.module.type == componentType) {
-            instances.push_back(&m);
-        }
-    }
-
-    while (instances.size()) {
-        const string& moduleName = instances.back()->module.name; instances.pop_back();
-        disconnectPort(moduleName, portName, inputPort);
-    }
-
-    return true;
-}
-
-bool GfxGraph::remove(const string &module) {
-    bool foundModule = false;
-    int mIdx = 0;
-    for (const auto& m : modules) {
-        if (m.module.name == module) {
-            foundModule = true;
-            break;
-        }
-        else {
-            mIdx++;
-        }
-    }
-    if (foundModule) {
-        auto wit = wires.begin();
-        while (wit != wires.end()) {
-            if (wit->connection.source.module == module || wit->connection.target.module == module) {
-                wit = wires.erase(wit);
-            }
-            else {
-                ++wit;
-            }
-        }
-        modules.erase(modules.begin() + mIdx);
-    }
-    return foundModule;
-}
-
-bool GfxGraph::getModule(string name, const GfxModule** module) {
-    for (const auto &m : modules) {
-        if (m.module.name == name) {
-            *module = &m;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool GfxGraph::hasModuleName(string name) {
-    for (const auto &m : modules) {
-        if (m.module.name == name) {
-            return true;
-        }
-    }
-    return false;
 }
 
 void GfxGraph::designPorts(const Doc &doc){
@@ -791,7 +506,6 @@ void GfxGraph::designPorts(const Doc &doc){
         m.designPorts(doc, mpvs);
     }
 }
-
 
 void createOrUpdateAlias(const string& componentName, ModulePort& mp, set<string>& aliases, map<pair<string, string>, string>& modulePortAliases, vector<PadDescription>& bus, vector<ModulePortConnection>& connections, bool isInput, float defaultValue=0) {
     string alias = mp.port;
@@ -823,132 +537,6 @@ void createOrUpdateAlias(const string& componentName, ModulePort& mp, set<string
     mp = { componentName, alias };
 }
 
-
 void GfxGraph::createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position){
-    ConnectionGraphDescriptor cgd;
-
-    // copy over modules and any non-default values
-    for (const auto name : selectedModules) {
-        const GfxModule * m;
-        if(getModule(name, &m)){
-            cgd.modules.push_back(m->module);
-            for (const auto &ip : m->inputs) {
-                if (ip.assignedValue) {
-                    cgd.values.push_back(ModulePortValue{{m->module.name, ip.port}, ip.value });
-                }
-            }
-        }
-    }
-
-    vector<PadDescription> inBus;
-    set<string> inAlias;
-    map<pair<string, string>, string> inModules;
-
-    vector<PadDescription> outBus;
-    set<string> outAlias;
-    map<pair<string, string>, string> outModules;
-
-    set<string> targets;
-    
-    // find a component name
-    string componentName = "newComponent";
-    int ctr = 0;
-    while (hasModuleName(componentName + to_string(ctr))){
-        ctr++;
-    }
-    componentName += to_string(ctr);
-
-    // handle internal connections
-    for (auto &w : wires) {
-        auto& tg = w.connection.target;
-        auto& src = w.connection.source;
-
-        // copy any internal connections
-        if (selectedModules.count(src.module) && selectedModules.count(tg.module)) {
-            targets.insert(tg.module);
-            cgd.connections.push_back(w.connection);
-        }
-        // create aliases and expose external facing ports
-        else if (selectedModules.count(tg.module)) { // selection is a target
-            targets.insert(tg.module);
-            createOrUpdateAlias(componentName, tg, inAlias, inModules, inBus, cgd.connections, true);
-        }
-        else if (selectedModules.count(src.module)) { // selection is a source
-            createOrUpdateAlias(componentName, src, outAlias, outModules, outBus, cgd.connections, false);
-        }
-    }
-
-    // expose any ports with set values of modules that are not targets... 
-    // chances are quite good that a user wants to at least set them per instance of component
-    for (const auto &mName : selectedModules) {
-        if (targets.count(mName)) continue;
-        for (const auto &mObj : modules) {
-            if (mObj.module.name == mName) {
-                for (const auto &p : mObj.inputs) {
-                    if (p.assignedValue){
-                        ModulePort tmp = { mName, p.port };
-                        createOrUpdateAlias(componentName, tmp, inAlias, inModules, inBus, cgd.connections, true, p.value);
-                    }
-                }
-            }
-        }
-    }
-
-    // create a ComponentDescriptor
-    string type = "@INCOMPONENT";
-    ctr = 0;
-    while (components.count(type + to_string(ctr))) {
-        ctr++;
-    }
-    type += to_string(ctr);
-
-    ComponentDescriptor cmp;
-    cmp.graph = cgd;
-    cmp.docString = "";
-    cmp.inBus = inBus;
-    cmp.outBus = outBus;
-
-    // store it on model
-    components[type] = cmp;
-
-    // add it to graph
-    ModuleVariable mv{ componentName, type };
-    vector<ModulePortValue> vs;
-    GfxModule gfxM(
-       mv,
-       (position.x - 0.5f*c_NodeSize) / c_GridSize,
-       (position.y - 0.5f*c_NodeSize) / c_GridSize,
-       doc,
-       vs
-    );
-
-    modules.push_back(gfxM);
-
-    for (const auto &m : selectedModules) {
-        remove(m);
-    }
-
-}
-
-PatchDescriptor GfxGraph::exportModelData(){
-    PatchDescriptor graph;
-
-    for (const auto &m :modules) {
-        graph.layout.emplace(m.module.name, ModulePosition{ (int)m.position.x, (int)m.position.y });
-        if (m.module.name == c_inBus.name || m.module.name == c_outBus.name) continue;
-        graph.root.graph.modules.emplace_back(m.module);
-        for ( const auto &ip : m.inputs){
-            if(ip.assignedValue){
-                graph.root.graph.values.emplace_back(ModulePortValue{{m.module.name, ip.port}, ip.value});
-            }
-        }
-    }
-
-    for (const auto &w : wires) {
-        graph.root.graph.connections.emplace_back(w.connection);
-    }
-
-    graph.components = components;
-
-    return graph;
+    NYI;
 }

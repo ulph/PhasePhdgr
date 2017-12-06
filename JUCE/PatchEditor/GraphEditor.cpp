@@ -255,6 +255,14 @@ GraphEditor::~GraphEditor() {
 
 
 void GraphEditor::propagateUserModelChange() {
+    for (const auto gm : modules) {
+        patch.layout[gm.module.name] = 
+            ModulePosition(
+                gm.position.x, 
+                gm.position.y
+            );
+    }
+    patch.pruneLayout();
     subPatch.set(-1, patch);
     repaint();
 }
@@ -678,6 +686,8 @@ bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
         bool nearestSource = false;
         // disconnect a wire
         if (wit->within(mousePos, nearestSource)) {
+            auto ret = patch.root.graph.disconnect(wit->connection);
+            if (ret != 0) return false;
             looseWire.isValid = true;
             looseWire.destination = mousePos;
             looseWire.attachedAtSource = !nearestSource;
@@ -689,7 +699,6 @@ bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
                 looseWire.attachedPort = wit->connection.target;
                 looseWire.position = wit->destination;
             }
-            wires.erase(wit);
             return true;
         }
     }

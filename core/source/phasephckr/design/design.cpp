@@ -289,12 +289,46 @@ void PatchDescriptor::pruneUnusedComponents() {
     }
 }
 
+void PatchDescriptor::pruneLayout() {
+    set<string> usedNames;
+    usedNames.insert(c_inBus.name);
+    usedNames.insert(c_outBus.name);
+    for (const auto& kv : root.graph.modules) {
+        ModuleVariable m(kv);
+        usedNames.insert(m.name);
+    }
+    auto it = layout.begin();
+    while (it != layout.end()) {
+        if (!usedNames.count(it->first)) {
+            it = layout.erase(it);
+        }
+        else {
+            it++;
+        }
+    }
+}
+
 bool ConnectionGraphDescriptor::validConnection(const ModulePortConnection& connection) {
     const auto& src = connection.source.module;
     const auto& trg = connection.target.module;
     bool validSource = modules.count(src) || src == c_inBus.name;
     bool validTarget = modules.count(trg) || trg == c_outBus.name;
     return validSource && validTarget;
+}
+
+int ConnectionGraphDescriptor::disconnect(const ModulePortConnection& connection, bool all) {
+    bool disconnected = false;
+    auto it = connections.begin();
+    while(it != connections.end()) {
+        if (*it == connection) {
+            it = connections.erase(it);
+            if (!all) return 0;
+            disconnected = true;
+        }
+        else
+            ++it;
+    }
+    return disconnected ? 0 : -1;
 }
 
 void ConnectionGraphDescriptor::pruneDanglingConnections() {

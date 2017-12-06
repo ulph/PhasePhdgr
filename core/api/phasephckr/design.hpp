@@ -115,13 +115,11 @@ struct ConnectionGraphDescriptor {
 
     bool validConnection(const ModulePortConnection& connection);
 
-    int connect(const ModulePortConnection& from, const ModulePortConnection& to) {
+    int connect(const ModulePortConnection& connection) {
         NYI; return -1;
     }
 
-    int disconnect(const ModulePortConnection& from, const ModulePortConnection& to, bool all=false) {
-        NYI; return -1;
-    }
+    int disconnect(const ModulePortConnection& connection, bool all = false);
 
     int disconnect(const ModulePort& target) {
         NYI; return -1;
@@ -194,8 +192,11 @@ struct ComponentDescriptor {
 /* Patch */
 
 struct ModulePosition {
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
+    ModulePosition() {}
+    ModulePosition(int x_, int y_) : x(x_), y(y_) {}
+    ModulePosition(float x_, float y_) : x((int)(x_ + 0.5f)), y((int)(y_ + 0.5f)) {}
 };
 
 struct PatchDescriptor {
@@ -221,9 +222,11 @@ struct PatchDescriptor {
     }
 
     void pruneUnusedComponents();
+    void pruneLayout();
 
     void cleanUp() {
         pruneUnusedComponents();
+        pruneLayout();
         root.cleanUp();
         for (auto& kv : components) {
             kv.second.cleanUp();

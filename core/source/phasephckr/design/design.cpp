@@ -98,11 +98,18 @@ bool unpackComponent(
     }
 
     // find any values set on this component and reroute to inBus
+    set<ModulePort> valueKeysToReroute;
     for(auto &kv : parent.graph.values){
-        ModulePortValue v(kv.first, kv.second);
-        if(v.target.module == mv.name){
-            v.target.module = inBusName;
+        if(kv.first.module == mv.name){
+            valueKeysToReroute.insert(kv.first);
         }
+    }
+    for (const auto &mp : valueKeysToReroute) {
+        auto v = parent.graph.values.at(mp);
+        parent.graph.values.erase(mp);
+        auto mpNew = mp;
+        mpNew.module = inBusName;
+        parent.graph.values[mpNew] = v;
     }
 
     // prefix internals accordingly
@@ -111,10 +118,19 @@ bool unpackComponent(
         if(!checkModule(m)) continue;
         m.name = pfx + m.name;
     }
-    for (auto &kv : current.graph.values) {
-        ModulePortValue v(kv.first, kv.second);
-        v.target.module = pfx + v.target.module;
+
+    set<ModulePort> valueKeysToPrefix;
+    for (const auto &kv : current.graph.values) {
+        valueKeysToPrefix.insert(kv.first);
     }
+    for (const auto &mp : valueKeysToPrefix) {
+        auto v = current.graph.values.at(mp);
+        current.graph.values.erase(mp);
+        auto mpNew = mp;
+        mpNew.module = pfx + mpNew.module;
+        current.graph.values[mpNew] = v;
+    }
+
     for (auto &c : current.graph.connections) {
         c.source.module = pfx + c.source.module;
         c.target.module = pfx + c.target.module;

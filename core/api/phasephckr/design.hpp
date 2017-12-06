@@ -42,9 +42,9 @@ struct ModulePort {
         return other.module == module && other.port == port;
     }
     bool operator <(ModulePort const& other) const {
-        return other.module < module && other.port < port;
+        return pair<string, string>(other) < pair<string, string>(*this);
     }
-    explicit operator pair<string, string>() const { return make_pair(module, port); } // TODO, prune
+    explicit operator pair<string, string>() const { return make_pair(module, port); }
 };
 
 struct ModulePortConnection {

@@ -34,7 +34,7 @@ protected:
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
     void setName(const std::string &n);
-    float fs = 48000;
+    float fs = 48000.f;
     float fsInv = 1.f / fs;
 
 public:
@@ -52,7 +52,7 @@ public:
     int getOutputPadFromName(std::string padName) const;
 
 private:
-    std::string name;
+    std::string name = "";
 
     void setFs(float newFs) {
         fs = newFs;

@@ -43,6 +43,7 @@ namespace PhasePhckr {
         VoiceBus *voiceBus;
         vector<SynthVoice*> voices;
         EffectChain* effects;
+        float lastKnownSampleRate = -1.0f;
         float scopeHz;
         int scopeVoiceIndex;
         Scope voiceScopeL;

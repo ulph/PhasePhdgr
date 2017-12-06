@@ -123,6 +123,7 @@ public:
         cg.registerModule("ATAN", &(Atan::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
+        cg.registerModule("WRAP", &(Wrap::factory));
         cg.registerModule("TANH", &(TanH::factory));
         cg.registerModule("NTANH", &(NormalizedTanH::factory));
         

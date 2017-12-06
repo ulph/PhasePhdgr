@@ -113,6 +113,8 @@ private:
     void decreaseZoom();
     void applyZoom();
 
+    void findHoverDoodat(const XY& pos);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphEditor)
 };
 

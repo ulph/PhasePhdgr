@@ -50,6 +50,8 @@ struct ModulePort {
 struct ModulePortConnection {
     ModulePort source;
     ModulePort target;
+    ModulePortConnection() {}
+    ModulePortConnection(const ModulePort& src, const ModulePort& trg) : source(src), target(trg) {}
     bool operator ==(ModulePortConnection const& other) const {
         return source == other.source && target == other.target;
     }
@@ -111,7 +113,10 @@ struct ConnectionGraphDescriptor {
     bool validConnection(const ModulePortConnection& connection);
 
     int connect(const ModulePortConnection& connection) {
-        NYI; return -1;
+        if (!modules.count(connection.source.module)) return -1;
+        if (!modules.count(connection.target.module)) return -2;
+        connections.push_back(connection);
+        return 0;
     }
 
     int disconnect(const ModulePortConnection& connection, bool all = false);

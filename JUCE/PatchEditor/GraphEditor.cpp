@@ -381,8 +381,8 @@ void GraphEditor::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails &
 
 void GraphEditor::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
+    auto mousePos = XY((float)event.x, (float)event.y);
     if (draggedModule) {
-        auto mousePos = XY((float)event.x, (float)event.y);
         XY delta = mousePos - mouseDownPos;
         mouseDownPos = mousePos;
         draggedModule->position += delta;
@@ -397,9 +397,10 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         repaint();
     }
     if (looseWire.isValid) {
-        looseWire.destination.x = (float)event.x;
-        looseWire.destination.y = (float)event.y;
+        auto l = gfxGraphLock.make_scoped_lock();
+        looseWire.destination = mousePos;
         updateBounds(getVirtualBounds());
+        findHoverDoodat(mousePos);
         repaint();
     }
     if (selecting) {
@@ -436,14 +437,7 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     if (modelChanged) propagateUserModelChange();
 }
 
-
-void GraphEditor::mouseMove(const MouseEvent & event) {
-    XY mousePos((float)event.x, (float)event.y);
-
-    auto l = gfxGraphLock.make_scoped_lock();
-
-    // replace with something less terrible that doesn't search the whole bloody graph every pixel
-
+void GraphEditor::findHoverDoodat(const XY& mousePos) {
     for (auto& m : modules) {
         for (auto& p : m.inputs) {
             if (p.within(mousePos)) {
@@ -484,6 +478,12 @@ void GraphEditor::mouseMove(const MouseEvent & event) {
     }
 
     mouseIsHovering = false;
+}
+
+void GraphEditor::mouseMove(const MouseEvent & event) {
+    auto l = gfxGraphLock.make_scoped_lock();
+    XY mousePos((float)event.x, (float)event.y);
+    findHoverDoodat(mousePos);
 }
 
 
@@ -714,9 +714,33 @@ bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
 }
 
 bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
-    bool foundPort = false;
-    NYI;
-    return foundPort;
+    for (const auto& m : modules) {
+        if (looseWire.attachedAtSource) {
+            for (const auto& ip : m.inputs) {
+                if (ip.within(mousePos)) {
+                    return 0 == patch.root.graph.connect(
+                        ModulePortConnection(
+                            looseWire.attachedPort, 
+                            ModulePort(m.module.name, ip.port)
+                        )
+                    );
+                }
+            }
+        }
+        else {
+            for (const auto& op : m.outputs) {
+                if (op.within(mousePos)) {
+                    return 0 == patch.root.graph.connect(
+                        ModulePortConnection(
+                            ModulePort(m.module.name, op.port),
+                            looseWire.attachedPort
+                        )
+                    );
+                }
+            }
+        }
+    }
+    return false;
 }
 
 void GraphEditor::designPorts(const Doc &doc) {

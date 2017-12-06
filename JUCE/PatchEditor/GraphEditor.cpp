@@ -454,6 +454,7 @@ void GraphEditor::updateRenderComponents()
                 xy.x = (float)xy_.x / (float)c_GridSize;
                 xy.y = (float)xy_.y / (float)c_GridSize;
             }
+            modules.push_back(GfxModule(m, xy.x, xy.y, doc, patch.root.graph.values));
         }
 
         auto bounds = getVirtualBounds();

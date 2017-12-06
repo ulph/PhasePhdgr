@@ -61,6 +61,8 @@ struct ModulePortValue {
     ModulePortValue(const ModulePort& mp, float v) : target(mp), value(v) {}
 };
 
+struct ModulePosition;
+
 struct ConnectionGraphDescriptor {
     map<string, string> modules;
     vector<ModulePortConnection> connections;
@@ -77,16 +79,9 @@ struct ConnectionGraphDescriptor {
 
     int add(const string& module, const string& type);
 
-    int remove(const string& module) {
-        if (!modules.count(module)) return -1;
-        modules.erase(module);
-        pruneDanglingConnections();
-        return 0;
-    }
+    int remove(const string& module);
 
-    int rename(const string& module, const string& newModule) {
-        NYI; return -1;
-    }
+    int rename(const string& module, const string& newModule, map<string, ModulePosition> *layout = nullptr);
 
     int clone(const string& module, const string& clone) {
         NYI; return -1;

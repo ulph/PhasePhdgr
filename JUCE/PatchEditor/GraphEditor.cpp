@@ -86,7 +86,7 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
     }
 
     if (moduleName != nameLbl.getText().toStdString()) {
-        return 0 == patch.root.graph.rename(moduleName, nameLbl.getText().toStdString());
+        return 0 == patch.root.graph.rename(moduleName, nameLbl.getText().toStdString(), &patch.layout);
     }
     else if (moduleType != typeLbl.getText().toStdString()) {
         return 0 == patch.renameComponentType(moduleType, typeLbl.getText().toStdString());
@@ -96,7 +96,7 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
 }
 
 
-bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & selection, PatchDescriptor& patch, Doc & doc, XY& position) {
+bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, PatchDescriptor &patch, Doc &doc, XY &position) {
     poop.addItem(1, "make component");
     poop.addItem(2, "delete");
 
@@ -387,6 +387,10 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         auto mv = vector<GfxModule>{ *draggedModule };
 
         gfxGraphLock.lock();
+        patch.layout.insert_or_assign(
+            draggedModule->module.name,
+            ModulePosition(draggedModule->position.x, draggedModule->position.y)
+        );
         recalculateWires(mv);
         gfxGraphLock.unlock();
 

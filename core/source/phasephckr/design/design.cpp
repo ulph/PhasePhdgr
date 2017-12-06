@@ -410,6 +410,48 @@ int ConnectionGraphDescriptor::add(const string& module, const string& type) {
     return 0;
 }
 
+int ConnectionGraphDescriptor::remove(const string& module) {
+    if (!modules.count(module)) return -1;
+    modules.erase(module);
+    pruneDanglingConnections();
+    return 0;
+}
+
+int ConnectionGraphDescriptor::rename(const string& module, const string& newModule, map<string, ModulePosition> *layout) {
+    if (!modules.count(module)) return -1;
+    if (modules.count(newModule)) return -2;
+    if (!moduleNameIsValid(newModule)) return -3;
+
+    auto t = modules.at(module);
+    modules.erase(module);
+    modules[newModule] = t;
+
+    for (auto& c : connections) {
+        if (c.source.module == module) c.source.module = newModule;
+        else if (c.target.module == module) c.target.module = newModule;
+    }
+
+    set<ModulePort> ks;
+    for (const auto& kv : values) {
+        if (kv.first.module == module) ks.insert(kv.first);
+    }
+    for (auto& k : ks) {
+        auto v = values[k];
+        values.erase(k);
+        auto newK = k;
+        newK.module = newModule;
+        values[newK] = v;
+    }
+
+    if (layout != nullptr && layout->count(module)) {
+        auto v = layout->at(module);
+        layout->erase(module);
+        layout->insert_or_assign(newModule, v);
+    }
+
+    return 0;
+}
+
 int ComponentDescriptor::addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue) {
     auto& bus = inputPort ? inBus : outBus;
     string actualPortName = portName;

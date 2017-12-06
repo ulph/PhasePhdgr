@@ -98,7 +98,7 @@ bool unpackComponent(
     }
 
     // find any values set on this component and reroute to inBus
-    set<ModulePort> valueKeysToReroute;
+    set<ModulePort> valueKeysToReroute; // TODO, simply replace map
     for(auto &kv : parent.graph.values){
         if(kv.first.module == mv.name){
             valueKeysToReroute.insert(kv.first);
@@ -113,13 +113,15 @@ bool unpackComponent(
     }
 
     // prefix internals accordingly
-    for (auto &kv : current.graph.modules) {
-        ModuleVariable m(kv);
-        if(!checkModule(m)) continue;
-        m.name = pfx + m.name;
+    map<string, string> newModulesMap;
+    for (const auto &kv : current.graph.modules) {
+        const ModuleVariable m(kv);
+        if (!checkModule(m)) continue;
+        newModulesMap[pfx + kv.first] = kv.second;
     }
+    current.graph.modules = newModulesMap;
 
-    set<ModulePort> valueKeysToPrefix;
+    set<ModulePort> valueKeysToPrefix; // TODO, simply replace map
     for (const auto &kv : current.graph.values) {
         valueKeysToPrefix.insert(kv.first);
     }
@@ -156,7 +158,7 @@ void designChain(
 
     // find any components (module bundles) and unpack them
     for (const auto &kv : cd.graph.modules) {
-        ModuleVariable m(kv);
+        const ModuleVariable m(kv);
         if (m.type.front() == componentMarker) {
             if (!checkComponent(m, pd)) continue;
             ComponentDescriptor child_cd = pd.components.at(m.type);
@@ -168,7 +170,7 @@ void designChain(
 
     // create the modules and store their handles
     for (const auto &kv : cd.graph.modules) {
-        ModuleVariable m(kv);
+        const ModuleVariable m(kv);
         if(depth == 0 && !checkModule(m)) continue;
         if (moduleHandles.count(m.name) > 0) {
             cerr << "Error: \"" << m.name << "\" name dupe! (modules)" << endl;
@@ -211,7 +213,7 @@ void designChain(
 
     // set default values provided
     for (const auto &kv : cd.graph.values) {
-        ModulePortValue v(kv.first, kv.second);
+        const ModulePortValue v(kv.first, kv.second);
         if (components.count(v.target.module)) continue;
         int h = moduleHandles.count(v.target.module) > 0 ? moduleHandles.at(v.target.module) : -2;
         cout << v.target.module << ":" << v.target.port << " = " << v.value << endl;
@@ -291,7 +293,7 @@ void designPatch(
 void PatchDescriptor::pruneUnusedComponents() {
     set<string> usedTypes;
     for (const auto& kv : root.graph.modules) {
-        ModuleVariable m(kv);
+        const ModuleVariable m(kv);
         usedTypes.insert(m.type);
     }
     auto it = components.begin();
@@ -310,7 +312,7 @@ void PatchDescriptor::pruneLayout() {
     usedNames.insert(c_inBus.name);
     usedNames.insert(c_outBus.name);
     for (const auto& kv : root.graph.modules) {
-        ModuleVariable m(kv);
+        const ModuleVariable m(kv);
         usedNames.insert(m.name);
     }
     auto it = layout.begin();

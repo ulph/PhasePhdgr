@@ -127,7 +127,7 @@ GfxPort::GfxPort(string port, const string unit, float value, bool isInput)
 void GfxPort::updateValue(const string& module, const map<ModulePort, float> &mpvs){
     if(!isInput) return;
     for(const auto &kv:mpvs ){
-        ModulePortValue mpv(kv.first, kv.second);
+        const ModulePortValue mpv(kv.first, kv.second);
         if(mpv.target.module == module && mpv.target.port == port){
             value = mpv.value;
             assignedValue = true;

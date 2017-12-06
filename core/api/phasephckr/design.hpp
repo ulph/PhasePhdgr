@@ -140,12 +140,15 @@ struct ComponentDescriptor {
     vector<PadDescription> outBus;
     ConnectionGraphDescriptor graph;
     string docString;
+    map<string, ModulePosition> layout;
     int removePort(const string & portName, bool inputPort);
+    void pruneLayout();
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort) {
         NYI; return -1;
     }
     void cleanUp() {
+        pruneLayout();
         graph.cleanUp();
     }
 };
@@ -164,7 +167,6 @@ struct PatchDescriptor {
     ComponentDescriptor root;
     // TODO - globalComponents and localComponents?
     map<string, ComponentDescriptor> components;
-    map<string, ModulePosition> layout; // TODO; move onto ComponentDescriptor?
     vector<PatchParameterDescriptor> parameters;
 
     int renameComponentType(const string& type, const string& newType) {
@@ -186,11 +188,9 @@ struct PatchDescriptor {
     }
 
     void pruneUnusedComponents();
-    void pruneLayout();
 
     void cleanUp() {
         pruneUnusedComponents();
-        pruneLayout();
         root.cleanUp();
         for (auto& kv : components) {
             kv.second.cleanUp();

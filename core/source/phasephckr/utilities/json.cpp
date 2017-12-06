@@ -70,11 +70,13 @@ void to_json(json& j, const ConnectionGraphDescriptor& cgd) {
     }
     j["modules"] = modules;
     j["connections"] = cgd.connections;
-    vector<ModulePortValue> values;
-    for (const auto& kv : cgd.values) {
-        values.emplace_back(ModulePortValue(kv.first, kv.second));
+    if (cgd.values.size()) {
+        vector<ModulePortValue> values;
+        for (const auto& kv : cgd.values) {
+            values.emplace_back(ModulePortValue(kv.first, kv.second));
+        }
+        j["values"] = values;
     }
-    j["values"] = values;
 }
 
 void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
@@ -84,9 +86,11 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
         cgd.modules[m.name] = m.type;
     }
     cgd.connections = j.at("connections").get<vector<ModulePortConnection>>();
-    auto values = j.at("values").get<vector<ModulePortValue>>();
-    for (const auto& mpv : values) {
-        cgd.values[mpv.target] = mpv.value;
+    if (j.count("values")) {
+        auto values = j.at("values").get<vector<ModulePortValue>>();
+        for (const auto& mpv : values) {
+            cgd.values[mpv.target] = mpv.value;
+        }
     }
 }
 
@@ -102,32 +106,34 @@ void from_json(const json& j, ModulePosition& xy) {
 
 void to_json(json& j, const PatchDescriptor& p) {
     j["graph"] = p.root.graph;
-    j["docString"] = p.root.docString;
-    j["components"] = p.components;
-    j["layout"] = p.layout;
-    j["parameters"] = p.parameters;
+    if(p.components.size()) j["components"] = p.components;
+    if(p.parameters.size()) j["parameters"] = p.parameters;
 }
 
 void from_json(const json& j, PatchDescriptor& p) {
     p.root.graph = j.at("graph").get<ConnectionGraphDescriptor>();
-    p.root.docString = j.at("docString").get<string>();
-    p.components = j.at("components").get<map<string, ComponentDescriptor>>();
-    p.layout = j.at("layout").get<map<string, ModulePosition>>();
+    if (j.count("components")) p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     if (j.count("parameters")) p.parameters = j.at("parameters").get<vector<PatchParameterDescriptor>>();
+    if (j.count("layout")) {
+        auto layout = j.at("layout").get<map<string, ModulePosition>>();
+        p.root.layout.insert(layout.begin(), layout.end());
+    }
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
     j[c_inBus.name] = cgd.inBus;
     j[c_outBus.name] = cgd.outBus;
     j["graph"] = cgd.graph;
-    j["docString"] = cgd.docString;
+    if (cgd.docString.size()) j["docString"] = cgd.docString;
+    if (cgd.layout.size()) j["layout"] = cgd.layout;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
     cgd.inBus = j.at(c_inBus.name).get<vector<PadDescription>>();
     cgd.outBus = j.at(c_outBus.name).get<vector<PadDescription>>();
     cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
-    cgd.docString = j.at("docString").get<string>();
+    if (j.count("docString")) cgd.docString = j.at("docString").get<string>();
+    if (j.count("layout")) cgd.layout = j.at("layout").get<map<string, ModulePosition>>();
 }
 
 void to_json(json& j, const PatchParameterDescriptor& p) {
@@ -176,7 +182,7 @@ void from_json(const json& j, PresetParameterDescriptor& p) {
 void to_json(json& j, const PresetDescriptor& preset) {
     j["voice"] = preset.voice;
     j["effect"] = preset.effect;
-    j["parameters"] = preset.parameters;
+    if(preset.parameters.size()) j["parameters"] = preset.parameters;
 }
 
 void from_json(const json& j, PresetDescriptor& preset) {

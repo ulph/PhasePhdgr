@@ -86,7 +86,7 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
     }
 
     if (moduleName != nameLbl.getText().toStdString()) {
-        return 0 == patch.root.graph.rename(moduleName, nameLbl.getText().toStdString(), &patch.layout);
+        return 0 == patch.root.graph.rename(moduleName, nameLbl.getText().toStdString(), &patch.root.layout);
     }
     else if (moduleType != typeLbl.getText().toStdString()) {
         return 0 == patch.renameComponentType(moduleType, typeLbl.getText().toStdString());
@@ -253,13 +253,13 @@ GraphEditor::~GraphEditor() {
 
 void GraphEditor::propagateUserModelChange() {
     for (const auto gm : modules) {
-        patch.layout[gm.module.name] = 
+        patch.root.layout[gm.module.name] = 
             ModulePosition(
                 gm.position.x, 
                 gm.position.y
             );
     }
-    patch.pruneLayout();
+    patch.root.pruneLayout();
     subPatch.set(-1, patch);
     repaint();
 }
@@ -387,7 +387,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         auto mv = vector<GfxModule>{ *draggedModule };
 
         gfxGraphLock.lock();
-        patch.layout.insert_or_assign(
+        patch.root.layout.insert_or_assign(
             draggedModule->module.name,
             ModulePosition(draggedModule->position.x, draggedModule->position.y)
         );
@@ -513,7 +513,7 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
             fullName = name + to_string(i);
         }
 
-        patch.layout[fullName] = ModulePosition(
+        patch.root.layout[fullName] = ModulePosition(
             (float)dropPos.x - 0.5f*c_NodeSize,
             (float)dropPos.y - 0.5f*c_NodeSize
         );
@@ -609,8 +609,8 @@ void GraphEditor::updateRenderComponents()
         for (const auto & kv : patch.root.graph.modules) {
             ModuleVariable m(kv);
             XY xy(mp.at(m.name).x, mp.at(m.name).y);
-            if (patch.layout.count(m.name)) {
-                auto xy_ = patch.layout.at(m.name);
+            if (patch.root.layout.count(m.name)) {
+                auto xy_ = patch.root.layout.at(m.name);
                 xy.x = (float)xy_.x / (float)c_GridSize;
                 xy.y = (float)xy_.y / (float)c_GridSize;
             }

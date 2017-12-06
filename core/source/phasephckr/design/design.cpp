@@ -299,11 +299,11 @@ void PatchDescriptor::pruneUnusedComponents() {
     }
 }
 
-void PatchDescriptor::pruneLayout() {
+void ComponentDescriptor::pruneLayout() {
     set<string> usedNames;
     usedNames.insert(c_inBus.name);
     usedNames.insert(c_outBus.name);
-    for (const auto& kv : root.graph.modules) {
+    for (const auto& kv : graph.modules) {
         const ModuleVariable m(kv);
         usedNames.insert(m.name);
     }

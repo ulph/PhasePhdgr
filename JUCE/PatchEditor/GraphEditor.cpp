@@ -244,7 +244,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         auto mv = vector<GfxModule>{ *draggedModule };
 
         gfxGraphLock.lock();
-        recalculateWires();
+        recalculateWires(mv);
         gfxGraphLock.unlock();
 
         updateBounds(getVirtualBounds());
@@ -427,7 +427,7 @@ void GraphEditor::updateRenderComponents()
 
     if (docIsDirty) {
         designPorts(doc);
-        recalculateWires();
+        recalculateWires(modules);
         docIsDirty = false;
     }
 
@@ -461,6 +461,10 @@ void GraphEditor::updateRenderComponents()
         if (delta.x && delta.y) {
             moveDelta(delta);
             bounds = getVirtualBounds();
+        }
+
+        for (const auto &c : patch.root.graph.connections) {
+            wires.emplace_back(GfxWire(c, modules));
         }
 
         updateBounds(bounds);
@@ -517,8 +521,10 @@ void GraphEditor::moveIntoView() {
     }
 }
 
-void GraphEditor::recalculateWires() {
-    NYI;
+void GraphEditor::recalculateWires(const vector<GfxModule>& modules) {
+    for (auto &w : wires) {
+        w.calculatePath(modules);
+    }
 }
 
 bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {

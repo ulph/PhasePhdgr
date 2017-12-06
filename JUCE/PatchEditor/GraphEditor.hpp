@@ -71,7 +71,7 @@ private:
     void moveDelta(XY delta);
     void moveIntoView();
     void designPorts(const Doc &doc);
-    void recalculateWires();
+    void recalculateWires(const vector<GfxModule>& modules);
     // end
 
     bool patchIsDirty;

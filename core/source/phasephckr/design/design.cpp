@@ -445,6 +445,10 @@ bool stringIsValid(string s, bool isName = false) {
     return true;
 }
 
+bool portNameIsValid(const string& moduleName) {
+    return stringIsValid(moduleName, true);
+}
+
 bool moduleNameIsValid(const string& moduleName){
     if (moduleName == c_inBus.name || moduleName == c_outBus.name) return false;
     return stringIsValid(moduleName, true);

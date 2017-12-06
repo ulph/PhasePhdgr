@@ -178,12 +178,7 @@ struct ComponentDescriptor {
         NYI; return -1;
     }
 
-    void pruneUnusedPorts() {
-        NYI;
-    }
-
     void cleanUp() {
-        pruneUnusedPorts();
         graph.cleanUp();
     }
 
@@ -201,6 +196,7 @@ struct ModulePosition {
 
 struct PatchDescriptor {
     ComponentDescriptor root;
+    // TODO - globalComponents and localComponents?
     map<string, ComponentDescriptor> components;
     map<string, ModulePosition> layout; // TODO; move onto ComponentDescriptor?
     vector<PatchParameterDescriptor> parameters;
@@ -268,6 +264,7 @@ const char componentSeparator = '.';
 const char parameterMarker = '=';
 const char componentMarker = '@';
 
+bool portNameIsValid(const string& portName);
 bool moduleNameIsValid(const string& moduleName);
 bool moduleTypeIsValid(const string& componentName);
 bool componentTypeIsValid(const string& componentName);

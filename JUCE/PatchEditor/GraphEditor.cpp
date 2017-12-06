@@ -115,7 +115,6 @@ bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & select
     case 2:
         for (const auto* m : selection) {
             patch.root.graph.remove(m->module.name);
-            NYI; // delete also from _modules_
         }
         return true;
     default:

@@ -559,10 +559,10 @@ bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
 
 void GraphEditor::designPorts(const Doc &doc) {
     for (auto& m : modules) {
-        std::vector<ModulePortValue> mpvs;
+        map<ModulePort, float> mpvs;
         for (const auto& ip : m.inputs) {
             if (ip.assignedValue) {
-                mpvs.push_back(ModulePortValue{ { m.module.name, ip.port }, ip.value });
+                mpvs[ModulePort(m.module.name, ip.port)] = ip.value;
             }
         }
         m.designPorts(doc, mpvs);

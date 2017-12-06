@@ -32,7 +32,7 @@ namespace PhasePhckr {
             { { "outPostGain", "left" },{ "outBus", "left" } },
             { { "outPostGain", "right" },{ "outBus", "right" } }
         },
-        std::vector<ModulePortValue>{
+        std::map<ModulePort, float>{
             { {"outPreGain", "gain"}, 0.5f },
             { {"outPostGain", "gain"}, 1.0f },
             // overriding component defaults ;)
@@ -125,7 +125,7 @@ namespace PhasePhckr {
             { { "wc", "output" }, { "lpDesign", "f0" } },
 
         },
-        std::vector<ModulePortValue>{
+        std::map<ModulePort, float>{
             { {"clk1", "scale"}, 1.0f},
             { {"clk1", "shift"}, 0.9f},
             { {"clk2", "scale"}, 1.0f},

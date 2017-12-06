@@ -34,10 +34,15 @@ struct ModuleVariable {
 };
 
 struct ModulePort {
-    string module;
-    string port;
+    string module = "";
+    string port = "";
+    ModulePort() {}
+    ModulePort(const string& m, const string& p) : module(m), port(p) {}
     bool operator ==(ModulePort const& other) const {
         return other.module == module && other.port == port;
+    }
+    bool operator <(ModulePort const& other) const {
+        return other.module < module && other.port < port;
     }
     explicit operator pair<string, string>() const { return make_pair(module, port); } // TODO, prune
 };
@@ -53,6 +58,8 @@ struct ModulePortConnection {
 struct ModulePortValue {
     ModulePort target;
     float value;
+    ModulePortValue(){}
+    ModulePortValue(const ModulePort& mp, float v) : target(mp), value(v) {}
     bool conflicts(ModulePortValue const& other) const {
         return target == other.target;
     }
@@ -65,7 +72,7 @@ struct ModulePortValue {
 struct ConnectionGraphDescriptor {
     map<string, string> modules;
     vector<ModulePortConnection> connections;
-    vector<ModulePortValue> values; // TODO, make a set, where existance is based on ModulePort
+    map<ModulePort, float> values;
 
     void pruneBusModules();
 

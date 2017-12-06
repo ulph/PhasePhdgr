@@ -94,11 +94,12 @@ bool unpackComponent(
 
     // copy all values from inBus onto values
     for(const auto &i : current.inBus){
-        current.graph.values.push_back(ModulePortValue{{c_inBus.name, i.name}, i.defaultValue});
+        current.graph.values[ModulePort(c_inBus.name, i.name)] = i.defaultValue;
     }
 
     // find any values set on this component and reroute to inBus
-    for(auto &v : parent.graph.values){
+    for(auto &kv : parent.graph.values){
+        ModulePortValue v(kv.first, kv.second);
         if(v.target.module == mv.name){
             v.target.module = inBusName;
         }
@@ -110,7 +111,8 @@ bool unpackComponent(
         if(!checkModule(m)) continue;
         m.name = pfx + m.name;
     }
-    for (auto &v : current.graph.values) {
+    for (auto &kv : current.graph.values) {
+        ModulePortValue v(kv.first, kv.second);
         v.target.module = pfx + v.target.module;
     }
     for (auto &c : current.graph.connections) {
@@ -192,7 +194,8 @@ void designChain(
     }
 
     // set default values provided
-    for (const auto &v : cd.graph.values) {
+    for (const auto &kv : cd.graph.values) {
+        ModulePortValue v(kv.first, kv.second);
         if (components.count(v.target.module)) continue;
         int h = moduleHandles.count(v.target.module) > 0 ? moduleHandles.at(v.target.module) : -2;
         cout << v.target.module << ":" << v.target.port << " = " << v.value << endl;

@@ -64,23 +64,30 @@ void from_json(const json& j, ModulePortConnection& mpc) {
 }
 
 void to_json(json& j, const ConnectionGraphDescriptor& cgd) {
-    j["modules"] = cgd.modules;
-    j["connections"] = cgd.connections;
-    vector<ModuleVariable> mvs;
+    vector<ModuleVariable> modules;
     for (const auto& kv : cgd.modules) {
-        mvs.emplace_back(ModuleVariable(kv.first, kv.second));
+        modules.emplace_back(ModuleVariable(kv.first, kv.second));
     }
-    j["values"] = mvs;
+    j["modules"] = modules;
+    j["connections"] = cgd.connections;
+    vector<ModulePortValue> values;
+    for (const auto& kv : cgd.values) {
+        values.emplace_back(ModulePortValue(kv.first, kv.second));
+    }
+    j["values"] = values;
 }
 
 void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
-    auto mvs = j.at("modules").get<vector<ModuleVariable>>();
+    auto modules = j.at("modules").get<vector<ModuleVariable>>();
     cgd.modules.clear();
-    for (const auto& v : mvs) {
-        cgd.modules[v.name] = v.type;
+    for (const auto& m : modules) {
+        cgd.modules[m.name] = m.type;
     }
     cgd.connections = j.at("connections").get<vector<ModulePortConnection>>();
-    cgd.values = j.at("values").get<vector<ModulePortValue>>();
+    auto values = j.at("values").get<vector<ModulePortValue>>();
+    for (const auto& mpv : values) {
+        cgd.values[mpv.target] = mpv.value;
+    }
 }
 
 void to_json(json& j, const ModulePosition& xy) {

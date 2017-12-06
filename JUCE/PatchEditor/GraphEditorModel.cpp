@@ -124,9 +124,10 @@ GfxPort::GfxPort(string port, const string unit, float value, bool isInput)
     : port(port), unit(unit), defaultValue(value), value(value), isInput(isInput)
 {}
 
-void GfxPort::updateValue(const string& module, const std::vector<ModulePortValue> &mpvs){
+void GfxPort::updateValue(const string& module, const map<ModulePort, float> &mpvs){
     if(!isInput) return;
-    for(const auto &mpv:mpvs ){
+    for(const auto &kv:mpvs ){
+        ModulePortValue mpv(kv.first, kv.second);
         if(mpv.target.module == module && mpv.target.port == port){
             value = mpv.value;
             assignedValue = true;
@@ -283,7 +284,7 @@ bool GfxModule::setValue(const string& port, float value){
     return false;
 }
 
-void GfxModule::designPorts(const Doc &doc, const std::vector<ModulePortValue> &mpvs){
+void GfxModule::designPorts(const Doc &doc, const map<ModulePort, float> &mpvs){
     inputs.clear();
     outputs.clear();
     const auto d = doc.get();
@@ -311,7 +312,7 @@ GfxModule::GfxModule(
     float x,
     float y,
     const Doc & doc,
-    const std::vector<ModulePortValue> &mpvs
+    const map<ModulePort, float> &mpvs
 )
     : module(mv)
 {

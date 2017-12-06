@@ -70,7 +70,7 @@ struct GfxPort {
     void setValue(float v);
     float getValue();
     void draw(Graphics & g, int rowIndex=-1);
-    void updateValue(const string& module, const std::vector<ModulePortValue> &mpvs);
+    void updateValue(const string& module, const map<ModulePort, float> &mpvs);
 
     GfxPort();
     GfxPort(string port, const string unit, float value, bool isInput);
@@ -91,7 +91,7 @@ struct GfxModule {
 
     void designPorts(
         const Doc &doc,
-        const std::vector<ModulePortValue> &mpvs
+        const map<ModulePort, float> &mpvs
     );
 
     void repositionPorts();
@@ -107,7 +107,7 @@ struct GfxModule {
         float x, 
         float y, 
         const Doc & doc, 
-        const std::vector<ModulePortValue> &mpvs
+        const map<ModulePort, float> &mpvs
     );
 
 };

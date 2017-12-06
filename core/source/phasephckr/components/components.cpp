@@ -80,7 +80,7 @@ const ComponentDescriptor stereoTape = {
             {{"leftDelayLP", "y1"}, {"outBus", "left"}},
             {{"rightDelayLP", "y1"}, {"outBus", "right"}},
         },
-        vector<ModulePortValue>{
+        std::map<ModulePort, float>{
             // any "api"-facing values are better set on inBus
         },
     },
@@ -116,10 +116,10 @@ const ComponentDescriptor adsr = {
             {{"inBus", "RPow"}, {"env", "offDecayPow"}},
             {{"env", "value"}, {"outBus", "value"}},
         },
-        vector<ModulePortValue>{
-            {"env", "onBumpHeight", 1.0f},
-            {"env", "offBumpHeight", 0.0f},
-            {"env", "offAttackSpeed", 0.0f},
+        std::map<ModulePort, float>{
+            {{"env", "onBumpHeight"}, 1.0f},
+            {{"env", "offBumpHeight"}, 0.0f},
+            {{"env", "offAttackSpeed"}, 0.0f },
         }
     },
     string("ADSR envelope with shape control.\n(Simplification of ENV module)")

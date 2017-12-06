@@ -65,10 +65,6 @@ struct ModulePortValue {
     bool conflicts(ModulePortValue const& other) const {
         return target == other.target;
     }
-    void setValue(float newValue) { value = newValue; }
-    float getValue() const { return value; }
-    const ModulePort& getTarget() const { return target; }
-    void setTarget(const ModulePort& newTarget) { target = newTarget; }
 };
 
 struct ConnectionGraphDescriptor {
@@ -112,34 +108,17 @@ struct ConnectionGraphDescriptor {
 
     bool validConnection(const ModulePortConnection& connection);
 
-    int connect(const ModulePortConnection& connection) {
-        if (!modules.count(connection.source.module)) return -1;
-        if (!modules.count(connection.target.module)) return -2;
-        connections.push_back(connection);
-        return 0;
-    }
+    int connect(const ModulePortConnection& connection);
 
     int disconnect(const ModulePortConnection& connection, bool all = false);
 
-    int disconnect(const ModulePort& target) {
-        NYI; return -1;
-    }
+    int disconnect(const ModulePort& endpoint, bool isInput);
 
-    int disconnect(const string& module) {
-        NYI; return -1;
-    }
+    int clearValue(const ModulePort& target);
 
-    int clearValue(const ModulePortConnection& target) {
-        NYI; return -1;
-    }
+    int getValue(const ModulePort& target, float& value);
 
-    int clearValues(const string& module) {
-        NYI; return -1;
-    }
-
-    int setValue(const ModulePortConnection& target) {
-        NYI; return -1;
-    }
+    int setValue(const ModulePort& target, float value);
 
 };
 
@@ -177,11 +156,9 @@ struct ComponentDescriptor {
     int renamePort(const string & portName, const string & newPortName, bool inputPort) {
         NYI; return -1;
     }
-
     void cleanUp() {
         graph.cleanUp();
     }
-
 };
 
 /* Patch */

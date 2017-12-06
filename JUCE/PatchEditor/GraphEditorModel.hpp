@@ -99,8 +99,6 @@ struct GfxModule {
     bool withinPort(XY p, XY& portPosition, string &port, bool & inputPort);
     virtual void draw(Graphics & g, bool selected=false);
     bool getValue(const string& port, float& value);
-    void clearValue(const string& port);
-    bool setValue(const string& port, float value);
 
     GfxModule(
         const ModuleVariable & mv,

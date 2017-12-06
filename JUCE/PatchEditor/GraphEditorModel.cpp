@@ -265,25 +265,6 @@ bool GfxModule::getValue(const string& port, float& value){
     return false;
 }
 
-void GfxModule::clearValue(const string& port){
-    for(auto& ip:inputs){
-        if(ip.port == port){
-            ip.clearValue();
-            return;
-        }
-    }
-}
-
-bool GfxModule::setValue(const string& port, float value){
-    for(auto& ip:inputs){
-        if(ip.port == port){
-            ip.setValue(value);
-            return true;
-        }
-    }
-    return false;
-}
-
 void GfxModule::designPorts(const Doc &doc, const map<ModulePort, float> &mpvs){
     inputs.clear();
     outputs.clear();

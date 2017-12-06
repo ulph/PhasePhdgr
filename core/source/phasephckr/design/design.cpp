@@ -326,6 +326,13 @@ bool ConnectionGraphDescriptor::validConnection(const ModulePortConnection& conn
     return validSource && validTarget;
 }
 
+int ConnectionGraphDescriptor::connect(const ModulePortConnection& connection) {
+    if (!modules.count(connection.source.module)) return -1;
+    if (!modules.count(connection.target.module)) return -2;
+    connections.push_back(connection);
+    return 0;
+}
+
 int ConnectionGraphDescriptor::disconnect(const ModulePortConnection& connection, bool all) {
     bool disconnected = false;
     auto it = connections.begin();
@@ -339,6 +346,35 @@ int ConnectionGraphDescriptor::disconnect(const ModulePortConnection& connection
             ++it;
     }
     return disconnected ? 0 : -1;
+}
+
+int ConnectionGraphDescriptor::clearValue(const ModulePort& target) {
+    if (!values.count(target)) return -1;
+    values.erase(target);
+    return 0;
+}
+
+int ConnectionGraphDescriptor::setValue(const ModulePort& target, float value) {
+    if (!modules.count(target.module)) return -1;
+    values[target] = value;
+    return 0;
+}
+
+int ConnectionGraphDescriptor::getValue(const ModulePort& target, float& value) {
+    if (!values.count(target)) return -1;
+    value = values.at(target);
+    return 0;
+}
+
+int ConnectionGraphDescriptor::disconnect(const ModulePort& endpoint, bool isInput) {
+    auto sz = connections.size();
+    auto it = connections.begin();
+    while (it != connections.end()) {
+        if (isInput && it->target == endpoint) it = connections.erase(it);
+        else if (!isInput && it->source == endpoint) it = connections.erase(it);
+        else ++it;
+    }
+    return sz > connections.size() ? 0 : -1;
 }
 
 void ConnectionGraphDescriptor::pruneDanglingConnections() {

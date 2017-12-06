@@ -125,6 +125,8 @@ bool makeModuleSelectionPoopUp(PopupMenu & poop, set<const GfxModule *> & select
 
 
 bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, PatchDescriptor& patch, bool inputPort) {
+    const ModulePort mp(gfxModule.module.name, port);
+
     float value = 0.f;
     if (inputPort && !gfxModule.getValue(port, value)) return false; // error
     
@@ -150,20 +152,16 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 
     if (inputPort) {
         if (choice == 3) {
-            gfxModule.clearValue(port);
-            return true;
+            return 0 == patch.root.graph.clearValue(mp);
         }
 
         if (value != lbl.getText().getFloatValue()) {
-            return gfxModule.setValue(
-                port,
-                lbl.getText().getFloatValue()
-            );
+            return 0 == patch.root.graph.setValue(mp, lbl.getText().getFloatValue());
         }
     }
 
     if (choice == 4) {
-        return 0 == patch.root.graph.disconnect(ModulePort(gfxModule.module.name, port));
+        return 0 == patch.root.graph.disconnect(ModulePort(gfxModule.module.name, port), inputPort);
     }
 
     if (port != nameLbl.getText()) {

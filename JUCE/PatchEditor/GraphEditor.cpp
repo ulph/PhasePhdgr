@@ -121,7 +121,7 @@ void GraphEditor::propagateUserModelChange() {
 
 void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
-    for (auto & m : gfxGraph.modules) {
+    for (auto & m : modules) {
         if (m.within(mousePos)) {
             patchEditor.push_tab(m.module.name, m.module.type);
         }
@@ -137,7 +137,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     bool userInteraction = false;
     mouseDownPos = XY((float)event.x, (float)event.y);
 
-    for (auto & m : gfxGraph.modules) {
+    for (auto & m : modules) {
         string port;
         bool inputPort;
         XY position;
@@ -192,7 +192,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     // disconnect a wire
     if (!userInteraction) {
         auto scoped_lock = gfxGraphLock.make_scoped_lock();
-        if (gfxGraph.disconnect(mouseDownPos, looseWire)) {
+        if (disconnect(mouseDownPos, looseWire)) {
             modelChanged = true;
             userInteraction = true;
         }
@@ -244,16 +244,16 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         auto mv = vector<GfxModule>{ *draggedModule };
 
         gfxGraphLock.lock();
-        gfxGraph.recalculateWires();
+        recalculateWires();
         gfxGraphLock.unlock();
 
-        updateBounds(gfxGraph.getBounds());
+        updateBounds(getVirtualBounds());
         repaint();
     }
     if (looseWire.isValid) {
         looseWire.destination.x = (float)event.x;
         looseWire.destination.y = (float)event.y;
-        updateBounds(gfxGraph.getBounds());
+        updateBounds(getVirtualBounds());
         repaint();
     }
     if (selecting) {
@@ -270,12 +270,12 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     draggedModule = nullptr;
     if (looseWire.isValid) {
         auto l = gfxGraphLock.make_scoped_lock();
-        modelChanged = gfxGraph.connect(looseWire, mousePos);
+        modelChanged = connect(looseWire, mousePos);
     }
     if (selecting) {
         auto l = gfxGraphLock.make_scoped_lock();
         auto selectionRegion = Rectangle<float>(selectionStart, selectionStop);
-        for (const auto &m : gfxGraph.modules) {
+        for (const auto &m : modules) {
             if(m.module.name == c_inBus.name || m.module.name == c_outBus.name) continue;
             Rectangle<float> mr(m.position.x, m.position.y, m.size.x, m.size.y);
             if (selectionRegion.intersectRectangle(mr)){
@@ -285,7 +285,7 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     }
     selecting = false;
     looseWire.isValid = false;
-    gfxGraph.moveIntoView(); // don't do this continously or stuff gets weird
+    moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
     if (modelChanged) propagateUserModelChange();
 }
@@ -298,7 +298,7 @@ void GraphEditor::mouseMove(const MouseEvent & event) {
 
     // replace with something less terrible that doesn't search the whole bloody graph every pixel
 
-    for (auto& m : gfxGraph.modules) {
+    for (auto& m : modules) {
         for (auto& p : m.inputs) {
             if (p.within(mousePos)) {
                 p.latched_mouseHover = true;
@@ -323,7 +323,7 @@ void GraphEditor::mouseMove(const MouseEvent & event) {
         }
     }
 
-    for (auto wit = gfxGraph.wires.begin(); wit != gfxGraph.wires.end(); ++wit) {
+    for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
         bool nearestSource = false;
         if (wit->within(mousePos, nearestSource)) {
             wit->latched_mouseHover = true;
@@ -380,10 +380,10 @@ void GraphEditor::paint(Graphics& g){
 
     g.fillAll(Colours::black);
 
-    for(auto &w : gfxGraph.wires){
+    for(auto &w : wires){
         w.draw(g);
     }
-    for (auto &mb : gfxGraph.modules) {
+    for (auto &mb : modules) {
         mb.draw(g, selectedModules.count(&mb));
     }
     if (looseWire.isValid) {
@@ -426,8 +426,8 @@ void GraphEditor::updateRenderComponents()
     // call from within paint
 
     if (docIsDirty) {
-        gfxGraph.designPorts(doc);
-        gfxGraph.recalculateWires();
+        designPorts(doc);
+        recalculateWires();
         docIsDirty = false;
     }
 
@@ -441,11 +441,11 @@ void GraphEditor::updateRenderComponents()
         ModulePositionMap mp;
         setNodePositions(patch.root.graph, mp, start, stop);
 
-        gfxGraph.components.clear();
-        gfxGraph.modules.clear();
-        gfxGraph.wires.clear();
+        components.clear();
+        modules.clear();
+        wires.clear();
 
-        gfxGraph.components = patch.components;
+        components = patch.components;
 
         for (const auto & m : patch.root.graph.modules) {
             XY xy(mp.at(m.name).x, mp.at(m.name).y);
@@ -456,13 +456,13 @@ void GraphEditor::updateRenderComponents()
             }
         }
 
-        auto bounds = gfxGraph.getBounds();
+        auto bounds = getVirtualBounds();
         XY delta(0, 0);
         if (bounds.first.x < 0) delta.x = -bounds.first.x;
         if (bounds.first.y < 0) delta.y = -bounds.first.y;
         if (delta.x && delta.y) {
-            gfxGraph.moveDelta(delta);
-            bounds = gfxGraph.getBounds();
+            moveDelta(delta);
+            bounds = getVirtualBounds();
         }
 
         updateBounds(bounds);
@@ -470,3 +470,102 @@ void GraphEditor::updateRenderComponents()
     }
 
 }
+
+// migrated from GfxGraph
+
+pair<XY, XY> GraphEditor::getVirtualBounds() {
+    XY min(FLT_MAX, FLT_MAX);
+    XY max(FLT_MIN, FLT_MIN);
+    for (auto &mb : modules) {
+        if ((mb.position.x + mb.size.x) > max.x) {
+            max.x = (mb.position.x + mb.size.x);
+        }
+        if ((mb.position.y + mb.size.y) > max.y) {
+            max.y = (mb.position.y + mb.size.y);
+        }
+        if (mb.position.x < min.x) {
+            min.x = mb.position.x;
+        }
+        if (mb.position.y < min.y) {
+            min.y = mb.position.y;
+        }
+    }
+    return make_pair(min, max);
+}
+
+void GraphEditor::moveDelta(XY delta) {
+    for (auto &mb : modules) {
+        mb.position += delta;
+        mb.repositionPorts();
+    }
+    for (auto &w : wires) {
+        w.position += delta;
+        w.destination += delta;
+        w.calculatePath(modules);
+    }
+}
+
+void GraphEditor::moveIntoView() {
+    XY delta = { 0, 0 };
+    auto b = getVirtualBounds();
+    if (b.first.x < 0) {
+        delta.x = -b.first.x;
+    }
+    if (b.first.y < 0) {
+        delta.y = -b.first.y;
+    }
+    if (delta.x || delta.y) {
+        moveDelta(delta);
+    }
+}
+
+void GraphEditor::recalculateWires() {
+    NYI;
+}
+
+bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
+    for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
+        bool nearestSource = false;
+        // disconnect a wire
+        if (wit->within(mousePos, nearestSource)) {
+            looseWire.isValid = true;
+            looseWire.destination = mousePos;
+            looseWire.attachedAtSource = !nearestSource;
+            if (looseWire.attachedAtSource) {
+                looseWire.attachedPort = wit->connection.source;
+                looseWire.position = wit->position;
+            }
+            else {
+                looseWire.attachedPort = wit->connection.target;
+                looseWire.position = wit->destination;
+            }
+            wires.erase(wit);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
+    bool foundPort = false;
+    NYI;
+    return foundPort;
+}
+
+void GraphEditor::designPorts(const Doc &doc) {
+    for (auto& m : modules) {
+        std::vector<ModulePortValue> mpvs;
+        for (const auto& ip : m.inputs) {
+            if (ip.assignedValue) {
+                mpvs.push_back(ModulePortValue{ { m.module.name, ip.port }, ip.value });
+            }
+        }
+        m.designPorts(doc, mpvs);
+    }
+}
+
+void GraphEditor::createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position) {
+    NYI;
+}
+
+// end

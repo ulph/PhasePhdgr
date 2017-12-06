@@ -60,6 +60,21 @@ private:
 
     void updateRenderComponents();
 
+    // stuff migrated from GfxGraph
+    vector<GfxModule> modules;
+    list<GfxWire> wires;
+    map<string, ComponentDescriptor> components;
+
+    pair<XY, XY> getVirtualBounds();
+    bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
+    bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
+    void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
+    void moveDelta(XY delta);
+    void moveIntoView();
+    void designPorts(const Doc &doc);
+    void recalculateWires();
+    // end
+
     bool patchIsDirty;
     int subPatchHandle;
     PatchDescriptor patch;
@@ -78,7 +93,6 @@ private:
 
     simple_lock gfxGraphLock;
 
-    GfxGraph gfxGraph;
     GfxModule *draggedModule = nullptr;
     GfxLooseWire looseWire;
     bool mouseIsHovering = false;

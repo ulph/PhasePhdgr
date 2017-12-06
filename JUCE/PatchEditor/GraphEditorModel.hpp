@@ -130,7 +130,6 @@ public:
     GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules);
 };
 
-
 struct GfxLooseWire {
     ModulePort attachedPort;
     bool attachedAtSource;
@@ -138,21 +137,4 @@ struct GfxLooseWire {
     XY destination;
     bool isValid = false;
     void draw(Graphics & g) const;
-};
-
-
-struct GfxGraph {
-    vector<GfxModule> modules;
-    list<GfxWire> wires;
-    map<string, ComponentDescriptor> components;
-
-    pair<XY, XY> getBounds();
-    bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
-    bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
-    void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
-    void moveDelta(XY delta);
-    void moveIntoView();
-    void designPorts(const Doc &doc);
-    void recalculateWires();
-
 };

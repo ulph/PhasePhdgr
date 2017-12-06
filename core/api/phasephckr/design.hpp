@@ -9,7 +9,7 @@
 
 class ConnectionGraph;
 
-#define NYI assert(0)
+#define NYI //assert(0)
 
 using namespace std;
 
@@ -64,6 +64,8 @@ struct ConnectionGraphDescriptor {
     vector<ModulePortConnection> connections;
     vector<ModulePortValue> values; // TODO, make a set, where existance is based on ModulePort
 
+    void pruneBusModules();
+
     void sanitizeModuleNames() {
         NYI;
     }
@@ -81,6 +83,7 @@ struct ConnectionGraphDescriptor {
     }
 
     void cleanUp() {
+        pruneBusModules();
         pruneDuplicatModules();
         pruneDuplicateValues();
         pruneDanglingConnections();

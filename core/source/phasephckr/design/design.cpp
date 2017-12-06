@@ -233,6 +233,8 @@ void designPatch(
         }
     }
 
+    p.root.graph.pruneBusModules();
+
     // create the special inBus and outBus modules
     auto inBus_ = new BusModule(inBus, true);
     auto outBus_ = new BusModule(outBus, false);
@@ -264,6 +266,21 @@ void designPatch(
 
 }
 
+
+void ConnectionGraphDescriptor::pruneBusModules() {
+    vector<string> toPrune = { c_inBus.name, c_outBus.name };
+    auto it = modules.begin();
+    while (it != modules.end()) {
+        bool prunedStuff = false;
+        for (const auto& m : toPrune) {
+            if (it->name == m) {
+                it = modules.erase(it);
+                prunedStuff = true;
+            }
+        }
+        if (!prunedStuff) ++it;
+    }
+}
 
 int ComponentDescriptor::addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue) {
     auto& bus = inputPort ? inBus : outBus;

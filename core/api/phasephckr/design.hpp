@@ -88,10 +88,6 @@ struct ConnectionGraphDescriptor {
         NYI; return -1;
     }
 
-    int createNewComponent(const set<string*>& modules, const string& type) {
-        NYI; return -1;
-    }
-
     bool validConnection(const ModulePortConnection& connection);
     int connect(const ModulePortConnection& connection);
     int disconnect(const ModulePortConnection& connection, bool all = false);
@@ -159,20 +155,23 @@ struct PatchDescriptor {
     map<string, ComponentDescriptor> components;
     vector<PatchParameterDescriptor> parameters;
 
+    int createNewComponentType(const set<string*>& modules, const string& type) {
+        // tricky, see deleted code
+        NYI; return -1;
+    }
+
     int renameComponentType(const string& type, const string& newType) {
+        // trivial
+        NYI; return -1;
+    }
+
+    int addComponentType(const string& type, const ComponentDescriptor& descriptor) {
+        // super trivial
         NYI; return -1;
     }
 
     int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort);
     int removeComponentType(const string& type);
-
-    int addComponentType(const string& type, const ComponentDescriptor& descriptor) {
-        NYI; return -1;
-    }
-
-    int getComponentType(const string& type, const ComponentDescriptor& descriptor) {
-        NYI; return -1;
-    }
 
     void pruneUnusedComponents();
 

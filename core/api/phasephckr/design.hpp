@@ -163,38 +163,8 @@ struct PatchDescriptor {
         NYI; return -1;
     }
 
-    int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort) {
-        if (!components.count(type)) return -4;
-        auto ret = components[type].renamePort(port, newPort, inputPort);
-        if (ret != 0) return ret;
-
-        set<string> instances;
-        for (const auto& kv : root.graph.modules) {
-            if (kv.second == type) instances.insert(kv.first);
-        }
-
-        for (const auto& m : instances) {
-            auto mp = ModulePort(m, port);
-            auto newMp = ModulePort(m, newPort);
-            for (auto & c : root.graph.connections) {
-                if (inputPort && c.target == mp) c.target = newMp;
-                else if (!inputPort && c.source == mp) c.source = newMp;
-            }
-            if (inputPort && root.graph.values.count(mp)) {
-                auto v = root.graph.values.at(mp);
-                root.graph.values.erase(mp);
-                root.graph.values[newMp] = v;
-            }
-        }
-
-        return 0;
-    }
-
-    int removeComponentType(const string& type) {
-        if (!components.count(type)) return -1;
-        components.erase(type);
-        return 0;
-    }
+    int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort);
+    int removeComponentType(const string& type);
 
     int addComponentType(const string& type, const ComponentDescriptor& descriptor) {
         NYI; return -1;

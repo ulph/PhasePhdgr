@@ -78,7 +78,7 @@ struct ConnectionGraphDescriptor {
 
     int add(const string& module, const string& type);
     int remove(const string& module);
-    int rename(const string& module, const string& newModule, map<string, ModulePosition> *layout = nullptr);
+    int rename(const string& module, const string& newModule);
 
     int clone(const string& module, const string& clone) {
         NYI; return -1;
@@ -155,7 +155,7 @@ struct PatchDescriptor {
     map<string, ComponentDescriptor> components;
     vector<PatchParameterDescriptor> parameters;
 
-    int createNewComponentType(const set<string*>& modules, const string& type);
+    int createNewComponentType(const set<string>& modules, string& type);
     int addComponentType(const string& type, const ComponentDescriptor& descriptor);
     int renameComponentType(const string& type, const string& newType);
     int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort);

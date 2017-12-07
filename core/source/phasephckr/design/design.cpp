@@ -366,8 +366,9 @@ int PatchDescriptor::addComponentType(const string& type, const ComponentDescrip
     return 0;
 }
 
-int PatchDescriptor::createNewComponentType(const set<string*>& modules, const string& type) {
-    // tricky, see deleted code
+int PatchDescriptor::createNewComponentType(const set<string>& modules, string& newType) {
+    string t = componentMarker + "CMP";
+
     NYI; return -1;
 }
 
@@ -476,7 +477,7 @@ int ConnectionGraphDescriptor::remove(const string& module) {
     return 0;
 }
 
-int ConnectionGraphDescriptor::rename(const string& module, const string& newModule, map<string, ModulePosition> *layout) {
+int ConnectionGraphDescriptor::rename(const string& module, const string& newModule) {
     if (!modules.count(module)) return -1;
     if (modules.count(newModule)) return -2;
     if (!moduleNameIsValid(newModule)) return -3;
@@ -500,12 +501,6 @@ int ConnectionGraphDescriptor::rename(const string& module, const string& newMod
         auto newK = k;
         newK.module = newModule;
         values[newK] = v;
-    }
-
-    if (layout != nullptr && layout->count(module)) {
-        auto v = layout->at(module);
-        layout->erase(module);
-        layout->insert_or_assign(newModule, v);
     }
 
     return 0;

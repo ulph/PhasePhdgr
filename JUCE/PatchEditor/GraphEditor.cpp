@@ -86,7 +86,16 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
     }
 
     if (moduleName != nameLbl.getText().toStdString()) {
-        return 0 == patch.root.graph.rename(moduleName, nameLbl.getText().toStdString(), &patch.root.layout);
+        auto newModuleName = nameLbl.getText().toStdString();
+        if (0 == patch.root.graph.rename(moduleName, newModuleName)) {
+            if (patch.root.layout.count(moduleName)) {
+                auto v = patch.root.layout.at(moduleName);
+                patch.root.layout.erase(moduleName);
+                patch.root.layout.insert_or_assign(newModuleName, v);
+            }
+            return true;
+        }
+        else return false;
     }
     else if (moduleType != typeLbl.getText().toStdString()) {
         return 0 == patch.renameComponentType(moduleType, typeLbl.getText().toStdString());
@@ -109,7 +118,8 @@ bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selectio
             selectedModules.insert(s->module.name);
         }
         selection.clear();
-        NYI; //gfxGraph.createComponentFromSelection(selectedModules, doc, position);
+        string newType = "";
+        return 0 == patch.createNewComponentType(selectedModules, newType);
     }
     return true;
     case 2:
@@ -753,10 +763,6 @@ void GraphEditor::designPorts(const Doc &doc) {
         }
         m.designPorts(doc, mpvs);
     }
-}
-
-void GraphEditor::createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position) {
-    NYI;
 }
 
 // end

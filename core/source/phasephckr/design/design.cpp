@@ -345,6 +345,32 @@ int PatchDescriptor::renameComponentTypePort(const string& type, const string& p
     return 0;
 }
 
+int PatchDescriptor::renameComponentType(const string& type, const string& newType) {
+    if (!components.count(type)) return -1;
+    if (!componentTypeIsValid(newType)) return -2;
+    if (components.count(newType)) return -3;
+    auto v = components[type];
+    components.erase(type);
+    components[newType] = v;
+    set<string> instances;
+    for (auto& kv : root.graph.modules) {
+        if (kv.second == type) kv.second = newType;
+    }
+    return 0;
+}
+
+int PatchDescriptor::addComponentType(const string& type, const ComponentDescriptor& descriptor) {
+    if (!componentTypeIsValid(type)) return -1;
+    if (components.count(type)) return -2;
+    components[type] = descriptor;
+    return 0;
+}
+
+int PatchDescriptor::createNewComponentType(const set<string*>& modules, const string& type) {
+    // tricky, see deleted code
+    NYI; return -1;
+}
+
 int PatchDescriptor::removeComponentType(const string& type) {
     if (!components.count(type)) return -1;
     components.erase(type);

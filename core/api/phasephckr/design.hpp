@@ -145,6 +145,8 @@ struct ComponentDescriptor {
     void pruneLayout();
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort) {
+        // implement, but keep in mind external connections would be lost; 
+        // hence this should be called via PatchDescriptor::renameComponentTypePort 
         NYI; return -1;
     }
     void cleanUp() {
@@ -165,11 +167,16 @@ struct ModulePosition {
 
 struct PatchDescriptor {
     ComponentDescriptor root;
-    // TODO - globalComponents and localComponents?
+    // TODO - globalComponents and localComponents? Benefits are easier plumbing of data, easy to report what is overlapping etc
     map<string, ComponentDescriptor> components;
     vector<PatchParameterDescriptor> parameters;
 
     int renameComponentType(const string& type, const string& newType) {
+        NYI; return -1;
+    }
+
+    int renameComponentTypePort(const string& type, const string& port, const string& newPort) {
+        // needs to be on this level
         NYI; return -1;
     }
 
@@ -250,6 +257,5 @@ extern const vector<PadDescription> c_voiceChainOutBus;
 
 extern const ModuleVariable c_inBus;
 extern const ModuleVariable c_outBus;
-
 
 }

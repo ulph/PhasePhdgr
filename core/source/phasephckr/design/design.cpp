@@ -474,6 +474,30 @@ int ComponentDescriptor::addPort(const string & portName, bool inputPort, const 
     return 0;
 }
 
+int ComponentDescriptor::renamePort(const string & portName, const string & newPortName, bool inputPort) {
+    vector<PadDescription>* bus = nullptr;
+    if (inputPort) bus = &inBus;
+    else bus = &outBus;
+
+    if (!portNameIsValid(newPortName)) return -2;
+
+    int idx = -1;
+    for (int i = 0; i < bus->size(); ++i) {
+        auto& pd = bus->at(i);
+        if (pd.name == newPortName) return -3;
+        else if (pd.name == portName) { idx = i; break; }
+    }
+    if (idx == -1) return -1;
+
+    (*bus)[idx].name = newPortName;
+
+    for (auto & c : graph.connections) {
+        if (inputPort && c.source.port == portName) c.source.port = newPortName;
+        else if (!inputPort && c.target.port == portName) c.target.port = newPortName;
+    }
+
+    return 0;
+}
 
 int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
     int idx = -1;

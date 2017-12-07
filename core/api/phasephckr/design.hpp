@@ -69,7 +69,6 @@ struct ConnectionGraphDescriptor {
     map<ModulePort, float> values;
 
     void pruneBusModules();
-
     void pruneDanglingConnections();
 
     void cleanUp() {
@@ -78,9 +77,7 @@ struct ConnectionGraphDescriptor {
     }
 
     int add(const string& module, const string& type);
-
     int remove(const string& module);
-
     int rename(const string& module, const string& newModule, map<string, ModulePosition> *layout = nullptr);
 
     int clone(const string& module, const string& clone) {
@@ -96,19 +93,12 @@ struct ConnectionGraphDescriptor {
     }
 
     bool validConnection(const ModulePortConnection& connection);
-
     int connect(const ModulePortConnection& connection);
-
     int disconnect(const ModulePortConnection& connection, bool all = false);
-
     int disconnect(const ModulePort& endpoint, bool isInput);
-
     int clearValue(const ModulePort& target);
-
     int getValue(const ModulePort& target, float& value);
-
     int setValue(const ModulePort& target, float value);
-
 };
 
 /* Component (subgraph) stuff */
@@ -117,6 +107,8 @@ struct PadDescription {
     string name;
     string unit;
     float defaultValue;
+    PadDescription(){}
+    PadDescription(string n, string u, float v) : name(n), unit(u), defaultValue(v){}
 };
 
 enum SynthGraphType {
@@ -144,11 +136,7 @@ struct ComponentDescriptor {
     int removePort(const string & portName, bool inputPort);
     void pruneLayout();
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
-    int renamePort(const string & portName, const string & newPortName, bool inputPort) {
-        // implement, but keep in mind external connections would be lost; 
-        // hence this should be called via PatchDescriptor::renameComponentTypePort 
-        NYI; return -1;
-    }
+    int renamePort(const string & portName, const string & newPortName, bool inputPort);
     void cleanUp() {
         pruneLayout();
         graph.cleanUp();
@@ -175,9 +163,31 @@ struct PatchDescriptor {
         NYI; return -1;
     }
 
-    int renameComponentTypePort(const string& type, const string& port, const string& newPort) {
-        // needs to be on this level
-        NYI; return -1;
+    int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort) {
+        if (!components.count(type)) return -4;
+        auto ret = components[type].renamePort(port, newPort, inputPort);
+        if (ret != 0) return ret;
+
+        set<string> instances;
+        for (const auto& kv : root.graph.modules) {
+            if (kv.second == type) instances.insert(kv.first);
+        }
+
+        for (const auto& m : instances) {
+            auto mp = ModulePort(m, port);
+            auto newMp = ModulePort(m, newPort);
+            for (auto & c : root.graph.connections) {
+                if (inputPort && c.target == mp) c.target = newMp;
+                else if (!inputPort && c.source == mp) c.source = newMp;
+            }
+            if (inputPort && root.graph.values.count(mp)) {
+                auto v = root.graph.values.at(mp);
+                root.graph.values.erase(mp);
+                root.graph.values[newMp] = v;
+            }
+        }
+
+        return 0;
     }
 
     int removeComponentType(const string& type) {

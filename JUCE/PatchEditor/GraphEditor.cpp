@@ -166,8 +166,7 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 
     if (port != nameLbl.getText()) {
         if (!patch.components.count(gfxModule.module.type)) return false;
-        auto& comp = patch.components.at(gfxModule.module.type);
-        return 0 == comp.renamePort(port, nameLbl.getText().toStdString(), inputPort);
+        return 0 == patch.renameComponentTypePort(gfxModule.module.type, port, nameLbl.getText().toStdString(), inputPort);
     }
 
     if (choice == 6) {

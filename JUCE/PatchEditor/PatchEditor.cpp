@@ -41,7 +41,7 @@ PatchEditor::PatchEditor(
        inBus,
        outBus
     )
-    , editorStack(subPatches, subPatchHandles)
+    , editorStack(subPatches, subPatchHandles, subPatchTypes)
 {
     addAndMakeVisible(grid);
     grid.addComponent(&editorStack);
@@ -54,6 +54,19 @@ PatchEditor::PatchEditor(
         [this](const PatchDescriptor& desc) {
             patchCopy = desc;
             refreshAndBroadcastDoc();
+            for (int i = 0; i < subPatchTypes.size(); ++i) {
+                auto t = subPatchTypes.at(i);
+                if (desc.components.count(t)) {
+                    PatchDescriptor p;
+                    p.root = desc.components.at(t);
+                    auto subP = subPatches.at(i);
+                    auto h = subPatchHandles.at(i);
+                    subP.set(h, p);
+                }
+                else {
+                    editorStack.setCurrentTabIndex(i); // +1 (root) -1 (previous)
+                }
+            }
         }
     );
 
@@ -109,6 +122,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
         }
     );
     subPatchHandles.push_back(handle);
+    subPatchTypes.push_back(componentType);
 
     PatchDescriptor p;
     p.root = cmp;

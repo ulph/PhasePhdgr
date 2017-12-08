@@ -17,23 +17,28 @@ using namespace std;
 
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
-    list<SubValue<PatchDescriptor>> & subPatches;
-    list<int> & subPatchHandles;
+    vector<SubValue<PatchDescriptor>> & subPatches;
+    vector<int> & subPatchHandles;
+    vector<string> & subPatchTypes;
 public:
-    GraphEditorTabbedComponent(list<SubValue<PatchDescriptor>> & subPatches, list<int> & subPatchHandles)
+    GraphEditorTabbedComponent(vector<SubValue<PatchDescriptor>> & subPatches, vector<int> & subPatchHandles, vector<string> & subPatchTypes)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , subPatches(subPatches)
         , subPatchHandles(subPatchHandles)
+        , subPatchTypes(subPatchTypes)
     {
         assert(subPatches.size() == subPatchHandles.size());
+        assert(subPatches.size() == subPatchTypes.size());
     }
     virtual void currentTabChanged(int newCurrentTabIndex, const String& newCurrentTabName) {
         while (newCurrentTabIndex + 1 != getNumTabs()) {
             removeTab(getNumTabs() - 1);
             auto h = subPatchHandles.back(); subPatchHandles.pop_back();
             subPatches.back().unsubscribe(h); subPatches.pop_back();
+            subPatchTypes.pop_back();
         }
         assert(subPatches.size() == subPatchHandles.size());
+        assert(subPatches.size() == subPatchTypes.size());
     }
 };
 
@@ -57,8 +62,10 @@ class PatchEditor : public Component
 
     GraphEditorBundle rootView;
 
-    list<SubValue<PatchDescriptor>> subPatches;
-    list<int> subPatchHandles;
+    vector<SubValue<PatchDescriptor>> subPatches;
+    vector<int> subPatchHandles;
+    vector<string> subPatchTypes;
+
     GraphEditorTabbedComponent editorStack;
     void refreshAndBroadcastDoc();
     friend class GraphEditor;

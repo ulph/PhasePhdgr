@@ -82,6 +82,15 @@ struct GfxModule {
     bool isParameter = false;
     bool latched_mouseHover = false;
 
+    enum moduleState {
+        MODULE,
+        LOCALCOMPONENT,
+        GLOBALCOMPONENT,
+        CONFLICTINGCOMPONENT
+    };
+
+    moduleState state = MODULE;
+
     vector<GfxPort> inputs;
     vector<GfxPort> outputs;
 

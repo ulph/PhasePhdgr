@@ -20,11 +20,22 @@ void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr
 void PatchEditor::refreshAndBroadcastDoc(){
     doc = Doc();
     populateDocWithComponents(doc, cmpReg, patchCopy);
+
+    set<string> localComponents;
+    for (const auto& kv : patchCopy.components) localComponents.insert(kv.first);
+
+    docView.setLocalComponents(localComponents);
+    docView.setGlobalComponents(globalComponents);
     docView.setDocs(doc.get());
+
     rootBundle.editor.setDoc(doc);
+    rootBundle.editor.setGlobalComponents(globalComponents);
+
     for (auto* b : subPatchBundles) {
+        b->editor.setGlobalComponents(globalComponents);
         b->editor.setDoc(doc);
     }
+
     repaint();
 }
 
@@ -69,13 +80,11 @@ PatchEditor::PatchEditor(
     cmpRegHandle = subCmpReg.subscribe(
         [this](const PhasePhckr::ComponentRegister& cmpReg_){
             cmpReg = cmpReg_;
-            globalComponents.clear();
-            refreshAndBroadcastDoc();
-            for (const auto& kv : cmpReg.all()) {
-                globalComponents.insert(kv.first);
-            }
+            applyComponentRegister();
         }
     );
+
+    refreshAndBroadcastDoc();
 
     resized();
 }
@@ -83,6 +92,14 @@ PatchEditor::PatchEditor(
 PatchEditor::~PatchEditor() {
     subPatch.unsubscribe(patchHandle);
     subCmpReg.unsubscribe(cmpRegHandle);
+}
+
+void PatchEditor::applyComponentRegister() {
+    globalComponents.clear();
+    for (const auto& kv : cmpReg.all()) {
+        globalComponents.insert(kv.first);
+    }
+    refreshAndBroadcastDoc();
 }
 
 void PatchEditor::paint(Graphics& g)

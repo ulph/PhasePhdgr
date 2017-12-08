@@ -16,16 +16,31 @@ void DocListModel::setDocs(const std::map<std::string, ModuleDoc> & moduleDocs_)
     }
 }
 
+void DocListModel::setGlobalComponents(const set<string>& globalComponents_) {
+    globalComponents = globalComponents_;
+}
+
+void DocListModel::setLocalComponents(const set<string>& localComponents_) {
+    localComponents = localComponents_;
+}
+
 int DocListModel::getNumRows() {
     return (int)rows.size();
 }
 
 void DocListModel::paintListBoxItem(int rowNumber, Graphics &g, int width, int height, bool rowIsSelected) {
+    const auto &key = rows[rowNumber];
+    const auto &doc = moduleDocs.at(key);
+
     g.setColour(Colours::black);
     g.fillAll();
     g.setColour(Colours::green);
-    const auto &key = rows[rowNumber];
-    const auto &doc = moduleDocs.at(key);
+
+    if (localComponents.count(doc.type) && !globalComponents.count(doc.type)) 
+        g.setColour(Colours::yellow);
+    else if (localComponents.count(doc.type) && globalComponents.count(doc.type)) 
+        g.setColour(Colours::red);
+
     g.drawFittedText(doc.type, 0, 0, width, height, Justification::centred, 1);
 }
 
@@ -76,6 +91,16 @@ DocView::DocView(const ComponentClickedCallback& cb)
 
 void DocView::setDocs(const std::map<std::string, ModuleDoc> & moduleDocs_) {
     docListModel.setDocs(moduleDocs_);
+    docList.updateContent();
+}
+
+void DocView::setGlobalComponents(const set<string>& globalComponents) {
+    docListModel.setGlobalComponents(globalComponents);
+    docList.updateContent();
+}
+
+void DocView::setLocalComponents(const set<string>& localComponents) {
+    docListModel.setLocalComponents(localComponents);
     docList.updateContent();
 }
 

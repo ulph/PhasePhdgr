@@ -45,7 +45,7 @@ class PatchEditor : public Component
     PatchDescriptor patchCopy;
     int patchHandle;
 
-    set<string> globalComponents; // todo, pass along into all the editors
+    set<string> globalComponents;
     PhasePhckr::ComponentRegister cmpReg;
     SubValue<PhasePhckr::ComponentRegister> &subCmpReg;
     int cmpRegHandle;
@@ -61,6 +61,8 @@ class PatchEditor : public Component
     void refreshAndBroadcastDoc();
     friend class GraphEditor;
     void push_tab(const string& componentName, const string& componentType);
+
+    void applyComponentRegister();
 
 public:
     PatchEditor(

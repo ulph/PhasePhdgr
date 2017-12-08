@@ -570,6 +570,14 @@ void GraphEditor::paint(Graphics& g){
 }
 
 
+void GraphEditor::setGlobalComponents(const set<string>& globalComponents_) {
+    auto scoped_lock = gfxGraphLock.make_scoped_lock();
+    globalComponents = globalComponents_;
+    docIsDirty = true;
+    repaint();
+}
+
+
 void GraphEditor::setDoc(const Doc& newDoc){
     auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
@@ -629,7 +637,17 @@ void GraphEditor::updateRenderComponents()
                 xy.x = (float)xy_.x / (float)c_GridSize;
                 xy.y = (float)xy_.y / (float)c_GridSize;
             }
-            modules.push_back(GfxModule(m, xy.x, xy.y, doc, rootComponent()->graph.values));
+            auto gfxM = GfxModule(m, xy.x, xy.y, doc, rootComponent()->graph.values);
+            if (globalComponents.count(m.type) && patch.components.count(m.type)) {
+                gfxM.state = GfxModule::CONFLICTINGCOMPONENT;
+            }
+            else if (!globalComponents.count(m.type) && patch.components.count(m.type)) {
+                gfxM.state = GfxModule::LOCALCOMPONENT;
+            }
+            else if (globalComponents.count(m.type)) {
+                gfxM.state = GfxModule::GLOBALCOMPONENT;
+            }
+            modules.push_back(gfxM);
         }
 
         auto bounds = getVirtualBounds();

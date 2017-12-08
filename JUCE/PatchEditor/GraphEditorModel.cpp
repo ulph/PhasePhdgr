@@ -215,11 +215,14 @@ void GfxModule::draw(Graphics & g, bool selected) {
     PathStrokeType strokeType(1);
     strokeType.createStrokedPath(path, path);
 
+    auto startColour = Colours::white;
+    auto stopColour = Colours::grey;
+
     ColourGradient grad(
-        Colours::white,
+        startColour,
         position.x,
         position.y,
-        Colours::grey,
+        stopColour,
         position.x,
         position.y + size.y,
         false
@@ -228,6 +231,9 @@ void GfxModule::draw(Graphics & g, bool selected) {
     g.fillPath(path);
 
     g.setColour(Colours::white);
+    if (state == CONFLICTINGCOMPONENT) g.setColour(Colours::red);
+    else if (state == LOCALCOMPONENT) g.setColour(Colours::yellow);
+
     g.drawFittedText(
         module.name + "\n" + module.type,
         (int)position.x,
@@ -369,6 +375,7 @@ void GfxWire::calculatePath(const vector<GfxModule> & modules) {
             c_PortSize,
             c_NodeSize
         );
+
         grad = ColourGradient(
             Colour(0xBBFFFF00),
             position.x,

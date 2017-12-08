@@ -52,6 +52,7 @@ public:
     void paint (Graphics& g) override;
 
     void setDoc(const Doc& newDoc);
+    void setGlobalComponents(const set<string>& globalComponents);
 
 private:
     void updateBounds(const pair<XY, XY>& rectange);
@@ -92,6 +93,7 @@ private:
     PatchDescriptor patch;
     SubValue<PatchDescriptor> &subPatch;
 
+    set<string> globalComponents;
     bool docIsDirty;
     Doc doc;
 

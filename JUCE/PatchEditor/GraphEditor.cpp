@@ -11,11 +11,15 @@ GraphEditorBundle::GraphEditorBundle(
     PatchEditor& graphEditor,
     SubValue<Doc> &subDoc,
     SubValue<PatchDescriptor> & subPatch,
+    const string& rootComponent,
+    const PatchDescriptor& initialPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
     : graphView(
         graphEditor
+        , rootComponent
+        , initialPatch
         , viewPort
         , subDoc
         , subPatch
@@ -42,7 +46,7 @@ void GraphEditorBundle::resized()
 }
 
 
-bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType, PatchDescriptor& patch) {
+bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
     Label nameLbl(moduleName, moduleName);
     nameLbl.setEditable(true, true, false);
 
@@ -77,7 +81,7 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
 
     int choice = poop.show();
     if (choice == delMenuId) {
-        return 0 == patch.root.graph.remove(moduleName);
+        return 0 == rootComponent()->graph.remove(moduleName);
     }
     else if (choice == createInputMenuId || choice == createOutputMenuId) {
         if (!patch.components.count(moduleType)) return false;
@@ -87,11 +91,11 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
 
     if (moduleName != nameLbl.getText().toStdString()) {
         auto newModuleName = nameLbl.getText().toStdString();
-        if (0 == patch.root.graph.rename(moduleName, newModuleName)) {
-            if (patch.root.layout.count(moduleName)) {
-                auto v = patch.root.layout.at(moduleName);
-                patch.root.layout.erase(moduleName);
-                patch.root.layout.insert_or_assign(newModuleName, v);
+        if (0 == rootComponent()->graph.rename(moduleName, newModuleName)) {
+            if (rootComponent()->layout.count(moduleName)) {
+                auto v = rootComponent()->layout.at(moduleName);
+                rootComponent()->layout.erase(moduleName);
+                rootComponent()->layout.insert_or_assign(newModuleName, v);
             }
             return true;
         }
@@ -105,7 +109,7 @@ bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string 
 }
 
 
-bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, PatchDescriptor &patch, Doc &doc, XY &position) {
+bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, XY &position) {
     poop.addItem(1, "make component");
     poop.addItem(2, "delete");
 
@@ -124,7 +128,7 @@ bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selectio
     return true;
     case 2:
         for (const auto* m : selection) {
-            patch.root.graph.remove(m->module.name);
+            rootComponent()->graph.remove(m->module.name);
         }
         return true;
     default:
@@ -134,7 +138,7 @@ bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selectio
 }
 
 
-bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, PatchDescriptor& patch, bool inputPort) {
+bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, bool inputPort) {
     const ModulePort mp(gfxModule.module.name, port);
 
     float value = 0.f;
@@ -162,16 +166,16 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 
     if (inputPort) {
         if (choice == 3) {
-            return 0 == patch.root.graph.clearValue(mp);
+            return 0 == rootComponent()->graph.clearValue(mp);
         }
 
         if (value != lbl.getText().getFloatValue()) {
-            return 0 == patch.root.graph.setValue(mp, lbl.getText().getFloatValue());
+            return 0 == rootComponent()->graph.setValue(mp, lbl.getText().getFloatValue());
         }
     }
 
     if (choice == 4) {
-        return 0 == patch.root.graph.disconnect(ModulePort(gfxModule.module.name, port), inputPort);
+        return 0 == rootComponent()->graph.disconnect(ModulePort(gfxModule.module.name, port), inputPort);
     }
 
     if (port != nameLbl.getText()) {
@@ -191,6 +195,8 @@ bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port
 
 GraphEditor::GraphEditor(
     PatchEditor &patchEditor,
+    const string& rootComponent,
+    const PatchDescriptor& initialPatch,
     Viewport &viewPort,
     SubValue<Doc> &subDoc,
     SubValue<PatchDescriptor> &subPatch,
@@ -206,7 +212,10 @@ GraphEditor::GraphEditor(
     , selecting(false)
     , patchIsDirty(false)
     , docIsDirty(false)
+    , rootComponentName(rootComponent)
 {
+    setGraph(initialPatch);
+
     subPatchHandle = subPatch.subscribe(
         [this](const PhasePhckr::PatchDescriptor& g){
             setGraph(g);
@@ -262,13 +271,13 @@ GraphEditor::~GraphEditor() {
 
 void GraphEditor::propagateUserModelChange() {
     for (const auto gm : modules) {
-        patch.root.layout[gm.module.name] = 
+        rootComponent()->layout[gm.module.name] =
             ModulePosition(
                 gm.position.x, 
                 gm.position.y
             );
     }
-    patch.root.pruneLayout();
+    rootComponent()->pruneLayout();
     subPatch.set(-1, patch);
     repaint();
 }
@@ -300,7 +309,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         if (m.withinPort(mouseDownPos, position, port, inputPort)) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
-                modelChanged = makePortPoopUp(poop, m, port, patch, inputPort);
+                modelChanged = makePortPoopUp(poop, m, port, inputPort);
             }
             else{
                 auto l = gfxGraphLock.make_scoped_lock();
@@ -318,10 +327,10 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             if(event.mods.isRightButtonDown()){
                 PopupMenu poop;
                 if (selectedModules.count(&m)) {
-                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, patch, doc, mouseDownPos);
+                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, mouseDownPos);
                 }
                 else {
-                    modelChanged = makeModulePoopUp(poop, m.module.name, m.module.type, patch);
+                    modelChanged = makeModulePoopUp(poop, m.module.name, m.module.type);
                 }
             }
             else if (event.mods.isShiftDown()) {
@@ -396,7 +405,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         auto mv = vector<GfxModule>{ *draggedModule };
 
         gfxGraphLock.lock();
-        patch.root.layout.insert_or_assign(
+        rootComponent()->layout.insert_or_assign(
             draggedModule->module.name,
             ModulePosition(draggedModule->position.x, draggedModule->position.y)
         );
@@ -516,13 +525,13 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
 
         string fullName = name + to_string(i);
 
-        while (patch.root.graph.add(fullName, thing)) {
+        while (rootComponent()->graph.add(fullName, thing)) {
             if (!moduleNameIsValid(fullName)) return;
             i++;
             fullName = name + to_string(i);
         }
 
-        patch.root.layout[fullName] = ModulePosition(
+        rootComponent()->layout[fullName] = ModulePosition(
             (float)dropPos.x - 0.5f*c_NodeSize,
             (float)dropPos.y - 0.5f*c_NodeSize
         );
@@ -604,26 +613,29 @@ void GraphEditor::updateRenderComponents()
 
     if (patchIsDirty) {
 
-        patch.root.graph.modules[c_inBus.name] = c_inBus.type;
-        patch.root.graph.modules[c_outBus.name] = c_outBus.type;
+        modules.clear();
+        wires.clear();
+        patchIsDirty = false;
+
+        if (rootComponent() == nullptr) return;
+
+        rootComponent()->graph.modules[c_inBus.name] = c_inBus.type;
+        rootComponent()->graph.modules[c_outBus.name] = c_outBus.type;
 
         const string start = c_inBus.name;
         const string stop = c_outBus.name;
         ModulePositionMap mp;
-        setNodePositions(patch.root.graph, mp, start, stop);
+        setNodePositions(rootComponent()->graph, mp, start, stop);
 
-        modules.clear();
-        wires.clear();
-
-        for (const auto & kv : patch.root.graph.modules) {
+        for (const auto & kv : rootComponent()->graph.modules) {
             ModuleVariable m(kv);
             XY xy(mp.at(m.name).x, mp.at(m.name).y);
-            if (patch.root.layout.count(m.name)) {
-                auto xy_ = patch.root.layout.at(m.name);
+            if (rootComponent()->layout.count(m.name)) {
+                auto xy_ = rootComponent()->layout.at(m.name);
                 xy.x = (float)xy_.x / (float)c_GridSize;
                 xy.y = (float)xy_.y / (float)c_GridSize;
             }
-            modules.push_back(GfxModule(m, xy.x, xy.y, doc, patch.root.graph.values));
+            modules.push_back(GfxModule(m, xy.x, xy.y, doc, rootComponent()->graph.values));
         }
 
         auto bounds = getVirtualBounds();
@@ -635,12 +647,11 @@ void GraphEditor::updateRenderComponents()
             bounds = getVirtualBounds();
         }
 
-        for (const auto &c : patch.root.graph.connections) {
+        for (const auto &c : rootComponent()->graph.connections) {
             wires.emplace_back(GfxWire(c, modules));
         }
 
         updateBounds(bounds);
-        patchIsDirty = false;
     }
 
 }
@@ -704,7 +715,7 @@ bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
         bool nearestSource = false;
         // disconnect a wire
         if (wit->within(mousePos, nearestSource)) {
-            auto ret = patch.root.graph.disconnect(wit->connection);
+            auto ret = rootComponent()->graph.disconnect(wit->connection);
             if (ret != 0) return false;
             looseWire.isValid = true;
             looseWire.destination = mousePos;
@@ -728,7 +739,7 @@ bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
         if (looseWire.attachedAtSource) {
             for (const auto& ip : m.inputs) {
                 if (ip.within(mousePos)) {
-                    return 0 == patch.root.graph.connect(
+                    return 0 == rootComponent()->graph.connect(
                         ModulePortConnection(
                             looseWire.attachedPort, 
                             ModulePort(m.module.name, ip.port)
@@ -740,7 +751,7 @@ bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
         else {
             for (const auto& op : m.outputs) {
                 if (op.within(mousePos)) {
-                    return 0 == patch.root.graph.connect(
+                    return 0 == rootComponent()->graph.connect(
                         ModulePortConnection(
                             ModulePort(m.module.name, op.port),
                             looseWire.attachedPort

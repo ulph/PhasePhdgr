@@ -38,10 +38,12 @@ PatchEditor::PatchEditor(
        *this,
        subDoc,
        subPatch,
+       "root",
+       patchCopy,
        inBus,
        outBus
     )
-    , editorStack(subPatches, subPatchHandles, subPatchTypes)
+    , editorStack(subPatchTypes)
 {
     addAndMakeVisible(grid);
     grid.addComponent(&editorStack);
@@ -56,16 +58,7 @@ PatchEditor::PatchEditor(
             refreshAndBroadcastDoc();
             for (int i = 0; i < subPatchTypes.size(); ++i) {
                 auto t = subPatchTypes.at(i);
-                if (desc.components.count(t)) {
-                    PatchDescriptor p;
-                    p.root = desc.components.at(t);
-                    auto subP = subPatches.at(i);
-                    auto h = subPatchHandles.at(i);
-                    subP.set(h, p);
-                }
-                else {
-                    editorStack.setCurrentTabIndex(i); // +1 (root) -1 (previous)
-                }
+                if (!desc.components.count(t)) editorStack.setCurrentTabIndex(i); // +1 (root) -1 (previous)
             }
         }
     );
@@ -79,7 +72,11 @@ PatchEditor::PatchEditor(
     cmpRegHandle = subCmpReg.subscribe(
         [this](const PhasePhckr::ComponentRegister& cmpReg_){
             cmpReg = cmpReg_;
+            globalComponents.clear();
             refreshAndBroadcastDoc();
+            for (const auto& kv : cmpReg.all()) {
+                globalComponents.insert(kv.first);
+            }
         }
     );
 
@@ -112,35 +109,26 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     }
 
     cmp = patchCopy.components.at(componentType);
-    subPatches.push_back(SubValue<PatchDescriptor>());
-    auto &subP = subPatches.back();
-    auto handle = subP.subscribe(
-        [this, cmp, componentType](const PatchDescriptor& p){
-            patchCopy.components[componentType] = cmp;
-            patchCopy.components[componentType].graph = p.root.graph;
-            subPatch.set(-1, patchCopy);
-        }
-    );
-    subPatchHandles.push_back(handle);
     subPatchTypes.push_back(componentType);
 
     PatchDescriptor p;
     p.root = cmp;
 
     editorStack.addTab(
-        to_string(subPatches.size()) + " " + componentName + " (" + componentType + ") ",
+        to_string(subPatchTypes.size()) + " " + componentName + " (" + componentType + ") ",
         Colours::black,
         new GraphEditorBundle(
             *this,
             subDoc,
-            subP,
+            subPatch,
+            componentType,
+            patchCopy,
             cmp.inBus,
             cmp.outBus
         ),
         true
     );
 
-    subP.set(handle, p);
     subDoc.set(docHandle, doc);
 
     editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);

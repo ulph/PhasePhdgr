@@ -27,6 +27,8 @@ class GraphEditor : public Component, public DragAndDropTarget
 public:
     GraphEditor(
         PatchEditor& patchEditor,
+        const string& rootComponent,
+        const PatchDescriptor& initialPatch,
         Viewport& viewPort,
         SubValue<Doc> &subDoc,
         SubValue<PatchDescriptor> &subPatch,
@@ -60,7 +62,10 @@ private:
 
     void updateRenderComponents();
 
-    // stuff migrated from GfxGraph
+    bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType);
+    bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, XY &position);
+    bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, bool inputPort);
+
     vector<GfxModule> modules;
     list<GfxWire> wires;
 
@@ -72,8 +77,16 @@ private:
     void moveIntoView();
     void designPorts(const Doc &doc);
     void recalculateWires(const vector<GfxModule>& modules);
-    // end
 
+    ComponentDescriptor* rootComponent() {
+        // lock before call
+        if (rootComponentName == "root") return &patch.root;
+        if (patch.components.count(rootComponentName)) return &patch.components[rootComponentName];
+        assert(0);
+        return nullptr;
+    }
+
+    const string rootComponentName = "";
     bool patchIsDirty;
     int subPatchHandle;
     PatchDescriptor patch;
@@ -137,6 +150,8 @@ public:
         PatchEditor& graphEditor,
         SubValue<Doc> &subDoc,
         SubValue<PatchDescriptor> & subscribedCGD,
+        const string& rootComponent,
+        const PatchDescriptor& initialPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     );

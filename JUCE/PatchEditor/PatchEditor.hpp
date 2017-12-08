@@ -33,6 +33,7 @@ public:
     TextLabelMenuEntry() {
         addAndMakeVisible(title);
         addAndMakeVisible(edit);
+        edit.setEditable(true, true, false);
     }
     void resized() override {
         title.setBoundsRelative(0, 0, 0.25, 1);

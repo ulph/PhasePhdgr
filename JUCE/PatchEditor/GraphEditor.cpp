@@ -162,53 +162,70 @@ bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule
 
 
 bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, bool inputPort) {
-    const ModulePort mp(gfxModule.module.name, port);
-
+    auto moduleName = gfxModule.module.name;
+    auto moduleType = gfxModule.module.type;
     float value = 0.f;
+    bool busModule = false;
     if (inputPort && !gfxModule.getValue(port, value)) return false; // error
-    
-    Label lbl(port + "_v", to_string(value));
-    Label nameLbl(port, port);
 
-    if (inputPort) {
-        lbl.setEditable(true, true, false);
+    if (moduleName == c_inBus.name || moduleName == c_outBus.name) {
+        if (patch.components.count(rootComponentName)) {
+            moduleType = rootComponentName; // hijack
+            inputPort = moduleName == c_inBus.name; // flip
+            busModule = true;
+        }
+        else return false;
+    }
+ 
+    const ModulePort mp(moduleName, port);
+    
+    TextLabelMenuEntry lbl;
+    lbl.title.setText("Value:", NotificationType::dontSendNotification);
+    lbl.edit.setText(to_string(value), NotificationType::dontSendNotification);
+
+    TextLabelMenuEntry nameLbl;
+    nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
+    nameLbl.edit.setText(port, NotificationType::dontSendNotification);
+
+    if (inputPort && !busModule) {
         poop.addItem(1, port);
-        poop.addCustomItem(2, &lbl, 20, 20, false);
+        poop.addCustomItem(2, &lbl, 200, 20, false);
         poop.addItem(3, "clear value");
     }
 
     poop.addItem(4, "disconnect all");
 
-    nameLbl.setEditable(true, true, false);
-    if (gfxModule.module.type.front() == componentMarker) {
-        poop.addCustomItem(5, &nameLbl, 20, 20, false);
+    if (moduleType.front() == componentMarker) {
+        poop.addCustomItem(5, &nameLbl, 200, 20, false);
         poop.addItem(6, "remove port");
     }
 
     int choice = poop.show();
 
-    if (inputPort) {
+    if (inputPort && !busModule) {
         if (choice == 3) {
             return 0 == rootComponent()->graph.clearValue(mp);
         }
 
-        if (value != lbl.getText().getFloatValue()) {
-            return 0 == rootComponent()->graph.setValue(mp, lbl.getText().getFloatValue());
+        auto newValue = lbl.edit.getText().getFloatValue();
+        if (value != newValue) {
+            return 0 == rootComponent()->graph.setValue(mp, newValue);
         }
     }
 
     if (choice == 4) {
-        return 0 == rootComponent()->graph.disconnect(ModulePort(gfxModule.module.name, port), inputPort);
+        return 0 == rootComponent()->graph.disconnect(ModulePort(moduleName, port), inputPort);
     }
 
-    if (port != nameLbl.getText()) {
-        if (!patch.components.count(gfxModule.module.type)) return false;
-        return 0 == patch.renameComponentTypePort(gfxModule.module.type, port, nameLbl.getText().toStdString(), inputPort);
+    auto newPort = nameLbl.edit.getText().toStdString();
+    if (port != newPort) {
+        if (!patch.components.count(moduleType)) return false;
+        return 0 == patch.renameComponentTypePort(moduleType, port, newPort, inputPort);
     }
 
     if (choice == 6) {
-        if (!patch.components.count(gfxModule.module.type)) return false;
-        auto& comp = patch.components.at(gfxModule.module.type);
+        if (!patch.components.count(moduleType)) return false;
+        auto& comp = patch.components.at(moduleType);
         return 0 == comp.removePort(port, inputPort);
     }
 

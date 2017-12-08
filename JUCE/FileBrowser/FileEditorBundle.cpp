@@ -227,13 +227,13 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
     )
     , docViewTab(TabbedButtonBar::TabsAtTop)
     , voiceDocView(
-        [this](const string& name){
+        [this](const string& name, const MouseEvent& me){
             selectedComponent = voiceComponents[name];
             componentFiles.setFileName(name.substr(1));
         }
     )
     , effectDocView(
-        [this](const string& name){
+        [this](const string& name, const MouseEvent& me){
             selectedComponent = effectComponents[name];
             componentFiles.setFileName(name.substr(1));
         }

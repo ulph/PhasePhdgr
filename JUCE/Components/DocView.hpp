@@ -13,7 +13,7 @@
 using namespace std;
 using namespace PhasePhckr;
 
-typedef function<void(const string&)> ComponentClickedCallback;
+typedef function<void(const string&, const MouseEvent &me)> ComponentClickedCallback;
 
 class DocListModel : public ListBoxModel {
 private:
@@ -42,7 +42,7 @@ private:
     TextEditor docTextView;
     ListBox docList;
 public:
-    DocView(const ComponentClickedCallback& cb=[](const string&){}); // defaults to dummy callback
+    DocView(const ComponentClickedCallback& cb=[](const string&, const MouseEvent&){}); // defaults to dummy callback
     void setGlobalComponents(const set<string>& globalComponents);
     void setLocalComponents(const set<string>& localComponents);
     void setDocs(const map<string, ModuleDoc> & moduleDocs);

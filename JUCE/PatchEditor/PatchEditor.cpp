@@ -6,6 +6,72 @@
 using namespace std;
 using namespace PhasePhckr;
 
+void makeComponentPopupMenu(PopupMenu & poop,
+    int& ctr,
+    ComponentPopupMenuState& ids,
+    const string& type,
+    const PatchDescriptor& patch,
+    const map<string, ComponentDescriptor>& global,
+    const map<string, ComponentDescriptor>& local)
+{
+    ids.name.title.setText("Type:", NotificationType::dontSendNotification);
+    ids.name.edit.setText(type, NotificationType::dontSendNotification);
+    ids.name.edit.setEditable(true, true, false);
+
+    if (local.count(type)) {
+        ids.typeMenuId = ctr++;
+        poop.addCustomItem(ids.typeMenuId, &ids.name, 200, 20, false);
+
+        ids.createInputMenuId = ctr++;
+        poop.addItem(ids.createInputMenuId, c_componentMenuStrings.createInput);
+
+        ids.createOutputMenuId = ctr++;
+        poop.addItem(ids.createOutputMenuId, c_componentMenuStrings.createOutput);
+    }
+
+    if (global.count(type) && local.count(type)) {
+        ids.removeLocalComponentMenuId = ctr++;
+        poop.addItem(ids.removeLocalComponentMenuId, c_componentMenuStrings.removeConflict);
+    }
+    else if (!global.count(type) && local.count(type)) {
+        ids.removeConflictingComponentMenuId = ctr++;
+        poop.addItem(ids.removeConflictingComponentMenuId, c_componentMenuStrings.removeLocal);
+    }
+    else if (global.count(type) && !local.count(type)) {
+        ids.addLocalComponentMenuId = ctr++;
+        poop.addItem(ids.addLocalComponentMenuId, c_componentMenuStrings.createLocal);
+    }
+}
+
+bool applyComponentPopuMenuChoice(
+    int choice,
+    const ComponentPopupMenuState& ids,
+    const string& type,
+    PatchDescriptor& patch,
+    const map<string, ComponentDescriptor>& global
+){
+    if (choice == ids.createInputMenuId || choice == ids.createOutputMenuId) {
+        if (!patch.components.count(type)) return false;
+        auto & comp = patch.components.at(type);
+        return 0 == patch.components.at(type).addPort("newPort", choice == ids.createInputMenuId, "", 0.0f);
+    }
+    else if (choice == ids.removeConflictingComponentMenuId) {
+        return 0 == patch.removeComponentType(type, true);
+    }
+    else if (choice == ids.removeLocalComponentMenuId) {
+        return 0 == patch.removeComponentType(type, false);
+    }
+    else if (choice == ids.addLocalComponentMenuId) {
+        if (!global.count(type)) return false;
+        string type_ = type;
+        return 0 == patch.addComponentType(type_, global.at(type));
+    }
+    else if (type != ids.name.edit.getText().toStdString()) {
+        return 0 == patch.renameComponentType(type, ids.name.edit.getText().toStdString());
+    }
+
+    return false;
+}
 
 void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr, const PatchDescriptor pd){
     cr.makeComponentDocs(doc);
@@ -41,12 +107,12 @@ void PatchEditor::refreshAndBroadcastDoc(){
 
 
 PatchEditor::PatchEditor(
-    SubValue<PatchDescriptor> &subPatch,
+    SubValue<PatchDescriptor> &subPatch_,
     SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
-    : subPatch(subPatch)
+    : subPatch(subPatch_)
     , subCmpReg(subCmpReg)
     , rootBundle(
        *this,
@@ -57,7 +123,26 @@ PatchEditor::PatchEditor(
        inBus,
        outBus
     )
-    , editorStack(subPatchTypes, subPatchBundles)
+    , editorStack(
+        subPatchTypes, 
+        subPatchBundles
+    )
+    , docView(
+        [this](const string& name, const MouseEvent& me) {
+            if (me.mods.isRightButtonDown()) {
+                if (patchCopy.components.count(name) || globalComponents.count(name)){
+                    int ctr = 1;
+                    PopupMenu poop;
+                    ComponentPopupMenuState st;
+                    makeComponentPopupMenu(poop, ctr, st, name, patchCopy, cmpReg.all(), patchCopy.components);
+                    auto choice = poop.show();
+                    if (applyComponentPopuMenuChoice(choice, st, name, patchCopy, cmpReg.all())) {
+                        subPatch.set(-1, patchCopy);
+                    }
+                }
+            }
+        }
+    )
 {
     addAndMakeVisible(grid);
     grid.addComponent(&editorStack);

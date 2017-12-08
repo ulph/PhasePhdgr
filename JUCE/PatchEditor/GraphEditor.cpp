@@ -47,53 +47,27 @@ void GraphEditorBundle::resized()
 
 
 bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
-    Label nameLbl(moduleName, moduleName);
-    nameLbl.setEditable(true, true, false);
-
-    Label typeLbl(moduleType, moduleType);
-    typeLbl.setEditable(true, true, false);
+    TextLabelMenuEntry nameLbl;
+    nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
+    nameLbl.edit.setText(moduleName, NotificationType::dontSendNotification);
+    nameLbl.edit.setEditable(true, true, false);
 
     int ctr = 1;
 
     const int nameMenuId = ctr++;
-    poop.addCustomItem(nameMenuId, &nameLbl, 20, 20, false);
-
-    int typeMenuId = 999;
-    int createInputMenuId = 999;
-    int createOutputMenuId = 999;
-    int removeConflictingComponentMenuId = 999;
-    int removeLocalComponentMenuId = 999;
-    int addLocalComponentMenuId = 999;
+    poop.addCustomItem(nameMenuId, &nameLbl, 200, 20, false);
     int cloneComponentMenuId = 999;
-    
+
+    ComponentPopupMenuState cmpState;
+
     if (moduleType.front() == componentMarker) {
-        if (patch.components.count(moduleType)) {
-            typeMenuId = ctr++;
-            poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
-
-            createInputMenuId = ctr++;
-            poop.addItem(createInputMenuId, "create input");
-
-            createOutputMenuId = ctr++;
-            poop.addItem(createOutputMenuId, "create output");
-        }
-
-        if (globalComponents.count(moduleType) && patch.components.count(moduleType)) {
-            removeLocalComponentMenuId = ctr++;
-            poop.addItem(removeLocalComponentMenuId, "remove conflicting Component definition");
-        }
-        else if (!globalComponents.count(moduleType) && patch.components.count(moduleType)) {
-            removeConflictingComponentMenuId = ctr++;
-            poop.addItem(removeConflictingComponentMenuId, "(!) remove local Component definition");
-        }
-        else if (globalComponents.count(moduleType) && !patch.components.count(moduleType)) {
-            addLocalComponentMenuId = ctr++;
-            poop.addItem(addLocalComponentMenuId, "create local Component definition");
-        }
-
         cloneComponentMenuId = ctr++;
-        poop.addItem(cloneComponentMenuId, "clone Component definition");
+        poop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
 
+        PopupMenu cmpPoop;
+        makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
+
+        poop.addSubMenu("Component", cmpPoop);
     }
     else if (moduleType.front() == parameterMarker) {
         // TODO, value, min, max editable
@@ -103,24 +77,11 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     poop.addItem(delMenuId, "remove module");
 
     int choice = poop.show();
+
+    if (applyComponentPopuMenuChoice(choice, cmpState, moduleType, patch, globalComponents)) return true;
+
     if (choice == delMenuId) {
         return 0 == rootComponent()->graph.remove(moduleName);
-    }
-    else if (choice == createInputMenuId || choice == createOutputMenuId) {
-        if (!patch.components.count(moduleType)) return false;
-        auto & comp = patch.components.at(moduleType);
-        return 0 == patch.components.at(moduleType).addPort("newPort", choice == createInputMenuId, "", 0.0f);
-    }
-    else if (choice == removeConflictingComponentMenuId) {
-        return 0 == patch.removeComponentType(moduleType, true);
-    }
-    else if (choice == removeLocalComponentMenuId) {
-        return 0 == patch.removeComponentType(moduleType, false);
-    }
-    else if (choice == addLocalComponentMenuId) {
-        if (!globalComponents.count(moduleType)) return false;
-        string type = moduleType;
-        return 0 == patch.addComponentType(type, globalComponents.at(moduleType));
     }
     else if (choice == cloneComponentMenuId) {
         ComponentDescriptor cd;
@@ -134,8 +95,8 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
         return true;
     }
 
-    if (moduleName != nameLbl.getText().toStdString()) {
-        auto newModuleName = nameLbl.getText().toStdString();
+    auto newModuleName = nameLbl.edit.getText().toStdString();
+    if (moduleName != newModuleName) {
         if (0 == rootComponent()->graph.rename(moduleName, newModuleName)) {
             if (rootComponent()->layout.count(moduleName)) {
                 auto v = rootComponent()->layout.at(moduleName);
@@ -145,9 +106,6 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
             return true;
         }
         else return false;
-    }
-    else if (moduleType != typeLbl.getText().toStdString()) {
-        return 0 == patch.renameComponentType(moduleType, typeLbl.getText().toStdString());
     }
 
     return false;

@@ -15,6 +15,57 @@
 using namespace PhasePhckr;
 using namespace std;
 
+const struct ComponentMenuStrings {
+    const string createInput = "create input";
+    const string createOutput = "create output";
+    const string removeConflict = "remove conflicting Component definition";
+    const string removeLocal = "(!) remove local Component definition";
+    const string createLocal = "create local Component definition";
+    const string clone = "change into new Component";
+} c_componentMenuStrings;
+
+class TextLabelMenuEntry : public Component {
+public:
+    Label title;
+    Label edit;
+    TextLabelMenuEntry() {
+        addAndMakeVisible(title);
+        addAndMakeVisible(edit);
+    }
+    void resized() override {
+        title.setBoundsRelative(0, 0, 0.25, 1);
+        edit.setBoundsRelative(0.25, 0, 0.75, 1);
+    }
+};
+
+struct ComponentPopupMenuState {
+    int typeMenuId = 999;
+    int createInputMenuId = 999;
+    int createOutputMenuId = 999;
+    int removeConflictingComponentMenuId = 999;
+    int removeLocalComponentMenuId = 999;
+    int addLocalComponentMenuId = 999;
+    TextLabelMenuEntry name;
+};
+
+void makeComponentPopupMenu(
+    PopupMenu & poop,
+    int& ctr,
+    ComponentPopupMenuState& ids,
+    const string& type,
+    const PatchDescriptor& patch,
+    const map<string, ComponentDescriptor>& global,
+    const map<string, ComponentDescriptor>& local
+);
+
+bool applyComponentPopuMenuChoice(
+    int choice,
+    const ComponentPopupMenuState& ids,
+    const string& type,
+    PatchDescriptor& patch,
+    const map<string, ComponentDescriptor>& global
+);
+
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
     vector<string> & subPatchTypes;

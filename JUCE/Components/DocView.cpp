@@ -44,10 +44,10 @@ void DocListModel::paintListBoxItem(int rowNumber, Graphics &g, int width, int h
     g.drawFittedText(doc.type, 0, 0, width, height, Justification::centred, 1);
 }
 
-void DocListModel::listBoxItemClicked(int row, const MouseEvent &) {
+void DocListModel::listBoxItemClicked(int row, const MouseEvent &me) {
     if (row >= 0) {
         const auto &key = rows[row];
-        componentClicked(key); // trigger callback so external guy can use
+        componentClicked(key, me); // trigger callback so external guy can use
         const auto &doc = moduleDocs[key];
         docTextView.clear();
         docTextView.insertTextAtCaret(doc.type + "\n\n");

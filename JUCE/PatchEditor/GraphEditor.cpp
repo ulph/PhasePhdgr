@@ -179,9 +179,15 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
  
     const ModulePort mp(moduleName, port);
     
-    TextLabelMenuEntry lbl;
-    lbl.title.setText("Value:", NotificationType::dontSendNotification);
-    lbl.edit.setText(to_string(value), NotificationType::dontSendNotification);
+    TextLabelMenuEntry valueLbl;
+    valueLbl.title.setText("Value:", NotificationType::dontSendNotification);
+    valueLbl.edit.setText(to_string(value), NotificationType::dontSendNotification);
+
+    TextLabelMenuEntry defaultValueLbl;
+    TextLabelMenuEntry unitLbl;
+    PadDescription pd;
+    unitLbl.edit.setText(pd.unit, NotificationType::dontSendNotification);
+    defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
 
     TextLabelMenuEntry nameLbl;
     nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
@@ -189,14 +195,27 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
 
     if (inputPort && !busModule) {
         poop.addItem(1, port);
-        poop.addCustomItem(2, &lbl, 200, 20, false);
+        poop.addCustomItem(2, &valueLbl, 200, 20, false);
         poop.addItem(3, "clear value");
     }
 
     poop.addItem(4, "disconnect all");
 
-    if (moduleType.front() == componentMarker) {
+    if (patch.components.count(moduleType)) {
+        auto& cmp = patch.components[moduleType];
+
         poop.addCustomItem(5, &nameLbl, 200, 20, false);
+
+        if (inputPort && 0 == cmp.getPort(port, pd, true)){
+            unitLbl.title.setText("Unit:", NotificationType::dontSendNotification);
+            unitLbl.edit.setText(pd.unit, NotificationType::dontSendNotification);
+
+            defaultValueLbl.title.setText("Default:", NotificationType::dontSendNotification);
+            defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
+
+            poop.addCustomItem(7, &defaultValueLbl, 200, 20, false);
+            poop.addCustomItem(8, &unitLbl, 200, 20, false);
+        }
         poop.addItem(6, "remove port");
     }
 
@@ -207,7 +226,7 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
             return 0 == rootComponent()->graph.clearValue(mp);
         }
 
-        auto newValue = lbl.edit.getText().getFloatValue();
+        auto newValue = valueLbl.edit.getText().getFloatValue();
         if (value != newValue) {
             return 0 == rootComponent()->graph.setValue(mp, newValue);
         }
@@ -227,6 +246,20 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
         if (!patch.components.count(moduleType)) return false;
         auto& comp = patch.components.at(moduleType);
         return 0 == comp.removePort(port, inputPort);
+    }
+
+    auto newUnit = unitLbl.edit.getText().toStdString();
+    if (pd.unit != newUnit) {
+        if (!patch.components.count(moduleType)) return false;
+        auto& comp = patch.components.at(moduleType);
+        return 0 == comp.changePortUnit(port, newUnit);
+    }
+
+    auto newDefault = defaultValueLbl.edit.getText().getFloatValue();
+    if (pd.defaultValue != newDefault) {
+        if (!patch.components.count(moduleType)) return false;
+        auto& comp = patch.components.at(moduleType);
+        return 0 == comp.changePortValue(port, newDefault);
     }
 
     return false;

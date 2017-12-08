@@ -133,6 +133,10 @@ struct ComponentDescriptor {
     void pruneLayout();
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort);
+    int changePortUnit(const string & portName, const string & newUnit);
+    int changePortValue(const string & portName, float newValue);
+    bool hasPort(const string & portName, bool inputPort);
+    int getPort(const string & portName, PadDescription& result, bool inputPort);
     void cleanUp() {
         pruneLayout();
         graph.cleanUp();

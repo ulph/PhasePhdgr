@@ -647,6 +647,47 @@ int ComponentDescriptor::addPort(const string & portName, bool inputPort, const 
     return 0;
 }
 
+int ComponentDescriptor::changePortUnit(const string & portName, const string & newUnit) {
+    for (auto& pd : inBus) {
+        if (pd.name == portName) {
+            pd.unit = newUnit;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int ComponentDescriptor::changePortValue(const string & portName, float newValue) {
+    for (auto& pd : inBus) {
+        if (pd.name == portName) {
+            pd.defaultValue = newValue;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+bool ComponentDescriptor::hasPort(const string & portName, bool inputPort) {
+    auto& bus = inputPort ? inBus : outBus;
+    for (auto& pd : bus) {
+        if (pd.name == portName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int ComponentDescriptor::getPort(const string & portName, PadDescription& result, bool inputPort) {
+    auto& bus = inputPort ? inBus : outBus;
+    for (auto& pd : bus) {
+        if (pd.name == portName) {
+            result = pd;
+            return 0;
+        }
+    }
+    return -1;
+}
+
 int ComponentDescriptor::renamePort(const string & portName, const string & newPortName, bool inputPort) {
     vector<PadDescription>* bus = nullptr;
     if (inputPort) bus = &inBus;

@@ -68,14 +68,14 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
 
     ComponentPopupMenuState cmpState;
 
+    PopupMenu cmpPoop;
+
     if (moduleType.front() == componentMarker) {
         cloneComponentMenuId = ctr++;
-        poop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
+        cmpPoop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
 
-        PopupMenu cmpPoop;
         makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
 
-        poop.addSubMenu("Component", cmpPoop);
     }
     else if (moduleType.front() == parameterMarker) {
         // TODO, value, min, max editable
@@ -83,13 +83,15 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     else if (rootComponentName.size() && rootComponentName != rootMarker && patch.components.count(rootComponentName) ){
         if (moduleName == c_inBus.name) {
             addComponentInputMenuId = ctr++;
-            poop.addItem(addComponentInputMenuId, c_componentMenuStrings.createInput);
+            cmpPoop.addItem(addComponentInputMenuId, c_componentMenuStrings.createInput);
         }
         else if (moduleName == c_outBus.name) {
             addComponentOutputMenuId = ctr++;
-            poop.addItem(addComponentOutputMenuId, c_componentMenuStrings.createOutput);
+            cmpPoop.addItem(addComponentOutputMenuId, c_componentMenuStrings.createOutput);
         }
     }
+
+    if(moduleType.front() == componentMarker) poop.addSubMenu("Component", cmpPoop);
 
     int choice = poop.show();
 
@@ -193,8 +195,14 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
     nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
     nameLbl.edit.setText(port, NotificationType::dontSendNotification);
 
+    if (!busModule) {
+        poop.addItem(1, gfxModule.module.name + ":" + port);
+    }
+    else {
+        poop.addItem(1, moduleType + ":" + port);
+    }
+
     if (inputPort && !busModule) {
-        poop.addItem(1, port);
         poop.addCustomItem(2, &valueLbl, 200, 20, false);
         poop.addItem(3, "clear value");
     }
@@ -202,9 +210,11 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
     poop.addItem(4, "disconnect all");
 
     if (patch.components.count(moduleType)) {
+        PopupMenu cmpPoop;
+
         auto& cmp = patch.components[moduleType];
 
-        poop.addCustomItem(5, &nameLbl, 200, 20, false);
+        cmpPoop.addCustomItem(5, &nameLbl, 200, 20, false);
 
         if (inputPort && 0 == cmp.getPort(port, pd, true)){
             unitLbl.title.setText("Unit:", NotificationType::dontSendNotification);
@@ -213,10 +223,12 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
             defaultValueLbl.title.setText("Default:", NotificationType::dontSendNotification);
             defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
 
-            poop.addCustomItem(7, &defaultValueLbl, 200, 20, false);
-            poop.addCustomItem(8, &unitLbl, 200, 20, false);
+            cmpPoop.addCustomItem(7, &defaultValueLbl, 200, 20, false);
+            cmpPoop.addCustomItem(8, &unitLbl, 200, 20, false);
         }
-        poop.addItem(6, "remove port");
+        cmpPoop.addItem(6, "remove port");
+
+        poop.addSubMenu("Component", cmpPoop);
     }
 
     int choice = poop.show();

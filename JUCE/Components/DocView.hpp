@@ -23,6 +23,8 @@ private:
     TextEditor & docTextView;
     set<string> globalComponents;
     set<string> localComponents;
+    void drawEntry(const string& key);
+    string lastKey = "";
 public:
     DocListModel(TextEditor & docTextView, const ComponentClickedCallback& cb);
     void setDocs(const map<string, ModuleDoc> & moduleDocs);

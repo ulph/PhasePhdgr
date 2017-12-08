@@ -14,6 +14,7 @@ void DocListModel::setDocs(const std::map<std::string, ModuleDoc> & moduleDocs_)
     for (const auto &kv : moduleDocs) {
         rows.push_back(kv.first);
     }
+    drawEntry(lastKey);
 }
 
 void DocListModel::setGlobalComponents(const set<string>& globalComponents_) {
@@ -44,23 +45,29 @@ void DocListModel::paintListBoxItem(int rowNumber, Graphics &g, int width, int h
     g.drawFittedText(doc.type, 0, 0, width, height, Justification::centred, 1);
 }
 
+void DocListModel::drawEntry(const string& key) {
+    docTextView.clear();
+    if (!moduleDocs.count(key)) return;
+    const auto &doc = moduleDocs.at(key);
+    docTextView.insertTextAtCaret(doc.type + "\n\n");
+    docTextView.insertTextAtCaret("inputs:\n");
+    for (const auto & i : doc.inputs) {
+        docTextView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.defaultValue) + "\n");
+    }
+    docTextView.insertTextAtCaret("\noutputs:\n");
+    for (const auto & o : doc.outputs) {
+        docTextView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + "\n");
+    }
+    docTextView.insertTextAtCaret("\n\n" + doc.docString);
+    docTextView.moveCaretToTop(false);
+}
+
 void DocListModel::listBoxItemClicked(int row, const MouseEvent &me) {
     if (row >= 0) {
         const auto &key = rows[row];
+        lastKey = key;
         componentClicked(key, me); // trigger callback so external guy can use
-        const auto &doc = moduleDocs[key];
-        docTextView.clear();
-        docTextView.insertTextAtCaret(doc.type + "\n\n");
-        docTextView.insertTextAtCaret("inputs:\n");
-        for (const auto & i : doc.inputs) {
-            docTextView.insertTextAtCaret("  " + i.name + ((i.unit != "") ? (" [" + i.unit + "]") : "") + " " + std::to_string(i.defaultValue) + "\n");
-        }
-        docTextView.insertTextAtCaret("\noutputs:\n");
-        for (const auto & o : doc.outputs) {
-            docTextView.insertTextAtCaret("  " + o.name + ((o.unit != "") ? (" [" + o.unit + "]") : "") + "\n");
-        }
-        docTextView.insertTextAtCaret("\n\n" + doc.docString);
-        docTextView.moveCaretToTop(false);
+        drawEntry(key);
     }
 }
 

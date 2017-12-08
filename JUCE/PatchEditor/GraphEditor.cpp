@@ -61,6 +61,8 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     int typeMenuId = 999;
     int createInputMenuId = 999;
     int createOutputMenuId = 999;
+    int removeLocalComponentMenuId = 999;
+    int addLocalComponentMenuId = 999;
 
     if (moduleType.front() == componentMarker) {
         typeMenuId = ctr++;
@@ -71,6 +73,20 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
 
         createOutputMenuId = ctr++;
         poop.addItem(createOutputMenuId, "create output");
+
+        if (globalComponents.count(moduleType) && patch.components.count(moduleType)) {
+            removeLocalComponentMenuId = ctr++;
+            poop.addItem(removeLocalComponentMenuId, "remove conflicting Component definition");
+        }
+        else if (!globalComponents.count(moduleType) && patch.components.count(moduleType)) {
+            removeLocalComponentMenuId = ctr++;
+            poop.addItem(removeLocalComponentMenuId, "remove local Component definition");
+        }
+        else if (globalComponents.count(moduleType) && !patch.components.count(moduleType)) {
+            addLocalComponentMenuId = ctr++;
+            poop.addItem(addLocalComponentMenuId, "create local Component definition");
+        }
+
     }
     else if (moduleType.front() == parameterMarker) {
         // TODO, value, min, max editable
@@ -87,6 +103,13 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
         if (!patch.components.count(moduleType)) return false;
         auto & comp = patch.components.at(moduleType);
         return 0 == patch.components.at(moduleType).addPort("newPort", choice == createInputMenuId, "", 0.0f);
+    }
+    else if (choice == removeLocalComponentMenuId) {
+        return 0 == patch.removeComponentType(moduleType);
+    }
+    else if (choice == addLocalComponentMenuId) {
+        if (!globalComponents.count(moduleType)) return false;
+        return 0 == patch.addComponentType(moduleType, globalComponents.at(moduleType));
     }
 
     if (moduleName != nameLbl.getText().toStdString()) {
@@ -570,7 +593,7 @@ void GraphEditor::paint(Graphics& g){
 }
 
 
-void GraphEditor::setGlobalComponents(const set<string>& globalComponents_) {
+void GraphEditor::setGlobalComponents(const map<string, ComponentDescriptor>& globalComponents_) {
     auto scoped_lock = gfxGraphLock.make_scoped_lock();
     globalComponents = globalComponents_;
     docIsDirty = true;

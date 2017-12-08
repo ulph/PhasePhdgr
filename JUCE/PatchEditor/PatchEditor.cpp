@@ -29,10 +29,10 @@ void PatchEditor::refreshAndBroadcastDoc(){
     docView.setDocs(doc.get());
 
     rootBundle.editor.setDoc(doc);
-    rootBundle.editor.setGlobalComponents(globalComponents);
+    rootBundle.editor.setGlobalComponents(cmpReg.all());
 
     for (auto* b : subPatchBundles) {
-        b->editor.setGlobalComponents(globalComponents);
+        b->editor.setGlobalComponents(cmpReg.all());
         b->editor.setDoc(doc);
     }
 

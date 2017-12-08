@@ -15,6 +15,8 @@
 using namespace PhasePhckr;
 using namespace std;
 
+const string rootMarker = "root";
+
 const struct ComponentMenuStrings {
     const string createInput = "create input";
     const string createOutput = "create output";

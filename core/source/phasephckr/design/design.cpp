@@ -638,8 +638,8 @@ int ComponentDescriptor::addPort(const string & portName, bool inputPort, const 
                 conflict = true;
                 break;
             }
+            conflict = false;
         }
-        conflict = false;
     }
 
     bus.push_back({ actualPortName, unit, defaultValue });

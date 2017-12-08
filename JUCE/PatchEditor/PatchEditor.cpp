@@ -118,7 +118,7 @@ PatchEditor::PatchEditor(
        *this,
        doc,
        subPatch,
-       "root",
+       rootMarker,
        patchCopy,
        inBus,
        outBus
@@ -149,7 +149,7 @@ PatchEditor::PatchEditor(
     grid.addComponent(&docView);
     grid.setColoumns({ 0.875f, 0.125f });
 
-    editorStack.addTab("root", Colours::black, &rootBundle, false);
+    editorStack.addTab(rootMarker, Colours::black, &rootBundle, false);
 
     patchHandle = subPatch.subscribe(
         [this](const PatchDescriptor& desc) {

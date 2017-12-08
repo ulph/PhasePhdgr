@@ -79,13 +79,7 @@ private:
     void designPorts(const Doc &doc);
     void recalculateWires(const vector<GfxModule>& modules);
 
-    ComponentDescriptor* rootComponent() {
-        // lock before call
-        if (rootComponentName == "root") return &patch.root;
-        if (patch.components.count(rootComponentName)) return &patch.components[rootComponentName];
-        assert(0);
-        return nullptr;
-    }
+    ComponentDescriptor* rootComponent();
 
     const string rootComponentName = "";
     bool patchIsDirty;

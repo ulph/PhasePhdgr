@@ -47,6 +47,8 @@ void GraphEditorBundle::resized()
 
 
 bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
+    if (rootComponentName == rootMarker && (moduleName == c_inBus.name || moduleName == c_outBus.name)) return false;
+
     TextLabelMenuEntry nameLbl;
     nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
     nameLbl.edit.setText(moduleName, NotificationType::dontSendNotification);
@@ -55,8 +57,14 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     int ctr = 1;
 
     const int nameMenuId = ctr++;
-    poop.addCustomItem(nameMenuId, &nameLbl, 200, 20, false);
+    const int delMenuId = ctr++;
+    if (moduleName != c_inBus.name && moduleName != c_outBus.name) {
+        poop.addCustomItem(nameMenuId, &nameLbl, 200, 20, false);
+        poop.addItem(delMenuId, "remove module");
+    }
     int cloneComponentMenuId = 999;
+    int addComponentInputMenuId = 999;
+    int addComponentOutputMenuId = 999;
 
     ComponentPopupMenuState cmpState;
 
@@ -72,9 +80,16 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     else if (moduleType.front() == parameterMarker) {
         // TODO, value, min, max editable
     }
-
-    const int delMenuId = ctr++;
-    poop.addItem(delMenuId, "remove module");
+    else if (rootComponentName.size() && rootComponentName != rootMarker && patch.components.count(rootComponentName) ){
+        if (moduleName == c_inBus.name) {
+            addComponentInputMenuId = ctr++;
+            poop.addItem(addComponentInputMenuId, c_componentMenuStrings.createInput);
+        }
+        else if (moduleName == c_outBus.name) {
+            addComponentOutputMenuId = ctr++;
+            poop.addItem(addComponentOutputMenuId, c_componentMenuStrings.createOutput);
+        }
+    }
 
     int choice = poop.show();
 
@@ -93,6 +108,11 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
         if (!rootComponent()->graph.modules.count(moduleName)) return true;
         rootComponent()->graph.modules[moduleName] = newType;
         return true;
+    }
+    else if (choice == addComponentInputMenuId || choice == addComponentOutputMenuId) {
+        auto * comp = rootComponent();
+        if (comp == nullptr) return false;
+        return 0 == comp->addPort("newPort", choice == addComponentInputMenuId, "", 0.0f);
     }
 
     auto newModuleName = nameLbl.edit.getText().toStdString();
@@ -195,6 +215,12 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
     return false;
 }
 
+ComponentDescriptor* GraphEditor::rootComponent() {
+    // lock before call
+    if (rootComponentName == rootMarker) return &patch.root;
+    if (patch.components.count(rootComponentName)) return &patch.components[rootComponentName];
+    return nullptr;
+}
 
 GraphEditor::GraphEditor(
     PatchEditor &patchEditor,
@@ -585,8 +611,16 @@ void GraphEditor::setDoc(const Doc& newDoc){
     auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
     doc = newDoc;
-    auto inBus_ = Doc::makeBusModuleDoc(inBus, true);
-    auto outBus_ = Doc::makeBusModuleDoc(outBus, false);
+
+    auto * rt = rootComponent();
+    if (rootComponentName != rootMarker && rt != nullptr){
+        inBus = rt->inBus;
+        outBus = rt->outBus;
+    }
+
+    ModuleDoc inBus_ = Doc::makeBusModuleDoc(inBus, true);
+    ModuleDoc outBus_ = Doc::makeBusModuleDoc(outBus, false);
+
     doc.add(inBus_);
     doc.add(outBus_);
 

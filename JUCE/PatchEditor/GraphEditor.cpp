@@ -9,26 +9,26 @@ using namespace PhasePhckr;
 
 GraphEditorBundle::GraphEditorBundle(
     PatchEditor& graphEditor,
-    SubValue<Doc> &subDoc,
+    const Doc &initialDoc,
     SubValue<PatchDescriptor> & subPatch,
     const string& rootComponent,
     const PatchDescriptor& initialPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
-    : graphView(
+    : editor(
         graphEditor
         , rootComponent
         , initialPatch
-        , viewPort
-        , subDoc
+        , view
+        , initialDoc
         , subPatch
         , inBus
         , outBus
     )
 {
-    addAndMakeVisible(viewPort);
-    viewPort.setViewedComponent(&graphView, false);
+    addAndMakeVisible(view);
+    view.setViewedComponent(&editor, false);
     resized();
 }
 
@@ -41,7 +41,7 @@ void GraphEditorBundle::paint(Graphics& g)
 
 void GraphEditorBundle::resized()
 {
-    viewPort.setBoundsRelative(0, 0, 1.0f, 1.0f);
+    view.setBoundsRelative(0, 0, 1.0f, 1.0f);
     repaint();
 }
 
@@ -198,13 +198,13 @@ GraphEditor::GraphEditor(
     const string& rootComponent,
     const PatchDescriptor& initialPatch,
     Viewport &viewPort,
-    SubValue<Doc> &subDoc,
+    const Doc &initialDoc,
     SubValue<PatchDescriptor> &subPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus
 )
     : subPatch(subPatch)
-    , subDoc(subDoc)
+    , doc(initialDoc)
     , patchEditor(patchEditor)
     , viewPort(viewPort)
     , inBus(inBus)
@@ -214,17 +214,12 @@ GraphEditor::GraphEditor(
     , docIsDirty(false)
     , rootComponentName(rootComponent)
 {
+    setDoc(initialDoc);
     setGraph(initialPatch);
 
     subPatchHandle = subPatch.subscribe(
         [this](const PhasePhckr::PatchDescriptor& g){
             setGraph(g);
-        }
-    );
-
-    docHandle = subDoc.subscribe(
-        [this](const Doc& doc_){
-            setDoc(doc_);
         }
     );
 
@@ -265,7 +260,6 @@ void GraphEditor::applyZoom() {
 
 GraphEditor::~GraphEditor() {
     subPatch.unsubscribe(subPatchHandle);
-    subDoc.unsubscribe(docHandle);
 }
 
 

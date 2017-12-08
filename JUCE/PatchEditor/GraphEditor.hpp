@@ -30,7 +30,7 @@ public:
         const string& rootComponent,
         const PatchDescriptor& initialPatch,
         Viewport& viewPort,
-        SubValue<Doc> &subDoc,
+        const Doc &initialDoc,
         SubValue<PatchDescriptor> &subPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
@@ -51,14 +51,14 @@ public:
 
     void paint (Graphics& g) override;
 
+    void setDoc(const Doc& newDoc);
+
 private:
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 
     void setGraph(const PatchDescriptor& patch);
     void propagateUserModelChange();
-
-    void setDoc(const Doc& newDoc);
 
     void updateRenderComponents();
 
@@ -94,8 +94,6 @@ private:
 
     bool docIsDirty;
     Doc doc;
-    SubValue<Doc> &subDoc;
-    int docHandle;
 
     PatchEditor& patchEditor;
     Viewport& viewPort;
@@ -143,18 +141,18 @@ public:
 
 class GraphEditorBundle : public Component{
 private:
-    GraphViewPort viewPort;
-    GraphEditor graphView;
+    GraphViewPort view;
 public:
     GraphEditorBundle(
         PatchEditor& graphEditor,
-        SubValue<Doc> &subDoc,
+        const Doc &initialDoc,
         SubValue<PatchDescriptor> & subscribedCGD,
         const string& rootComponent,
         const PatchDescriptor& initialPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus
     );
+    GraphEditor editor;
     void paint(Graphics& g);
     void resized();
 };

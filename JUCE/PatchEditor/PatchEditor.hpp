@@ -18,16 +18,19 @@ using namespace std;
 class GraphEditorTabbedComponent : public TabbedComponent {
 private:
     vector<string> & subPatchTypes;
+    vector<GraphEditorBundle*> & subPatchBundles;
 public:
-    GraphEditorTabbedComponent(vector<string> & subPatchTypes)
+    GraphEditorTabbedComponent(vector<string> & subPatchTypes, vector<GraphEditorBundle*> & subPatchBundles)
         : TabbedComponent(TabbedButtonBar::TabsAtTop)
         , subPatchTypes(subPatchTypes)
+        , subPatchBundles(subPatchBundles)
     {
     }
     virtual void currentTabChanged(int newCurrentTabIndex, const String& newCurrentTabName) {
         while (newCurrentTabIndex + 1 != getNumTabs()) {
-            removeTab(getNumTabs() - 1);
             subPatchTypes.pop_back();
+            subPatchBundles.pop_back();
+            removeTab(getNumTabs() - 1);
         }
     }
 };
@@ -36,8 +39,6 @@ public:
 class PatchEditor : public Component
 {
     Doc doc;
-    SubValue<Doc> subDoc;
-    int docHandle;
     DocView docView;
 
     SubValue<PatchDescriptor> &subPatch;
@@ -51,9 +52,10 @@ class PatchEditor : public Component
 
     PhasePhckrGrid grid;
 
-    GraphEditorBundle rootView;
+    GraphEditorBundle rootBundle;
 
     vector<string> subPatchTypes;
+    vector<GraphEditorBundle*> subPatchBundles;
 
     GraphEditorTabbedComponent editorStack;
     void refreshAndBroadcastDoc();

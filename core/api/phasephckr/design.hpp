@@ -156,7 +156,7 @@ struct PatchDescriptor {
     vector<PatchParameterDescriptor> parameters;
 
     int createNewComponentType(const set<string>& modules, string& type);
-    int addComponentType(const string& type, const ComponentDescriptor& descriptor);
+    int addComponentType(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict=false);
     int renameComponentType(const string& type, const string& newType);
     int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort);
     int removeComponentType(const string& type);

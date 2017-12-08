@@ -359,9 +359,14 @@ int PatchDescriptor::renameComponentType(const string& type, const string& newTy
     return 0;
 }
 
-int PatchDescriptor::addComponentType(const string& type, const ComponentDescriptor& descriptor) {
+int PatchDescriptor::addComponentType(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict) {
     if (!componentTypeIsValid(type)) return -1;
-    if (components.count(type)) return -2;
+    if (!resolveNameConflict && components.count(type)) return -2;
+
+    string newType = type;
+    while (components.count(newType)) newType += "_";
+
+    type = newType;
     components[type] = descriptor;
     return 0;
 }

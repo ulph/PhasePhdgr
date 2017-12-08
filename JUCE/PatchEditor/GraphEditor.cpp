@@ -63,7 +63,8 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     int createOutputMenuId = 999;
     int removeLocalComponentMenuId = 999;
     int addLocalComponentMenuId = 999;
-
+    int cloneComponentMenuId = 999;
+    
     if (moduleType.front() == componentMarker) {
         typeMenuId = ctr++;
         poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
@@ -87,6 +88,9 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
             poop.addItem(addLocalComponentMenuId, "create local Component definition");
         }
 
+        cloneComponentMenuId = ctr++;
+        poop.addItem(cloneComponentMenuId, "clone Component definition");
+
     }
     else if (moduleType.front() == parameterMarker) {
         // TODO, value, min, max editable
@@ -109,7 +113,19 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     }
     else if (choice == addLocalComponentMenuId) {
         if (!globalComponents.count(moduleType)) return false;
-        return 0 == patch.addComponentType(moduleType, globalComponents.at(moduleType));
+        string type = moduleType;
+        return 0 == patch.addComponentType(type, globalComponents.at(moduleType));
+    }
+    else if (choice == cloneComponentMenuId) {
+        ComponentDescriptor cd;
+        if (patch.components.count(moduleType)) cd = patch.components.at(moduleType);
+        else if (globalComponents.count(moduleType)) cd = globalComponents.at(moduleType);
+        else return false;
+        string newType = moduleType + "_Clone";
+        if (0 != patch.addComponentType(newType, cd, true)) return false;
+        if (!rootComponent()->graph.modules.count(moduleName)) return true;
+        rootComponent()->graph.modules[moduleName] = newType;
+        return true;
     }
 
     if (moduleName != nameLbl.getText().toStdString()) {

@@ -24,7 +24,10 @@ const struct ComponentMenuStrings {
     const string removeLocal = "(!) remove local Component definition";
     const string createLocal = "create local Component definition";
     const string clone = "change into new Component";
+    const string docString = "change docstring";
 } c_componentMenuStrings;
+
+//class DocStringEditor : public TextEditor
 
 class TextLabelMenuEntry : public Component {
 public:
@@ -43,12 +46,14 @@ public:
 
 struct ComponentPopupMenuState {
     int typeMenuId = 999;
+    TextLabelMenuEntry name;
     int createInputMenuId = 999;
     int createOutputMenuId = 999;
     int removeConflictingComponentMenuId = 999;
     int removeLocalComponentMenuId = 999;
     int addLocalComponentMenuId = 999;
-    TextLabelMenuEntry name;
+    int docStringMenuId = 999;
+    TextEditor docStringEditor;
 };
 
 void makeComponentPopupMenu(

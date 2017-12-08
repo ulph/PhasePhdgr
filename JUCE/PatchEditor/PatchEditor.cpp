@@ -27,6 +27,16 @@ void makeComponentPopupMenu(PopupMenu & poop,
 
         ids.createOutputMenuId = ctr++;
         poop.addItem(ids.createOutputMenuId, c_componentMenuStrings.createOutput);
+
+        if (patch.components.count(type)) {
+            ids.docStringMenuId = ctr++;
+            PopupMenu docStringPoop;
+            ids.docStringEditor.setText(patch.components.at(type).docString, NotificationType::dontSendNotification);
+            ids.docStringEditor.setMultiLine(true, true);
+            ids.docStringEditor.setReturnKeyStartsNewLine(true);
+            docStringPoop.addCustomItem(ids.docStringMenuId, &ids.docStringEditor, 200, 200, false);
+            poop.addSubMenu(c_componentMenuStrings.docString, docStringPoop);
+        }
     }
 
     if (global.count(type) && local.count(type)) {
@@ -50,6 +60,7 @@ bool applyComponentPopuMenuChoice(
     PatchDescriptor& patch,
     const map<string, ComponentDescriptor>& global
 ){
+    string newDocString = ids.docStringEditor.getText().toStdString();
     if (choice == ids.createInputMenuId || choice == ids.createOutputMenuId) {
         if (!patch.components.count(type)) return false;
         auto & comp = patch.components.at(type);
@@ -68,6 +79,10 @@ bool applyComponentPopuMenuChoice(
     }
     else if (type != ids.name.edit.getText().toStdString()) {
         return 0 == patch.renameComponentType(type, ids.name.edit.getText().toStdString());
+    }
+    else if (patch.components.count(type) && newDocString != patch.components.at(type).docString) {
+        patch.components[type].docString = newDocString;
+        return true;
     }
 
     return false;

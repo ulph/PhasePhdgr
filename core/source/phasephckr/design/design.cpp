@@ -400,20 +400,28 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
             cit = root.graph.connections.erase(cit);
         }
         else if (modules.count(c.source.module)) {
+            bool prune = true;
             if (!externalTargetsAlias.count(c.target)) {
                 auto p_ = c.target.port;
                 while (outBusAlias.count(p_)) p_ += "_";
                 outBusAlias.insert(p_);
                 externalTargetsAlias[c.target] = p_;
                 cd.outBus.push_back(PadDescription(p_, "", 0.0f));
+                prune = false;
             }
             auto p = externalTargetsAlias.at(c.target);
             cd.graph.connections.push_back(ModulePortConnection(c.source, ModulePort(c_outBus.name, p)));
-            c.source.module = m;
-            c.source.port = p;
-            ++cit;
+            if (prune) {
+                cit = root.graph.connections.erase(cit);
+            }
+            else {
+                c.source.module = m;
+                c.source.port = p;
+                ++cit;
+            }
         }
         else if (modules.count(c.target.module)) {
+            bool prune = true;
             if (!externalSourcesAlias.count(c.source)) {
                 auto p_ = c.source.port;
                 while (inBusAlias.count(p_)) p_ += "_";
@@ -422,12 +430,18 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
                 auto v = 0.0f;
                 if (root.graph.values.count(c.target)) { v = root.graph.values.at(c.target); }
                 cd.inBus.push_back(PadDescription(p_, "", v));
+                prune = false;
             }
             auto p = externalSourcesAlias.at(c.source);
             cd.graph.connections.push_back(ModulePortConnection(ModulePort(c_inBus.name, p), c.target));
-            c.target.module = m;
-            c.target.port = p;
-            ++cit;
+            if (prune) {
+                cit = root.graph.connections.erase(cit);
+            }
+            else {
+                c.target.module = m;
+                c.target.port = p;
+                ++cit;
+            }
         }
         else {
             ++cit;

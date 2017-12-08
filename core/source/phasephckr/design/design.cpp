@@ -477,19 +477,21 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
     return 0;
 }
 
-int PatchDescriptor::removeComponentType(const string& type) {
+int PatchDescriptor::removeComponentType(const string& type, bool cleanUp) {
     if (!components.count(type)) return -1;
-    set<string> instances;
-    for (const auto& kv : root.graph.modules) {
-        if (kv.second == type) instances.insert(kv.first);
-    }
-    for (const auto& i : instances) {
-        root.graph.modules.erase(i);
-    }
-    auto it = root.graph.connections.begin();
-    while (it != root.graph.connections.end()) {
-        if (instances.count(it->source.module) || instances.count(it->target.module)) it = root.graph.connections.erase(it);
-        else ++it;
+    if (cleanUp) {
+        set<string> instances;
+        for (const auto& kv : root.graph.modules) {
+            if (kv.second == type) instances.insert(kv.first);
+        }
+        for (const auto& i : instances) {
+            root.graph.modules.erase(i);
+        }
+        auto it = root.graph.connections.begin();
+        while (it != root.graph.connections.end()) {
+            if (instances.count(it->source.module) || instances.count(it->target.module)) it = root.graph.connections.erase(it);
+            else ++it;
+        }
     }
     components.erase(type);
     return 0;

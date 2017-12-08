@@ -61,27 +61,30 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     int typeMenuId = 999;
     int createInputMenuId = 999;
     int createOutputMenuId = 999;
+    int removeConflictingComponentMenuId = 999;
     int removeLocalComponentMenuId = 999;
     int addLocalComponentMenuId = 999;
     int cloneComponentMenuId = 999;
     
     if (moduleType.front() == componentMarker) {
-        typeMenuId = ctr++;
-        poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
+        if (patch.components.count(moduleType)) {
+            typeMenuId = ctr++;
+            poop.addCustomItem(typeMenuId, &typeLbl, 20, 20, false);
 
-        createInputMenuId = ctr++;
-        poop.addItem(createInputMenuId, "create input");
+            createInputMenuId = ctr++;
+            poop.addItem(createInputMenuId, "create input");
 
-        createOutputMenuId = ctr++;
-        poop.addItem(createOutputMenuId, "create output");
+            createOutputMenuId = ctr++;
+            poop.addItem(createOutputMenuId, "create output");
+        }
 
         if (globalComponents.count(moduleType) && patch.components.count(moduleType)) {
             removeLocalComponentMenuId = ctr++;
             poop.addItem(removeLocalComponentMenuId, "remove conflicting Component definition");
         }
         else if (!globalComponents.count(moduleType) && patch.components.count(moduleType)) {
-            removeLocalComponentMenuId = ctr++;
-            poop.addItem(removeLocalComponentMenuId, "remove local Component definition");
+            removeConflictingComponentMenuId = ctr++;
+            poop.addItem(removeConflictingComponentMenuId, "(!) remove local Component definition");
         }
         else if (globalComponents.count(moduleType) && !patch.components.count(moduleType)) {
             addLocalComponentMenuId = ctr++;
@@ -108,8 +111,11 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
         auto & comp = patch.components.at(moduleType);
         return 0 == patch.components.at(moduleType).addPort("newPort", choice == createInputMenuId, "", 0.0f);
     }
+    else if (choice == removeConflictingComponentMenuId) {
+        return 0 == patch.removeComponentType(moduleType, true);
+    }
     else if (choice == removeLocalComponentMenuId) {
-        return 0 == patch.removeComponentType(moduleType);
+        return 0 == patch.removeComponentType(moduleType, false);
     }
     else if (choice == addLocalComponentMenuId) {
         if (!globalComponents.count(moduleType)) return false;

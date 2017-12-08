@@ -367,9 +367,95 @@ int PatchDescriptor::addComponentType(const string& type, const ComponentDescrip
 }
 
 int PatchDescriptor::createNewComponentType(const set<string>& modules, string& newType) {
-    string t = componentMarker + "CMP";
+    if (modules.size() < 2) return -1;
 
-    NYI; return -1;
+    string t = string(&componentMarker) + "CMP";
+    ComponentDescriptor cd;
+
+    int i = 0;
+    while (components.count(t + to_string(i))) {
+        i++;
+    }
+    t += to_string(i);
+
+    if (!componentTypeIsValid(t)) return -2;
+
+    newType = t;
+
+    i = 0;
+    auto m = "new_" + t.substr(1);
+    while (root.graph.modules.count(m + "_" + to_string(i))) i++;
+    m += "_" + to_string(i);
+
+    set<string> outBusAlias;
+    set<string> inBusAlias;
+    map<ModulePort, string> externalSourcesAlias;
+    map<ModulePort, string> externalTargetsAlias;
+
+    auto cit = root.graph.connections.begin();
+    while (cit != root.graph.connections.end()) {
+        auto& c = *cit;
+        if (modules.count(c.source.module) && modules.count(c.target.module)) {
+            cd.graph.connections.push_back(c);
+            cit = root.graph.connections.erase(cit);
+        }
+        else if (modules.count(c.source.module)) {
+            if (!externalTargetsAlias.count(c.target)) {
+                auto p_ = c.target.port;
+                while (outBusAlias.count(p_)) p_ += "_";
+                outBusAlias.insert(p_);
+                externalTargetsAlias[c.target] = p_;
+                cd.outBus.push_back(PadDescription(p_, "", 0.0f));
+            }
+            auto p = externalTargetsAlias.at(c.target);
+            cd.graph.connections.push_back(ModulePortConnection(c.source, ModulePort(c_outBus.name, p)));
+            c.source.module = m;
+            c.source.port = p;
+            ++cit;
+        }
+        else if (modules.count(c.target.module)) {
+            if (!externalSourcesAlias.count(c.source)) {
+                auto p_ = c.source.port;
+                while (inBusAlias.count(p_)) p_ += "_";
+                inBusAlias.insert(p_);
+                externalSourcesAlias[c.source] = p_;
+                auto v = 0.0f;
+                if (root.graph.values.count(c.target)) { v = root.graph.values.at(c.target); }
+                cd.inBus.push_back(PadDescription(p_, "", v));
+            }
+            auto p = externalSourcesAlias.at(c.source);
+            cd.graph.connections.push_back(ModulePortConnection(ModulePort(c_inBus.name, p), c.target));
+            c.target.module = m;
+            c.target.port = p;
+            ++cit;
+        }
+        else {
+            ++cit;
+        }
+    }
+
+    auto mit = root.graph.modules.begin();
+    while (mit != root.graph.modules.end()) {
+        if (modules.count(mit->first)) {
+            cd.graph.modules[mit->first] = mit->second;
+            mit = root.graph.modules.erase(mit);
+        }
+        else ++mit;
+    }
+
+    auto vit = root.graph.values.begin();
+    while (vit != root.graph.values.end()) {
+        if (modules.count(vit->first.module)) {
+            cd.graph.values[vit->first] = vit->second;
+            vit = root.graph.values.erase(vit);
+        }
+        else ++vit;
+    }
+
+    components[newType] = cd;
+    root.graph.modules[m] = newType;
+
+    return 0;
 }
 
 int PatchDescriptor::removeComponentType(const string& type) {

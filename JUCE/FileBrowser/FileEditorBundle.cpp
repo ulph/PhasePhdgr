@@ -152,7 +152,7 @@ void FileBrowserPanel::updateComponentMap(map<string, ComponentDescriptor>& c, D
     d.setDocs(docs);
 }
 
-FileBrowserPanel::FileBrowserPanel(PhasePhckrAudioProcessor& p)
+FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
     : fileWatchThread("editorFileWatchThread")
     , processor(p)
     , subEffectHandle(

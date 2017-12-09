@@ -8,7 +8,7 @@
 
 #include "PatchEditor.hpp" // TODO for _stylize
 
-class PhasePhckrAudioProcessorEditor;
+class PhasePhckrEditor;
 
 typedef std::function<void(const string& name, const nlohmann::json&)> ProvideJsonCallBack;
 typedef std::function<nlohmann::json(void)> GetJsonCallBack;
@@ -57,7 +57,7 @@ public:
 
 class FileBrowserPanel : public Component {
 private:
-    PhasePhckrAudioProcessor& processor;
+    PhasePhckrProcessor& processor;
     int subVoiceHandle;
     int subEffectHandle;
     TimeSliceThread fileWatchThread;
@@ -77,7 +77,7 @@ private:
     ComponentDescriptor selectedComponent;
 
 public:
-    FileBrowserPanel(PhasePhckrAudioProcessor& editor);
+    FileBrowserPanel(PhasePhckrProcessor& editor);
     virtual ~FileBrowserPanel();
     void resized() override;
 };

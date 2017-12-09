@@ -8,7 +8,7 @@
 using namespace PhasePhckrFileStuff;
 using namespace std;
 
-void PhasePhckrAudioProcessorFX::updateComponentRegister(const DirectoryContentsList* d)
+void PhasePhckrProcessorFX::updateComponentRegister(const DirectoryContentsList* d)
 {
     for(int i=0; i<d->getNumFiles(); i++) {
         const File& f = d->getFile(i);
@@ -29,11 +29,11 @@ void PhasePhckrAudioProcessorFX::updateComponentRegister(const DirectoryContents
     }
 }
 
-PhasePhckrAudioProcessorFX::PhasePhckrAudioProcessorFX()
-     : AudioProcessor (BusesProperties().withOutput ("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
-     , fileWatchThread("processorFileWatchThread")
-     , componentDirectoryWatcher(getFilter(), fileWatchThread)
-     , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
+PhasePhckrProcessorFX::PhasePhckrProcessorFX()
+    : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
+    , fileWatchThread("processorFileWatchThread")
+    , componentDirectoryWatcher(getFilter(), fileWatchThread)
+    , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
 {
     activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
@@ -44,8 +44,8 @@ PhasePhckrAudioProcessorFX::PhasePhckrAudioProcessorFX()
     componentDirectoryWatcher.addChangeListener(&componentFilesListener);
     componentDirectoryWatcher.setDirectory(componentsDir, true, true);
 
-//    // parameter mumbo
-//    parameters.initialize(this);
+    // parameter mumbo
+    parameters.initialize(this);
 
     // create the synth and push down the initial chains
     effect = new PhasePhckr::Effect();
@@ -58,72 +58,72 @@ PhasePhckrAudioProcessorFX::PhasePhckrAudioProcessorFX()
 
 }
 
-PhasePhckrAudioProcessorFX::~PhasePhckrAudioProcessorFX()
+PhasePhckrProcessorFX::~PhasePhckrProcessorFX()
 {
     subEffectChain.unsubscribe(activeEffectHandle);
     subComponentRegister.unsubscribe(componentRegisterHandle);
     delete effect;
 }
 
-const String PhasePhckrAudioProcessorFX::getName() const
+const String PhasePhckrProcessorFX::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool PhasePhckrAudioProcessorFX::acceptsMidi() const
+bool PhasePhckrProcessorFX::acceptsMidi() const
 {
     return true;
 }
 
-bool PhasePhckrAudioProcessorFX::producesMidi() const
+bool PhasePhckrProcessorFX::producesMidi() const
 {
     return false;
 }
 
-double PhasePhckrAudioProcessorFX::getTailLengthSeconds() const
+double PhasePhckrProcessorFX::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int PhasePhckrAudioProcessorFX::getNumPrograms()
+int PhasePhckrProcessorFX::getNumPrograms()
 {
     return 1;
 }
 
-int PhasePhckrAudioProcessorFX::getCurrentProgram()
+int PhasePhckrProcessorFX::getCurrentProgram()
 {
     return 0;
 }
 
-void PhasePhckrAudioProcessorFX::setCurrentProgram (int index)
+void PhasePhckrProcessorFX::setCurrentProgram (int index)
 {
 }
 
-const String PhasePhckrAudioProcessorFX::getProgramName (int index)
+const String PhasePhckrProcessorFX::getProgramName (int index)
 {
     return String();
 }
 
-void PhasePhckrAudioProcessorFX::changeProgramName (int index, const String& newName)
+void PhasePhckrProcessorFX::changeProgramName (int index, const String& newName)
 {
 }
 
-void PhasePhckrAudioProcessorFX::prepareToPlay (double sampleRate, int samplesPerBlock)
+void PhasePhckrProcessorFX::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 }
 
-void PhasePhckrAudioProcessorFX::releaseResources()
+void PhasePhckrProcessorFX::releaseResources()
 {
 }
 
-bool PhasePhckrAudioProcessorFX::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool PhasePhckrProcessorFX::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     if (layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) return false;
     if (layouts.getMainInputChannelSet() != AudioChannelSet::stereo()) return false;
     return true;
 }
 
-void PhasePhckrAudioProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void PhasePhckrProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 #if FORCE_FTZ_DAZ
     int oldMXCSR = _mm_getcsr(); /*read the old MXCSR setting */ \
@@ -169,17 +169,17 @@ void PhasePhckrAudioProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBu
 #endif
 }
 
-bool PhasePhckrAudioProcessorFX::hasEditor() const
+bool PhasePhckrProcessorFX::hasEditor() const
 {
     return true;
 }
 
-AudioProcessorEditor* PhasePhckrAudioProcessorFX::createEditor()
+AudioProcessorEditor* PhasePhckrProcessorFX::createEditor()
 {
-    return new PhasePhckrAudioProcessorEditorFX (*this);
+    return new PhasePhckrEditorFX (*this);
 }
 
-void PhasePhckrAudioProcessorFX::getStateInformation (MemoryBlock& destData)
+void PhasePhckrProcessorFX::getStateInformation (MemoryBlock& destData)
 {
     json j = getPreset();
     string ss = j.dump(2); // json lib bugged with long rows
@@ -190,7 +190,7 @@ void PhasePhckrAudioProcessorFX::getStateInformation (MemoryBlock& destData)
     assert(destData.getSize() == n);
 }
 
-void PhasePhckrAudioProcessorFX::setStateInformation (const void* data, int sizeInBytes)
+void PhasePhckrProcessorFX::setStateInformation (const void* data, int sizeInBytes)
 {
     string ss((const char*)data);
     PresetDescriptor preset;
@@ -207,21 +207,21 @@ void PhasePhckrAudioProcessorFX::setStateInformation (const void* data, int size
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new PhasePhckrAudioProcessorFX();
+    return new PhasePhckrProcessorFX();
 }
 
-const PhasePhckr::Effect* PhasePhckrAudioProcessorFX::getEffect() const {
+const PhasePhckr::Effect* PhasePhckrProcessorFX::getEffect() const {
     return effect;
 }
 
-void PhasePhckrAudioProcessorFX::broadcastPatch() {
+void PhasePhckrProcessorFX::broadcastPatch() {
     // editor should call this once after construction
     subComponentRegister.set(componentRegisterHandle, componentRegister);
     subVoiceChain.set(activeVoiceHandle, voiceChain);
     subEffectChain.set(activeEffectHandle, effectChain);
 }
 
-PatchDescriptor PhasePhckrAudioProcessorFX::getPatch(SynthGraphType type, bool extractParameters) {
+PatchDescriptor PhasePhckrProcessorFX::getPatch(SynthGraphType type, bool extractParameters) {
     PatchDescriptor patch;
 
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
@@ -235,7 +235,7 @@ PatchDescriptor PhasePhckrAudioProcessorFX::getPatch(SynthGraphType type, bool e
     return patch;
 }
 
-void PhasePhckrAudioProcessorFX::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
+void PhasePhckrProcessorFX::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
     auto patchCopy = patch;
     patchCopy.cleanUp();
     if (type == EFFECT) {
@@ -244,7 +244,7 @@ void PhasePhckrAudioProcessorFX::setPatch(SynthGraphType type, const PatchDescri
     }
 }
 
-PresetDescriptor PhasePhckrAudioProcessorFX::getPreset() {
+PresetDescriptor PhasePhckrProcessorFX::getPreset() {
     PresetDescriptor preset;
 
     preset.effect = getPatch(EFFECT);
@@ -253,11 +253,11 @@ PresetDescriptor PhasePhckrAudioProcessorFX::getPreset() {
     return preset;
 }
 
-vector<PresetParameterDescriptor> PhasePhckrAudioProcessorFX::getPresetParameters() {
+vector<PresetParameterDescriptor> PhasePhckrProcessorFX::getPresetParameters() {
     return parameters.serialize();
 }
 
-vector<PatchParameterDescriptor> PhasePhckrAudioProcessorFX::getParameters(SynthGraphType type) {
+vector<PatchParameterDescriptor> PhasePhckrProcessorFX::getParameters(SynthGraphType type) {
     vector<PresetParameterDescriptor> presetParams = parameters.serialize();
     vector<PatchParameterDescriptor> params;
 
@@ -271,12 +271,12 @@ vector<PatchParameterDescriptor> PhasePhckrAudioProcessorFX::getParameters(Synth
     return params;
 }
 
-void PhasePhckrAudioProcessorFX::setPreset(const PresetDescriptor& preset) {
+void PhasePhckrProcessorFX::setPreset(const PresetDescriptor& preset) {
     setPatch(EFFECT, preset.effect);
     parameters.deserialize(preset.parameters);
 }
 
-void PhasePhckrAudioProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
+void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     effectChain = p;

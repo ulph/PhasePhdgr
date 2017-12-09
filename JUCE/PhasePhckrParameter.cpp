@@ -7,7 +7,7 @@
 using namespace std;
 
 
-void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
+void PhasePhckrParameters::initialize(AudioProcessor * p){
     // only call once right after constructor or shit hits the fan
     for (int i = 0; i < 8*16; i++) {
         auto knb_ptr = new PhasePhckrParameter(i);
@@ -16,7 +16,7 @@ void PhasePhckrParameters::initialize(PhasePhckrAudioProcessor * p){
     }
 }
 
-void PhasePhckrParameters::initializeKnobs(PhasePhckrAudioProcessorEditor * e) {
+void PhasePhckrParameters::initializeKnobs(PhasePhckrEditor * e) {
     for (int i = 0; i<numberOfParameters(); i++) {
         PhasePhckrParameter* p = nullptr;
         if (accessParameter(i, &p)) {

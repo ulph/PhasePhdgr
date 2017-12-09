@@ -17,13 +17,13 @@
 
 #include "ParameterKnob.hpp"
 
-class PhasePhckrAudioProcessorEditor  : public AudioProcessorEditor, public DragAndDropContainer
+class PhasePhckrEditor  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:
-    PhasePhckrAudioProcessorEditor (
-        PhasePhckrAudioProcessor&
+    PhasePhckrEditor (
+        PhasePhckrProcessor&
      );
-    ~PhasePhckrAudioProcessorEditor();
+    ~PhasePhckrEditor();
 
     void paint (Graphics&) override;
     void resized() override;
@@ -31,7 +31,7 @@ public:
     friend PhasePhckrParameters;
 
 private:
-    PhasePhckrAudioProcessor& processor;
+    PhasePhckrProcessor& processor;
 
     PhasePhckrScope voiceScopeL;
     PhasePhckrScope voiceScopeR;
@@ -61,7 +61,7 @@ private:
     vector<ParameterKnob *> parameterKnobs;
     LambdaTimer guiUpdateTimer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditor)
 };
 
 

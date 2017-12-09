@@ -15,7 +15,7 @@ using namespace PhasePhckrFileStuff;
 
 using namespace std;
 
-PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioProcessor& p)
+PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
@@ -113,7 +113,7 @@ PhasePhckrAudioProcessorEditor::PhasePhckrAudioProcessorEditor(PhasePhckrAudioPr
     resized();
 }
 
-PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
+PhasePhckrEditor::~PhasePhckrEditor()
 {
     guiUpdateTimer.stopTimer();
     for(const auto &knob : parameterKnobs){
@@ -125,12 +125,12 @@ PhasePhckrAudioProcessorEditor::~PhasePhckrAudioProcessorEditor()
 #endif
 }
 
-void PhasePhckrAudioProcessorEditor::paint (Graphics& g)
+void PhasePhckrEditor::paint (Graphics& g)
 {
     g.fillAll(Colours::black);
 }
 
-void PhasePhckrAudioProcessorEditor::resized()
+void PhasePhckrEditor::resized()
 {
     mainFrame.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
     repaint();

@@ -16,11 +16,11 @@
 using namespace std;
 using namespace PhasePhckrFileStuff;
 
-class PhasePhckrAudioProcessor  : public AudioProcessor
+class PhasePhckrProcessor  : public AudioProcessor
 {
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrProcessor)
     void setVoiceChain(const PhasePhckr::PatchDescriptor &p);
     void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Synth* synth;
@@ -44,8 +44,8 @@ private:
     simple_lock synthUpdateLock;
 
 public:
-    PhasePhckrAudioProcessor();
-    ~PhasePhckrAudioProcessor();
+    PhasePhckrProcessor();
+    ~PhasePhckrProcessor();
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;

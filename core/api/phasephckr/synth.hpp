@@ -15,7 +15,28 @@ namespace PhasePhckr {
     class EffectChain;
     class VoiceBus;
 
-    class Synth {
+    class Effect {
+    public:
+        Effect();
+        virtual ~Effect();
+        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
+        void handleTimeSignature(int numerator, int denominator);
+        void handleBPM(float bpm);
+        void handlePosition(float ppqPosition);
+        void handleBarPosition(float ppqPosition);
+        void handleTime(float time);
+        const ParameterHandleMap& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
+        void handleEffectParameter(int handle, float value);
+        const Scope& getEffectScope(int i) const;
+    protected:
+        EffectChain* effects;
+        float scopeHz;
+        Scope outputScopeL;
+        Scope outputScopeR;
+        GlobalData *globalData;
+    };
+
+    class Synth : public Effect {
     public:
         Synth();
         virtual ~Synth();
@@ -28,29 +49,16 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
-        void handleTimeSignature(int numerator, int denominator);
-        void handleBPM(float bpm);
-        void handlePosition(float ppqPosition);
-        void handleBarPosition(float ppqPosition);
-        void handleTime(float time);
-        const ParameterHandleMap& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
         const ParameterHandleMap& setVoiceChain(const PatchDescriptor & chain, const ComponentRegister & cp);
-        void handleEffectParameter(int handle, float value);
         void handleVoiceParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;
-        const Scope& getEffectScope(int i) const;
-    private:
+    protected:
         VoiceBus *voiceBus;
         vector<SynthVoice*> voices;
-        EffectChain* effects;
         float lastKnownSampleRate = -1.0f;
-        float scopeHz;
         int scopeVoiceIndex;
         Scope voiceScopeL;
         Scope voiceScopeR;
-        Scope outputScopeL;
-        Scope outputScopeR;
-        GlobalData *globalData;
         progschj::ThreadPool pool;
     };
 }

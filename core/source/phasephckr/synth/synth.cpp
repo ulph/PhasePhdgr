@@ -7,11 +7,20 @@ namespace PhasePhckr {
 
 const size_t numVoices = 16;
 
+Effect::Effect()
+    : effects(nullptr)
+    , globalData(new GlobalData())
+    , scopeHz(10.f)
+{
+}
+
+Effect::~Effect() {
+    delete effects;
+    delete globalData;
+}
+
 Synth::Synth()
     : voiceBus(new VoiceBus())
-    , effects(nullptr)
-    , globalData(new GlobalData())
-    , scopeHz(0.f)
     , scopeVoiceIndex(-1)
     , pool(std::thread::hardware_concurrency()) 
 {
@@ -21,12 +30,10 @@ Synth::~Synth(){
     for(SynthVoice *v : voices){
         delete v;
     }
-    delete effects;
     delete voiceBus;
-    delete globalData;
 }
 
-const ParameterHandleMap& Synth::setEffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
+const ParameterHandleMap& Effect::setEffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);
     return effects->getParameterHandles();
@@ -48,6 +55,14 @@ const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain
         v_->preCompile(lastKnownSampleRate);
     }
     return voices[0]->getParameterHandles(); // they're identical
+}
+
+void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
+{
+    effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
+    outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
+    outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
+    globalData->update();
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
@@ -119,14 +134,14 @@ void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c, 
 void Synth::handleExpression(float a) { globalData->expression(a); }
 void Synth::handleBreath(float a) { globalData->breath(a); }
 void Synth::handleModWheel(float a) { globalData->modwheel(a); }
-void Synth::handleTimeSignature(int num, int den){ globalData->signature(num, den); }
-void Synth::handleBPM(float bpm){ globalData->bpm(bpm); }
-void Synth::handlePosition(float ppqPosition){ globalData->position(ppqPosition); }
-void Synth::handleBarPosition(float ppqPosition){ globalData->barPosition(ppqPosition); }
+void Effect::handleTimeSignature(int num, int den){ globalData->signature(num, den); }
+void Effect::handleBPM(float bpm){ globalData->bpm(bpm); }
+void Effect::handlePosition(float ppqPosition){ globalData->position(ppqPosition); }
+void Effect::handleBarPosition(float ppqPosition){ globalData->barPosition(ppqPosition); }
 
-void Synth::handleTime(float t){ globalData->time(t); }
+void Effect::handleTime(float t){ globalData->time(t); }
 
-void Synth::handleEffectParameter(int handle, float value){
+void Effect::handleEffectParameter(int handle, float value){
     effects->setParameter(handle, value);
 }
 
@@ -140,7 +155,7 @@ const Scope& Synth::getVoiceScope(int i) const {
     return voiceScopeL;
 }
 
-const Scope& Synth::getEffectScope(int i) const {
+const Scope& Effect::getEffectScope(int i) const {
     if(i==0) return outputScopeL;
     if(i==1) return outputScopeR;
     return outputScopeL;

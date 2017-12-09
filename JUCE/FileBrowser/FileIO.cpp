@@ -14,7 +14,7 @@ namespace PhasePhckrFileStuff {
     }
 
     void storeJson(File &f, const nlohmann::json& j) {
-        f.replaceWithText(j.dump(2));
+        f.replaceWithText(j.dump(2, 4, ' ', true));
     }
 
     void createDirIfNeeded(File dir) {

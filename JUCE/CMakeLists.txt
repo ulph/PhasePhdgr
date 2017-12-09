@@ -8,6 +8,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+# JUCE stuff
+set(JUCE_SDK_ROOT "" CACHE FILEPATH "JUCE5 SDK root")
+
 include_directories(${JUCE_SDK_ROOT}/modules)
 
 add_subdirectory(JuceJunk)
@@ -50,9 +53,9 @@ set(PH_COMMON_SRC
     PhasePhckrParameter.hpp
 )
 
-add_library(juce_phasephckr_common_obj OBJECT ${PH_COMMON_SRC})
-set_target_properties(juce_phasephckr_common_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(juce_phasephckr_common_obj PROPERTIES FOLDER JUCE)
+add_library(phasephckr_common_juce_obj OBJECT ${PH_COMMON_SRC})
+set_target_properties(phasephckr_common_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(phasephckr_common_juce_obj PROPERTIES FOLDER JUCE)
 
 set(PH_SYNTH_SRC
     FileBrowser/FileEditorBundle.cpp
@@ -63,9 +66,9 @@ set(PH_SYNTH_SRC
     PhasePhckrPluginProcessor.h
 )
 
-add_library(juce_phasephckr_synth_obj OBJECT ${PH_SYNTH_SRC})
-set_target_properties(juce_phasephckr_synth_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(juce_phasephckr_synth_obj PROPERTIES FOLDER JUCE)
+add_library(phasephckr_synth_juce_obj OBJECT ${PH_SYNTH_SRC})
+set_target_properties(phasephckr_synth_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(phasephckr_synth_juce_obj PROPERTIES FOLDER JUCE)
 
 set(PH_EFFECT_SRC
     PhasePhckrPluginEditorFX.cpp
@@ -74,9 +77,9 @@ set(PH_EFFECT_SRC
     PhasePhckrPluginProcessorFX.h
 )
 
-add_library(juce_phasephckr_effect_obj OBJECT ${PH_EFFECT_SRC})
-set_target_properties(juce_phasephckr_effect_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(juce_phasephckr_effect_obj PROPERTIES FOLDER JUCE)
+add_library(phasephckr_effect_juce_obj OBJECT ${PH_EFFECT_SRC})
+set_target_properties(phasephckr_effect_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(phasephckr_effect_juce_obj PROPERTIES FOLDER JUCE)
 
 option(INTERCEPT_STD_STREAMS ON)
 option(FORCE_FTZ_DAZ OFF)
@@ -93,7 +96,6 @@ else()
     add_definitions(-DFORCE_FTZ_DAZ=0)
 endif()
 
-
 # VST3 SDK stuff
 set(VST3_SDK_ROOT "" CACHE FILEPATH "VST3 SDK root")
 include_directories(${VST3_SDK_ROOT})
@@ -101,13 +103,10 @@ include_directories(${VST3_SDK_ROOT})
 # utilize the (modded) templates from VST SDK ...
 include(vst_sdk)
 
-# JUCE stuff
-set(JUCE_SDK_ROOT "" CACHE FILEPATH "JUCE5 SDK root")
-
 set( PHASEPHCKR_JUCE_SYNTH_SRC
-    $<TARGET_OBJECTS:juce_lib_obj>
-    $<TARGET_OBJECTS:juce_phasephckr_common_obj>
-    $<TARGET_OBJECTS:juce_phasephckr_synth_obj>
+    $<TARGET_OBJECTS:juce_synth_lib_obj>
+    $<TARGET_OBJECTS:phasephckr_common_juce_obj>
+    $<TARGET_OBJECTS:phasephckr_synth_juce_obj>
 )
 
 mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_SYNTH_SRC})
@@ -116,9 +115,9 @@ set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
 
 
 set( PHASEPHCKR_JUCE_EFFECT_SRC
-    $<TARGET_OBJECTS:juce_lib_obj>
-    $<TARGET_OBJECTS:juce_phasephckr_common_obj>
-    $<TARGET_OBJECTS:juce_phasephckr_effect_obj>
+    $<TARGET_OBJECTS:juce_effect_lib_obj>
+    $<TARGET_OBJECTS:phasephckr_common_juce_obj>
+    $<TARGET_OBJECTS:phasephckr_effect_juce_obj>
 )
 
 mod_smtg_add_vst3plugin(PhasePhckrFX ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_EFFECT_SRC})

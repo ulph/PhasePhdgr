@@ -67,7 +67,7 @@ PhasePhckrAudioProcessorFX::~PhasePhckrAudioProcessorFX()
 
 const String PhasePhckrAudioProcessorFX::getName() const
 {
-    return String(JucePlugin_Name)+"FX";
+    return JucePlugin_Name;
 }
 
 bool PhasePhckrAudioProcessorFX::acceptsMidi() const

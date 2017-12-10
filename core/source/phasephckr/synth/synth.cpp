@@ -59,6 +59,8 @@ const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain
 
 void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
+    inputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
+    inputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
     effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
     outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
     outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
@@ -151,14 +153,20 @@ void Synth::handleVoiceParameter(int handle, float value){
 
 const Scope& Synth::getVoiceScope(int i) const {
     if(i==0) return voiceScopeL;
-    if(i==1) return voiceScopeR;
+    else if(i==1) return voiceScopeR;
     return voiceScopeL;
 }
 
 const Scope& Effect::getEffectScope(int i) const {
     if(i==0) return outputScopeL;
-    if(i==1) return outputScopeR;
+    else if(i==1) return outputScopeR;
     return outputScopeL;
+}
+
+const Scope& Effect::getInputScope(int i) const {
+    if (i == 0) return inputScopeL;
+    else if (i == 1) return inputScopeR;
+    return inputScopeL;
 }
 
 }

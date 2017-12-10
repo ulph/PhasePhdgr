@@ -27,10 +27,13 @@ namespace PhasePhckr {
         void handleTime(float time);
         const ParameterHandleMap& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
         void handleEffectParameter(int handle, float value);
+        const Scope& getInputScope(int i) const;
         const Scope& getEffectScope(int i) const;
     protected:
         EffectChain* effects;
         float scopeHz;
+        Scope inputScopeL;
+        Scope inputScopeR;
         Scope outputScopeL;
         Scope outputScopeR;
         GlobalData *globalData;

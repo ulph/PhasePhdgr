@@ -33,6 +33,10 @@ public:
 private:
     PhasePhckrProcessorFX& processor;
 
+    PhasePhckrScope inputScopeL;
+    PhasePhckrScope inputScopeR;
+    PhasePhckrXYScope inputScopeXY;
+
     PhasePhckrScope outputScopeL;
     PhasePhckrScope outputScopeR;
     PhasePhckrXYScope outputScopeXY;

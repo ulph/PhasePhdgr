@@ -17,6 +17,9 @@ using namespace std;
 
 PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     : AudioProcessorEditor(&p), processor (p)
+    , inputScopeL(processor.getEffect()->getInputScope(0))
+    , inputScopeR(processor.getEffect()->getInputScope(1))
+    , inputScopeXY(processor.getEffect()->getInputScope(0), processor.getEffect()->getInputScope(1))
     , outputScopeL(processor.getEffect()->getEffectScope(0))
     , outputScopeR(processor.getEffect()->getEffectScope(1))
     , outputScopeXY(processor.getEffect()->getEffectScope(0), processor.getEffect()->getEffectScope(1))
@@ -32,6 +35,9 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
         for(const auto &knob : parameterKnobs){
             knob->update();
         }
+        inputScopeL.repaint();
+        inputScopeR.repaint();
+        inputScopeXY.repaint();
         outputScopeL.repaint();
         outputScopeR.repaint();
         outputScopeXY.repaint();
@@ -44,6 +50,9 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     addAndMakeVisible(mainFrame);
     
     mainFrame.addTab("scopes", Colours::black, &scopeGrid, false);
+    scopeGrid.addComponent(&inputScopeL);
+    scopeGrid.addComponent(&inputScopeXY);
+    scopeGrid.addComponent(&inputScopeR);
     scopeGrid.addComponent(&outputScopeL);
     scopeGrid.addComponent(&outputScopeXY);
     scopeGrid.addComponent(&outputScopeR);

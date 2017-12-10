@@ -3,6 +3,7 @@
 
 #include "module.hpp"
 #include "sinc.hpp"
+#include "inlines.hpp"
 
 const float c_max_delay_t = 5.f;
 const float c_min_delay_t = 0.0005f; // 0.5f * 32.f / 32000.f; // half of max sinc window for 32kHz
@@ -47,18 +48,16 @@ public:
         }
         clearFlag = Module::inputs[3].value;
 
-        float t = Module::inputs[1].value;
+        float t = limit(Module::inputs[1].value, 0, c_max_delay_t);
         float g = Module::inputs[2].value;
 
-        t = (t < c_min_delay_t) ? c_min_delay_t : (t > c_max_delay_t ? c_max_delay_t : t);
-
         // account for filter delay
-        float tapeSamples = (t*fs) + N;
-        tapeSamples = tapeSamples < N ? N : tapeSamples;
-
-        if (tapeSamples > bufferSize) {
-            // lazily grow the buffer ... TODO, proper memory chunk allocations
-            auto newBufferSize = 2 * (int)tapeSamples;
+        float tapeSamples = (t*fs) - N*0.5f; // subtract nominal delay of filter
+        tapeSamples = tapeSamples < 0.0f ? 0.0f : tapeSamples;
+        int numSamplesTotal = (int)(ceilf(t)*fs + N);
+        if (numSamplesTotal >= bufferSize) {
+            // lazily grow the buffer ...
+            auto newBufferSize = 2 * numSamplesTotal;
             auto newBuffer = new float[newBufferSize]();
             memset(newBuffer, 0, sizeof(float)*newBufferSize);
             memmove(newBuffer, buffer, sizeof(float)*bufferSize);
@@ -67,7 +66,6 @@ public:
             bufferSize = newBufferSize;
         }
 
-        tapeSamples = ((tapeSamples + N) > bufferSize) ? (bufferSize - N) : tapeSamples;
         const int writePosition = (readPosition + (int)tapeSamples);
         const float frac = tapeSamples - (int)(tapeSamples);
 

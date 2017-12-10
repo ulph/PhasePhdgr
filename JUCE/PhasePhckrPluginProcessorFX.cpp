@@ -49,13 +49,7 @@ PhasePhckrProcessorFX::PhasePhckrProcessorFX()
 
     // create the synth and push down the initial chains
     effect = new PhasePhckr::Effect();
-
-    PresetDescriptor initialPreset;
-    initialPreset.voice = getExampleVoiceChain();
-    initialPreset.effect = getExampleEffectChain();
-
-    setPreset(initialPreset);
-
+    setPatch(getExampleEffectChain());
 }
 
 PhasePhckrProcessorFX::~PhasePhckrProcessorFX()
@@ -181,7 +175,7 @@ AudioProcessorEditor* PhasePhckrProcessorFX::createEditor()
 
 void PhasePhckrProcessorFX::getStateInformation (MemoryBlock& destData)
 {
-    json j = getPreset();
+    json j = getPatch();
     string ss = j.dump(2); // json lib bugged with long rows
     const char* s = ss.c_str(); 
     size_t n = (strlen(s)+1) / sizeof(char);
@@ -193,16 +187,16 @@ void PhasePhckrProcessorFX::getStateInformation (MemoryBlock& destData)
 void PhasePhckrProcessorFX::setStateInformation (const void* data, int sizeInBytes)
 {
     string ss((const char*)data);
-    PresetDescriptor preset;
+    PatchDescriptor patch;
     try {
-        preset = json::parse(ss.c_str());
+        patch = json::parse(ss.c_str());
     }
     catch (const nlohmann::detail::exception& e) {
         auto msg = e.what();
         // sod off
         return;
     }
-    setPreset(preset);
+    setPatch(patch);
 }
 
 const PhasePhckr::Effect* PhasePhckrProcessorFX::getEffect() const {
@@ -215,59 +209,16 @@ void PhasePhckrProcessorFX::broadcastPatch() {
     subEffectChain.set(activeEffectHandle, effectChain);
 }
 
-PatchDescriptor PhasePhckrProcessorFX::getPatch(SynthGraphType type, bool extractParameters) {
-    PatchDescriptor patch;
-
+PatchDescriptor PhasePhckrProcessorFX::getPatch() {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
-
-    if (type == EFFECT) patch = effectChain;
-
-    if (extractParameters) patch.parameters = getParameters(type);
-
-    patch.cleanUp();
-
-    return patch;
+    return effectChain;
 }
 
-void PhasePhckrProcessorFX::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
+void PhasePhckrProcessorFX::setPatch(const PatchDescriptor& patch) {
     auto patchCopy = patch;
     patchCopy.cleanUp();
-    if (type == EFFECT) {
-        setEffectChain(patchCopy);
-        subEffectChain.set(activeEffectHandle, patchCopy);
-    }
-}
-
-PresetDescriptor PhasePhckrProcessorFX::getPreset() {
-    PresetDescriptor preset;
-
-    preset.effect = getPatch(EFFECT);
-    preset.parameters = parameters.serialize();
-
-    return preset;
-}
-
-vector<PresetParameterDescriptor> PhasePhckrProcessorFX::getPresetParameters() {
-    return parameters.serialize();
-}
-
-vector<PatchParameterDescriptor> PhasePhckrProcessorFX::getParameters(SynthGraphType type) {
-    vector<PresetParameterDescriptor> presetParams = parameters.serialize();
-    vector<PatchParameterDescriptor> params;
-
-    for (const auto& ppd : presetParams) {
-        if (ppd.p.type == type) {
-            auto pd = ppd.p;
-            params.emplace_back(pd);
-        }
-    }
-
-    return params;
-}
-
-void PhasePhckrProcessorFX::setPreset(const PresetDescriptor& preset) {
-    setPatch(EFFECT, preset.effect);
-    parameters.deserialize(preset.parameters);
+    setEffectChain(patchCopy);
+    subEffectChain.set(activeEffectHandle, patchCopy);
 }
 
 void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p) {

@@ -205,11 +205,6 @@ void PhasePhckrProcessorFX::setStateInformation (const void* data, int sizeInByt
     setPreset(preset);
 }
 
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
-    return new PhasePhckrProcessorFX();
-}
-
 const PhasePhckr::Effect* PhasePhckrProcessorFX::getEffect() const {
     return effect;
 }
@@ -217,7 +212,6 @@ const PhasePhckr::Effect* PhasePhckrProcessorFX::getEffect() const {
 void PhasePhckrProcessorFX::broadcastPatch() {
     // editor should call this once after construction
     subComponentRegister.set(componentRegisterHandle, componentRegister);
-    subVoiceChain.set(activeVoiceHandle, voiceChain);
     subEffectChain.set(activeEffectHandle, effectChain);
 }
 

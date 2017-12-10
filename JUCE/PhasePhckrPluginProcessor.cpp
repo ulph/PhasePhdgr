@@ -268,11 +268,6 @@ void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes
     setPreset(preset);
 }
 
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
-    return new PhasePhckrProcessor();
-}
-
 const PhasePhckr::Synth* PhasePhckrProcessor::getSynth() const {
     return synth;
 }

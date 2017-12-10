@@ -27,10 +27,7 @@ private:
     TimeSliceThread fileWatchThread;
     DirectoryContentsList componentDirectoryWatcher;
     StupidFileChangeListener componentFilesListener;
-
-    PhasePhckr::PatchDescriptor voiceChain;
-    int activeVoiceHandle;
-
+    
     PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;
 
@@ -73,7 +70,6 @@ public:
 
     const Effect* getEffect() const;
 
-    SubValue<PatchDescriptor> subVoiceChain;
     SubValue<PatchDescriptor> subEffectChain;
     SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
 

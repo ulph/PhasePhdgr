@@ -36,6 +36,8 @@ set(PH_COMMON_SRC
     FileBrowser/DirectoryWatcher.hpp
     FileBrowser/FileIO.hpp
     FileBrowser/FileIO.cpp
+    FileBrowser/FileEditorBundle.cpp
+    FileBrowser/FileEditorBundle.hpp
 
     Components/DocView.cpp
     Components/DocView.hpp
@@ -51,6 +53,16 @@ set(PH_COMMON_SRC
 
     PhasePhckrParameter.cpp
     PhasePhckrParameter.hpp
+
+    PhasePhckrPluginEditor.cpp
+    PhasePhckrPluginEditor.h
+    PhasePhckrPluginProcessor.cpp
+    PhasePhckrPluginProcessor.h
+
+    PhasePhckrPluginEditorFX.cpp
+    PhasePhckrPluginEditorFX.h
+    PhasePhckrPluginProcessorFX.cpp
+    PhasePhckrPluginProcessorFX.h
 )
 
 add_library(phasephckr_common_juce_obj OBJECT ${PH_COMMON_SRC})
@@ -58,12 +70,7 @@ set_target_properties(phasephckr_common_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC
 set_target_properties(phasephckr_common_juce_obj PROPERTIES FOLDER JUCE)
 
 set(PH_SYNTH_SRC
-    FileBrowser/FileEditorBundle.cpp
-    FileBrowser/FileEditorBundle.hpp
-    PhasePhckrPluginEditor.cpp
-    PhasePhckrPluginEditor.h
-    PhasePhckrPluginProcessor.cpp
-    PhasePhckrPluginProcessor.h
+  exportSynth.cpp
 )
 
 add_library(phasephckr_synth_juce_obj OBJECT ${PH_SYNTH_SRC})
@@ -71,10 +78,7 @@ set_target_properties(phasephckr_synth_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC"
 set_target_properties(phasephckr_synth_juce_obj PROPERTIES FOLDER JUCE)
 
 set(PH_EFFECT_SRC
-    PhasePhckrPluginEditorFX.cpp
-    PhasePhckrPluginEditorFX.h
-    PhasePhckrPluginProcessorFX.cpp
-    PhasePhckrPluginProcessorFX.h
+  exportEffect.cpp
 )
 
 add_library(phasephckr_effect_juce_obj OBJECT ${PH_EFFECT_SRC})

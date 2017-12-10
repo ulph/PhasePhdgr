@@ -197,9 +197,16 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     for (int i = 0; i < protoProgram.size(); ++i) {
         auto instr = protoProgram.at(i);
         auto type = getProcessingType(instr.param0);
+        auto toType = getProcessingType(instr.param2);
 
-        if (type == SampleWise) 
-        {
+        if (type == SampleWise && (
+                instr.opcode == OP_PROCESS 
+                ||
+                (instr.opcode == OP_SET_OUTPUT_TO_INPUT && toType == SampleWise)
+                ||
+                (instr.opcode == OP_ADD_OUTPUT_TO_INPUT && toType == SampleWise)
+            )
+        ){
             std::vector<Instruction> segment;
             while (type == SampleWise) {
                 instr = protoProgram.at(i);
@@ -274,6 +281,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 assert(0);
                 break;
             }
+            program.emplace_back(instr);
             if (getProcessingType(instr.param2) == SampleWise && instr.opcode == OP_B_SET_OUTPUT_TO_INPUT || instr.opcode == OP_B_ADD_OUTPUT_TO_INPUT) {
                 if (!sampleWiseEntrypoints.count(instr.param2)) sampleWiseEntrypoints[instr.param2] = std::set<int>();
                 sampleWiseEntrypoints[instr.param2].insert(instr.param3);
@@ -281,7 +289,6 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                     program.emplace_back(Instruction(OP_CLEAR_INPUT, instr.param2, instr.param3));
                 }
             }
-            program.emplace_back(instr);
         }
         else {
             assert(0);

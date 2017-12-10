@@ -30,17 +30,6 @@ public:
     }
 
     void update() {
-        float newMin = parameter->range.start;
-        float newMax = parameter->range.end;
-        if (lastMin != newMin || lastMax != newMax) {
-            slider.setRange(newMin, newMax);
-        }
-
-        float newValue = *parameter;
-        if (newValue != lastValue) {
-            slider.setValue(newValue, dontSendNotification);
-        }
-
         int newActivity = (int)parameter->isActive();
         if (newActivity != lastActivity) {
             if (newActivity) {
@@ -59,6 +48,18 @@ public:
                 slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
                 slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
             }
+        }
+        else if (!newActivity) return;
+
+        float newMin = parameter->range.start;
+        float newMax = parameter->range.end;
+        if (lastMin != newMin || lastMax != newMax) {
+            slider.setRange(newMin, newMax);
+        }
+
+        float newValue = *parameter;
+        if (newValue != lastValue) {
+            slider.setValue(newValue, dontSendNotification);
         }
 
         String newText = parameter->getName(64);

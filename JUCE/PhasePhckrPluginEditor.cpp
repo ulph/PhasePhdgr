@@ -107,7 +107,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 #endif
 
     processor.broadcastPatch();
-    float fps = 60.f;
+    float fps = 30.f;
     guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
     resized();

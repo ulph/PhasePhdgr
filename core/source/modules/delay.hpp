@@ -30,9 +30,10 @@ public:
         , c_table(table)
     {
         Module::inputs.push_back(Pad("in"));
-        Module::inputs.push_back(Pad("time", 0.5f));
+        Module::inputs.push_back(Pad("time", 0.5f, "seconds"));
         Module::inputs.push_back(Pad("gain", 1.0f));
         Module::inputs.push_back(Pad("clear"));
+        Module::inputs.push_back(Pad("compensation", 0.0f, "samples"));
         Module::outputs.push_back(Pad("out"));
     };
 
@@ -50,9 +51,10 @@ public:
 
         float t = limit(Module::inputs[1].value, 0, c_max_delay_t);
         float g = Module::inputs[2].value;
+        float s = Module::inputs[4].value;
 
         // account for filter delay
-        float tapeSamples = (t*fs) - N*0.5f; // subtract nominal delay of filter
+        float tapeSamples = (t*fs) - N*0.5f + s; // subtract nominal delay of filter and sample compensation
         tapeSamples = tapeSamples < 0.0f ? 0.0f : tapeSamples;
         int numSamplesTotal = (int)(ceilf(t)*fs + N);
         if (numSamplesTotal >= bufferSize) {

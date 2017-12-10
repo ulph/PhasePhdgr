@@ -5,48 +5,24 @@
 #include "PhasePhckrPluginEditorFX.h"
 #include "FileIO.hpp"
 
+#include "PhasePhckrPluginCommon.h"
+
 using namespace PhasePhckrFileStuff;
 using namespace std;
 
-void PhasePhckrProcessorFX::updateComponentRegister(const DirectoryContentsList* d)
-{
-    for(int i=0; i<d->getNumFiles(); i++) {
-        const File& f = d->getFile(i);
-        if(!f.existsAsFile()) continue; // TODO, recurse into subdirs
-        String p = f.getRelativePathFrom(componentsDir);
-        string n = string(&componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
-        string s = f.loadFileAsString().toStdString();
-        try {
-            json j = json::parse(s.c_str());
-            ComponentDescriptor cd = j;
-            componentRegister.registerComponent(n, cd);
-            subComponentRegister.set(-1, componentRegister);
-        } catch (const std::exception& e) {
-            (void)e;
-            continue;
-            assert(0);
-        }
-    }
-}
-
 PhasePhckrProcessorFX::PhasePhckrProcessorFX()
     : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
-    , fileWatchThread("processorFxFileWatchThread")
-    , componentDirectoryWatcher(getFilter(), fileWatchThread)
-    , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
+    , fileThings(subComponentRegister)
 {
     activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){
         setEffectChain(e);
     });
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ 
+        setComponentRegister(cr);
         setEffectChain(effectChain);
     });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
-
-    fileWatchThread.startThread();
-    componentDirectoryWatcher.addChangeListener(&componentFilesListener);
-    componentDirectoryWatcher.setDirectory(componentsDir, true, true);
 
     // parameter mumbo
     parameters.initialize(this);
@@ -133,7 +109,7 @@ void PhasePhckrProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
 
     const int numOutputChannels = getTotalNumOutputChannels();
     const int blockSize = buffer.getNumSamples();
-    float sampleRate = (float)getSampleRate();
+    const float sampleRate = (float)getSampleRate();
 
     // handle the parameter values
     parameters.visitHandleParameterValues(effect);
@@ -141,23 +117,7 @@ void PhasePhckrProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
     // handle HOST properties
     auto playHead = getPlayHead();
     if(playHead){
-        AudioPlayHead::CurrentPositionInfo info;
-        playHead->getCurrentPosition(info);
-        effect->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);
-        effect->handleBPM((float)info.bpm);
-        effect->handlePosition((float)info.ppqPosition);
-        effect->handleTime((float)info.timeInSeconds);
-        if (info.isPlaying) {
-            barPosition = (float)info.ppqPosition - (float)info.ppqPositionOfLastBarStart;
-        }
-        else {
-            auto timedelta = (float)blockSize / sampleRate;
-            auto quarterdelta = timedelta * (float)info.bpm / 60.f;
-            auto barLength = 4.f * (float)info.timeSigNumerator / (float)info.timeSigDenominator;
-            barPosition += quarterdelta;
-            barPosition = fmod(barPosition, barLength);
-        }
-        effect->handleBarPosition(barPosition);
+        handlePlayHead(effect, playHead, blockSize, sampleRate, barPosition);
     }
 
     effect->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
@@ -216,6 +176,11 @@ void PhasePhckrProcessorFX::broadcastPatch() {
 PatchDescriptor PhasePhckrProcessorFX::getPatch() {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
     return effectChain;
+}
+
+void PhasePhckrProcessorFX::setComponentRegister(const ComponentRegister& cr) {
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+    componentRegister = cr;
 }
 
 void PhasePhckrProcessorFX::setPatch(const PatchDescriptor& patch) {

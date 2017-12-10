@@ -5,35 +5,14 @@
 #include "PhasePhckrPluginEditor.h"
 #include "FileIO.hpp"
 
+#include "PhasePhckrPluginCommon.h"
+
 using namespace PhasePhckrFileStuff;
 using namespace std;
 
-void PhasePhckrProcessor::updateComponentRegister(const DirectoryContentsList* d)
-{
-    for(int i=0; i<d->getNumFiles(); i++) {
-        const File& f = d->getFile(i);
-        if(!f.existsAsFile()) continue; // TODO, recurse into subdirs
-        String p = f.getRelativePathFrom(componentsDir);
-        string n = string(&componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
-        string s = f.loadFileAsString().toStdString();
-        try {
-            json j = json::parse(s.c_str());
-            ComponentDescriptor cd = j;
-            componentRegister.registerComponent(n, cd);
-            subComponentRegister.set(-1, componentRegister);
-        } catch (const std::exception& e) {
-            (void)e;
-            continue;
-            assert(0);
-        }
-    }
-}
-
 PhasePhckrProcessor::PhasePhckrProcessor()    
     : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
-    , fileWatchThread("processorFileWatchThread")
-    , componentDirectoryWatcher(getFilter(), fileWatchThread)
-    , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
+    , fileThings(subComponentRegister)
 {
     activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){
         setVoiceChain(v);
@@ -47,11 +26,6 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
-
-    fileWatchThread.startThread();
-    componentDirectoryWatcher.addChangeListener(&componentFilesListener);
-    componentDirectoryWatcher.setDirectory(componentsDir, true, true);
-
     // parameter mumbo
     parameters.initialize(this);
 
@@ -212,24 +186,9 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
 
     // handle HOST properties
     auto playHead = getPlayHead();
-    if(playHead){
-        AudioPlayHead::CurrentPositionInfo info;
-        playHead->getCurrentPosition(info);
-        synth->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);
-        synth->handleBPM((float)info.bpm);
-        synth->handlePosition((float)info.ppqPosition);
-        synth->handleTime((float)info.timeInSeconds);
-        if (info.isPlaying) {
-            barPosition = (float)info.ppqPosition - (float)info.ppqPositionOfLastBarStart;
-        }
-        else {
-            auto timedelta = (float)blockSize / sampleRate;
-            auto quarterdelta = timedelta * (float)info.bpm / 60.f;
-            auto barLength = 4.f * (float)info.timeSigNumerator / (float)info.timeSigDenominator;
-            barPosition += quarterdelta;
-            barPosition = fmod(barPosition, barLength);
-        }
-        synth->handleBarPosition(barPosition);
+
+    if (playHead) {
+        handlePlayHead(synth, playHead, blockSize, sampleRate, barPosition);
     }
 
     synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
@@ -340,6 +299,11 @@ vector<PatchParameterDescriptor> PhasePhckrProcessor::getParameters(SynthGraphTy
     }
 
     return params;
+}
+
+void PhasePhckrProcessor::setComponentRegister(const ComponentRegister& cr) {
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+    componentRegister = cr;
 }
 
 void PhasePhckrProcessor::setPreset(const PresetDescriptor& preset) {

@@ -54,6 +54,9 @@ set(PH_COMMON_SRC
     PhasePhckrParameter.cpp
     PhasePhckrParameter.hpp
 
+    PhasePhckrPluginCommon.h
+    PhasePhckrPluginCommon.cpp
+
     PhasePhckrPluginEditor.cpp
     PhasePhckrPluginEditor.h
     PhasePhckrPluginProcessor.cpp

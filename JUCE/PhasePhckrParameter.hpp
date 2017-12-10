@@ -91,7 +91,6 @@ public:
     void visitHandleParameterValues(Effect* effect);
     vector<PresetParameterDescriptor> serialize();
     void deserialize(const vector<PresetParameterDescriptor>& pv);
-
 };
 
 template<class T> void PhasePhckrParameters::initializeKnobs(T * e) {

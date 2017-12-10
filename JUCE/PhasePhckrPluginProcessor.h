@@ -13,6 +13,9 @@
 
 #include "PhasePhckrParameter.hpp"
 
+#include "PhasePhckrPluginCommon.h"
+
+
 using namespace std;
 using namespace PhasePhckrFileStuff;
 
@@ -25,9 +28,7 @@ private:
     void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Synth* synth;
 
-    TimeSliceThread fileWatchThread;
-    DirectoryContentsList componentDirectoryWatcher;
-    StupidFileChangeListener componentFilesListener;
+    ProcessorFileThings fileThings;
 
     PhasePhckr::PatchDescriptor voiceChain;
     int activeVoiceHandle;
@@ -35,7 +36,6 @@ private:
     PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;
 
-    void updateComponentRegister(const DirectoryContentsList* d);
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
@@ -85,6 +85,8 @@ public:
     PresetDescriptor getPreset();
     void setPreset(const PresetDescriptor& preset);
     void setPatch(SynthGraphType type, const PatchDescriptor& patch);
+
+    void setComponentRegister(const ComponentRegister& cr);
 
     PhasePhckrParameters parameters;
 

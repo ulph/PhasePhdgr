@@ -9,12 +9,12 @@
 #include "PhasePhckrGrid.h"
 #include "Utils.hpp"
 #include "PatchEditor.hpp"
-#include "DirectoryWatcher.hpp"
 
 #include "PhasePhckrParameter.hpp"
 
+#include "PhasePhckrPluginCommon.h"
+
 using namespace std;
-using namespace PhasePhckrFileStuff;
 
 class PhasePhckrProcessorFX  : public AudioProcessor
 {
@@ -24,14 +24,11 @@ private:
     void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Effect* effect;
 
-    TimeSliceThread fileWatchThread;
-    DirectoryContentsList componentDirectoryWatcher;
-    StupidFileChangeListener componentFilesListener;
+    ProcessorFileThings fileThings;
     
     PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;
 
-    void updateComponentRegister(const DirectoryContentsList* d);
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
@@ -76,6 +73,8 @@ public:
     void broadcastPatch();
     PatchDescriptor getPatch();
     void setPatch(const PatchDescriptor& patch);
+
+    void setComponentRegister(const ComponentRegister& cr);
 
     PhasePhckrParameters parameters;
 

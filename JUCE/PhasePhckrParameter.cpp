@@ -142,7 +142,6 @@ void PhasePhckrParameters::setParametersHandleMap(SynthGraphType type, const Par
 }
 
 void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
-    // to synth
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {
@@ -156,8 +155,6 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect
         case EFFECT:
             effect->handleEffectParameter(handle, value);
             break;
-        case VOICE:
-            break;
         default:
             break;
         }
@@ -165,7 +162,6 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect
 }
 
 void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
-    // to synth
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {

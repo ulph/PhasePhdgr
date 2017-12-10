@@ -68,8 +68,7 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
             confirmation.addSectionHeader("File exists - overwrite?");
             confirmation.addItem(1, "Yes");
             confirmation.addItem(2, "No");
-            int choice = -1;
-            choice = confirmation.show();
+            int choice = confirmation.show();
             if (choice == 1) shouldWriteFile = true;
             else if (choice == 2) shouldWriteFile = false;
         }

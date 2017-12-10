@@ -60,7 +60,16 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
         if (!isValidFilename()) return;
 
         File targetFile = makeFullFileFromFilenameLabel();
-        if (targetFile.exists()) return;
+
+        if (targetFile.exists()) {
+            PopupMenu confirmation;
+            confirmation.addSectionHeader("File exists - overwrite?");
+            confirmation.addItem(1, "Yes");
+            confirmation.addItem(2, "No");
+            int choice = -1;
+            choice = confirmation.show();
+            if (choice == 2) return;
+        }
 
         auto j = fetchJsonCallback();
         storeJson(targetFile, j);
@@ -258,7 +267,7 @@ FileBrowserPanel::~FileBrowserPanel(){
 
 
 FileBrowserPanelFX::FileBrowserPanelFX(PhasePhckrProcessorFX& p)
-    : fileWatchThread("editorFileWatchThread")
+    : fileWatchThread("editorFxFileWatchThread")
     , processor(p)
     , subEffectHandle(
         processor.subEffectChain.subscribe(

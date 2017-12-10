@@ -41,7 +41,7 @@ private:
     PhasePhckrGrid scopeGrid;
     PhasePhckrGrid performGrid;
 
-//    FileBrowserPanel fileBrowserPanel;
+    FileBrowserPanelFX fileBrowserPanel;
 
     PatchEditor effectEditor;
     LambdaTimer guiUpdateTimer;

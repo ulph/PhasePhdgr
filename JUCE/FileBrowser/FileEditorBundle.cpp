@@ -141,8 +141,8 @@ void FileEditorBundle::setFileName(const string& newName){
 }
 
 
-void FileBrowserPanel::updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p){
-    c = p.components; // easy enough
+void updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p){
+    c = p.components;
     map<string, ModuleDoc> docs;
     for(const auto& kv : c){
         ModuleDoc doc;
@@ -151,6 +151,7 @@ void FileBrowserPanel::updateComponentMap(map<string, ComponentDescriptor>& c, D
     }
     d.setDocs(docs);
 }
+
 
 FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
     : fileWatchThread("editorFileWatchThread")
@@ -264,5 +265,75 @@ void FileBrowserPanel::resized()
 
 FileBrowserPanel::~FileBrowserPanel(){
     processor.subVoiceChain.unsubscribe(subVoiceHandle);
+    processor.subEffectChain.unsubscribe(subEffectHandle);
+}
+
+
+FileBrowserPanelFX::FileBrowserPanelFX(PhasePhckrProcessorFX& p)
+    : fileWatchThread("editorFileWatchThread")
+    , processor(p)
+    , subEffectHandle(
+        processor.subEffectChain.subscribe(
+            [this](const auto& pd) {
+                effectFiles.invalidateSelection();
+                updateComponentMap(effectComponents, effectDocView, pd);
+            }
+        )
+    )
+    , effectFiles(
+        "effect files",
+        PhasePhckrFileStuff::effectsDir,
+        fileWatchThread,
+        [this](const string& n, const json& j) {
+            processor.setPatch(j);
+        },
+        [this](void) -> json {
+            return processor.getPatch();
+        }
+    )
+    , componentFiles(
+        "component files",
+        PhasePhckrFileStuff::componentsDir,
+        fileWatchThread,
+        [this](const string& n, const json& j) {
+            // set and get preset
+            auto patch = processor.getPatch();
+            auto tab = docViewTab.getCurrentTabName();
+            patch.components["@"+n] = j; 
+            processor.setPatch(patch);
+        },
+        [this](void) -> json {
+            return selectedComponent;
+        }
+    )
+    , docViewTab(TabbedButtonBar::TabsAtTop)
+    , effectDocView(
+        [this](const string& name, const MouseEvent& me){
+            selectedComponent = effectComponents[name];
+            componentFiles.setFileName(name.substr(1));
+        }
+    )
+{
+    fileWatchThread.startThread();
+    fileWatchThread.notify();
+
+    addAndMakeVisible(filesGrid);
+
+    filesGrid.addComponent(&effectFiles);
+
+    filesGrid.addComponent(&componentFilesGrid);
+    componentFilesGrid.addComponent(&componentFiles);
+    componentFilesGrid.addComponent(&docViewTab);
+    docViewTab.addTab("effect", Colours::black, &effectDocView, false);
+
+    resized();
+}
+
+void FileBrowserPanelFX::resized()
+{
+    filesGrid.setBoundsRelative(0, 0, 1.0f, 1.0f);
+}
+
+FileBrowserPanelFX::~FileBrowserPanelFX(){
     processor.subEffectChain.unsubscribe(subEffectHandle);
 }

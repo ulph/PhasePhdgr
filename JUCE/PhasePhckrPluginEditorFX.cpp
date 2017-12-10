@@ -21,16 +21,13 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     , outputScopeR(processor.getEffect()->getEffectScope(1))
     , outputScopeXY(processor.getEffect()->getEffectScope(0), processor.getEffect()->getEffectScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
-
     , effectEditor(
         processor.subEffectChain,
         processor.subComponentRegister,
         c_effectChainInBus,
         c_effectChainOutBus
     )
-//    , fileBrowserPanel(processor)
-
-    // TODO, tie the timer to the scopes view visibility
+    , fileBrowserPanel(processor)
     , guiUpdateTimer(new function<void()>([this](){
         for(const auto &knob : parameterKnobs){
             knob->update();
@@ -40,7 +37,6 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
         outputScopeXY.repaint();
     }))
 {
-
     setResizeLimits(128, 128, 8000, 8000);
     setConstrainer(nullptr);
     setResizable(true, true);
@@ -60,7 +56,7 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
 
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 
-//    mainFrame.addTab("files", Colours::black, &fileBrowserPanel, false);
+    mainFrame.addTab("files", Colours::black, &fileBrowserPanel, false);
 
     processor.broadcastPatch();
     float fps = 60.f;

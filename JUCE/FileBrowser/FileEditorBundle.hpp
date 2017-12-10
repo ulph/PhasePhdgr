@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PhasePhckrPluginProcessor.h"
+#include "PhasePhckrPluginProcessorFX.h"
 
 #include "FileIO.hpp"
 #include "DirectoryWatcher.hpp"
@@ -54,6 +55,7 @@ public:
 
 };
 
+void updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p);
 
 class FileBrowserPanel : public Component {
 private:
@@ -66,7 +68,6 @@ private:
     FileEditorBundle effectFiles;
     FileEditorBundle presetFiles;
 
-    void updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p);
     PhasePhckrGrid componentFilesGrid;
     FileEditorBundle componentFiles;
     TabbedComponent docViewTab;
@@ -79,5 +80,27 @@ private:
 public:
     FileBrowserPanel(PhasePhckrProcessor& editor);
     virtual ~FileBrowserPanel();
+    void resized() override;
+};
+
+class FileBrowserPanelFX : public Component {
+private:
+    PhasePhckrProcessorFX& processor;
+    int subEffectHandle;
+    TimeSliceThread fileWatchThread;
+    PhasePhckrGrid filesGrid;
+    FileEditorBundle effectFiles;
+
+    PhasePhckrGrid componentFilesGrid;
+    FileEditorBundle componentFiles;
+    TabbedComponent docViewTab;
+    map<string, ComponentDescriptor> voiceComponents;
+    map<string, ComponentDescriptor> effectComponents;
+    DocView effectDocView;
+    ComponentDescriptor selectedComponent;
+
+public:
+    FileBrowserPanelFX(PhasePhckrProcessorFX& editor);
+    virtual ~FileBrowserPanelFX();
     void resized() override;
 };

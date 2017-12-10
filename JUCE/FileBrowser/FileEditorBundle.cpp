@@ -61,15 +61,19 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
 
         File targetFile = makeFullFileFromFilenameLabel();
 
-        if (targetFile.exists()) {
+        bool shouldWriteFile = true;
+        if (targetFile.exists()){
+            shouldWriteFile = false;
             PopupMenu confirmation;
             confirmation.addSectionHeader("File exists - overwrite?");
             confirmation.addItem(1, "Yes");
             confirmation.addItem(2, "No");
             int choice = -1;
             choice = confirmation.show();
-            if (choice == 2) return;
+            if (choice == 1) shouldWriteFile = true;
+            else if (choice == 2) shouldWriteFile = false;
         }
+        if (!shouldWriteFile) return;
 
         auto j = fetchJsonCallback();
         storeJson(targetFile, j);

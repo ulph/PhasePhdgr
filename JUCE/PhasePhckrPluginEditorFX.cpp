@@ -16,7 +16,7 @@ using namespace PhasePhckrFileStuff;
 using namespace std;
 
 PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
-    : AudioProcessorEditor (&p), processor (p)
+    : AudioProcessorEditor(&p), processor (p)
     , outputScopeL(processor.getEffect()->getEffectScope(0))
     , outputScopeR(processor.getEffect()->getEffectScope(1))
     , outputScopeXY(processor.getEffect()->getEffectScope(0), processor.getEffect()->getEffectScope(1))
@@ -28,12 +28,6 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
         c_effectChainInBus,
         c_effectChainOutBus
     )
-
-#if INTERCEPT_STD_STREAMS
-    , coutIntercept(std::cout)
-    , cerrIntercept(std::cerr)
-#endif
-
 //    , fileBrowserPanel(processor)
 
     // TODO, tie the timer to the scopes view visibility
@@ -62,32 +56,11 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     mainFrame.addTab("preset parameters", Colours::black, &performGrid, false);
     performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
 
-//    processor.parameters.initializeKnobs(this);
+    processor.parameters.initializeKnobs(this);
 
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 
 //    mainFrame.addTab("files", Colours::black, &fileBrowserPanel, false);
-
-#if INTERCEPT_STD_STREAMS
-    mainFrame.addTab("debug", Colours::black, &debugTab, false);
-    debugTab.addComponent(&coutView);
-    debugTab.addComponent(&cerrView);
-    coutView.setMultiLine(true, true);
-    cerrView.setMultiLine(true, true);
-    debugViewUpdateTimer = new LambdaTimer(new std::function<void()>([this](){
-        std::string s;
-        coutIntercept.readAll(s);
-        if (s.size()) {
-            coutView.insertTextAtCaret(s);
-        }
-        s.clear();
-        cerrIntercept.readAll(s);
-        if (s.size()) {
-            cerrView.insertTextAtCaret(s);
-        }
-    }));
-    debugViewUpdateTimer->startTimer(1000);
-#endif
 
     processor.broadcastPatch();
     float fps = 60.f;
@@ -102,10 +75,6 @@ PhasePhckrEditorFX::~PhasePhckrEditorFX()
     for(const auto &knob : parameterKnobs){
         delete knob;
     }
-#if INTERCEPT_STD_STREAMS
-    debugViewUpdateTimer->stopTimer();
-    delete debugViewUpdateTimer;
-#endif
 }
 
 void PhasePhckrEditorFX::paint (Graphics& g)

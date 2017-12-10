@@ -20,7 +20,7 @@ void PhasePhckrProcessor::updateComponentRegister(const DirectoryContentsList* d
             json j = json::parse(s.c_str());
             ComponentDescriptor cd = j;
             componentRegister.registerComponent(n, cd);
-            subComponentRegister.set(componentRegisterHandle, componentRegister);
+            subComponentRegister.set(-1, componentRegister);
         } catch (const std::exception& e) {
             (void)e;
             continue;
@@ -35,9 +35,16 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     , componentDirectoryWatcher(getFilter(), fileWatchThread)
     , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
 {
-    activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){setVoiceChain(v);});
-    activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
-    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
+    activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){
+        setVoiceChain(v);
+    });
+    activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){
+        setEffectChain(e);
+    });
+    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ 
+        setVoiceChain(voiceChain);
+        setEffectChain(effectChain);
+    });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
 
@@ -262,7 +269,7 @@ void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes
     }
     catch (const nlohmann::detail::exception& e) {
         auto msg = e.what();
-        // sod off
+        cerr << "setStateInformation: " << msg << endl;
         return;
     }
     setPreset(preset);

@@ -20,7 +20,7 @@ void PhasePhckrProcessorFX::updateComponentRegister(const DirectoryContentsList*
             json j = json::parse(s.c_str());
             ComponentDescriptor cd = j;
             componentRegister.registerComponent(n, cd);
-            subComponentRegister.set(componentRegisterHandle, componentRegister);
+            subComponentRegister.set(-1, componentRegister);
         } catch (const std::exception& e) {
             (void)e;
             continue;
@@ -31,12 +31,16 @@ void PhasePhckrProcessorFX::updateComponentRegister(const DirectoryContentsList*
 
 PhasePhckrProcessorFX::PhasePhckrProcessorFX()
     : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
-    , fileWatchThread("processorFileWatchThread")
+    , fileWatchThread("processorFxFileWatchThread")
     , componentDirectoryWatcher(getFilter(), fileWatchThread)
     , componentFilesListener(StupidFileListCallBack([this](const DirectoryContentsList* d){updateComponentRegister(d);}))
 {
-    activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){setEffectChain(e);});
-    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ /**/ });
+    activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){
+        setEffectChain(e);
+    });
+    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ 
+        setEffectChain(effectChain);
+    });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
 

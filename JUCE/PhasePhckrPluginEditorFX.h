@@ -1,11 +1,11 @@
-#ifndef PLUGINEDITOR_H_INCLUDED
-#define PLUGINEDITOR_H_INCLUDED
+#pragma once
 
 #include <vector>
 
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
+#include "PhasePhckrPluginEditor.h"
 #include "PhasePhckrPluginProcessorFX.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"
@@ -44,21 +44,9 @@ private:
 //    FileBrowserPanel fileBrowserPanel;
 
     PatchEditor effectEditor;
-
-#if INTERCEPT_STD_STREAMS
-    InterceptStringStream coutIntercept;
-    InterceptStringStream cerrIntercept;
-    TextEditor coutView;
-    TextEditor cerrView;
-    PhasePhckrGrid debugTab;
-    LambdaTimer* debugViewUpdateTimer;
-#endif
+    LambdaTimer guiUpdateTimer;
 
     vector<ParameterKnob *> parameterKnobs;
-    LambdaTimer guiUpdateTimer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditorFX)
 };
-
-
-#endif  // PLUGINEDITOR_H_INCLUDED

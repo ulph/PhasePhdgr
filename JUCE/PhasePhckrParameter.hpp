@@ -82,7 +82,7 @@ class PhasePhckrParameters {
 
 public:
     void initialize(AudioProcessor * p);
-    void initializeKnobs(PhasePhckrEditor * e);
+    template<class T> void initializeKnobs(T* e);
     bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
     void swapParameterIndices(int a_idx, int b_idx); // via gui
@@ -93,3 +93,19 @@ public:
     void deserialize(const vector<PresetParameterDescriptor>& pv);
 
 };
+
+template<class T> void PhasePhckrParameters::initializeKnobs(T * e) {
+    for (int i = 0; i<numberOfParameters(); i++) {
+        PhasePhckrParameter* p = nullptr;
+        if (accessParameter(i, &p)) {
+            auto knob = new ParameterKnob(p,
+                [this, e](int a, int b) {
+                    swapParameterIndices(a, b);
+                    e->guiUpdateTimer.timerCallback();
+                }
+            );
+            e->parameterKnobs.push_back(knob);
+            e->performGrid.addComponent(knob);
+        }
+    }
+}

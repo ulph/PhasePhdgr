@@ -151,6 +151,8 @@ float ConnectionGraph::getOutput(int module, int pad)
 
 void ConnectionGraph::compileProgram(int module, float fs)
 {
+    if (fs == -1) return;
+
     fsCompiled = fs;
 
     // parse the graph once to find all modules involved in recursion loops

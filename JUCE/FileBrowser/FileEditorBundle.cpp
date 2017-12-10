@@ -209,19 +209,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
         "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread,
-        [this](const string& n, const json& j) {
-            // set and get preset
-            auto preset = processor.getPreset();
-            auto tab = docViewTab.getCurrentTabName();
-            if (tab == "voice") {
-                preset.voice.components["@"+n] = j; 
-                processor.setPreset(preset);
-            }
-            else if (tab == "effect") {
-                preset.effect.components["@"+n] = j; 
-                processor.setPreset(preset);
-            }
-        },
+        [this](const string& n, const json& j) {},
         [this](void) -> json {
             return selectedComponent;
         }
@@ -295,13 +283,7 @@ FileBrowserPanelFX::FileBrowserPanelFX(PhasePhckrProcessorFX& p)
         "component files",
         PhasePhckrFileStuff::componentsDir,
         fileWatchThread,
-        [this](const string& n, const json& j) {
-            // set and get preset
-            auto patch = processor.getPatch();
-            auto tab = docViewTab.getCurrentTabName();
-            patch.components["@"+n] = j; 
-            processor.setPatch(patch);
-        },
+        [this](const string& n, const json& j) {},
         [this](void) -> json {
             return selectedComponent;
         }

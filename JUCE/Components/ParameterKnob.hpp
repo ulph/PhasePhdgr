@@ -18,6 +18,12 @@ public:
         : parameter(parameter)
         , swapParameterIndicesCallback(swapParameterIndicesCallback)
     {
+        label.setColour(Label::textColourId, Colours::lightgrey);
+        slider.setColour(Slider::thumbColourId, Colours::lightgrey);
+        slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
+        slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+        slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
+        slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
         slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
         slider.setTextBoxStyle(Slider::TextBoxRight, false, 50, 20);
         addAndMakeVisible(slider);
@@ -33,20 +39,12 @@ public:
         int newActivity = (int)parameter->isActive();
         if (newActivity != lastActivity) {
             if (newActivity) {
+                slider.setVisible(true);
                 label.setColour(Label::textColourId, Colours::lightgrey);
-                slider.setColour(Slider::thumbColourId, Colours::lightgrey);
-                slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
-                slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-                slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
-                slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
             }
             else {
                 label.setColour(Label::textColourId, Colours::darkgrey);
-                slider.setColour(Slider::thumbColourId, Colours::darkgrey);
-                slider.setColour(Slider::rotarySliderFillColourId, Colours::darkgrey);
-                slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-                slider.setColour(Slider::textBoxTextColourId, Colours::darkgrey);
-                slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
+                slider.setVisible(false);
             }
         }
         else if (!newActivity) return;
@@ -129,11 +127,11 @@ public:
                 auto pm = PopupMenu();
                 Label start("start", to_string(parameter->range.start));
                 start.setEditable(true, true, false);
-                pm.addItem(1, "start:");
+                pm.addSectionHeader("min:");
                 pm.addCustomItem(2, &start, 50, 20, false);
                 Label end("end", to_string(parameter->range.end));
                 end.setEditable(true, true, false);
-                pm.addItem(3, "end:");
+                pm.addSectionHeader("max:");
                 pm.addCustomItem(4, &end, 50, 20, false);
                 pm.show();
                 float newStart = start.getText().getFloatValue();

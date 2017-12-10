@@ -21,6 +21,7 @@ PhasePhckrProcessor::PhasePhckrProcessor()
         setEffectChain(e);
     });
     componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ 
+        setComponentRegister(cr);
         setVoiceChain(voiceChain);
         setEffectChain(effectChain);
     });

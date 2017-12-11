@@ -80,7 +80,7 @@ void PhasePhckrParameters::updateParameters()
     for (const auto& ppd : presetParameters) {
         ParameterIdentifier tid(ppd.type, ppd.p.id);
         assert(validParametersHandles.count(tid));
-        floatParameters[ppd.index]->initialize(ppd.p.v.val, ppd.p.v.min, ppd.p.v.max, ppd.type, ppd.p.id);
+        floatParameters[ppd.index]->initialize(ppd.type, ppd.p);
         parameterRouting[ppd.index] = make_pair(ppd.type, validParametersHandles.at(tid));
     }
     
@@ -197,10 +197,7 @@ vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
         PresetParameterDescriptor pd;
         pd.index = kv.first;
         pd.type = type;
-        pd.p.id = fp->getParameterId();
-        pd.p.v.val = *fp;
-        pd.p.v.min = fp->range.start;
-        pd.p.v.max = fp->range.end;
+        pd.p = fp->getPatchParameterDescriptor();
 
         pv.push_back(pd);
     }

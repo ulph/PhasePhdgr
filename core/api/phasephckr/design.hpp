@@ -183,7 +183,7 @@ enum SynthGraphType {
 
 struct PresetParameterDescriptor {
     int index;
-    SynthGraphType type;
+    SynthGraphType type = UNDEFINED;
     PatchParameterDescriptor p;
 };
 

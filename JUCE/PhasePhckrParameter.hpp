@@ -17,9 +17,9 @@ class PhasePhckrEditor;
 class PhasePhckrParameter : public AudioParameterFloat {
 private:
     int idx;
-    string parameterId;
-    SynthGraphType type;
-    bool active;
+    SynthGraphType type = UNDEFINED;
+    PatchParameterDescriptor pd;
+    bool active = false;
     static string clearedName(int idx)
     {
         return to_string(idx / 8) + "_" + to_string(idx % 8);
@@ -34,27 +34,26 @@ public:
             0.0f
         )
         , idx(idx)
-        , parameterId(clearedName(idx))
-        , active(false)
     {
+        pd.id = clearedName(idx);
     }
 
     void reset() {
+        active = false;
         type = UNDEFINED;
+        pd.id = clearedName(idx);
         range.start = 0.f;
         range.end = 1.f;
-        parameterId = clearedName(idx);
-        active = false;
         setValueNotifyingHost(this->range.convertTo0to1(0.f));
     }
 
-    void initialize(float newValue, float min, float max, SynthGraphType type_, string parameterId_) {
-        type = type_;
-        parameterId = parameterId;
-        range.start = min;
-        range.end = max;
+    void initialize(SynthGraphType type_, PatchParameterDescriptor pd_) {
         active = true;
-        setValueNotifyingHost(this->range.convertTo0to1(newValue));
+        type = type_;
+        pd = pd_;
+        range.start = pd_.v.min;
+        range.end = pd_.v.max;
+        setValueNotifyingHost(this->range.convertTo0to1(pd_.v.val));
     }
 
     const SynthGraphType& getType() {
@@ -62,9 +61,9 @@ public:
     }
 
     string getFullName() const {
-        if (type == VOICE) return "v " + parameterId;
-        else if (type == EFFECT) return "e " + parameterId;
-        return parameterId;
+        if (type == VOICE) return "v " + pd.id;
+        else if (type == EFFECT) return "e " + pd.id;
+        return pd.id;
     }
 
     virtual String getName(int maximumStringLength) const override {
@@ -72,8 +71,12 @@ public:
         return str.substr(0, maximumStringLength);
     }
 
-    string getParameterId() {
-        return parameterId;
+    PatchParameterDescriptor getPatchParameterDescriptor() const {
+        auto pdCopy = pd;
+        pdCopy.v.val = *this;
+        pdCopy.v.min = range.start;
+        pdCopy.v.min = range.end;
+        return pdCopy;
     }
 
     bool isActive() {

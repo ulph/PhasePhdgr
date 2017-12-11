@@ -54,9 +54,9 @@ public:
         float s = Module::inputs[4].value;
 
         // account for filter delay
-        float tapeSamples = (t*fs) - N*0.5f + s; // subtract nominal delay of filter and sample compensation
+        float tapeSamples = (t*Module::fs) - N*0.5f + s; // subtract nominal delay of filter and sample compensation
         tapeSamples = tapeSamples < 0.0f ? 0.0f : tapeSamples;
-        int numSamplesTotal = (int)(ceilf(t)*fs + N);
+        int numSamplesTotal = (int)(ceilf(t)*Module::fs + N);
         if (numSamplesTotal >= bufferSize) {
             // lazily grow the buffer ...
             auto newBufferSize = 2 * numSamplesTotal;

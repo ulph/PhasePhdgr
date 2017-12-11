@@ -48,6 +48,7 @@ void GraphEditorBundle::resized()
 
 bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
     if (rootComponentName == rootMarker && (moduleName == c_inBus.name || moduleName == c_outBus.name)) return false;
+    if (!rootComponent() || !rootComponent()->graph.modules.count(moduleName)) return false;
 
     TextLabelMenuEntry nameLbl;
     nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
@@ -76,9 +77,6 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
 
         makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
 
-    }
-    else if (moduleType.front() == parameterMarker) {
-        // TODO, value, min, max editable
     }
     else if (rootComponentName.size() && rootComponentName != rootMarker && patch.components.count(rootComponentName) ){
         if (moduleName == c_inBus.name) {

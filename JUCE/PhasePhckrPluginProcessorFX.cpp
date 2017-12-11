@@ -175,7 +175,17 @@ void PhasePhckrProcessorFX::broadcastPatch() {
 
 PatchDescriptor PhasePhckrProcessorFX::getPatch() {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
-    return effectChain;
+    auto presetParams = parameters.serialize();
+    vector<PatchParameterDescriptor> params;
+    for (const auto& ppd : presetParams) {
+        if (ppd.type == EFFECT) {
+            auto pd = ppd.p;
+            params.emplace_back(pd);
+        }
+    }
+    PatchDescriptor e = effectChain;
+    e.parameters = params;
+    return e;
 }
 
 void PhasePhckrProcessorFX::setComponentRegister(const ComponentRegister& cr) {

@@ -70,10 +70,12 @@ struct ConnectionGraphDescriptor {
 
     void pruneBusModules();
     void pruneDanglingConnections();
+    void pruneOrphanValues();
 
     void cleanUp() {
         pruneBusModules();
         pruneDanglingConnections();
+        pruneOrphanValues();
     }
 
     int add(const string& module, const string& type);

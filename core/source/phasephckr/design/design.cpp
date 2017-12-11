@@ -561,6 +561,14 @@ void ConnectionGraphDescriptor::pruneDanglingConnections() {
     }
 }
 
+void ConnectionGraphDescriptor::pruneOrphanValues() {
+    auto it = values.begin();
+    while (it != values.end()) {
+        if (!modules.count(it->first.module)) it = values.erase(it);
+        else ++it;
+    }
+}
+
 void ConnectionGraphDescriptor::pruneBusModules() {
     vector<string> toPrune = { c_inBus.name, c_outBus.name };
     auto it = modules.begin();
@@ -588,6 +596,7 @@ int ConnectionGraphDescriptor::remove(const string& module) {
     if (!modules.count(module)) return -1;
     modules.erase(module);
     pruneDanglingConnections();
+    pruneOrphanValues();
     return 0;
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <phasephckr/locks.hpp>
 
 class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {
 private:
@@ -13,6 +14,7 @@ private:
     float lastMin;
     float lastMax;
     const function<void(int, int)> swapParameterIndicesCallback;
+    bool isDragging = false; // a soft lock to prevent update() to mess
 public:
     ParameterKnob(PhasePhckrParameter * parameter, const function<void(int, int)> &swapParameterIndicesCallback)
         : parameter(parameter)
@@ -51,12 +53,12 @@ public:
 
         float newMin = parameter->range.start;
         float newMax = parameter->range.end;
-        if (lastMin != newMin || lastMax != newMax) {
+        if (!isDragging && lastMin != newMin || lastMax != newMax) {
             slider.setRange(newMin, newMax);
         }
 
         float newValue = *parameter;
-        if (newValue != lastValue) {
+        if (!isDragging && newValue != lastValue) {
             slider.setValue(newValue, dontSendNotification);
         }
 
@@ -101,17 +103,18 @@ public:
     }
 
     virtual void sliderDragStarted(Slider * slider_) override {
+        isDragging = true;
         parameter->beginChangeGesture();
     }
 
     virtual void sliderDragEnded(Slider * slider_) override {
+        isDragging = false;
         parameter->endChangeGesture();
     }
 
     virtual void sliderValueChanged(Slider * slider_) override {
-        parameter->setValueNotifyingHost(
-            parameter->range.convertTo0to1((float)slider_->getValue())
-        );
+        float v = (float)slider_->getValue();
+        parameter->setValueNotifyingHost(v);
     }
 
     virtual void mouseDown(const MouseEvent & event) override {
@@ -125,6 +128,7 @@ public:
             }
         }
         else if (dynamic_cast<Slider*>(event.eventComponent)) {
+            parameter->beginChangeGesture();
             if (event.mods.isRightButtonDown()) {
                 auto pm = PopupMenu();
                 Label start("start", to_string(parameter->range.start));
@@ -141,10 +145,15 @@ public:
                 if (newEnd <= newStart) {
                     return;
                 }
-                parameter->range.start = newStart;
-                parameter->range.end = newEnd;
-                update();
+                if (newStart != parameter->range.start || newEnd != parameter->range.end) {
+                    isDragging = true;
+                    parameter->range.start = newStart;
+                    parameter->range.end = newEnd;
+                    parameter->setValueNotifyingHost(*parameter);
+                    isDragging = false;
+                }
             }
+            parameter->endChangeGesture();
         }
     }
 

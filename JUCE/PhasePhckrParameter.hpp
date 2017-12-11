@@ -44,7 +44,7 @@ public:
         pd.id = clearedName(idx);
         range.start = 0.f;
         range.end = 1.f;
-        setValueNotifyingHost(this->range.convertTo0to1(0.f));
+        setValueNotifyingHost(0.f);
     }
 
     void initialize(SynthGraphType type_, PatchParameterDescriptor pd_) {
@@ -53,7 +53,7 @@ public:
         pd = pd_;
         range.start = pd_.v.min;
         range.end = pd_.v.max;
-        setValueNotifyingHost(this->range.convertTo0to1(pd_.v.val));
+        setValueNotifyingHost(pd_.v.val);
     }
 
     const SynthGraphType& getType() {
@@ -75,7 +75,7 @@ public:
         auto pdCopy = pd;
         pdCopy.v.val = *this;
         pdCopy.v.min = range.start;
-        pdCopy.v.min = range.end;
+        pdCopy.v.max = range.end;
         return pdCopy;
     }
 

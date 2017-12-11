@@ -147,7 +147,7 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect
         auto fp = floatParameters.at(idx);
         auto type = fp->getType();
         auto handle = kv.second;
-        float value = fp->range.convertFrom0to1(*fp);
+        float value = *fp;
         switch (type) {
         case EFFECT:
             effect->handleEffectParameter(handle, value);
@@ -166,7 +166,7 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) 
         auto fp = floatParameters.at(idx);
         auto type = fp->getType();
         auto handle = kv.second;
-        float value = fp->range.convertFrom0to1(*fp);
+        float value = *fp;
         switch (type) {
         case VOICE:
             synth->handleVoiceParameter(handle, value);

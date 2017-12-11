@@ -78,14 +78,10 @@ void PhasePhckrParameters::updateParameters()
 
     // populate the floatParameters and build the routing
     for (const auto& ppd : presetParameters) {
-        auto param = ppd;
-        string name = ppd.type == VOICE ? "v: " : "e: ";
-        name += param.p.id;
-        ParameterIdentifier tid(param.type, param.p.id);
+        ParameterIdentifier tid(ppd.type, ppd.p.id);
         assert(validParametersHandles.count(tid));
-
-        floatParameters[ppd.index]->initialize(param.p.v.val, param.p.v.min, param.p.v.max, name);
-        parameterRouting[ppd.index] = make_pair(param.type, validParametersHandles.at(tid));
+        floatParameters[ppd.index]->initialize(ppd.p.v.val, ppd.p.v.min, ppd.p.v.max, ppd.type, ppd.p.id);
+        parameterRouting[ppd.index] = make_pair(ppd.type, validParametersHandles.at(tid));
     }
     
 }
@@ -188,16 +184,24 @@ vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
     vector<PresetParameterDescriptor> pv;
 
     for (const auto& kv : parameterRouting) {
-        auto index = kv.first;
         auto type = kv.second.first;
+        auto fp = floatParameters.at(kv.first);
+
+        if (fp->getType() != type) {
+            assert(0);
+            continue;
+        }
+
+        auto index = kv.first;
+
         PresetParameterDescriptor pd;
         pd.index = kv.first;
         pd.type = type;
-        auto fp = floatParameters.at(kv.first);
-        pd.p.id = fp->getFullName().substr(3); // HACK
+        pd.p.id = fp->getParameterId();
         pd.p.v.val = *fp;
         pd.p.v.min = fp->range.start;
         pd.p.v.max = fp->range.end;
+
         pv.push_back(pd);
     }
 

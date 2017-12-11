@@ -17,7 +17,8 @@ class PhasePhckrEditor;
 class PhasePhckrParameter : public AudioParameterFloat {
 private:
     int idx;
-    string name;
+    string parameterId;
+    SynthGraphType type;
     bool active;
     static string clearedName(int idx)
     {
@@ -33,33 +34,46 @@ public:
             0.0f
         )
         , idx(idx)
-        , name(clearedName(idx))
+        , parameterId(clearedName(idx))
         , active(false)
     {
     }
 
     void reset() {
+        type = UNDEFINED;
         range.start = 0.f;
         range.end = 1.f;
-        name = clearedName(idx);
+        parameterId = clearedName(idx);
         active = false;
         setValueNotifyingHost(this->range.convertTo0to1(0.f));
     }
 
-    void initialize(float newValue, float min, float max, string newName) {
-        name = newName;
+    void initialize(float newValue, float min, float max, SynthGraphType type_, string parameterId_) {
+        type = type_;
+        parameterId = parameterId;
         range.start = min;
         range.end = max;
         active = true;
         setValueNotifyingHost(this->range.convertTo0to1(newValue));
     }
 
-    const string &getFullName() {
-        return name;
+    const SynthGraphType& getType() {
+        return type;
+    }
+
+    string getFullName() const {
+        if (type == VOICE) return "v " + parameterId;
+        else if (type == EFFECT) return "e " + parameterId;
+        return parameterId;
     }
 
     virtual String getName(int maximumStringLength) const override {
-        return name.substr(0, maximumStringLength);
+        auto str = getFullName();
+        return str.substr(0, maximumStringLength);
+    }
+
+    string getParameterId() {
+        return parameterId;
     }
 
     bool isActive() {

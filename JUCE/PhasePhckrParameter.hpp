@@ -88,6 +88,11 @@ public:
 typedef pair<SynthGraphType, string> ParameterIdentifier;
 
 class PhasePhckrParameters {
+
+    static const int knobsPerBank = 8;
+    static const int banksPerPage = 8;
+    static const int numberOfPages = 8;
+
     vector<PhasePhckrParameter *> floatParameters; // the actual JUCE parameter, also holds the preset level name
     map<int, int> parameterRouting; // maps index of floatParameters to a handle
     ParameterHandleMap effectParameters;

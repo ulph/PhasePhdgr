@@ -7,7 +7,7 @@ using namespace std;
 
 void PhasePhckrParameters::initialize(AudioProcessor * p){
     // only call once right after constructor or shit hits the fan
-    for (int i = 0; i < 8*16; i++) {
+    for (int i = 0; i < knobsPerBank*banksPerPage*numberOfPages; i++) {
         auto knb_ptr = new PhasePhckrParameter(i);
         floatParameters.push_back(knb_ptr);
         p->addParameter(knb_ptr);

@@ -115,10 +115,12 @@ public:
     }
 
     virtual void mouseDown(const MouseEvent & event) override {
+        if (!this->parameter->isActive()) return; // deny interraction with inactive knobs
+
         if (dynamic_cast<Label*>(event.eventComponent)) {
             if (event.mods.isLeftButtonDown()) {
                 auto drg = DragAndDropContainer::findParentDragContainerFor(this);
-                var desc = this->parameter->getParameterIndex(); // TODO, weak assumption
+                var desc = this->parameter->getParameterIndex();
                 drg->startDragging(desc, this);
             }
         }

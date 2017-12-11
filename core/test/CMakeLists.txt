@@ -15,9 +15,12 @@ set( TEST_COMMON_SRC
 
 add_executable(test_synthvoice test_synthvoice.cpp ${TEST_COMMON_SRC})
 set_property(TARGET test_synthvoice PROPERTY FOLDER core/test)
+target_link_libraries( test_synthvoice ${CMAKE_THREAD_LIBS_INIT} )
 
 add_executable(test_modules test_modules.cpp ${TEST_COMMON_SRC})
 set_property(TARGET test_modules PROPERTY FOLDER core/test)
+target_link_libraries( test_modules ${CMAKE_THREAD_LIBS_INIT} )
 
 add_executable(cli_synth cli_synth.cpp ${TEST_COMMON_SRC})
 set_property(TARGET cli_synth PROPERTY FOLDER core/test)
+target_link_libraries( cli_synth ${CMAKE_THREAD_LIBS_INIT} )

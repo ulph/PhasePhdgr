@@ -106,7 +106,7 @@ public:
     template<class T> void initializeKnobs(T* e);
     bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
-    void swapParameterIndices(int a_idx, int b_idx); // via gui
+    void swapParameterIndices(int onto_idx, int dropped_idx); // via gui
     void setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv);
     void visitHandleParameterValues(Synth* synth);
     void visitHandleParameterValues(Effect* effect);
@@ -119,9 +119,8 @@ template<class T> void PhasePhckrParameters::initializeKnobs(T * e) {
         PhasePhckrParameter* p = nullptr;
         if (accessParameter(i, &p)) {
             auto knob = new ParameterKnob(p,
-                [this, e](int a, int b) {
-                    swapParameterIndices(a, b);
-                    e->guiUpdateTimer.timerCallback();
+                [this](int onto_idx, int dropped_idx) {
+                    swapParameterIndices(onto_idx, dropped_idx);
                 }
             );
             e->parameterKnobs.push_back(knob);

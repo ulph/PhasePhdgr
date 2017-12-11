@@ -151,7 +151,7 @@ public:
     }
 
     virtual void itemDropped(const SourceDetails &dragSourceDetails) override {
-        int this_idx = this->parameter->getParameterIndex(); // TODO, weak assumption
+        int this_idx = this->parameter->getParameterIndex();
         int other_idx = dragSourceDetails.description;
         swapParameterIndicesCallback(this_idx, other_idx);
     }

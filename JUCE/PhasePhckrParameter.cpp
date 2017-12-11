@@ -97,11 +97,11 @@ size_t PhasePhckrParameters::numberOfParameters() {
     return floatParameters.size();
 }
 
-void PhasePhckrParameters::swapParameterIndices(int a_idx, int b_idx) {
+void PhasePhckrParameters::swapParameterIndices(int onto_idx, int dropped_idx) {
 
-    if (a_idx == b_idx) return;
-    if (a_idx < 0 || b_idx < 0) return;
-    if (a_idx >= floatParameters.size() || b_idx >= floatParameters.size()) return;
+    if (onto_idx == dropped_idx) return;
+    if (onto_idx < 0 || dropped_idx < 0) return;
+    if (onto_idx >= floatParameters.size() || dropped_idx >= floatParameters.size()) return;
 
     PresetParameterDescriptor * a = nullptr;
     PresetParameterDescriptor * b = nullptr;
@@ -109,13 +109,17 @@ void PhasePhckrParameters::swapParameterIndices(int a_idx, int b_idx) {
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (auto& ppd : presetParameters) {
-        if (ppd.index == a_idx) a = &ppd;
-        if (ppd.index == b_idx) b = &ppd;
+        if (ppd.index == onto_idx) a = &ppd;
+        if (ppd.index == dropped_idx) b = &ppd;
     }
 
     if (a != nullptr && b != nullptr) {
-        b->index = a_idx;
-        a->index = b_idx;
+        b->index = onto_idx;
+        a->index = dropped_idx;
+        updateParameters();
+    }
+    else if (b != nullptr) {
+        b->index = onto_idx;
         updateParameters();
     }
 

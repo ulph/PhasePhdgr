@@ -105,33 +105,33 @@ void from_json(const json& j, ModulePosition& xy) {
 }
 
 void to_json(json& j, const PatchDescriptor& p) {
-    j["graph"] = p.root.graph;
+    j["root"] = p.root;
     if(p.components.size()) j["components"] = p.components;
     if(p.parameters.size()) j["parameters"] = p.parameters;
 }
 
 void from_json(const json& j, PatchDescriptor& p) {
-    p.root.graph = j.at("graph").get<ConnectionGraphDescriptor>();
+    if (j.count("graph")) p.root.graph = j.at("graph").get<ConnectionGraphDescriptor>(); // legacy
+    else p.root = j.at("root").get<ComponentDescriptor>();
     if (j.count("components")) p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     if (j.count("parameters")) p.parameters = j.at("parameters").get<vector<PatchParameterDescriptor>>();
-    if (j.count("layout")) {
-        // move over legacy layout store
+    if (j.count("layout")) { // legacy
         auto layout = j.at("layout").get<map<string, ModulePosition>>();
         p.root.layout.insert(layout.begin(), layout.end());
     }
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {
-    j[c_inBus.name] = cgd.inBus;
-    j[c_outBus.name] = cgd.outBus;
+    if (cgd.inBus.size()) j[c_inBus.name] = cgd.inBus;
+    if (cgd.outBus.size()) j[c_outBus.name] = cgd.outBus;
     j["graph"] = cgd.graph;
     if (cgd.docString.size()) j["docString"] = cgd.docString;
     if (cgd.layout.size()) j["layout"] = cgd.layout;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
-    cgd.inBus = j.at(c_inBus.name).get<vector<PadDescription>>();
-    cgd.outBus = j.at(c_outBus.name).get<vector<PadDescription>>();
+    if (j.count(c_inBus.name)) cgd.inBus = j.at(c_inBus.name).get<vector<PadDescription>>();
+    if (j.count(c_outBus.name)) cgd.outBus = j.at(c_outBus.name).get<vector<PadDescription>>();
     cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
     if (j.count("docString")) cgd.docString = j.at("docString").get<string>();
     if (j.count("layout")) cgd.layout = j.at("layout").get<map<string, ModulePosition>>();

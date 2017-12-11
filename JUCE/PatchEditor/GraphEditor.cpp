@@ -362,7 +362,6 @@ void GraphEditor::propagateUserModelChange() {
                 gm.position.y
             );
     }
-    rootComponent()->pruneLayout();
     subPatch.set(-1, patch);
     repaint();
 }

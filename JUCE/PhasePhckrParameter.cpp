@@ -81,7 +81,7 @@ void PhasePhckrParameters::updateParameters()
         ParameterIdentifier tid(ppd.type, ppd.p.id);
         assert(validParametersHandles.count(tid));
         floatParameters[ppd.index]->initialize(ppd.type, ppd.p);
-        parameterRouting[ppd.index] = make_pair(ppd.type, validParametersHandles.at(tid));
+        parameterRouting[ppd.index] = validParametersHandles.at(tid);
     }
     
 }
@@ -140,11 +140,10 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect
 
     for (const auto kv : parameterRouting) {
         auto idx = kv.first;
-        auto route = kv.second;
-        auto type = route.first;
-        auto handle = route.second;
-        auto p = floatParameters[idx];
-        float value = p->range.convertFrom0to1(*p);
+        auto fp = floatParameters.at(idx);
+        auto type = fp->getType();
+        auto handle = kv.second;
+        float value = fp->range.convertFrom0to1(*fp);
         switch (type) {
         case EFFECT:
             effect->handleEffectParameter(handle, value);
@@ -160,11 +159,10 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) 
 
     for (const auto kv : parameterRouting) {
         auto idx = kv.first;
-        auto route = kv.second;
-        auto type = route.first;
-        auto handle = route.second;
-        auto p = floatParameters[idx];
-        float value = p->range.convertFrom0to1(*p);
+        auto fp = floatParameters.at(idx);
+        auto type = fp->getType();
+        auto handle = kv.second;
+        float value = fp->range.convertFrom0to1(*fp);
         switch (type) {
         case VOICE:
             synth->handleVoiceParameter(handle, value);
@@ -184,14 +182,8 @@ vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
     vector<PresetParameterDescriptor> pv;
 
     for (const auto& kv : parameterRouting) {
-        auto type = kv.second.first;
         auto fp = floatParameters.at(kv.first);
-
-        if (fp->getType() != type) {
-            assert(0);
-            continue;
-        }
-
+        auto type = fp->getType();
         auto index = kv.first;
 
         PresetParameterDescriptor pd;

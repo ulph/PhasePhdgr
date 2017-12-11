@@ -85,13 +85,11 @@ public:
 
 };
 
-typedef pair<SynthGraphType, int> ParamterRoute;
-typedef map<int, ParamterRoute> ParameterSlotToRouteMap;
 typedef pair<SynthGraphType, string> ParameterIdentifier;
 
 class PhasePhckrParameters {
     vector<PhasePhckrParameter *> floatParameters; // the actual JUCE parameter, also holds the preset level name
-    ParameterSlotToRouteMap parameterRouting; // maps index of floatParameters to a ROUTE (type and handle pair)
+    map<int, int> parameterRouting; // maps index of floatParameters to a handle
     ParameterHandleMap effectParameters;
     ParameterHandleMap voiceParameters;
     vector<PresetParameterDescriptor> presetParameters;

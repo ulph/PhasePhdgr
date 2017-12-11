@@ -100,17 +100,17 @@ public:
         g.drawRect(0, 0, r.getWidth() - 1, r.getHeight() - 1, 1);
     }
 
-    virtual void sliderDragStarted(Slider * slider) override {
+    virtual void sliderDragStarted(Slider * slider_) override {
         parameter->beginChangeGesture();
     }
 
-    virtual void sliderDragEnded(Slider * slider) override {
+    virtual void sliderDragEnded(Slider * slider_) override {
         parameter->endChangeGesture();
     }
 
-    virtual void sliderValueChanged(Slider * slider) override {
+    virtual void sliderValueChanged(Slider * slider_) override {
         parameter->setValueNotifyingHost(
-            parameter->range.convertTo0to1((float)slider->getValue())
+            parameter->range.convertTo0to1((float)slider_->getValue())
         );
     }
 

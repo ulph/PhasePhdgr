@@ -107,21 +107,16 @@ struct PadDescription {
     PadDescription(string n, string u, float v) : name(n), unit(u), defaultValue(v){}
 };
 
-enum SynthGraphType {
-    UNDEFINED = 0,
-    VOICE = 1,
-    EFFECT = 2
-};
-
-struct PatchParameterDescriptor {
-    SynthGraphType type;
-    string id;
+struct ParameterValueDescriptor{
     float val;
     float min;
     float max;
 };
 
-typedef map<int, PatchParameterDescriptor> ParameterHandleMap;
+struct PatchParameterDescriptor {
+    string id;
+    ParameterValueDescriptor v;
+};
 
 struct ComponentDescriptor {
     vector<PadDescription> inBus;
@@ -180,8 +175,15 @@ struct PatchDescriptor {
 /* Preset (voice patch + effect patch + parameters) */
 // these are managed by JUCE layer
 
+enum SynthGraphType {
+    UNDEFINED = 0,
+    VOICE = 1,
+    EFFECT = 2
+};
+
 struct PresetParameterDescriptor {
     int index;
+    SynthGraphType type;
     PatchParameterDescriptor p;
 };
 
@@ -192,6 +194,8 @@ struct PresetDescriptor {
 };
 
 /* Functions and aux types */
+
+typedef map<int, PatchParameterDescriptor> ParameterHandleMap;
 
 void designPatch(
     ConnectionGraph &connectionGraph,

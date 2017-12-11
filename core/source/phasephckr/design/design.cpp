@@ -20,7 +20,6 @@ void designChain(
     const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
-    SynthGraphType type,
     ParameterHandleMap &parameterHandles,
     int depth
 );
@@ -60,7 +59,6 @@ bool unpackComponent(
     ComponentDescriptor &parent,
     ComponentDescriptor &current,
     map<string, int> &moduleHandles,
-    SynthGraphType type,
     ParameterHandleMap &parameterHandles,
     int depth
 ) {
@@ -130,7 +128,7 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
-    designChain(g, pd, current, moduleHandles, type, parameterHandles, depth);
+    designChain(g, pd, current, moduleHandles, parameterHandles, depth);
 
     return true;
 }
@@ -141,7 +139,6 @@ void designChain(
     const PatchDescriptor &pd,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
-    SynthGraphType type,
     ParameterHandleMap &parameterHandles,
     int depth
 ){
@@ -154,7 +151,7 @@ void designChain(
         if (m.type.front() == componentMarker) {
             if (!checkComponent(m, pd)) continue;
             ComponentDescriptor child_cd = pd.components.at(m.type);
-            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, type, parameterHandles, depth+1)){
+            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles, depth+1)){
                 components.insert(m.name);
             }
         }
@@ -174,10 +171,9 @@ void designChain(
         cout << handle << " : " << " " << m.name << std::endl;
         if(m.type.front() == parameterMarker){
             PatchParameterDescriptor prm;
-            prm.min = 0.f;
-            prm.max = 1.f;
-            prm.val = 0.f;
-            prm.type = type;
+            prm.v.min = 0.f;
+            prm.v.max = 1.f;
+            prm.v.val = 0.f;
             prm.id = m.name;
             parameterHandles[handle] = prm;
         }
@@ -214,9 +210,9 @@ void designChain(
         }
         else if (parameterHandles.count(h)) {
             // bubble up any values set onto parameters as actual parameter data
-            if (v.target.port == "value")   parameterHandles[h].val = v.value;
-            else if(v.target.port == "min") parameterHandles[h].min = v.value;
-            else if(v.target.port == "max") parameterHandles[h].max = v.value;
+            if (v.target.port == "value")   parameterHandles[h].v.val = v.value;
+            else if(v.target.port == "min") parameterHandles[h].v.min = v.value;
+            else if(v.target.port == "max") parameterHandles[h].v.max = v.value;
         }
         else {
             g.setInput(h, v.target.port, v.value);
@@ -265,7 +261,6 @@ void designPatch(
         p,
         p.root,
         moduleHandles,
-        type,
         parameterHandles,
         0
     );

@@ -115,6 +115,7 @@ void from_json(const json& j, PatchDescriptor& p) {
     if (j.count("components")) p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     if (j.count("parameters")) p.parameters = j.at("parameters").get<vector<PatchParameterDescriptor>>();
     if (j.count("layout")) {
+        // move over legacy layout store
         auto layout = j.at("layout").get<map<string, ModulePosition>>();
         p.root.layout.insert(layout.begin(), layout.end());
     }
@@ -138,45 +139,43 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
 
 void to_json(json& j, const PatchParameterDescriptor& p) {
     j["id"] = p.id;
-    j["type"] = p.type;
-    j["value"] = p.val;
-    j["min"] = p.min;
-    j["max"] = p.max;
+    j["value"] = p.v.val;
+    j["min"] = p.v.min;
+    j["max"] = p.v.max;
 }
 
 void from_json(const json& j, PatchParameterDescriptor& p) {
     p.id = j.at("id").get<string>();
-    if (j.count("type")) {
-        p.type = j.at("type");
-    }
-    else {
-        p.type = UNDEFINED;
-        if (p.id.substr(0, 2) == "e ") {
-            p.type = EFFECT;
-            p.id = p.id.substr(2);
-        }
-        else if (p.id.substr(0, 2) == "v ") {
-            p.type = VOICE;
-            p.id = p.id.substr(2);
-        }
-    }
-    p.val = j.at("value").get<float>();
-    p.min = j.value("min", 0.f);
-    p.max = j.value("max", 1.f);
+    p.v.val = j.at("value").get<float>();
+    p.v.min = j.value("min", 0.f);
+    p.v.max = j.value("max", 1.f);
 }
 
 void to_json(json& j, const PresetParameterDescriptor& p) {
     j["index"] = p.index;
+    j["type"] = p.type;
     j["id"] = p.p.id;
-    j["type"] = p.p.type;
-    j["value"] = p.p.val;
-    j["min"] = p.p.min;
-    j["max"] = p.p.max;
+    j["value"] = p.p.v.val;
+    j["min"] = p.p.v.min;
+    j["max"] = p.p.v.max;
 }
 
 void from_json(const json& j, PresetParameterDescriptor& p) {
     p.index = j.at("index").get<int>();
     p.p = j.get<PatchParameterDescriptor>();
+    if (j.count("type")) p.type = j.at("type");
+    else {
+        // if type is missing, try legacy style
+        p.type = UNDEFINED;
+        if (p.p.id.substr(0, 2) == "e ") {
+            p.type = EFFECT;
+            p.p.id = p.p.id.substr(2);
+        }
+        else if (p.p.id.substr(0, 2) == "v ") {
+            p.type = VOICE;
+            p.p.id = p.p.id.substr(2);
+        }
+    }
 }
 
 void to_json(json& j, const PresetDescriptor& preset) {

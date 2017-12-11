@@ -293,7 +293,7 @@ vector<PatchParameterDescriptor> PhasePhckrProcessor::getParameters(SynthGraphTy
     vector<PatchParameterDescriptor> params;
 
     for (const auto& ppd : presetParams) {
-        if (ppd.p.type == type) {
+        if (ppd.type == type) {
             auto pd = ppd.p;
             params.emplace_back(pd);
         }

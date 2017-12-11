@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 void PhasePhckrParameters::initialize(AudioProcessor * p){
     // only call once right after constructor or shit hits the fan
     for (int i = 0; i < 8*16; i++) {
@@ -14,8 +13,6 @@ void PhasePhckrParameters::initialize(AudioProcessor * p){
         p->addParameter(knb_ptr);
     }
 }
-
-typedef pair<SynthGraphType, string> TID;
 
 void PhasePhckrParameters::updateParameters()
 {
@@ -28,27 +25,27 @@ void PhasePhckrParameters::updateParameters()
     parameterRouting.clear();
 
     // build a map of valid parameter names to their default values, ranges and handles
-    map<TID, const PatchParameterDescriptor*> validParameters;
-    map<TID, int> validParametersHandles;
+    map<ParameterIdentifier, const PatchParameterDescriptor*> validParameters;
+    map<ParameterIdentifier, int> validParametersHandles;
     for (const auto& kv : effectParameters) {
-        TID tid = make_pair(EFFECT, kv.second.id);
+        ParameterIdentifier tid(EFFECT, kv.second.id);
         validParameters[tid] = &kv.second;
         validParametersHandles[tid] = kv.first;
     }
     for (const auto& kv : voiceParameters) {
-        TID tid = make_pair(VOICE, kv.second.id);
+        ParameterIdentifier tid(VOICE, kv.second.id);
         validParameters[tid] = &kv.second;
         validParametersHandles[tid] = kv.first;
     }
 
     // prune any invalid preset parameters
-    set<TID> validPresetParams; // and build a convinience set for checking existance
+    set<ParameterIdentifier> validPresetParams; // and build a convinience set for checking existance
     set<int> occupiedParamIndexes;
 
     auto it = presetParameters.begin();
     while(it != presetParameters.end()){
         auto& ppd = *it;
-        TID tid = make_pair(ppd.p.type, ppd.p.id);
+        ParameterIdentifier tid(ppd.type, ppd.p.id);
         if (!validParameters.count(tid)
             || validPresetParams.count(tid)
             || occupiedParamIndexes.count(ppd.index)
@@ -73,6 +70,7 @@ void PhasePhckrParameters::updateParameters()
             occupiedParamIndexes.insert(firstValidSlot);
             PresetParameterDescriptor ppd;
             ppd.index = firstValidSlot;
+            ppd.type = kv.first.first;
             ppd.p = *kv.second;
             presetParameters.emplace_back(ppd);
         }
@@ -80,13 +78,13 @@ void PhasePhckrParameters::updateParameters()
 
     // populate the floatParameters and build the routing
     for (const auto& ppd : presetParameters) {
-        auto param = ppd.p;
-        string name = ppd.p.type == VOICE ? "v: " : "e: ";
-        name += param.id;
-        TID tid = make_pair(param.type, param.id);
+        auto param = ppd;
+        string name = ppd.type == VOICE ? "v: " : "e: ";
+        name += param.p.id;
+        ParameterIdentifier tid(param.type, param.p.id);
         assert(validParametersHandles.count(tid));
 
-        floatParameters[ppd.index]->initialize(param.val, param.min, param.max, name);
+        floatParameters[ppd.index]->initialize(param.p.v.val, param.p.v.min, param.p.v.max, name);
         parameterRouting[ppd.index] = make_pair(param.type, validParametersHandles.at(tid));
     }
     
@@ -187,8 +185,22 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) 
 vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
     // from patch serialization - convert to a struct with strings
     auto scoped_lock = parameterLock.make_scoped_lock();
+    vector<PresetParameterDescriptor> pv;
 
-    auto pv = presetParameters;
+    for (const auto& kv : parameterRouting) {
+        auto index = kv.first;
+        auto type = kv.second.first;
+        PresetParameterDescriptor pd;
+        pd.index = kv.first;
+        pd.type = type;
+        auto fp = floatParameters.at(kv.first);
+        pd.p.id = fp->getFullName().substr(3); // HACK
+        pd.p.v.val = *fp;
+        pd.p.v.min = fp->range.start;
+        pd.p.v.max = fp->range.end;
+        pv.push_back(pd);
+    }
+
     return pv;
 }
 

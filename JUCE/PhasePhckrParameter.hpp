@@ -70,6 +70,7 @@ public:
 
 typedef pair<SynthGraphType, int> ParamterRoute;
 typedef map<int, ParamterRoute> ParameterSlotToRouteMap;
+typedef pair<SynthGraphType, string> ParameterIdentifier;
 
 class PhasePhckrParameters {
     vector<PhasePhckrParameter *> floatParameters; // the actual JUCE parameter, also holds the preset level name

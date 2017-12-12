@@ -3,6 +3,8 @@
 #include <atomic>
 #include <phasephckr/locks.hpp>
 
+#include "PhasePhckrParameter.hpp"
+
 class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {
 private:
     Slider slider;
@@ -22,12 +24,16 @@ public:
     {
         label.setColour(Label::textColourId, Colours::lightgrey);
         slider.setColour(Slider::thumbColourId, Colours::lightgrey);
-        slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
+        slider.setColour(Slider::trackColourId, Colours::grey);
         slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+        slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
         slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
-        slider.setColour(Slider::textBoxOutlineColourId, Colours::lightgrey);
-        slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-        slider.setTextBoxStyle(Slider::TextBoxRight, false, 50, 20);
+        slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
+        slider.setColour(Slider::textBoxBackgroundColourId, Colours::darkslategrey);
+        slider.setColour(Slider::textBoxHighlightColourId, Colours::black);
+        slider.setSliderStyle(Slider::LinearHorizontal);
+        slider.setTextBoxStyle(Slider::NoTextBox, true, 50, 20);
+        slider.setPopupDisplayEnabled(true, true, this->getParentComponent());
         addAndMakeVisible(slider);
         addAndMakeVisible(label);
         label.setJustificationType(Justification::centred);
@@ -42,14 +48,17 @@ public:
         if (newActivity != lastActivity) {
             if (newActivity) {
                 slider.setVisible(true);
-                label.setColour(Label::textColourId, Colours::lightgrey);
+                label.setColour(Label::textColourId, Colours::grey);
             }
             else {
-                label.setColour(Label::textColourId, Colours::darkgrey);
+                label.setColour(Label::textColourId, Colours::black);
                 slider.setVisible(false);
             }
         }
-        else if (!newActivity) return;
+        else if (!newActivity) {
+            lastActivity = newActivity;
+            return;
+        }
 
         float newMin = parameter->range.start;
         float newMax = parameter->range.end;
@@ -85,8 +94,13 @@ public:
     }
 
     void resized() override {
-        label.setBoundsRelative(0.0f, 0.0f, 0.5f, 1.0f);
-        slider.setBoundsRelative(0.5f, 0.0f, 0.5f, 1.0f);
+        if (lastActivity) {
+            label.setBoundsRelative(0.0f, 0.0f, 1.0f, 0.333f);
+            slider.setBoundsRelative(0.0f, 0.333f, 1.0f, 0.666f);
+        }
+        else {
+            label.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
+        }
         repaint();
     }
 
@@ -126,10 +140,7 @@ public:
                 var desc = this->parameter->getParameterIndex();
                 drg->startDragging(desc, this);
             }
-        }
-        else if (dynamic_cast<Slider*>(event.eventComponent)) {
-            parameter->beginChangeGesture();
-            if (event.mods.isRightButtonDown()) {
+            else if (event.mods.isRightButtonDown()) {
                 auto pm = PopupMenu();
                 Label start("start", to_string(parameter->range.start));
                 start.setEditable(true, true, false);
@@ -146,14 +157,11 @@ public:
                     return;
                 }
                 if (newStart != parameter->range.start || newEnd != parameter->range.end) {
-                    isDragging = true;
                     parameter->range.start = newStart;
                     parameter->range.end = newEnd;
                     parameter->setValueNotifyingHost(*parameter);
-                    isDragging = false;
                 }
             }
-            parameter->endChangeGesture();
         }
     }
 

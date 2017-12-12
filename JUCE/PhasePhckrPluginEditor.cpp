@@ -75,8 +75,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     scopeGrid.addComponent(&outputScopeR);
     scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
-    mainFrame.addTab("preset parameters", Colours::black, &performGrid, false);
-    performGrid.setColoumns({ 1.f ,1.f ,1.f ,1.f, 1.f, 1.f ,1.f ,1.f });
+    mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
 
     processor.parameters.initializeKnobs(this);
 

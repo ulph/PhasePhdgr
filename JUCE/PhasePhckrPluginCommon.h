@@ -7,8 +7,14 @@
 #include "FileIO.hpp"
 #include "Utils.hpp"
 
+#include "ParameterKnob.hpp"
+#include "PhasePhckrGrid.h"
+
+#include <functional>
+
 using namespace PhasePhckrFileStuff;
 using namespace PhasePhckr;
+using namespace std;
 
 void proccessHandleCommonMidi(Effect* effect);
 
@@ -55,4 +61,25 @@ struct ProcessorFileThings {
         }
     }
 
+};
+
+class ParameterPages : public TabbedComponent {
+public:
+    virtual void currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override;
+    ParameterPages() : TabbedComponent(TabbedButtonBar::TabsAtBottom) {}
+};
+
+class PhasePhckrParameterEditor : public Component, public DragAndDropContainer {
+private:
+    ParameterPages pageTabs;
+    vector<PhasePhckrGrid*> pages;
+    int knobCtr = 0;
+    const vector<float> rowLayout = { 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
+public:
+    PhasePhckrParameterEditor();
+    virtual ~PhasePhckrParameterEditor();
+    void setDocString(const string& str);
+    string getDocString();
+    void addKnob(ParameterKnob* knob);
+    void resized() override;
 };

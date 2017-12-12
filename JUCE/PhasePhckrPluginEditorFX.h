@@ -43,7 +43,7 @@ private:
 
     TabbedComponent mainFrame;
     PhasePhckrGrid scopeGrid;
-    PhasePhckrGrid performGrid;
+    PhasePhckrParameterEditor parameterEditor;
 
     FileBrowserPanelFX fileBrowserPanel;
 

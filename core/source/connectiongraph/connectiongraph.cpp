@@ -156,10 +156,10 @@ void ConnectionGraph::compileProgram(int module, float fs)
     fsCompiled = fs;
 
     // parse the graph once to find all modules involved in recursion loops
-    moduleRecursionGroups.clear();
+    recursiveModules.clear();
 
     if (!forceSampleWise) {
-        findRecursionGroups(module, std::vector<int>());
+        findRecursions(module, std::vector<int>());
 
         // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first
         std::partition(
@@ -355,13 +355,12 @@ void ConnectionGraph::printProgram(const vector<Instruction>& p) {
     }
 }
 
-void ConnectionGraph::findRecursionGroups(int module, std::vector<int> processedModulesToHere) {
+void ConnectionGraph::findRecursions(int module, std::vector<int> processedModulesToHere) {
     bool foundSelf = false;
     for (auto otherModule : processedModulesToHere) {
         if (otherModule == module) foundSelf = true;
         if (foundSelf) {
-            if (!moduleRecursionGroups.count(otherModule)) moduleRecursionGroups[otherModule] = std::set<int>();
-            moduleRecursionGroups[otherModule].insert(module);
+            recursiveModules.insert(otherModule);
         }
     }
     if (foundSelf) return;
@@ -371,7 +370,7 @@ void ConnectionGraph::findRecursionGroups(int module, std::vector<int> processed
     for (int pad = 0; pad < m->getNumInputPads(); pad++) {
         for (const Cable *c : cables) {
             if (c->isConnected(module, pad)) {
-                findRecursionGroups(c->getFromModule(), processedModulesToHere);
+                findRecursions(c->getFromModule(), processedModulesToHere);
             }
         }
     }
@@ -379,7 +378,7 @@ void ConnectionGraph::findRecursionGroups(int module, std::vector<int> processed
 
 ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
     if(forceSampleWise) return SampleWise;
-    else if (moduleRecursionGroups.count(module)) return SampleWise;
+    else if (recursiveModules.count(module)) return SampleWise;
     return BlockWise;
 }
 

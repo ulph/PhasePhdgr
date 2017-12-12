@@ -63,10 +63,27 @@ struct ProcessorFileThings {
 
 };
 
-class ParameterPages : public TabbedComponent {
+class ParameterPages : public TabbedComponent, public DragAndDropTarget {
 public:
-    virtual void currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override;
+    virtual void currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override {
+        getTabContentComponent(newCurrentTabIndex)->resized();
+    }
     ParameterPages() : TabbedComponent(TabbedButtonBar::TabsAtBottom) {}
+    virtual bool isInterestedInDragSource(const SourceDetails &dragSourceDetails) override {
+        return true;
+    }
+    virtual void itemDropped(const SourceDetails &dragSourceDetails) override {}
+    virtual void itemDragMove(const SourceDetails &dragSourceDetails) override {
+        TabbedButtonBar& c = getTabbedButtonBar();
+        for (int i = 0; i < c.getNumTabs(); ++i) {
+            TabBarButton* b = c.getTabButton(i);
+            auto pos = dragSourceDetails.localPosition - c.getPosition() - b->getPosition();
+            if (b->contains(pos)) {
+                setCurrentTabIndex(i);
+                return;
+            }
+        }
+    }
 };
 
 class PhasePhckrParameterEditor : public Component, public DragAndDropContainer {

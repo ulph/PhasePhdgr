@@ -26,10 +26,6 @@ void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize
     effect->handleBarPosition(barPosition);
 }
 
-void ParameterPages::currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) {
-    getTabContentComponent(newCurrentTabIndex)->resized();
-}
-
 PhasePhckrParameterEditor::PhasePhckrParameterEditor()
 {
     addAndMakeVisible(pageTabs);

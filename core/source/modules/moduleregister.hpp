@@ -95,11 +95,10 @@ public:
         cg.registerModule("BQLPF", &(LowPass::factory));
         cg.registerModule("BQPEAK", &(PeakingEQ::factory));
 
-        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory)); // DEPRECATE ?
-        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // DEPRECATE ?
+        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory));
+        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory));
         cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
         cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory));
-        // TODO: the mixing variant of SVF (or suchlike) for an 'open' circuit implementation
 
         cg.registerModule("RCHP", &(RcHp::factory));
         cg.registerModule("RCLP", &(RcLp::factory));
@@ -111,6 +110,7 @@ public:
         cg.registerModule("ENV", &(CamelEnvelope::factory));
 
         /* buffers */
+        cg.registerModule("UNITDELAY", UnitDelay::factory);
         cg.registerModule("DELAY", DelayFactory::makeFactory(32));
         cg.registerModule("DELAY_LOW_Q", DelayFactory::makeFactory(16));
         cg.registerModule("DELAY_LOWER_Q", DelayFactory::makeFactory(8));

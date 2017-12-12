@@ -90,4 +90,20 @@ public:
     static Module* factory() { return new Delay<N>(getFractionalSincTable<N>()); }
 };
 
+class UnitDelay : public ModuleCRTP<UnitDelay> {
+private:
+    float last = 0.f;
+public:
+    UnitDelay() {
+        inputs.push_back(Pad("in"));
+        inputs.push_back(Pad("gain", 1.0f));
+        outputs.push_back(Pad("out"));
+    }
+    void process() {
+        outputs[0].value = last;
+        last = inputs[0].value * inputs[1].value;
+    }
+    static Module* factory() { return new UnitDelay(); }
+};
+
 #endif

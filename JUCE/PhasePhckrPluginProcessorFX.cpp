@@ -202,7 +202,6 @@ void PhasePhckrProcessorFX::setPatch(const PatchDescriptor& patch) {
 
 void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
-
     effectChain = p;
     auto pv = effect->setEffectChain(effectChain, componentRegister);
     parameters.setParametersHandleMap(EFFECT, pv);

@@ -27,10 +27,6 @@ public:
         slider.setColour(Slider::trackColourId, Colours::grey);
         slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
         slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
-        slider.setColour(Slider::textBoxTextColourId, Colours::lightgrey);
-        slider.setColour(Slider::textBoxOutlineColourId, Colours::darkgrey);
-        slider.setColour(Slider::textBoxBackgroundColourId, Colours::darkslategrey);
-        slider.setColour(Slider::textBoxHighlightColourId, Colours::black);
         slider.setSliderStyle(Slider::LinearHorizontal);
         slider.setTextBoxStyle(Slider::NoTextBox, true, 50, 20);
         slider.setPopupDisplayEnabled(true, true, this->getParentComponent());
@@ -94,13 +90,8 @@ public:
     }
 
     void resized() override {
-        if (lastActivity) {
-            label.setBoundsRelative(0.0f, 0.0f, 1.0f, 0.333f);
-            slider.setBoundsRelative(0.0f, 0.333f, 1.0f, 0.666f);
-        }
-        else {
-            label.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
-        }
+        label.setBoundsRelative(0.0f, 0.0f, 1.0f, 0.333f);
+        slider.setBoundsRelative(0.0f, 0.333f, 1.0f, 0.666f);
         repaint();
     }
 

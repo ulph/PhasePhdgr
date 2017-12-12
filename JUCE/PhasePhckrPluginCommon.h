@@ -78,8 +78,6 @@ private:
 public:
     PhasePhckrParameterEditor();
     virtual ~PhasePhckrParameterEditor();
-    void setDocString(const string& str);
-    string getDocString();
     void addKnob(ParameterKnob* knob);
     void resized() override;
 };

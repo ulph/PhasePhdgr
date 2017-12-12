@@ -110,9 +110,9 @@ struct PadDescription {
 };
 
 struct ParameterValueDescriptor{
-    float val;
-    float min;
-    float max;
+    float val = 0.0f;
+    float min = 0.0f;
+    float max = 1.0f;
 };
 
 struct PatchParameterDescriptor {

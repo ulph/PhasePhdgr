@@ -94,7 +94,7 @@ class PhasePhckrParameters {
     ParameterHandleMap voiceParameters;
     vector<PresetParameterDescriptor> presetParameters;
     simple_lock parameterLock;
-    void updateParameters();
+    void updateParameters(bool reset=false);
 
 public:
     static const int knobsPerBank = 8;

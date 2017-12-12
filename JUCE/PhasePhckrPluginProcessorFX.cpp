@@ -206,4 +206,5 @@ void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p)
     effectChain = p;
     auto pv = effect->setEffectChain(effectChain, componentRegister);
     parameters.setParametersHandleMap(EFFECT, pv);
+    updateHostDisplay();
 }

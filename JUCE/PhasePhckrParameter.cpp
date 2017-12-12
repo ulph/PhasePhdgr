@@ -14,11 +14,10 @@ void PhasePhckrParameters::initialize(AudioProcessor * p){
     }
 }
 
-void PhasePhckrParameters::updateParameters()
+void PhasePhckrParameters::updateParameters(bool reset)
 {
-    // clear the floatParameters
-    for (auto fp : floatParameters) {
-        fp->reset();
+    if (reset) {
+        for (auto fp : floatParameters) fp->reset();
     }
 
     // clear the routing
@@ -38,52 +37,66 @@ void PhasePhckrParameters::updateParameters()
         validParametersHandles[tid] = kv.first;
     }
 
-    // prune any invalid preset parameters
-    set<ParameterIdentifier> validPresetParams; // and build a convinience set for checking existance
-    set<int> occupiedParamIndexes;
+    // retain any valid floatParameter, clear any dangling or dupes
+    map<ParameterIdentifier, int> validParameterIndices;
+    for (auto fp : floatParameters) {
+        if (!fp->isActive()) continue;
+        ParameterIdentifier tid(fp->getType(), fp->getPatchParameterDescriptor().id);
+        if(!validParameters.count(tid) || validParameterIndices.count(tid)) fp->reset();
+        else validParameterIndices[tid] = fp->getParameterIndex();
+    }
 
-    auto it = presetParameters.begin();
-    while(it != presetParameters.end()){
-        auto& ppd = *it;
-        ParameterIdentifier tid(ppd.type, ppd.p.id);
-        if (!validParameters.count(tid)
-            || validPresetParams.count(tid)
-            || occupiedParamIndexes.count(ppd.index)
-            || ppd.index < 0
-            || ppd.index >= floatParameters.size()
-        ) {
-            it = presetParameters.erase(it);
+    // find any valid preset parameter
+    map<ParameterIdentifier, int> validPresetParameters; // and build a convinience set for checking existance
+    for (int i = 0; i < presetParameters.size(); ++i) {
+        const auto& p = presetParameters.at(i);
+        ParameterIdentifier tid(p.type, p.p.id);
+        if (validParameters.count(tid)) validPresetParameters[tid] = i;
+    }
+
+    // update floatParameters and parameterRouting
+    int firstFreeSlot = 0;
+    for (const auto& kv : validParameters) {
+        const auto& tid = kv.first;
+
+        // 0. find a slot
+        auto slot = 0;
+        if (validParameterIndices.count(tid)) {
+            slot = validParameterIndices.at(tid);
+            if (!reset) {
+                // use existing parameter if not resetting
+                parameterRouting[slot] = validParametersHandles.at(tid);
+                continue;
+            }
         }
         else {
-            validPresetParams.insert(tid);
-            occupiedParamIndexes.insert(ppd.index);
-            it++;
+            while (floatParameters.at(firstFreeSlot)->isActive()) {
+                if (firstFreeSlot >= floatParameters.size()) return; // raise some exception ideally
+                firstFreeSlot++;
+            }
+            slot = firstFreeSlot;
         }
-    }
 
-    // for any parameters missing on preset, copy over from validParameters and find an index
-    int firstValidSlot = 0;
-    for (const auto& kv : validParameters) {
-        if (!validPresetParams.count(kv.first)) {
-            while (occupiedParamIndexes.count(firstValidSlot)) firstValidSlot++;
-            if (firstValidSlot >= floatParameters.size()) return; // TODO whee oo whee too many params! notify the user!
-            occupiedParamIndexes.insert(firstValidSlot);
-            PresetParameterDescriptor ppd;
-            ppd.index = firstValidSlot;
-            ppd.type = kv.first.first;
-            ppd.p = *kv.second;
-            presetParameters.emplace_back(ppd);
+        SynthGraphType type = tid.first;
+        PatchParameterDescriptor pd;
+        pd.id = tid.second;
+
+        // initialize floatParameter
+        // a. check if preset has
+        // b. otherwise, use from patch
+        // c. if not - assert (but we'll use default values implicitly)
+        if (validPresetParameters.count(tid)) {
+            int i = validPresetParameters.at(tid);
+            pd.v = presetParameters.at(i).p.v;
         }
-    }
+        else {
+            pd.v = kv.second->v;
+        }
+        floatParameters[slot]->initialize(type, pd);
 
-    // populate the floatParameters and build the routing
-    for (const auto& ppd : presetParameters) {
-        ParameterIdentifier tid(ppd.type, ppd.p.id);
-        assert(validParametersHandles.count(tid));
-        floatParameters[ppd.index]->initialize(ppd.type, ppd.p);
-        parameterRouting[ppd.index] = validParametersHandles.at(tid);
+        // 4. update routing
+        parameterRouting[slot] = validParametersHandles.at(tid);
     }
-    
 }
 
 bool PhasePhckrParameters::accessParameter(int index, PhasePhckrParameter ** param) {
@@ -206,5 +219,5 @@ void PhasePhckrParameters::deserialize(const vector<PresetParameterDescriptor>& 
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     presetParameters = pv;
-    updateParameters();
+    updateParameters(true);
 }

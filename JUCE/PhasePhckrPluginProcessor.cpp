@@ -320,6 +320,7 @@ void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
     parameters.setParametersHandleMap(VOICE, pv);
 
+    updateHostDisplay();
 }
 
 void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
@@ -328,4 +329,6 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     effectChain = p;
     auto pv = synth->setEffectChain(effectChain, componentRegister);
     parameters.setParametersHandleMap(EFFECT, pv);
+
+    updateHostDisplay();
 }

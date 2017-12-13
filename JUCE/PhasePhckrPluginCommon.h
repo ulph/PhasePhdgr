@@ -51,7 +51,9 @@ struct ProcessorFileThings {
                 json j = json::parse(s.c_str());
                 ComponentDescriptor cd = j;
                 componentRegister.registerComponent(n, cd);
-                subComponentRegister.set(-1, componentRegister);
+                if (!d->isStillLoading()) {
+                    subComponentRegister.set(-1, componentRegister);
+                }
             }
             catch (const std::exception& e) {
                 (void)e;

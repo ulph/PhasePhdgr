@@ -64,7 +64,7 @@ public:
         listeners.erase(handle);
     }
 
-    void set(int handle, const T& newValue) {
+    void set(int handle, const T& newValue) const {
         for (const auto &l : listeners) {
             if (l.first != handle) {
                 l.second(newValue);

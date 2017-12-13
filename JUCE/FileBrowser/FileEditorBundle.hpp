@@ -35,6 +35,7 @@ private:
     ProvideJsonCallBack fileLoadedCallback;
     GetJsonCallBack fetchJsonCallback;
 
+    bool allowsOverwrites = true;
     File fileRoot;
 
     File makeFullFileFromFilenameLabel();
@@ -48,6 +49,7 @@ public:
     virtual void browserRootChanged(const File &newRoot) override;
     void invalidateSelection();
     void setFileName(const string& newName);
+    void allowOverwrites(bool allow) { allowsOverwrites = allow; }
 
     FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback);
 

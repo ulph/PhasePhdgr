@@ -7,45 +7,6 @@
 using namespace PhasePhckr;
 
 
-GraphEditorBundle::GraphEditorBundle(
-    PatchEditor& graphEditor,
-    const Doc &initialDoc,
-    SubValue<PatchDescriptor> & subPatch,
-    const string& rootComponent,
-    const PatchDescriptor& initialPatch,
-    const vector<PadDescription> &inBus,
-    const vector<PadDescription> &outBus
-)
-    : editor(
-        graphEditor
-        , rootComponent
-        , initialPatch
-        , view
-        , initialDoc
-        , subPatch
-        , inBus
-        , outBus
-    )
-{
-    addAndMakeVisible(view);
-    view.setViewedComponent(&editor, false);
-    resized();
-}
-
-
-void GraphEditorBundle::paint(Graphics& g)
-{
-    g.fillAll(Colours::darkgrey);
-}
-
-
-void GraphEditorBundle::resized()
-{
-    view.setBoundsRelative(0, 0, 1.0f, 1.0f);
-    repaint();
-}
-
-
 bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
     if (rootComponentName == rootMarker && (moduleName == c_inBus.name || moduleName == c_outBus.name)) return false;
     if (!rootComponent() || !rootComponent()->graph.modules.count(moduleName)) return false;
@@ -131,7 +92,6 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     return false;
 }
 
-
 bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, XY &position) {
     poop.addItem(1, "make component");
     poop.addItem(2, "delete");
@@ -159,7 +119,6 @@ bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule
     }
     return false;
 }
-
 
 bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, bool inputPort) {
     auto moduleName = gfxModule.module.name;
@@ -317,25 +276,21 @@ GraphEditor::GraphEditor(
     setBounds(0, 0, 10, 10); // hack or we never get started
 }
 
-
 void GraphEditor::clearZoom() {
     zoom = defaultZoom;
     applyZoom();
 }
-
 
 void GraphEditor::increaseZoom() {
     zoom *= zoomIncrement;
     applyZoom();
 }
 
-
 void GraphEditor::decreaseZoom() {
     if (zoom < 0.1f) return;
     zoom /= zoomIncrement;
     applyZoom();
 }
-
 
 void GraphEditor::applyZoom() {
     setTransform(
@@ -346,24 +301,30 @@ void GraphEditor::applyZoom() {
     );
 }
 
-
 GraphEditor::~GraphEditor() {
     subPatch.unsubscribe(subPatchHandle);
 }
 
-
-void GraphEditor::propagateUserModelChange() {
+void GraphEditor::updateLayout() {
     for (const auto gm : modules) {
         rootComponent()->layout[gm.module.name] =
             ModulePosition(
-                gm.position.x, 
+                gm.position.x,
                 gm.position.y
             );
     }
-    subPatch.set(-1, patch);
+}
+
+void GraphEditor::propagatePatch() {
+    updateLayout();
+    subPatch.set(-1, patch); // we want it back (lazily forces refresh/sync)
     repaint();
 }
 
+void GraphEditor::propagateLayout() {
+    updateLayout();
+    // call some callback
+}
 
 void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
@@ -373,7 +334,6 @@ void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
         }
     }
 }
-
 
 void GraphEditor::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);
@@ -462,9 +422,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         repaint();
     }
 
-    if (modelChanged) propagateUserModelChange();
+    if (modelChanged) propagatePatch();
 }
-
 
 void GraphEditor::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
     if (d.deltaY >= 0) {
@@ -474,7 +433,6 @@ void GraphEditor::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails &
         decreaseZoom();
     }
 }
-
 
 void GraphEditor::mouseDrag(const MouseEvent & event) {
     bool modelChanged = false;
@@ -508,9 +466,8 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         selectionStop = event.position;
         repaint();
     }
-    if (modelChanged) propagateUserModelChange();
+    if (modelChanged) propagatePatch();
 }
-
 
 void GraphEditor::mouseUp(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
@@ -535,7 +492,7 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     looseWire.isValid = false;
     moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
-    if (modelChanged) propagateUserModelChange();
+    if (modelChanged) propagatePatch();
 }
 
 void GraphEditor::findHoverDoodat(const XY& mousePos) {
@@ -587,11 +544,9 @@ void GraphEditor::mouseMove(const MouseEvent & event) {
     findHoverDoodat(mousePos);
 }
 
-
 void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
     updateBounds(rectangle.first, rectangle.second);
 }
-
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
 
@@ -619,9 +574,8 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
         );
     }
 
-    propagateUserModelChange();
+    propagatePatch();
 }
-
 
 void GraphEditor::updateBounds(const XY & position, const XY & size){
     auto bounds = getBounds();
@@ -633,7 +587,6 @@ void GraphEditor::updateBounds(const XY & position, const XY & size){
     }
     setBounds(bounds);
 }
-
 
 void GraphEditor::paint(Graphics& g){
     auto scoped_lock = gfxGraphLock.make_scoped_lock();
@@ -657,14 +610,12 @@ void GraphEditor::paint(Graphics& g){
     }
 }
 
-
 void GraphEditor::setGlobalComponents(const map<string, ComponentDescriptor>& globalComponents_) {
     auto scoped_lock = gfxGraphLock.make_scoped_lock();
     globalComponents = globalComponents_;
     docIsDirty = true;
     repaint();
 }
-
 
 void GraphEditor::setDoc(const Doc& newDoc){
     auto scoped_lock = gfxGraphLock.make_scoped_lock();
@@ -688,7 +639,6 @@ void GraphEditor::setDoc(const Doc& newDoc){
     repaint();
 }
 
-
 void GraphEditor::setGraph(const PatchDescriptor& newPatch) {
   auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
@@ -697,7 +647,6 @@ void GraphEditor::setGraph(const PatchDescriptor& newPatch) {
 
   repaint();
 }
-
 
 void GraphEditor::updateRenderComponents() 
 {
@@ -763,8 +712,6 @@ void GraphEditor::updateRenderComponents()
     }
 
 }
-
-// migrated from GfxGraph
 
 pair<XY, XY> GraphEditor::getVirtualBounds() {
     XY min(FLT_MAX, FLT_MAX);
@@ -884,4 +831,39 @@ void GraphEditor::designPorts(const Doc &doc) {
     }
 }
 
-// end
+
+GraphEditorBundle::GraphEditorBundle(
+    PatchEditor& graphEditor,
+    const Doc &initialDoc,
+    SubValue<PatchDescriptor> & subPatch,
+    const string& rootComponent,
+    const PatchDescriptor& initialPatch,
+    const vector<PadDescription> &inBus,
+    const vector<PadDescription> &outBus
+)
+    : editor(
+        graphEditor
+        , rootComponent
+        , initialPatch
+        , view
+        , initialDoc
+        , subPatch
+        , inBus
+        , outBus
+    )
+{
+    addAndMakeVisible(view);
+    view.setViewedComponent(&editor, false);
+    resized();
+}
+
+void GraphEditorBundle::paint(Graphics& g)
+{
+    g.fillAll(Colours::darkgrey);
+}
+
+void GraphEditorBundle::resized()
+{
+    view.setBoundsRelative(0, 0, 1.0f, 1.0f);
+    repaint();
+}

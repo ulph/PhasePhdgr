@@ -59,7 +59,9 @@ private:
     void updateBounds(const XY & position, const XY & size);
 
     void setGraph(const PatchDescriptor& patch);
-    void propagateUserModelChange();
+    void updateLayout();
+    void propagatePatch();
+    void propagateLayout();
 
     void updateRenderComponents();
 

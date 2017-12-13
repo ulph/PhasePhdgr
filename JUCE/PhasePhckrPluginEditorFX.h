@@ -5,11 +5,10 @@
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
-#include "PhasePhckrPluginEditor.h"
 #include "PhasePhckrPluginProcessorFX.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"
-// #include "FileEditorBundle.hpp"
+#include "FileBrowserPanelFX.hpp"
 #include "GraphEditor.hpp"
 
 #include "Utils.hpp"

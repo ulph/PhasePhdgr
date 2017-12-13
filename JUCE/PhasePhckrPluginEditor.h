@@ -9,7 +9,7 @@
 #include "PhasePhckrPluginProcessor.h"
 #include "PhasePhckrScope.h"
 #include "DirectoryWatcher.hpp"
-#include "FileEditorBundle.hpp"
+#include "FileBrowserPanel.hpp"
 #include "GraphEditor.hpp"
 
 #include "Utils.hpp"

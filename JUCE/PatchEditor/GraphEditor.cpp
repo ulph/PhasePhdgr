@@ -249,7 +249,8 @@ GraphEditor::GraphEditor(
     const Doc &initialDoc,
     SubValue<PatchDescriptor> &subPatch,
     const vector<PadDescription> &inBus,
-    const vector<PadDescription> &outBus
+    const vector<PadDescription> &outBus,
+    const LayoutUpdateCallback &layoutUpdateCb
 )
     : subPatch(subPatch)
     , doc(initialDoc)
@@ -261,6 +262,7 @@ GraphEditor::GraphEditor(
     , patchIsDirty(false)
     , docIsDirty(false)
     , rootComponentName(rootComponent)
+    , layoutUpdateCallback(layoutUpdateCb)
 {
     setDoc(initialDoc);
     setGraph(initialPatch);
@@ -306,6 +308,7 @@ GraphEditor::~GraphEditor() {
 }
 
 void GraphEditor::updateLayout() {
+    auto l = gfxGraphLock.make_scoped_lock();
     for (const auto gm : modules) {
         rootComponent()->layout[gm.module.name] =
             ModulePosition(
@@ -316,14 +319,16 @@ void GraphEditor::updateLayout() {
 }
 
 void GraphEditor::propagatePatch() {
+    // TODO, really threadsafe??
     updateLayout();
     subPatch.set(-1, patch); // we want it back (lazily forces refresh/sync)
     repaint();
 }
 
 void GraphEditor::propagateLayout() {
+    // TODO, really threadsafe??
     updateLayout();
-    // call some callback
+    layoutUpdateCallback(rootComponentName, rootComponent()->layout);
 }
 
 void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
@@ -472,7 +477,6 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
 void GraphEditor::mouseUp(const MouseEvent & event) {
     XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
-    draggedModule = nullptr;
     if (looseWire.isValid) {
         auto l = gfxGraphLock.make_scoped_lock();
         modelChanged = connect(looseWire, mousePos);
@@ -493,6 +497,8 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
     if (modelChanged) propagatePatch();
+    else if (draggedModule) propagateLayout();
+    draggedModule = nullptr;
 }
 
 void GraphEditor::findHoverDoodat(const XY& mousePos) {
@@ -839,7 +845,8 @@ GraphEditorBundle::GraphEditorBundle(
     const string& rootComponent,
     const PatchDescriptor& initialPatch,
     const vector<PadDescription> &inBus,
-    const vector<PadDescription> &outBus
+    const vector<PadDescription> &outBus,
+    const LayoutUpdateCallback &layoutUpdateCb
 )
     : editor(
         graphEditor
@@ -850,6 +857,7 @@ GraphEditorBundle::GraphEditorBundle(
         , subPatch
         , inBus
         , outBus
+        , layoutUpdateCb
     )
 {
     addAndMakeVisible(view);

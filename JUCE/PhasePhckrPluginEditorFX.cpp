@@ -28,7 +28,8 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
         processor.subEffectChain,
         processor.subComponentRegister,
         c_effectChainInBus,
-        c_effectChainOutBus
+        c_effectChainOutBus,
+        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(c, l); }
     )
     , fileBrowserPanel(processor)
     , guiUpdateTimer(new function<void()>([this](){

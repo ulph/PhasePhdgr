@@ -27,8 +27,6 @@ const struct ComponentMenuStrings {
     const string docString = "change docstring";
 } c_componentMenuStrings;
 
-//class DocStringEditor : public TextEditor
-
 class TextLabelMenuEntry : public Component {
 public:
     Label title;
@@ -94,7 +92,6 @@ public:
     }
 };
 
-
 class PatchEditor : public Component
 {
     Doc doc;
@@ -116,6 +113,8 @@ class PatchEditor : public Component
     vector<string> subPatchTypes;
     vector<GraphEditorBundle*> subPatchBundles;
 
+    LayoutUpdateCallback layoutUpdateCb;
+
     GraphEditorTabbedComponent editorStack;
     void refreshAndBroadcastDoc();
     friend class GraphEditor;
@@ -128,7 +127,8 @@ public:
         SubValue<PatchDescriptor> &subPatch,
         SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
         const vector<PadDescription> &inBus,
-        const vector<PadDescription> &outBus
+        const vector<PadDescription> &outBus,
+        LayoutUpdateCallback layoutUpdateCb
     );
     virtual ~PatchEditor();
     void paint(Graphics& g);

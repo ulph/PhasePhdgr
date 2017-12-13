@@ -29,14 +29,16 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
         processor.subVoiceChain,
         processor.subComponentRegister,
         c_voiceChainInBus,
-        c_voiceChainOutBus
+        c_voiceChainOutBus,
+        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(VOICE, c, l); }
     )
 
     , effectEditor(
         processor.subEffectChain,
         processor.subComponentRegister,
         c_effectChainInBus,
-        c_effectChainOutBus
+        c_effectChainOutBus,
+        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(EFFECT, c, l); }
     )
 
 #if INTERCEPT_STD_STREAMS

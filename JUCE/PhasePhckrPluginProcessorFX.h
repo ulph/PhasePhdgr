@@ -80,6 +80,8 @@ public:
 
     PhasePhckrParameters parameters;
 
+    void updateLayout(const string &component, const map<string, ModulePosition> &layout);
+
 };
 
 #endif  // PLUGINPROCESSORFX_H_INCLUDED

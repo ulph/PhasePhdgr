@@ -90,6 +90,8 @@ public:
 
     PhasePhckrParameters parameters;
 
+    void updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout);
+
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

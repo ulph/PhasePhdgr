@@ -22,6 +22,8 @@ using namespace std;
 
 class PatchEditor;
 
+typedef function< void(const string&, const map<string, ModulePosition>&) > LayoutUpdateCallback;
+
 class GraphEditor : public Component, public DragAndDropTarget
 {
 public:
@@ -33,7 +35,8 @@ public:
         const Doc &initialDoc,
         SubValue<PatchDescriptor> &subPatch,
         const vector<PadDescription> &inBus,
-        const vector<PadDescription> &outBus
+        const vector<PadDescription> &outBus,
+        const LayoutUpdateCallback &layoutUpdateCb
     );
     ~GraphEditor();
 
@@ -124,6 +127,8 @@ private:
 
     void findHoverDoodat(const XY& pos);
 
+    LayoutUpdateCallback layoutUpdateCallback;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphEditor)
 };
 
@@ -148,7 +153,8 @@ public:
         const string& rootComponent,
         const PatchDescriptor& initialPatch,
         const vector<PadDescription> &inBus,
-        const vector<PadDescription> &outBus
+        const vector<PadDescription> &outBus,
+        const LayoutUpdateCallback &layoutUpdateCb
     );
     GraphEditor editor;
     void paint(Graphics& g);

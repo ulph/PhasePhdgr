@@ -125,7 +125,8 @@ PatchEditor::PatchEditor(
     SubValue<PatchDescriptor> &subPatch_,
     SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
     const vector<PadDescription> &inBus,
-    const vector<PadDescription> &outBus
+    const vector<PadDescription> &outBus,
+    LayoutUpdateCallback layoutUpdateCb_
 )
     : subPatch(subPatch_)
     , subCmpReg(subCmpReg)
@@ -136,7 +137,8 @@ PatchEditor::PatchEditor(
        rootMarker,
        patchCopy,
        inBus,
-       outBus
+       outBus,
+       layoutUpdateCb_
     )
     , editorStack(
         subPatchTypes, 
@@ -158,6 +160,7 @@ PatchEditor::PatchEditor(
             }
         }
     )
+    , layoutUpdateCb(layoutUpdateCb_)
 {
     addAndMakeVisible(grid);
     grid.addComponent(&editorStack);
@@ -231,7 +234,8 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
             componentType,
             patchCopy,
             cmp.inBus,
-            cmp.outBus
+            cmp.outBus,
+            layoutUpdateCb
         )
     );
 

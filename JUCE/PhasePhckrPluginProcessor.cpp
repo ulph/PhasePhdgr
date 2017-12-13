@@ -332,3 +332,20 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
 
     updateHostDisplay();
 }
+
+void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout) {
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+
+    auto& p = type == VOICE ? voiceChain : effectChain;
+    auto* c = component == "root" ? &p.root : nullptr;
+    if (p.components.count(component)) c = &p.components[component];
+    if (c == nullptr) return;
+    c->layout = layout;
+
+    // hack, as updateHostDisplay() doesn't work for Reaper
+    PhasePhckrParameter* pa = nullptr;
+    parameters.accessParameter(0, &pa);
+    if (pa != nullptr) pa->setValueNotifyingHost(*pa);
+
+    updateHostDisplay();
+}

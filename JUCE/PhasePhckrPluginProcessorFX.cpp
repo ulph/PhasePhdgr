@@ -221,3 +221,19 @@ void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p)
     parameters.setParametersHandleMap(EFFECT, pv);
     updateHostDisplay();
 }
+
+void PhasePhckrProcessorFX::updateLayout(const string &component, const map<string, ModulePosition> &layout) {
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+
+    auto* c = component == "root" ? &effectChain.root : nullptr;
+    if (effectChain.components.count(component)) c = &effectChain.components[component];
+    if (c == nullptr) return;
+    c->layout = layout;
+
+    // hack, as updateHostDisplay() doesn't work for Reaper
+    PhasePhckrParameter* pa = nullptr;
+    parameters.accessParameter(0, &pa);
+    if (pa != nullptr) pa->setValueNotifyingHost(*pa);
+
+    updateHostDisplay();
+}

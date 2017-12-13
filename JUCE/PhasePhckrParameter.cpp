@@ -16,12 +16,15 @@ void PhasePhckrParameters::initialize(AudioProcessor * p){
 
 void PhasePhckrParameters::updateParameters(bool reset)
 {
-    if (reset) {
-        for (auto fp : floatParameters) fp->reset();
-    }
-
     // clear the routing
     parameterRouting.clear();
+
+    // reset params if instructed or empty
+    auto noParams = effectParameters.size() == 0 && voiceParameters.size() == 0;
+    if (reset || noParams) {
+        for (auto fp : floatParameters) fp->reset();
+    }
+    if (noParams) return;
 
     // build a map of valid parameter names to their default values, ranges and handles
     map<ParameterIdentifier, const PatchParameterDescriptor*> validParameters;
@@ -60,16 +63,25 @@ void PhasePhckrParameters::updateParameters(bool reset)
         const auto& tid = kv.first;
 
         // 0. find a slot
-        auto slot = 0;
+        auto slot = -1;
+
+        // a. check if this parameter allready exists
         if (validParameterIndices.count(tid)) {
             slot = validParameterIndices.at(tid);
             if (!reset) {
                 // use existing parameter if not resetting
                 parameterRouting[slot] = validParametersHandles.at(tid);
-                continue;
+                continue; // skip out early, we don't want to set value!
             }
         }
-        else {
+        // b. check if exists in preset (state recall, file load)
+        else if (validPresetParameters.count(tid)) {
+            auto slot_ = presetParameters.at(validPresetParameters.at(tid)).index;
+            if (slot_ < floatParameters.size() && !floatParameters.at(slot_)->isActive()) slot = slot_;
+        }
+
+        // c. could not find an existing slot, find next free (new param, missing/conflicting indices or otherwise broken state)
+        if (slot < 0) {
             while (floatParameters.at(firstFreeSlot)->isActive()) {
                 if (firstFreeSlot >= floatParameters.size()) return; // raise some exception ideally
                 firstFreeSlot++;
@@ -84,7 +96,6 @@ void PhasePhckrParameters::updateParameters(bool reset)
         // initialize floatParameter
         // a. check if preset has
         // b. otherwise, use from patch
-        // c. if not - assert (but we'll use default values implicitly)
         if (validPresetParameters.count(tid)) {
             int i = validPresetParameters.at(tid);
             pd.v = presetParameters.at(i).p.v;

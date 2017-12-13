@@ -139,10 +139,10 @@ AudioProcessorEditor* PhasePhckrProcessorFX::createEditor()
 
 void PhasePhckrProcessorFX::getStateInformation (MemoryBlock& destData)
 {
-    json j = getPatch();
+    json j = getPreset();
     string ss = j.dump(2); // json lib bugged with long rows
-    const char* s = ss.c_str(); 
-    size_t n = (strlen(s)+1) / sizeof(char);
+    const char* s = ss.c_str();
+    size_t n = (strlen(s) + 1) / sizeof(char);
     destData.fillWith(0);
     destData.insert((const void*)s, n, 0);
     assert(destData.getSize() == n);
@@ -151,16 +151,16 @@ void PhasePhckrProcessorFX::getStateInformation (MemoryBlock& destData)
 void PhasePhckrProcessorFX::setStateInformation (const void* data, int sizeInBytes)
 {
     string ss((const char*)data);
-    PatchDescriptor patch;
+    PresetDescriptor preset;
     try {
-        patch = json::parse(ss.c_str());
+        preset = json::parse(ss.c_str());
     }
     catch (const nlohmann::detail::exception& e) {
         auto msg = e.what();
-        // sod off
+        cerr << "setStateInformation: " << msg << endl;
         return;
     }
-    setPatch(patch);
+    setPreset(preset);
 }
 
 const PhasePhckr::Effect* PhasePhckrProcessorFX::getEffect() const {
@@ -188,9 +188,23 @@ PatchDescriptor PhasePhckrProcessorFX::getPatch() {
     return e;
 }
 
+PresetDescriptor PhasePhckrProcessorFX::getPreset() {
+    PresetDescriptor preset;
+
+    preset.effect = getPatch();
+    preset.parameters = parameters.serialize();
+
+    return preset;
+}
+
 void PhasePhckrProcessorFX::setComponentRegister(const ComponentRegister& cr) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
     componentRegister = cr;
+}
+
+void PhasePhckrProcessorFX::setPreset(const PresetDescriptor& preset) {
+    setPatch(preset.effect);
+    parameters.deserialize(preset.parameters);
 }
 
 void PhasePhckrProcessorFX::setPatch(const PatchDescriptor& patch) {

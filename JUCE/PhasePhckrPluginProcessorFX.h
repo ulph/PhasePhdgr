@@ -72,6 +72,8 @@ public:
 
     void broadcastPatch();
     PatchDescriptor getPatch();
+    PresetDescriptor getPreset();
+    void setPreset(const PresetDescriptor& preset);
     void setPatch(const PatchDescriptor& patch);
 
     void setComponentRegister(const ComponentRegister& cr);

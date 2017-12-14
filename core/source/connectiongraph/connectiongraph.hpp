@@ -47,7 +47,7 @@ public:
     struct SampleBuffer {
         int module;
         int pad;
-        float buf[k_blockSize];
+        float * bufPtr;
     };
 
     ConnectionGraph(bool forceSampleWise=false);

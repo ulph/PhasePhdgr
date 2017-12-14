@@ -27,11 +27,11 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
     inBus = moduleHandles[c_inBus.name];
     outBus = moduleHandles[c_outBus.name];
 
-    inBuffers.push_back({ inBus, 0,{ 0.f } });
-    inBuffers.push_back({ inBus, 1,{ 0.f } });
+    inBuffers.push_back({ inBus, 0, nullptr });
+    inBuffers.push_back({ inBus, 1, nullptr });
 
-    outBuffers.push_back({ outBus, 0,{ 0.f } });
-    outBuffers.push_back({ outBus, 1,{ 0.f } });
+    outBuffers.push_back({ outBus, 0, nullptr });
+    outBuffers.push_back({ outBus, 1, nullptr });
 }
 
 void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
@@ -58,14 +58,13 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
         connectionGraph.setInput(inBus, 3, g.exp);
         connectionGraph.setInput(inBus, 4, g.brt);
 
-        memcpy(inBuffers[0].buf, &bufferL[j], sizeof(float)*ConnectionGraph::k_blockSize);
-        memcpy(inBuffers[1].buf, &bufferR[j], sizeof(float)*ConnectionGraph::k_blockSize);
+        inBuffers[0].bufPtr = &bufferL[j];
+        inBuffers[1].bufPtr = &bufferR[j];
+        // eep
+        outBuffers[0].bufPtr = &bufferL[j]; 
+        outBuffers[1].bufPtr = &bufferR[j];
 
         connectionGraph.processBlock(outBus, sampleRate, inBuffers, outBuffers);
-
-        memcpy(&bufferL[j], outBuffers[0].buf, sizeof(float)*ConnectionGraph::k_blockSize);
-        memcpy(&bufferR[j], outBuffers[1].buf, sizeof(float)*ConnectionGraph::k_blockSize);
-
     }
 }
 

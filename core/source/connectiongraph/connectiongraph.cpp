@@ -497,7 +497,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
     for (size_t n = 0; n < inBufferSize; ++n) {
         auto* m = modules[inBuffers[n].module];
         auto p = inBuffers[n].pad;
-        const auto* src = inBuffers[n].buf;
+        const auto* src = inBuffers[n].bufPtr;
         m->block_setInput(p, src);
     }
 
@@ -586,7 +586,7 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
     for (size_t n = 0; n < outBufferSize; ++n) {
         auto* m = modules[outBuffers[n].module];
         auto p = outBuffers[n].pad;
-        auto* dst = outBuffers[n].buf;
+        auto* dst = outBuffers[n].bufPtr;
         m->block_getOutput(p, dst);
     }
 

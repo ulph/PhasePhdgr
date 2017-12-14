@@ -115,10 +115,6 @@ void from_json(const json& j, PatchDescriptor& p) {
     else p.root = j.at("root").get<ComponentDescriptor>();
     if (j.count("components")) p.components = j.at("components").get<map<string, ComponentDescriptor>>();
     if (j.count("parameters")) p.parameters = j.at("parameters").get<vector<PatchParameterDescriptor>>();
-    if (j.count("layout")) { // legacy
-        auto layout = j.at("layout").get<map<string, ModulePosition>>();
-        p.root.layout.insert(layout.begin(), layout.end());
-    }
 }
 
 void to_json(json& j, const ComponentDescriptor& cgd) {

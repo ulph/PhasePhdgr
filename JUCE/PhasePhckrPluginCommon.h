@@ -65,6 +65,78 @@ struct ProcessorFileThings {
 
 };
 
+
+struct BufferingProcessor {
+    float barPosition = 0.f;
+    int lastBlockSize = 0;
+    int carryOverSamples = 0;
+    float* carryOverBlockBuffer[2] = { nullptr };
+
+    void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
+        if (buffer.getNumSamples() != lastBlockSize) carryOverSamples = 0; // if blocksize changes, align us
+        lastBlockSize = buffer.getNumSamples();
+
+        assert(carryOverSamples >= 0);
+        assert(carryOverSamples <= Synth::internalBlockSize());
+
+        int bufferOffset = (Synth::internalBlockSize() - carryOverSamples) % Synth::internalBlockSize();
+
+        const int blockSize = buffer.getNumSamples() - bufferOffset;
+        const int alignedBlockSize = Synth::internalBlockSize() * (blockSize / Synth::internalBlockSize());
+
+        assert(alignedBlockSize >= 0);
+        assert(alignedBlockSize <= blockSize);
+
+        int last_carryOverSamples = carryOverSamples;
+        carryOverSamples = blockSize - alignedBlockSize;
+
+        assert((bufferOffset + alignedBlockSize + carryOverSamples) == buffer.getNumSamples());
+
+        // samples from last call
+        if (bufferOffset > 0) {
+            auto* l = buffer.getWritePointer(0);
+            auto* r = buffer.getWritePointer(1);
+            for (int i = 0; i < bufferOffset; ++i) {
+                l[i] = carryOverBlockBuffer[0][last_carryOverSamples + i];
+                r[i] = carryOverBlockBuffer[1][last_carryOverSamples + i];
+                carryOverBlockBuffer[0][last_carryOverSamples + i] = 0.f;
+                carryOverBlockBuffer[1][last_carryOverSamples + i] = 0.f;
+            }
+        }
+
+        // samples, if any, that fits a multiple of Synth::internalBlockSize
+        if (alignedBlockSize > 0) {
+            handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
+            synth->update(buffer.getWritePointer(0, bufferOffset), buffer.getWritePointer(1, bufferOffset), alignedBlockSize, sampleRate);
+        }
+
+        // if not all samples fit, calculate a new frame and store
+        if (carryOverSamples > 0) {
+            handlePlayHead(synth, playHead, Synth::internalBlockSize(), sampleRate, barPosition);
+            synth->update(carryOverBlockBuffer[0], carryOverBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
+            auto* l = buffer.getWritePointer(0, bufferOffset + alignedBlockSize);
+            auto* r = buffer.getWritePointer(1, bufferOffset + alignedBlockSize);
+            for (int i = 0; i < carryOverSamples; ++i) {
+                l[i] = carryOverBlockBuffer[0][i];
+                r[i] = carryOverBlockBuffer[1][i];
+                carryOverBlockBuffer[0][i] = 0.f;
+                carryOverBlockBuffer[1][i] = 0.f;
+            }
+        }
+    }
+
+    BufferingProcessor() {
+        carryOverBlockBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
+        carryOverBlockBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
+    }
+
+    ~BufferingProcessor() {
+        delete carryOverBlockBuffer[0];
+        delete carryOverBlockBuffer[1];
+    }
+};
+
+
 class ParameterPages : public TabbedComponent, public DragAndDropTarget {
 public:
     virtual void currentTabChanged(int newCurrentTabIndex, const String &newCurrentTabName) override {

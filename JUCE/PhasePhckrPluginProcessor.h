@@ -39,13 +39,9 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
-    float barPosition = 0.f;
-
     simple_lock synthUpdateLock;
 
-    int lastBlockSize = 0;
-    int carryOverSamples = 0;
-    float* carryOverBlockBuffer[2] = { nullptr };
+    BufferingProcessor bufferingProcessor;
 
 public:
     PhasePhckrProcessor();

@@ -38,10 +38,6 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     initialPreset.effect = getExampleEffectChain();
 
     setPreset(initialPreset);
-
-    carryOverBlockBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
-    carryOverBlockBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
-
 }
 
 PhasePhckrProcessor::~PhasePhckrProcessor()
@@ -50,8 +46,6 @@ PhasePhckrProcessor::~PhasePhckrProcessor()
     subEffectChain.unsubscribe(activeEffectHandle);
     subComponentRegister.unsubscribe(componentRegisterHandle);
     delete synth;
-    delete carryOverBlockBuffer[0];
-    delete carryOverBlockBuffer[1];
 }
 
 const String PhasePhckrProcessor::getName() const
@@ -119,32 +113,9 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
     _mm_setcsr( newMXCSR); /*write the new MXCSR setting to the MXCSR */
 #endif
 
-    if (buffer.getNumSamples() != lastBlockSize) carryOverSamples = 0; // if blocksize changes, align us
-    lastBlockSize = buffer.getNumSamples();
-
     auto l = synthUpdateLock.make_scoped_lock();
 
     const int numOutputChannels = getTotalNumOutputChannels();
-//    const int numMidiMessages = midiMessages.getNumEvents();
-
-    assert(carryOverSamples >= 0);
-    assert(carryOverSamples <= Synth::internalBlockSize());
-
-    int bufferOffset = (Synth::internalBlockSize() - carryOverSamples) % Synth::internalBlockSize();
-
-    const int blockSize = buffer.getNumSamples() - bufferOffset;
-    const int alignedBlockSize = Synth::internalBlockSize() * (blockSize / Synth::internalBlockSize());
-
-    assert(alignedBlockSize >= 0);
-    assert(alignedBlockSize <= blockSize);
-
-    int last_carryOverSamples = carryOverSamples;
-    carryOverSamples = blockSize - alignedBlockSize;
-
-    assert((bufferOffset + alignedBlockSize + carryOverSamples) == buffer.getNumSamples());
-
-    float sampleRate = (float)getSampleRate();
-
     for (int i = 0; i < numOutputChannels; ++i) {
         buffer.clear(i, 0, buffer.getNumSamples());
     }
@@ -206,43 +177,9 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
     }
     midiMessages.clear();
 
-    // handle the parameter values
     parameters.visitHandleParameterValues(synth);
 
-    // handle HOST properties
-    auto playHead = getPlayHead();
-
-    // samples from last call
-    if (bufferOffset > 0) {
-        auto* l = buffer.getWritePointer(0);
-        auto* r = buffer.getWritePointer(1);
-        for (int i = 0; i < bufferOffset; ++i) {
-            l[i] = carryOverBlockBuffer[0][last_carryOverSamples + i];
-            r[i] = carryOverBlockBuffer[1][last_carryOverSamples + i];
-            carryOverBlockBuffer[0][last_carryOverSamples + i] = 0.f;
-            carryOverBlockBuffer[1][last_carryOverSamples + i] = 0.f;
-        }
-    }
-
-    // samples, if any, that fits a multiple of Synth::internalBlockSize
-    if (alignedBlockSize > 0) {
-        handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
-        synth->update(buffer.getWritePointer(0, bufferOffset), buffer.getWritePointer(1, bufferOffset), alignedBlockSize, sampleRate);
-    }
-
-    // if not all samples fit, calculate a new frame and store
-    if (carryOverSamples > 0) {
-        handlePlayHead(synth, playHead, Synth::internalBlockSize(), sampleRate, barPosition);
-        synth->update(carryOverBlockBuffer[0], carryOverBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
-        auto* l = buffer.getWritePointer(0, bufferOffset + alignedBlockSize);
-        auto* r = buffer.getWritePointer(1, bufferOffset + alignedBlockSize);
-        for (int i = 0; i < carryOverSamples; ++i) {
-            l[i] = carryOverBlockBuffer[0][i];
-            r[i] = carryOverBlockBuffer[1][i];
-            carryOverBlockBuffer[0][i] = 0.f;
-            carryOverBlockBuffer[1][i] = 0.f;
-        }
-    }
+    bufferingProcessor.process(buffer, (float)getSampleRate(), synth, getPlayHead());
 
 #if FORCE_FTZ_DAZ
     _mm_setcsr( oldMXCSR );

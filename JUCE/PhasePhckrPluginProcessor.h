@@ -43,7 +43,9 @@ private:
 
     simple_lock synthUpdateLock;
 
-    int sliverSamples = 0;
+    int lastBlockSize = 0;
+    int carryOverSamples = 0;
+    float* carryOverBlockBuffer[2] = { nullptr };
 
 public:
     PhasePhckrProcessor();

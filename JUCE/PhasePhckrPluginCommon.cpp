@@ -7,6 +7,7 @@ void proccessHandleCommonMidi(Effect* effect) {
 }
 
 void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition) {
+    if (playHead == nullptr) return;
     AudioPlayHead::CurrentPositionInfo info;
     playHead->getCurrentPosition(info);
     effect->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);

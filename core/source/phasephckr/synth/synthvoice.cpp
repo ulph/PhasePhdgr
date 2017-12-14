@@ -67,6 +67,9 @@ bool SynthVoice::isSilent(){
 
 void SynthVoice::threadedProcess()
 {
+    int numSamples = threadStuff.samplesToProcess;
+    assert(numSamples % ConnectionGraph::k_blockSize == 0);
+
     const MPEVoiceState &v = mpe.getState();
     if (v.gate) {
         rms = 1;
@@ -102,8 +105,8 @@ void SynthVoice::threadedProcess()
     connectionGraph.setInput(inBus, 18, v.voiceIndex);
     connectionGraph.setInput(inBus, 19, v.polyphony);
 
-    int numSamples = threadStuff.samplesToProcess;
-    for (int j = 0; j < numSamples; j += ConnectionGraph::k_blockSize) {
+    int j = 0;
+    for (j; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
         mpe.update();
         threadStuff.globalData.update();
 
@@ -127,6 +130,8 @@ void SynthVoice::threadedProcess()
         }
 
     }
+
+    assert(j == numSamples);
 }
 
 void SynthVoice::setParameter(int handle, float value){

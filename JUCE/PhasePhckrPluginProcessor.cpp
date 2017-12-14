@@ -125,6 +125,11 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
         buffer.clear(i, 0, blockSize);
     }
 
+    const int bs = Synth::internalBlockSize();
+    int alignedBlockSize = blockSize / bs;
+    sliverSamples += blockSize % bs;
+    alignedBlockSize *= bs;
+
     // handle MIDI messages
     MidiBuffer::Iterator midiIt(midiMessages);
     int evtPos = 0;
@@ -189,10 +194,10 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
     auto playHead = getPlayHead();
 
     if (playHead) {
-        handlePlayHead(synth, playHead, blockSize, sampleRate, barPosition);
+        handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
     }
 
-    synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), blockSize, sampleRate);
+    synth->update(buffer.getWritePointer(0), buffer.getWritePointer(1), alignedBlockSize, sampleRate);
 
 #if FORCE_FTZ_DAZ
     _mm_setcsr( oldMXCSR );

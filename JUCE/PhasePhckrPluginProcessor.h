@@ -43,6 +43,8 @@ private:
 
     simple_lock synthUpdateLock;
 
+    int sliverSamples = 0;
+
 public:
     PhasePhckrProcessor();
     ~PhasePhckrProcessor();

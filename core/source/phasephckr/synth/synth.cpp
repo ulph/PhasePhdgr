@@ -33,6 +33,10 @@ Synth::~Synth(){
     delete voiceBus;
 }
 
+int Effect::internalBlockSize() {
+    return ConnectionGraph::k_blockSize;
+}
+
 const ParameterHandleMap& Effect::setEffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
     effects = new EffectChain(fxChain, cp);

@@ -29,6 +29,7 @@ namespace PhasePhckr {
         void handleEffectParameter(int handle, float value);
         const Scope& getInputScope(int i) const;
         const Scope& getEffectScope(int i) const;
+        static int internalBlockSize();
     protected:
         EffectChain* effects;
         float scopeHz;

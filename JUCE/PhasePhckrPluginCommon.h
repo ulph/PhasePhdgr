@@ -69,17 +69,21 @@ struct ProcessorFileThings {
 struct BufferingProcessor {
     float barPosition = 0.f;
     int lastBlockSize = 0;
-    int carryOverOutPutSamples = 0;
+
+    int carryOverOutputSamples = 0;
     float* carryOverOutputBlockBuffer[2] = { nullptr };
 
     void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
-        if (buffer.getNumSamples() != lastBlockSize) carryOverOutPutSamples = 0; // if blocksize changes, align us
+        if (buffer.getNumSamples() != lastBlockSize) {
+            // if blocksize changes, align
+            carryOverOutputSamples = 0;
+        }
         lastBlockSize = buffer.getNumSamples();
 
-        assert(carryOverSamples >= 0);
-        assert(carryOverSamples <= Synth::internalBlockSize());
+        assert(carryOverOutputSamples >= 0);
+        assert(carryOverOutputSamples <= Synth::internalBlockSize());
 
-        int bufferOffset = (Synth::internalBlockSize() - carryOverOutPutSamples) % Synth::internalBlockSize();
+        int bufferOffset = (Synth::internalBlockSize() - carryOverOutputSamples) % Synth::internalBlockSize();
 
         const int blockSize = buffer.getNumSamples() - bufferOffset;
         const int alignedBlockSize = Synth::internalBlockSize() * (blockSize / Synth::internalBlockSize());
@@ -87,10 +91,10 @@ struct BufferingProcessor {
         assert(alignedBlockSize >= 0);
         assert(alignedBlockSize <= blockSize);
 
-        int last_carryOverOutputSamples = carryOverOutPutSamples;
-        carryOverOutPutSamples = blockSize - alignedBlockSize;
+        int last_carryOverOutputSamples = carryOverOutputSamples;
+        carryOverOutputSamples = blockSize - alignedBlockSize;
 
-        assert((bufferOffset + alignedBlockSize + carryOverSamples) == buffer.getNumSamples());
+        assert((bufferOffset + alignedBlockSize + carryOverOutputSamples) == buffer.getNumSamples());
 
         // samples from last call
         if (bufferOffset > 0) {
@@ -111,12 +115,12 @@ struct BufferingProcessor {
         }
 
         // if not all samples fit, calculate a new frame and store
-        if (carryOverOutPutSamples > 0) {
+        if (carryOverOutputSamples > 0) {
             handlePlayHead(synth, playHead, Synth::internalBlockSize(), sampleRate, barPosition);
             synth->update(carryOverOutputBlockBuffer[0], carryOverOutputBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
             auto* l = buffer.getWritePointer(0, bufferOffset + alignedBlockSize);
             auto* r = buffer.getWritePointer(1, bufferOffset + alignedBlockSize);
-            for (int i = 0; i < carryOverOutPutSamples; ++i) {
+            for (int i = 0; i < carryOverOutputSamples; ++i) {
                 l[i] = carryOverOutputBlockBuffer[0][i];
                 r[i] = carryOverOutputBlockBuffer[1][i];
                 carryOverOutputBlockBuffer[0][i] = 0.f;

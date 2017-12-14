@@ -69,17 +69,17 @@ struct ProcessorFileThings {
 struct BufferingProcessor {
     float barPosition = 0.f;
     int lastBlockSize = 0;
-    int carryOverSamples = 0;
-    float* carryOverBlockBuffer[2] = { nullptr };
+    int carryOverOutPutSamples = 0;
+    float* carryOverOutputBlockBuffer[2] = { nullptr };
 
     void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
-        if (buffer.getNumSamples() != lastBlockSize) carryOverSamples = 0; // if blocksize changes, align us
+        if (buffer.getNumSamples() != lastBlockSize) carryOverOutPutSamples = 0; // if blocksize changes, align us
         lastBlockSize = buffer.getNumSamples();
 
         assert(carryOverSamples >= 0);
         assert(carryOverSamples <= Synth::internalBlockSize());
 
-        int bufferOffset = (Synth::internalBlockSize() - carryOverSamples) % Synth::internalBlockSize();
+        int bufferOffset = (Synth::internalBlockSize() - carryOverOutPutSamples) % Synth::internalBlockSize();
 
         const int blockSize = buffer.getNumSamples() - bufferOffset;
         const int alignedBlockSize = Synth::internalBlockSize() * (blockSize / Synth::internalBlockSize());
@@ -87,8 +87,8 @@ struct BufferingProcessor {
         assert(alignedBlockSize >= 0);
         assert(alignedBlockSize <= blockSize);
 
-        int last_carryOverSamples = carryOverSamples;
-        carryOverSamples = blockSize - alignedBlockSize;
+        int last_carryOverOutputSamples = carryOverOutPutSamples;
+        carryOverOutPutSamples = blockSize - alignedBlockSize;
 
         assert((bufferOffset + alignedBlockSize + carryOverSamples) == buffer.getNumSamples());
 
@@ -97,10 +97,10 @@ struct BufferingProcessor {
             auto* l = buffer.getWritePointer(0);
             auto* r = buffer.getWritePointer(1);
             for (int i = 0; i < bufferOffset; ++i) {
-                l[i] = carryOverBlockBuffer[0][last_carryOverSamples + i];
-                r[i] = carryOverBlockBuffer[1][last_carryOverSamples + i];
-                carryOverBlockBuffer[0][last_carryOverSamples + i] = 0.f;
-                carryOverBlockBuffer[1][last_carryOverSamples + i] = 0.f;
+                l[i] = carryOverOutputBlockBuffer[0][last_carryOverOutputSamples + i];
+                r[i] = carryOverOutputBlockBuffer[1][last_carryOverOutputSamples + i];
+                carryOverOutputBlockBuffer[0][last_carryOverOutputSamples + i] = 0.f;
+                carryOverOutputBlockBuffer[1][last_carryOverOutputSamples + i] = 0.f;
             }
         }
 
@@ -111,28 +111,28 @@ struct BufferingProcessor {
         }
 
         // if not all samples fit, calculate a new frame and store
-        if (carryOverSamples > 0) {
+        if (carryOverOutPutSamples > 0) {
             handlePlayHead(synth, playHead, Synth::internalBlockSize(), sampleRate, barPosition);
-            synth->update(carryOverBlockBuffer[0], carryOverBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
+            synth->update(carryOverOutputBlockBuffer[0], carryOverOutputBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
             auto* l = buffer.getWritePointer(0, bufferOffset + alignedBlockSize);
             auto* r = buffer.getWritePointer(1, bufferOffset + alignedBlockSize);
-            for (int i = 0; i < carryOverSamples; ++i) {
-                l[i] = carryOverBlockBuffer[0][i];
-                r[i] = carryOverBlockBuffer[1][i];
-                carryOverBlockBuffer[0][i] = 0.f;
-                carryOverBlockBuffer[1][i] = 0.f;
+            for (int i = 0; i < carryOverOutPutSamples; ++i) {
+                l[i] = carryOverOutputBlockBuffer[0][i];
+                r[i] = carryOverOutputBlockBuffer[1][i];
+                carryOverOutputBlockBuffer[0][i] = 0.f;
+                carryOverOutputBlockBuffer[1][i] = 0.f;
             }
         }
     }
 
     BufferingProcessor() {
-        carryOverBlockBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
-        carryOverBlockBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
+        carryOverOutputBlockBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
+        carryOverOutputBlockBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
     }
 
     ~BufferingProcessor() {
-        delete carryOverBlockBuffer[0];
-        delete carryOverBlockBuffer[1];
+        delete carryOverOutputBlockBuffer[0];
+        delete carryOverOutputBlockBuffer[1];
     }
 };
 

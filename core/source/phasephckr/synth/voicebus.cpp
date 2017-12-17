@@ -19,41 +19,66 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             n = &notes[idx];
         }
 
-        // find the oldest free voice state (or steal one)
-        SynthVoice *v;
+        // find a free voice - 1. oldest inactive silent, 2. oldest inactive, 3. oldest ...
+        SynthVoice *freeVoice;
         if (n->voiceIndex == -1) {
-            int i = 0;
+            unsigned int oldestInactiveSilent = 0;
+            int oldestInactiveSilentIdx = -1;
+
+            unsigned int oldestInactive = 0;
+            int oldestInactiveIdx = -1;
+
             unsigned int oldest = 0;
             int oldestIdx = -1;
-            for (const auto &v : voices) {
-                if (v->mpe.getState().gate == 0 && v->mpe.getAge() > oldest) {
-                    oldest = v->mpe.getAge();
+
+            int i = 0;
+            for (const auto *v : voices) {
+                auto age = v->mpe.getAge();
+                if (v->mpe.getState().gate == 0) {
+                    if (v->isSilent() && age > oldestInactiveSilent) {
+                        oldestInactiveSilent = age;
+                        oldestInactiveSilentIdx = i;
+                    }
+                    else if (age > oldestInactive) {
+                        oldestInactive = age;
+                        oldestInactiveIdx = i;
+                    }
+                }
+                else if (age > oldest){
+                    oldest = age;
                     oldestIdx = i;
                 }
                 i++;
             }
-            if (oldestIdx == -1) {
-                return; // TODO -- steal a voice ... take the oldest
+
+            int idxToUse = -1;
+            if (oldestInactiveSilentIdx != -1) {
+                idxToUse = oldestInactiveSilentIdx;
             }
-            voices[oldestIdx]->mpe.reset();
-            n->voiceIndex = oldestIdx;
+            else if (oldestInactive == -1) {
+                idxToUse = oldestInactive;
+            }
+            else if (oldestIdx != -1) {
+                idxToUse = oldestIdx; // TODO, want this?
+            }
+            else {
+                assert(0); return; 
+            }
+
+            voices[idxToUse]->mpe.reset();
+            n->voiceIndex = idxToUse;
         }
-        v = voices[n->voiceIndex];
-        v->mpe.on(note, velocity);
-        v->mpe.glide(channelData[channel].x);
-        v->mpe.slide(channelData[channel].y);
-        v->mpe.press(channelData[channel].z);
+
+        freeVoice = voices[n->voiceIndex];
+        freeVoice->mpe.on(note, velocity);
+        freeVoice->mpe.glide(channelData[channel].x);
+        freeVoice->mpe.slide(channelData[channel].y);
+        freeVoice->mpe.press(channelData[channel].z);
     }
-    else {
-        if (idx != -1) {
-            const NoteData& n = notes[idx];
-            if (n.voiceIndex != -1) {
-                SynthVoice *v = voices[n.voiceIndex];
-                v->mpe.off(note, velocity);
-                // TODO -- wake up a note ... take the youngest
-            }
-            notes.erase(notes.begin() + idx);
-        }
+    else if (idx != -1) {
+        if (notes.at(idx).voiceIndex != -1) 
+            voices[notes.at(idx).voiceIndex]->mpe.off(note, velocity);
+        notes.erase(notes.begin() + idx);
     }
 }
 

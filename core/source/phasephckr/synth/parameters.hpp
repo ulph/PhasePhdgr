@@ -155,8 +155,8 @@ namespace PhasePhckr {
             st.voiceIndex = vi;
             st.polyphony = p;
         }
-        const MPEVoiceState & getState() { return st; }
-        unsigned int getAge() { return age; }
+        const MPEVoiceState & getState() const { return st; }
+        unsigned int getAge() const { return age; }
         void setIndex(int index, int polyPhony) {
             st.voiceIndex = (float)index / float(polyPhony);
             st.polyphony = (float)polyPhony;

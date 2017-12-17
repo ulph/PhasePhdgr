@@ -49,7 +49,8 @@ public:
     void setParameter(int handle, float value);
     const ParameterHandleMap& getParameterHandles();
     MPEVoice mpe;
-    bool isSilent();
+    bool isSilent() const;
+    float getRms() const;
     void preCompile(float fs);
 };
 

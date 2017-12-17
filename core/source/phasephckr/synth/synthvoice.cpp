@@ -61,8 +61,12 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
     }
 }
 
-bool SynthVoice::isSilent(){
+bool SynthVoice::isSilent() const {
     return rms < 0.00000001;
+}
+
+float SynthVoice::getRms() const {
+    return rms;
 }
 
 void SynthVoice::threadedProcess()

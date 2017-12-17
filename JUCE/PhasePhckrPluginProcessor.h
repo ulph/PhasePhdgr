@@ -41,7 +41,7 @@ private:
 
     simple_lock synthUpdateLock;
 
-    BufferingProcessor bufferingProcessor;
+    InputBufferingProcessor bufferingProcessor; // TODO, change to GeneratingBufferingProcessor once implemented
 
 public:
     PhasePhckrProcessor();

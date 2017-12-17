@@ -43,7 +43,7 @@ protected:
     float fsCompiled = 48000.f;
 
 public:
-    static const int k_blockSize = 64;
+    static const int k_blockSize = 128;
     struct SampleBuffer {
         int module;
         int pad;

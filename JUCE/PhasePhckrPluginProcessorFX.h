@@ -32,7 +32,7 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
-    BufferingProcessor bufferingProcessor;
+    InputBufferingProcessor bufferingProcessor;
 
     simple_lock synthUpdateLock;
 

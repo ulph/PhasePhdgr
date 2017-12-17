@@ -66,16 +66,69 @@ struct ProcessorFileThings {
 };
 
 
-struct BufferingProcessor {
+class BufferingProcessor {
+public:
+    enum class Strategy {
+        BUFFERING,
+        AHEAD // effectively doing underruns, which is ok for a purely generating processor
+    };
+
+protected:
+    Strategy strategy;
 
     float barPosition = 0;
     int inputBufferSamples = 0;
-    int outputBufferSamples = Effect::internalBlockSize();
+    int outputBufferSamples; // set via getLatency() in initializer list
     float* inputBuffer[2] = { nullptr }; // use vectors instead?
     float* outputBuffer[2] = { nullptr };
     AudioSampleBuffer scratchBuffer;
 
-    void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) {
+public:
+    virtual int getLatency() {
+        return strategy == Strategy::BUFFERING ? Effect::internalBlockSize() : 0;
+    }
+
+    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) = 0;
+
+    BufferingProcessor(const Strategy& strategy_ = Strategy::BUFFERING)
+        : strategy(strategy_)
+        , outputBufferSamples(getLatency())
+    {
+        inputBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
+        inputBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
+        outputBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
+        outputBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
+    }
+
+    virtual ~BufferingProcessor() {
+        delete[] inputBuffer[0];
+        delete[] inputBuffer[1];
+        delete[] outputBuffer[0];
+        delete[] outputBuffer[1];
+    }
+};
+
+
+class GeneratingBufferingProcessor : public BufferingProcessor {
+public:
+    GeneratingBufferingProcessor()
+        : BufferingProcessor(Strategy::AHEAD)
+    {
+    }
+    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) {
+        // TODO, implement (should be no need for use of inputBuffer nor scratchBuffer)
+    }
+};
+
+
+class InputBufferingProcessor: public BufferingProcessor{
+public:
+    InputBufferingProcessor() 
+        : BufferingProcessor(Strategy::BUFFERING)
+    {
+    }
+
+    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) {
         /*
         fill up (as many samples we can) from _buffer_ starting at _inputBufferSamples_, and if full
         process _inputBuffer_ in place
@@ -174,20 +227,6 @@ struct BufferingProcessor {
         assert(inputBufferSamples <= internalBlockSize);
         assert(outputBufferSamples <= internalBlockSize);
         assert(inputBufferSamples + outputBufferSamples == internalBlockSize);
-    }
-
-    BufferingProcessor() {
-        inputBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
-        inputBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
-        outputBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
-        outputBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
-    }
-
-    ~BufferingProcessor() {
-        delete[] inputBuffer[0];
-        delete[] inputBuffer[1];
-        delete[] outputBuffer[0];
-        delete[] outputBuffer[1];
     }
 };
 

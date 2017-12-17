@@ -59,7 +59,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
                 idxToUse = oldestInactive;
             }
             else if (oldestIdx != -1) {
-                idxToUse = oldestIdx; // TODO, want this?
+                idxToUse = oldestIdx;
             }
             else {
                 assert(0); return; 

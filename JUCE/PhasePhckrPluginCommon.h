@@ -115,8 +115,76 @@ public:
         : BufferingProcessor(Strategy::AHEAD)
     {
     }
-    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) {
-        // TODO, implement (should be no need for use of inputBuffer nor scratchBuffer)
+    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
+        const int blockSize = buffer.getNumSamples();
+        const int internalBlockSize = Synth::internalBlockSize();
+
+        assert(outputBufferSamples >= 0);
+        assert(outputBufferSamples <= internalBlockSize);
+
+        int bufferOffset = (internalBlockSize - outputBufferSamples) % internalBlockSize;
+
+        // samples from last call
+        int destinationBufferOffset = 0;
+        if (bufferOffset > 0) {
+            auto* l = buffer.getWritePointer(0);
+            auto* r = buffer.getWritePointer(1);
+            int i = 0;
+            for (i; i < outputBufferSamples && i < blockSize; ++i) {
+                l[i] = outputBuffer[0][bufferOffset + i];
+                r[i] = outputBuffer[1][bufferOffset + i];
+                outputBuffer[0][bufferOffset + i] = 0.f;
+                outputBuffer[1][bufferOffset + i] = 0.f;
+            }
+            destinationBufferOffset += i;
+            outputBufferSamples -= i;
+        }
+
+        if (outputBufferSamples > 0) {
+            assert(destinationBufferOffset == blockSize);
+            return; // no processing until we've emptied the outputBuffer
+        }
+
+        assert(outputBufferSamples == 0);
+
+        const int nominalBlockSize = blockSize - destinationBufferOffset;
+        const int alignedBlockSize = internalBlockSize * (nominalBlockSize / internalBlockSize);
+
+        assert(alignedBlockSize >= 0);
+        assert(alignedBlockSize <= blockSize);
+
+        int carryOverSamples = nominalBlockSize - alignedBlockSize;
+
+        assert((destinationBufferOffset + alignedBlockSize + carryOverSamples) == blockSize);
+
+        // samples, if any, that fits a multiple of Synth::internalBlockSize
+        if (alignedBlockSize > 0) {
+            handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
+            synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), alignedBlockSize, sampleRate);
+            destinationBufferOffset += alignedBlockSize;
+        }
+
+        // if not all samples fit, calculate a new frame and store
+        if (carryOverSamples > 0) {
+            handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
+            synth->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);
+            auto* l = buffer.getWritePointer(0, destinationBufferOffset);
+            auto* r = buffer.getWritePointer(1, destinationBufferOffset);
+            int i = 0;
+            for (i; i < carryOverSamples; ++i) {
+                l[i] = outputBuffer[0][i];
+                r[i] = outputBuffer[1][i];
+                outputBuffer[0][i] = 0.f;
+                outputBuffer[1][i] = 0.f;
+            }
+            outputBufferSamples = internalBlockSize - carryOverSamples;
+            destinationBufferOffset += carryOverSamples;
+        }
+
+        assert(destinationBufferOffset == blockSize);
+        assert(outputBufferSamples >= 0);
+        assert(outputBufferSamples <= internalBlockSize);
+
     }
 };
 

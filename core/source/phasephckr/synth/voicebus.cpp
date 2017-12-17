@@ -9,14 +9,14 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
     int idx = getNoteDataIndex(channel, note);
     if (on && velocity > 0) {
         // find matching note data (or create new)
-        NoteData* n;
+        NoteData* n = nullptr;
         if (idx == -1) {
-            n = new NoteData(channel, note, velocity);
-            notes.push_back(n);
+            notes.emplace_back(channel, note, velocity);
+            n = &notes.back();
             idx = (int)notes.size();
         }
         else {
-            n = notes[idx];
+            n = &notes[idx];
         }
 
         // find the oldest free voice state (or steal one)
@@ -46,13 +46,12 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
     }
     else {
         if (idx != -1) {
-            NoteData* n = notes[idx];
-            if (n->voiceIndex != -1) {
-                SynthVoice *v = voices[n->voiceIndex];
+            const NoteData& n = notes[idx];
+            if (n.voiceIndex != -1) {
+                SynthVoice *v = voices[n.voiceIndex];
                 v->mpe.off(note, velocity);
                 // TODO -- wake up a note ... take the youngest
             }
-            delete notes[idx];
             notes.erase(notes.begin() + idx);
         }
     }
@@ -61,9 +60,9 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
 void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].x = position;
     for (const auto &n : notes) {
-        if (n->channel == channel) {
-            if (n->voiceIndex != -1) {
-                voices[n->voiceIndex]->mpe.glide(position);
+        if (n.channel == channel) {
+            if (n.voiceIndex != -1) {
+                voices[n.voiceIndex]->mpe.glide(position);
             }
         }
     }
@@ -72,9 +71,9 @@ void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].y = position;
     for (const auto &n : notes) {
-        if (n->channel == channel) {
-            if (n->voiceIndex != -1) {
-                voices[n->voiceIndex]->mpe.slide(position);
+        if (n.channel == channel) {
+            if (n.voiceIndex != -1) {
+                voices[n.voiceIndex]->mpe.slide(position);
             }
         }
     }
@@ -83,21 +82,20 @@ void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleZ(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].z = position;
     for (const auto &n : notes) {
-        if (n->channel == channel) {
-            if (n->voiceIndex != -1) {
-                voices[n->voiceIndex]->mpe.press(position);
+        if (n.channel == channel) {
+            if (n.voiceIndex != -1) {
+                voices[n.voiceIndex]->mpe.press(position);
             }
         }
     }
 }
 
 void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices) {
-    // yes, this will be design fight with handleZ if the user uses both
     int idx = getNoteDataIndex(channel, note);
     if (idx != -1) {
-        notes[idx]->notePressure = position;
-        if (notes[idx]->voiceIndex != -1) {
-            voices[notes[idx]->voiceIndex]->mpe.press(position);
+        notes[idx].notePressure = position;
+        if (notes[idx].voiceIndex != -1) {
+            voices[notes[idx].voiceIndex]->mpe.press(position);
         }
     }
 }
@@ -105,7 +103,7 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
 int VoiceBus::getNoteDataIndex(int channel, int note) {
     int idx = 0;
     for (const auto &n : notes) {
-        if (n->note == note && n->channel == channel) {
+        if (n.note == note && n.channel == channel) {
             return idx;
         }
         idx++;
@@ -127,22 +125,9 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
 }
 
 void VoiceBus::update() {
-    // only relative age matter so per chunk is ok
-    for (const auto &n : notes) {
-        n->age++;
-    }
-}
-
-VoiceBus::VoiceBus() 
-    : channelData(new ChannelData[16])
-{
-}
-
-VoiceBus::~VoiceBus() {
     for (auto &n : notes) {
-        delete(n);
+        n.age++;
     }
-    delete[] channelData;
 }
 
 }

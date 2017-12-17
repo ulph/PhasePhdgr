@@ -30,8 +30,6 @@ struct ChannelData {
 
 class VoiceBus {
 public:
-    VoiceBus();
-    virtual ~VoiceBus();
     void handleNoteOnOff(int channel, int note, float velocity, bool on, std::vector<SynthVoice*> &voices);
     void handleX(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleY(int channel, float position, std::vector<SynthVoice*> &voices);
@@ -40,9 +38,9 @@ public:
     void update();
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
 private:
-    std::vector<NoteData*> notes;
+    std::vector<NoteData> notes;
     int getNoteDataIndex(int channel, int note);
-    ChannelData *channelData;
+    ChannelData channelData[16];
 };
 
 }

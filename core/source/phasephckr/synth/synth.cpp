@@ -68,7 +68,6 @@ void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int n
     effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
     outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
     outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
-    globalData->update();
 }
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
@@ -87,7 +86,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     int newScopeVoiceIndex = voiceBus->findScopeVoiceIndex(voices);
     if (newScopeVoiceIndex != -1) {
         scopeVoiceIndex = newScopeVoiceIndex;
-        scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHz;
+        scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHzTarget;
     }
     else if(scopeVoiceIndex != -1 && voices[scopeVoiceIndex]->isSilent()){
         scopeVoiceIndex = -1;
@@ -118,16 +117,10 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         }
     }
 
-    if (effects) {
-        effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
-    }
+    effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
 
     outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
     outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
-
-    for (int i = 0; i < numSamples; i++) {
-        globalData->update(); // TODO - compute a buffer before processing and pass that in instead
-    }
 
     voiceBus->update();
 }

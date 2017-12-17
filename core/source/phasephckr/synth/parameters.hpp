@@ -1,5 +1,7 @@
 #pragma once
 
+#include "connectiongraph.hpp"
+
 namespace PhasePhckr {
 
     const float c_slewFactor = 0.995f;
@@ -24,25 +26,38 @@ namespace PhasePhckr {
 
     struct GlobalDataState {
         GlobalDataState() 
-            : exp(0)
-            , brt(0)
-            , mod(0) 
+            : exp{ 0.0f }
+            , brt{ 0.0f }
+            , mod{ 0.0f }
         {}
-        float exp;
-        float brt;
-        float mod;
+        float exp[ConnectionGraph::k_blockSize];
+        float brt[ConnectionGraph::k_blockSize];
+        float mod[ConnectionGraph::k_blockSize];
+        float expTarget = 0.0f;
+        float brtTarget = 0.0f;
+        float modTarget = 0.0f;
+        float a = c_slewFactor;
+        void update() {
+            const auto last = ConnectionGraph::k_blockSize - 1;
+            exp[0] = a * exp[last] + (1.0f - a) * expTarget;
+            brt[0] = a * brt[last] + (1.0f - a) * brtTarget;
+            mod[0] = a * mod[last] + (1.0f - a) * modTarget;
+            for (int i = 1; i < ConnectionGraph::k_blockSize; i++) {
+                exp[i] = a * exp[i-1] + (1.0f - a) * expTarget;
+                brt[i] = a * brt[i-1] + (1.0f - a) * brtTarget;
+                mod[i] = a * mod[i-1] + (1.0f - a) * modTarget;
+            }
+        }
     };
 
     class GlobalData {
     private:
         GlobalTimeDataState timeSt;
-        GlobalDataState tg;
         GlobalDataState st;
-        float slewFactor;
     public:
-        void modwheel(float v) { tg.mod = v; }
-        void expression(float v) { tg.exp = v; }
-        void breath(float v) { tg.brt = v; }
+        void modwheel(float v) { st.modTarget = v; }
+        void expression(float v) { st.expTarget = v; }
+        void breath(float v) { st.brtTarget = v; }
         void signature(int num, int den) { 
             timeSt.nominator = num;
             timeSt.denominator = den;
@@ -52,38 +67,29 @@ namespace PhasePhckr {
         void position(float pos) { timeSt.position = pos; }
         void barPosition(float pos) { timeSt.barPosition = pos; }
         void time(float t) { timeSt.time = t; }
-        GlobalData() : slewFactor(c_slewFactor) {}
         void update() {
-            st.mod = slewFactor * st.mod + (1.0f - slewFactor) * tg.mod;
-            st.exp = slewFactor * st.exp + (1.0f - slewFactor) * tg.exp;
-            st.brt = slewFactor * st.brt + (1.0f - slewFactor) * tg.brt;
+            // call only once per block
+            st.update();
         }
         const GlobalDataState & getState() const { return st; }
         const GlobalTimeDataState & getTimeState() const { return timeSt; }
     };
 
     struct MPEVoiceState {
-        MPEVoiceState()
-            : strikeZ(0)
-            , pressZ(0)
-            , liftZ(0)
-            , slideY(0)
-            , glideX(0)
-            , pitchHz(0)
-            , gate(0)
-            , voiceIndex(0)
-            , polyphony(0)
-        {}
-        float strikeZ; // velocity, 0 to 1
-        float pressZ; // aftertouch, 0 to 1
+        float strikeZ = 0; // velocity, 0 to 1
+        float pressZ[ConnectionGraph::k_blockSize] = { 0.0f }; // aftertouch, 0 to 1
+        float pressZTarget = 0;
         float liftZ; // release velocity, 0 to 1
-        float slideY; // horizontal up/down, 0 to 1
-        float glideX; // pitch bend, -1 to 1
-        float pitchHz; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
-        float gate; // open or closed, for statey stuff
-        float noteIndex; // which (normalized) note
-        float voiceIndex; // which voice
-        float polyphony; // how many voices
+        float slideY[ConnectionGraph::k_blockSize] = { 0.0f }; // horizontal up/down, 0 to 1
+        float slideYTarget = 0;
+        float glideX[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch bend, -1 to 1
+        float glideXTarget = 0;
+        float pitchHz[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
+        float pitchHzTarget = 0;
+        float gate = 0; // open or closed, for statey stuff
+        float noteIndex = 0; // which (normalized) note
+        float voiceIndex = 0; // which voice
+        float polyphony = 0; // how many voices
     };
 
     struct MPEVoiceConfig {
@@ -96,27 +102,76 @@ namespace PhasePhckr {
         {}
     };
 
+    static float NoteToHz(float note) {
+        if (note > 127.f) {
+            return 0;
+        }
+        float hz = 440.f * powf(2.f, (note - 69.f) / 12.f);
+        return hz;
+    }
+
     class MPEVoice {
     public:
-        MPEVoice();
-        void on(int note, float velocity);
-        void off(int note, float velocity);
-        void glide(float glide);
-        void slide(float slide);
-        void press(float press);
-        void update();
-        void reset();
-        const MPEVoiceState & getState();
-        unsigned int getAge();
-        void setIndex(int index, int range);
+        MPEVoice(){ reset(); }
+        void on(int note, float velocity) {
+            age = 0;
+            st.gate = 1.f;
+            rootNote = note;
+            st.strikeZ = velocity;
+            st.noteIndex = (float)note / 127.f;
+        }
+        void off(int note, float velocity) {
+            if (note == rootNote && st.gate) {
+                st.gate = 0.f;
+                st.liftZ = velocity;
+            }
+        }
+        void glide(float glide) { st.glideXTarget = glide; }
+        void slide(float slide) { st.slideYTarget = slide; }
+        void press(float press) { st.pressZTarget = press; }
+        void update() {
+            const auto last = ConnectionGraph::k_blockSize - 1;
+            st.glideX[0] = a * st.glideX[last] + (1.0f - a) * st.glideXTarget;
+            st.slideY[0] = a * st.slideY[last] + (1.0f - a) * st.slideYTarget;
+            st.pressZ[0] = a * st.pressZ[last] + (1.0f - a) * st.pressZTarget;
+            calculatePitchHz(0);
+            for (int i = 1; i < ConnectionGraph::k_blockSize; i++) {
+                st.glideX[i] = a * st.glideX[i-1] + (1.0f - a) * st.glideXTarget;
+                st.slideY[i] = a * st.slideY[i-1] + (1.0f - a) * st.slideYTarget;
+                st.pressZ[i] = a * st.pressZ[i-1] + (1.0f - a) * st.pressZTarget;
+                calculatePitchHz(i);
+            }
+            if (age < UINT_MAX) {
+                age++;
+            }
+        }
+        void reset() {
+            // retain
+            auto vi = st.voiceIndex;
+            auto p = st.polyphony;
+
+            memset(&st, 0, sizeof(st));
+            age = UINT_MAX;
+
+            st.voiceIndex = vi;
+            st.polyphony = p;
+        }
+        const MPEVoiceState & getState() { return st; }
+        unsigned int getAge() { return age; }
+        void setIndex(int index, int polyPhony) {
+            st.voiceIndex = (float)index / float(polyPhony);
+            st.polyphony = (float)polyPhony;
+        }
     private:
-        MPEVoiceState tg; // target, so we can slew x,y,z
-        MPEVoiceState st; // state
+        MPEVoiceState st;
         MPEVoiceConfig cfg;
-        float slewFactor;
-        int rootNote;
-        unsigned int age;
-        void calculatePitchHz();
+        float a = c_slewFactor;
+        int rootNote = 0;
+        unsigned int age = UINT_MAX;
+        void calculatePitchHz(int i) {
+            float bendSemi = st.glideX > 0 ? st.glideX[i] * cfg.pitchRangeUp : st.glideX[i] * cfg.pitchRangeDown;
+            st.pitchHz[i] = NoteToHz(rootNote + bendSemi);
+        }
     };
 
 }

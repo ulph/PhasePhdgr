@@ -34,15 +34,14 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
     outBuffers.push_back({ outBus, 1, nullptr });
 }
 
-void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, const GlobalData& globalData) {
+void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float sampleRate, GlobalData& globalData) {
     assert(numSamples % ConnectionGraph::k_blockSize == 0);
 
     for(const auto& p: parameterHandles){
         connectionGraph.setInput(p.first, 0, p.second.v.val);
     }
 
-    GlobalData globalDataCopy = globalData;
-    const GlobalDataState& g = globalDataCopy.getState();
+    const GlobalDataState& g = globalData.getState();
     const GlobalTimeDataState &t = globalData.getTimeState();
 
     connectionGraph.setInput(inBus, 5, (float)t.nominator);
@@ -55,15 +54,15 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
 
     int j = 0;
     for (j; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
-        globalDataCopy.update();
+        globalData.update();
 
-        connectionGraph.setInput(inBus, 2, g.mod);
-        connectionGraph.setInput(inBus, 3, g.exp);
-        connectionGraph.setInput(inBus, 4, g.brt);
+        connectionGraph.setInputBlock(inBus, 2, g.mod);
+        connectionGraph.setInputBlock(inBus, 3, g.exp);
+        connectionGraph.setInputBlock(inBus, 4, g.brt);
 
         inBuffers[0].bufPtr = &bufferL[j];
         inBuffers[1].bufPtr = &bufferR[j];
-        // eep
+
         outBuffers[0].bufPtr = &bufferL[j]; 
         outBuffers[1].bufPtr = &bufferR[j];
 

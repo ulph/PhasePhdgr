@@ -110,14 +110,14 @@ void SynthVoice::threadedProcess()
         mpe.update();
         threadStuff.globalData.update();
 
-        connectionGraph.setInput(inBus, 3, v.pitchHz);
-        connectionGraph.setInput(inBus, 4, v.glideX);
-        connectionGraph.setInput(inBus, 5, v.slideY);
-        connectionGraph.setInput(inBus, 6, v.pressZ);
+        connectionGraph.setInputBlock(inBus, 3, v.pitchHz);
+        connectionGraph.setInputBlock(inBus, 4, v.glideX);
+        connectionGraph.setInputBlock(inBus, 5, v.slideY);
+        connectionGraph.setInputBlock(inBus, 6, v.pressZ);
 
-        connectionGraph.setInput(inBus, 7, g.mod);
-        connectionGraph.setInput(inBus, 8, g.exp);
-        connectionGraph.setInput(inBus, 9, g.brt);
+        connectionGraph.setInputBlock(inBus, 7, g.mod);
+        connectionGraph.setInputBlock(inBus, 8, g.exp);
+        connectionGraph.setInputBlock(inBus, 9, g.brt);
 
         outBuffers[0].bufPtr = &internalBuffer[0][j];
         outBuffers[1].bufPtr = &internalBuffer[1][j];

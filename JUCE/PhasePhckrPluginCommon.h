@@ -115,6 +115,7 @@ public:
         : BufferingProcessor(Strategy::AHEAD)
     {
     }
+
     virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
         const int blockSize = buffer.getNumSamples();
         const int internalBlockSize = Synth::internalBlockSize();

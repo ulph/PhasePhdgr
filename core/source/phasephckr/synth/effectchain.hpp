@@ -22,7 +22,7 @@ public:
     EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp);
     void setParameter(int handle, float value);
     const ParameterHandleMap& getParameterHandles();
-    void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, const GlobalData& globalData);
+    void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, GlobalData& globalData);
     virtual ~EffectChain(){}
 };
 

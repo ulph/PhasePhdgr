@@ -8,7 +8,6 @@ set(SRC
 
     docs/docs.cpp
 
-    synth/mpevoice.cpp
     synth/synth.cpp
     synth/synthvoice.cpp
     synth/synthvoice.hpp

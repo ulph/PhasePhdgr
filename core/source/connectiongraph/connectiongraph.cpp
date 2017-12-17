@@ -132,6 +132,11 @@ void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toP
     cables.push_back(new Cable(fromModule, fromPad, toModule, toPad));
 }
 
+void ConnectionGraph::setInputBlock(int module, int pad, const float* value)
+{
+    modules[module]->block_setInput(pad, value);
+}
+
 void ConnectionGraph::setInput(int module, int pad, float value)
 {
     modules[module]->setInput(pad, value);

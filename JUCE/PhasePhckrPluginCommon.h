@@ -74,10 +74,6 @@ struct BufferingProcessor {
     float* carryOverOutputBlockBuffer[2] = { nullptr };
 
     void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
-        if (buffer.getNumSamples() != lastBlockSize) {
-            // if blocksize changes, align
-            carryOverOutputSamples = 0;
-        }
         lastBlockSize = buffer.getNumSamples();
 
         assert(carryOverOutputSamples >= 0);
@@ -100,12 +96,13 @@ struct BufferingProcessor {
         if (bufferOffset > 0) {
             auto* l = buffer.getWritePointer(0);
             auto* r = buffer.getWritePointer(1);
-            for (int i = 0; i < bufferOffset; ++i) {
+            for (int i = 0; i < bufferOffset && i < buffer.getNumSamples(); ++i) {
                 l[i] = carryOverOutputBlockBuffer[0][last_carryOverOutputSamples + i];
                 r[i] = carryOverOutputBlockBuffer[1][last_carryOverOutputSamples + i];
                 carryOverOutputBlockBuffer[0][last_carryOverOutputSamples + i] = 0.f;
                 carryOverOutputBlockBuffer[1][last_carryOverOutputSamples + i] = 0.f;
             }
+            // TODO if braking early, move samples to start -- keep track of how much is in the buffer
         }
 
         // samples, if any, that fits a multiple of Synth::internalBlockSize
@@ -115,7 +112,7 @@ struct BufferingProcessor {
         }
 
         // if not all samples fit, calculate a new frame and store
-        if (carryOverOutputSamples > 0) {
+        if (carryOverOutputSamples > 0) { // TODO - not correct if Synth::internalBlockSize() > buffer.getNumSamples() -- check how much is in the buffer; predicting ahead do we have enough for next block or not
             handlePlayHead(synth, playHead, Synth::internalBlockSize(), sampleRate, barPosition);
             synth->update(carryOverOutputBlockBuffer[0], carryOverOutputBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
             auto* l = buffer.getWritePointer(0, bufferOffset + alignedBlockSize);

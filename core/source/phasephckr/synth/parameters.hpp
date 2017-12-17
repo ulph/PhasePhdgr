@@ -140,9 +140,7 @@ namespace PhasePhckr {
                 st.pressZ[i] = a * st.pressZ[i-1] + (1.0f - a) * st.pressZTarget;
                 calculatePitchHz(i);
             }
-            if (age < UINT_MAX) {
-                age++;
-            }
+            if (age < UINT_MAX) age++;
         }
         void reset() {
             // retain

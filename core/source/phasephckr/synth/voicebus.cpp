@@ -19,7 +19,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             n = &notes[idx];
         }
 
-        // find a free voice - 1. oldest inactive silent, 2. oldest inactive, 3. oldest ...
+        // find a free voice - 1. oldest inactive silent, 2. oldest inactive
         SynthVoice *freeVoice;
         if (n->voiceIndex == -1) {
             unsigned int oldestInactiveSilent = 0;
@@ -27,9 +27,6 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
 
             unsigned int oldestInactive = 0;
             int oldestInactiveIdx = -1;
-
-            unsigned int oldest = 0;
-            int oldestIdx = -1;
 
             int i = 0;
             for (const auto *v : voices) {
@@ -44,10 +41,6 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
                         oldestInactiveIdx = i;
                     }
                 }
-                else if (age > oldest){
-                    oldest = age;
-                    oldestIdx = i;
-                }
                 i++;
             }
 
@@ -55,14 +48,11 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             if (oldestInactiveSilentIdx != -1) {
                 idxToUse = oldestInactiveSilentIdx;
             }
-            else if (oldestInactive == -1) {
-                idxToUse = oldestInactive;
-            }
-            else if (oldestIdx != -1) {
-                idxToUse = oldestIdx;
+            else if (oldestInactiveIdx != -1) {
+                idxToUse = oldestInactiveIdx;
             }
             else {
-                assert(0); return; 
+                return; 
             }
 
             voices[idxToUse]->mpe.reset();

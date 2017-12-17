@@ -85,7 +85,6 @@ namespace PhasePhckr {
         float glideX[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch bend, -1 to 1
         float glideXTarget = 0;
         float pitchHz[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
-        float pitchHzTarget = 0;
         float gate = 0; // open or closed, for statey stuff
         float noteIndex = 0; // which (normalized) note
         float voiceIndex = 0; // which voice

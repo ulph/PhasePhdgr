@@ -86,7 +86,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     int newScopeVoiceIndex = voiceBus->findScopeVoiceIndex(voices);
     if (newScopeVoiceIndex != -1) {
         scopeVoiceIndex = newScopeVoiceIndex;
-        scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHzTarget;
+        scopeHz = voices[scopeVoiceIndex]->mpe.getState().pitchHz[0];
     }
     else if(scopeVoiceIndex != -1 && voices[scopeVoiceIndex]->isSilent()){
         scopeVoiceIndex = -1;

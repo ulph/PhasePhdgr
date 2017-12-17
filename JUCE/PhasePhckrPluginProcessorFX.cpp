@@ -159,13 +159,13 @@ void PhasePhckrProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
 
     auto scratchBufferSize = 0;
     if (inputBufferSamples == internalBlockSize) {
-        handlePlayHead(effect, getPlayHead(), inputBufferSamples, (float)getSampleRate(), barPosition);
-        effect->update(inputBuffer[0], inputBuffer[1], inputBufferSamples, (float)getSampleRate());
-        for (int j=0; j < inputBufferSamples; j++) {
+        handlePlayHead(effect, getPlayHead(), internalBlockSize, (float)getSampleRate(), barPosition);
+        effect->update(inputBuffer[0], inputBuffer[1], internalBlockSize, (float)getSampleRate());
+        for (int j=0; j < internalBlockSize; j++) {
             scratchBuffer.setSample(0, j, inputBuffer[0][j]);
             scratchBuffer.setSample(1, j, inputBuffer[1][j]);
         }
-        scratchBufferSize += inputBufferSamples;
+        scratchBufferSize += internalBlockSize;
         inputBufferSamples -= internalBlockSize;
 
         auto alignedBlockSize = internalBlockSize * ((blockSize - i)/ internalBlockSize);
@@ -179,8 +179,8 @@ void PhasePhckrProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
 
         int toBuffer = blockSize - i - alignedBlockSize;
         for (int j = 0; j < toBuffer && inputBufferSamples + j < internalBlockSize; j++) {
-            inputBuffer[0][inputBufferSamples + j] = buffer.getSample(0, alignedBlockSize + i);
-            inputBuffer[1][inputBufferSamples + j] = buffer.getSample(1, alignedBlockSize + i);
+            inputBuffer[0][inputBufferSamples + j] = buffer.getSample(0, i + alignedBlockSize + j);
+            inputBuffer[1][inputBufferSamples + j] = buffer.getSample(1, i + alignedBlockSize + j);
         }
         inputBufferSamples += toBuffer;
     }

@@ -197,26 +197,7 @@ public:
     }
 
     virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) {
-        /*
-        fill up (as many samples we can) from _buffer_ starting at _inputBufferSamples_, and if full
-        process _inputBuffer_ in place
-        process as many remaining multiple _internalBlockSize_ of _buffer_ in-place as we can
-        make sure _scratchBuffer_ is at least _blockSize_ big
-        fill up _scratchBuffer_ with the data processed in _buffer_
-        copy any remaining unprocessed samples in _buffer_ to _inputBuffer_, set _inputBufferSamples_
-
-        copy _outputBufferSamples_ from _outputBuffer_ to start of _buffer_ as far as possible, set _outputBufferSamples_, _bufferSamples_
-        if _bufferSamples_ < _blockSize_
-        fill upp _buffer_ with _scratchBuffer_ as far possible
-        top up _outputBuffer_ with any unused processed samples in _scratchBuffer_, set _outputBufferSamples_
-
-        assert neither _inputBufferSamples_ nor _outputBufferSamples_ > _internalBlockSize_
-        in fact; assert _inputBufferSamples_ + _outputBufferSamples_ <= _internalBlockSize_
-        assert _bufferSamples_ == _blockSize_
-
-        ... alterantively, use a smaller scratch buffer (same as internal block size?) do all the buffer shuffling piece wise (should be possible)
-        ... or, alternatively still -- use much larger input and output buffers and do not use the scratch buffer (have to be arbitrary size though)
-        */
+        // TODO, merge inputBuffer into scratchBuffer to reduce amount of copying back and forth
 
         // pre checks
         assert(buffer.getNumChannels() >= 2);

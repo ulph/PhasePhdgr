@@ -107,18 +107,12 @@ bool PhasePhckrProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 
 void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-#if FORCE_FTZ_DAZ
-    int oldMXCSR = _mm_getcsr(); /*read the old MXCSR setting */ \
-    int newMXCSR = oldMXCSR | 0x8040; /* set DAZ and FZ bits */ \
-    _mm_setcsr( newMXCSR); /*write the new MXCSR setting to the MXCSR */
-#endif
-
-    auto l = synthUpdateLock.make_scoped_lock();
-
     const int numOutputChannels = getTotalNumOutputChannels();
     for (int i = 0; i < numOutputChannels; ++i) {
         buffer.clear(i, 0, buffer.getNumSamples());
     }
+
+    auto l = synthUpdateLock.make_scoped_lock();
 
     // handle MIDI messages
     MidiBuffer::Iterator midiIt(midiMessages);
@@ -175,15 +169,12 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
             }
         }
     }
-    midiMessages.clear();
 
     parameters.visitHandleParameterValues(synth);
-
     bufferingProcessor.process(buffer, (float)getSampleRate(), synth, getPlayHead());
 
-#if FORCE_FTZ_DAZ
-    _mm_setcsr( oldMXCSR );
-#endif
+    midiMessages.clear();
+
 }
 
 bool PhasePhckrProcessor::hasEditor() const

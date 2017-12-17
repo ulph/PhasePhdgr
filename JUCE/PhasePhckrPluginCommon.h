@@ -67,73 +67,127 @@ struct ProcessorFileThings {
 
 
 struct BufferingProcessor {
-    float barPosition = 0.f;
-    int lastBlockSize = 0;
 
-    int carryOverOutputSamples = 0;
-    float* carryOverOutputBlockBuffer[2] = { nullptr };
+    float barPosition = 0;
+    int inputBufferSamples = 0;
+    int outputBufferSamples = Effect::internalBlockSize();
+    float* inputBuffer[2] = { nullptr }; // use vectors instead?
+    float* outputBuffer[2] = { nullptr };
+    AudioSampleBuffer scratchBuffer;
 
-    void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
-        lastBlockSize = buffer.getNumSamples();
+    void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) {
+        /*
+        fill up (as many samples we can) from _buffer_ starting at _inputBufferSamples_, and if full
+        process _inputBuffer_ in place
+        process as many remaining multiple _internalBlockSize_ of _buffer_ in-place as we can
+        make sure _scratchBuffer_ is at least _blockSize_ big
+        fill up _scratchBuffer_ with the data processed in _buffer_
+        copy any remaining unprocessed samples in _buffer_ to _inputBuffer_, set _inputBufferSamples_
 
-        assert(carryOverOutputSamples >= 0);
-        assert(carryOverOutputSamples <= Synth::internalBlockSize());
+        copy _outputBufferSamples_ from _outputBuffer_ to start of _buffer_ as far as possible, set _outputBufferSamples_, _bufferSamples_
+        if _bufferSamples_ < _blockSize_
+        fill upp _buffer_ with _scratchBuffer_ as far possible
+        top up _outputBuffer_ with any unused processed samples in _scratchBuffer_, set _outputBufferSamples_
 
-        int bufferOffset = (Synth::internalBlockSize() - carryOverOutputSamples) % Synth::internalBlockSize();
+        assert neither _inputBufferSamples_ nor _outputBufferSamples_ > _internalBlockSize_
+        in fact; assert _inputBufferSamples_ + _outputBufferSamples_ <= _internalBlockSize_
+        assert _bufferSamples_ == _blockSize_
 
-        const int blockSize = buffer.getNumSamples() - bufferOffset;
-        const int alignedBlockSize = Synth::internalBlockSize() * (blockSize / Synth::internalBlockSize());
+        ... alterantively, use a smaller scratch buffer (same as internal block size?) do all the buffer shuffling piece wise (should be possible)
+        ... or, alternatively still -- use much larger input and output buffers and do not use the scratch buffer (have to be arbitrary size though)
+        */
 
-        assert(alignedBlockSize >= 0);
-        assert(alignedBlockSize <= blockSize);
+        // pre checks
+        assert(buffer.getNumChannels() >= 2);
 
-        int last_carryOverOutputSamples = carryOverOutputSamples;
-        carryOverOutputSamples = blockSize - alignedBlockSize;
+        if (scratchBuffer.getNumChannels() != buffer.getNumChannels() || scratchBuffer.getNumSamples() != 2 * buffer.getNumSamples()) {
+            scratchBuffer.setSize(buffer.getNumChannels(), 2 * buffer.getNumSamples(), true, true, true);
+        }
 
-        assert((bufferOffset + alignedBlockSize + carryOverOutputSamples) == buffer.getNumSamples());
+        const int blockSize = buffer.getNumSamples();
+        const int internalBlockSize = Effect::internalBlockSize();
 
-        // samples from last call
-        if (bufferOffset > 0) {
-            auto* l = buffer.getWritePointer(0);
-            auto* r = buffer.getWritePointer(1);
-            for (int i = 0; i < bufferOffset && i < buffer.getNumSamples(); ++i) {
-                l[i] = carryOverOutputBlockBuffer[0][last_carryOverOutputSamples + i];
-                r[i] = carryOverOutputBlockBuffer[1][last_carryOverOutputSamples + i];
-                carryOverOutputBlockBuffer[0][last_carryOverOutputSamples + i] = 0.f;
-                carryOverOutputBlockBuffer[1][last_carryOverOutputSamples + i] = 0.f;
+        // buffer input and process, bump to scratchBuffer
+        int i = 0;
+        for (i; i < internalBlockSize - inputBufferSamples && i < blockSize; i++) {
+            inputBuffer[0][inputBufferSamples + i] = buffer.getSample(0, i);
+            inputBuffer[1][inputBufferSamples + i] = buffer.getSample(1, i);
+        }
+        inputBufferSamples += i;
+
+        auto scratchBufferSize = 0;
+        if (inputBufferSamples == internalBlockSize) {
+            handlePlayHead(effect, playHead, internalBlockSize, sampleRate, barPosition);
+            effect->update(inputBuffer[0], inputBuffer[1], internalBlockSize, sampleRate);
+            for (int j = 0; j < internalBlockSize; j++) {
+                scratchBuffer.setSample(0, j, inputBuffer[0][j]);
+                scratchBuffer.setSample(1, j, inputBuffer[1][j]);
             }
-            // TODO if braking early, move samples to start -- keep track of how much is in the buffer
+            scratchBufferSize += internalBlockSize;
+            inputBufferSamples -= internalBlockSize;
+
+            auto alignedBlockSize = internalBlockSize * ((blockSize - i) / internalBlockSize);
+            if (alignedBlockSize) {
+                handlePlayHead(effect, playHead, alignedBlockSize, sampleRate, barPosition);
+                effect->update(buffer.getWritePointer(0, i), buffer.getWritePointer(1, i), alignedBlockSize, sampleRate);
+                scratchBuffer.copyFrom(0, scratchBufferSize, buffer.getReadPointer(0, i), alignedBlockSize);
+                scratchBuffer.copyFrom(1, scratchBufferSize, buffer.getReadPointer(1, i), alignedBlockSize);
+            }
+            scratchBufferSize += alignedBlockSize;
+
+            int toBuffer = blockSize - i - alignedBlockSize;
+            for (int j = 0; j < toBuffer && inputBufferSamples + j < internalBlockSize; j++) {
+                inputBuffer[0][inputBufferSamples + j] = buffer.getSample(0, i + alignedBlockSize + j);
+                inputBuffer[1][inputBufferSamples + j] = buffer.getSample(1, i + alignedBlockSize + j);
+            }
+            inputBufferSamples += toBuffer;
         }
 
-        // samples, if any, that fits a multiple of Synth::internalBlockSize
-        if (alignedBlockSize > 0) {
-            handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
-            synth->update(buffer.getWritePointer(0, bufferOffset), buffer.getWritePointer(1, bufferOffset), alignedBlockSize, sampleRate);
-        }
+        // copy samples from outputBuffer and scratchBuffer, bump remainder to outputBuffer
+        int toCopy = 0;
+        if (outputBufferSamples + scratchBufferSize >= blockSize) {
+            int o = 0;
+            for (o; o < outputBufferSamples && o < blockSize; o++) {
+                buffer.setSample(0, o, outputBuffer[0][o]);
+                buffer.setSample(1, o, outputBuffer[1][o]);
+            }
+            outputBufferSamples -= o;
+            for (int j = 0; j < internalBlockSize - o; j++) {
+                outputBuffer[0][j] = outputBuffer[0][o + j];
+                outputBuffer[1][j] = outputBuffer[1][o + j];
+            }
 
-        // if not all samples fit, calculate a new frame and store
-        if (carryOverOutputSamples > 0) { // TODO - not correct if Synth::internalBlockSize() > buffer.getNumSamples() -- check how much is in the buffer; predicting ahead do we have enough for next block or not
-            handlePlayHead(synth, playHead, Synth::internalBlockSize(), sampleRate, barPosition);
-            synth->update(carryOverOutputBlockBuffer[0], carryOverOutputBlockBuffer[1], Synth::internalBlockSize(), sampleRate);
-            auto* l = buffer.getWritePointer(0, bufferOffset + alignedBlockSize);
-            auto* r = buffer.getWritePointer(1, bufferOffset + alignedBlockSize);
-            for (int i = 0; i < carryOverOutputSamples; ++i) {
-                l[i] = carryOverOutputBlockBuffer[0][i];
-                r[i] = carryOverOutputBlockBuffer[1][i];
-                carryOverOutputBlockBuffer[0][i] = 0.f;
-                carryOverOutputBlockBuffer[1][i] = 0.f;
+            toCopy = (scratchBufferSize > blockSize - o) ? blockSize - o : scratchBufferSize;
+            if (toCopy) {
+                buffer.copyFrom(0, o, scratchBuffer.getReadPointer(0, 0), toCopy);
+                buffer.copyFrom(1, o, scratchBuffer.getReadPointer(1, 0), toCopy);
             }
         }
+        int toBuffer = scratchBufferSize - toCopy;
+        for (int j = 0; j < toBuffer && j < outputBufferSamples + internalBlockSize; j++) {
+            outputBuffer[0][outputBufferSamples + j] = scratchBuffer.getSample(0, toCopy + j);
+            outputBuffer[1][outputBufferSamples + j] = scratchBuffer.getSample(1, toCopy + j);
+        }
+        outputBufferSamples += toBuffer;
+
+        // post checks
+        assert(inputBufferSamples <= internalBlockSize);
+        assert(outputBufferSamples <= internalBlockSize);
+        assert(inputBufferSamples + outputBufferSamples == internalBlockSize);
     }
 
     BufferingProcessor() {
-        carryOverOutputBlockBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
-        carryOverOutputBlockBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
+        inputBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
+        inputBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
+        outputBuffer[0] = new float[Synth::internalBlockSize()]{ 0.0f };
+        outputBuffer[1] = new float[Synth::internalBlockSize()]{ 0.0f };
     }
 
     ~BufferingProcessor() {
-        delete[] carryOverOutputBlockBuffer[0];
-        delete[] carryOverOutputBlockBuffer[1];
+        delete[] inputBuffer[0];
+        delete[] inputBuffer[1];
+        delete[] outputBuffer[0];
+        delete[] outputBuffer[1];
     }
 };
 

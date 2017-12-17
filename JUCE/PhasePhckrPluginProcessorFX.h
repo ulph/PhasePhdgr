@@ -32,13 +32,7 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
-    float barPosition = 0.f;
-
-    int inputBufferSamples = 0;
-    int outputBufferSamples = Effect::internalBlockSize();
-    float* inputBuffer[2] = { nullptr }; // use vectors instead?
-    float* outputBuffer[2] = { nullptr };
-    AudioSampleBuffer scratchBuffer;
+    BufferingProcessor bufferingProcessor;
 
     simple_lock synthUpdateLock;
 

@@ -34,6 +34,12 @@ private:
 
     float barPosition = 0.f;
 
+    int inputBufferSamples = 0;
+    int outputBufferSamples = Effect::internalBlockSize();
+    float* inputBuffer[2] = { nullptr }; // use vectors instead?
+    float* outputBuffer[2] = { nullptr };
+    AudioSampleBuffer scratchBuffer;
+
     simple_lock synthUpdateLock;
 
 public:

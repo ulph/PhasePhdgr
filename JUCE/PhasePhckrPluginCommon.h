@@ -135,8 +135,8 @@ struct BufferingProcessor {
     }
 
     ~BufferingProcessor() {
-        delete carryOverOutputBlockBuffer[0];
-        delete carryOverOutputBlockBuffer[1];
+        delete[] carryOverOutputBlockBuffer[0];
+        delete[] carryOverOutputBlockBuffer[1];
     }
 };
 

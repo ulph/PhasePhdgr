@@ -15,49 +15,11 @@ namespace PhasePhckr {
     class EffectChain;
     class VoiceBus;
 
-    /*
-    enum class MessageType {
-        Expression,
-        Breath,
-        Modwheel,
-        SignatureNominator,
-        SignatureDenominator,
-        BBPM,
-        Position,
-        BarPosition,
-        Time,
-    };
-
-    enum class MpeMessageType {
-        glideX,
-        slideY,
-        pressZ,
-        strikeZ,
-        liftZ,
-    };
-
-    struct MpeMessageData {
-        MpeMessageType type;
-        int samplePosition;
-        int channel;
-        int note;
-        float data;
-    };
-
-    struct MessageData {
-        MessageType type;
-        int samplePosition;
-        float data;
-    };
-    */
-
     class Effect {
     public:
         Effect();
         virtual ~Effect();
         virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
-
-//        void handleMessage(const MessageData& msg);
 
         void handleTimeSignature(int numerator, int denominator);
         void handleBPM(float bpm);

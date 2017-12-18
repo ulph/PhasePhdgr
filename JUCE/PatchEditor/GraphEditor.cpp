@@ -481,23 +481,22 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         selectionStop = event.position;
     }
     if (draggedModule || looseWire.isValid || selecting) {
-        int mX = event.position.getX();
-        int mY = event.position.getY();
+        auto vpm = viewPort.getMouseXYRelative();
+        auto vpb = viewPort.getWidth();
+
+        int mX = vpm.x;
+        int mY = vpm.y;
 
         int dx = 0;
         int dy = 0;
-        
-        auto b = viewPort.getViewArea();//.transformed(getTransform());
 
-        int bX = b.getX();
-        int bY = b.getY();
-        int bW = b.getWidth();
-        int bH = b.getHeight();
+        int bW = viewPort.getWidth();
+        int bH = viewPort.getHeight();
 
-        if (bX > mX) dx = bX - mX;
-        if (bY > mY) dy = bY - mY;
-        if (bX+bW < mX) dx = (bX + bW) - mX;
-        if (bY+bH < mY) dy = (bY + bH) - mY;
+        if (0 > mX) dx = 0 - mX;
+        if (0 > mY) dy = 0 - mY;
+        if (bW < mX) dx = bW - mX;
+        if (bH < mY) dy = bH - mY;
 
         if ( abs(dx) > 2 || abs(dy) > 2 ){
             setTopLeftPosition(getX() + dx*0.5f, getY() + dy*0.5f);

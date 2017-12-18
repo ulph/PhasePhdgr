@@ -5,7 +5,7 @@
 
 namespace PhasePhckr {
 
-const size_t numVoices = 16;
+const size_t numVoices = 32;
 
 Effect::Effect()
     : effects(nullptr)

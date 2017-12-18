@@ -11,5 +11,13 @@ public:
     static Module* factory() { return new CrossFade(); }
 };
 
+class FadeCross : public ModuleCRTP<FadeCross>
+{
+public:
+    FadeCross();
+    void process();
+    static Module* factory() { return new FadeCross(); }
+};
+
 
 #endif

@@ -76,6 +76,7 @@ public:
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("XFADE", &(CrossFade::factory));
+        cg.registerModule("FADEX", &(FadeCross::factory));
         cg.registerModule("SAMPHOLD", &(SampleAndHold::factory));
         cg.registerModule("TRESH", &(Threshold::factory));
         // todo: counters, etc

@@ -141,17 +141,20 @@ namespace PhasePhckr {
                 st.pressZ[i] = a * st.pressZ[i-1] + (1.0f - a) * st.pressZTarget;
                 calculatePitchHz(i);
             }
-            if (age < UINT_MAX) age++;            
-            if (st.gateTarget == 2) {
-                st.gateTarget = 1;
-                st.gate[0] = 0;
-                for (int i = 1; i < ConnectionGraph::k_blockSize; i++) { 
-                    st.gate[i] = 1.0f; 
+            if (age < UINT_MAX) age++;        
+            if (st.gateTarget != lastGateTarget) {
+                lastGateTarget = st.gateTarget;
+                if (st.gateTarget == 2) {
+                    st.gateTarget = 1;
+                    st.gate[0] = 0;
+                    for (int i = 1; i < ConnectionGraph::k_blockSize; i++) {
+                        st.gate[i] = 1.0f;
+                    }
                 }
-            }
-            else {
-                for (int i = 0; i < ConnectionGraph::k_blockSize; i++) { 
-                    st.gate[i] = (float)st.gateTarget; 
+                else {
+                    for (int i = 0; i < ConnectionGraph::k_blockSize; i++) {
+                        st.gate[i] = (float)st.gateTarget;
+                    }
                 }
             }
         }
@@ -162,6 +165,8 @@ namespace PhasePhckr {
 
             memset(&st, 0, sizeof(st));
             age = UINT_MAX;
+            lastGateTarget = -1;
+            int rootNote = 0;
 
             st.voiceIndex = vi;
             st.polyphony = p;
@@ -172,10 +177,14 @@ namespace PhasePhckr {
             st.voiceIndex = (float)index / float(polyPhony);
             st.polyphony = (float)polyPhony;
         }
+        bool gateChanged() {
+            return st.gateTarget != lastGateTarget;
+        }
     private:
+        int lastGateTarget = -1;
         MPEVoiceState st;
         MPEVoiceConfig cfg;
-        float a = c_slewFactor;
+        const float a = c_slewFactor;
         int rootNote = 0;
         unsigned int age = UINT_MAX;
         void calculatePitchHz(int i) {

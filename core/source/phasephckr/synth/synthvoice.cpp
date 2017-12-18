@@ -110,10 +110,12 @@ void SynthVoice::threadedProcess()
 
     int j = 0;
     for (j; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
+        bool gateChange = mpe.gateChanged();
+
         mpe.update();
         threadStuff.globalData.update();
 
-        connectionGraph.setInputBlock(inBus, 0, v.gate);
+        if(gateChange) connectionGraph.setInputBlock(inBus, 0, v.gate);
 
         connectionGraph.setInputBlock(inBus, 3, v.pitchHz);
         connectionGraph.setInputBlock(inBus, 4, v.glideX);

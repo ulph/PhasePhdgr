@@ -481,8 +481,29 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         selectionStop = event.position;
     }
     if (draggedModule || looseWire.isValid || selecting) {
-        viewPort.autoScroll(mousePos.x, mousePos.y, 0.25f*c_GridSize, 10);
-        beginDragAutoRepeat(10);
+        int mX = event.position.getX();
+        int mY = event.position.getY();
+
+        int dx = 0;
+        int dy = 0;
+        
+        auto b = viewPort.getViewArea();//.transformed(getTransform());
+
+        int bX = b.getX();
+        int bY = b.getY();
+        int bW = b.getWidth();
+        int bH = b.getHeight();
+
+        if (bX > mX) dx = bX - mX;
+        if (bY > mY) dy = bY - mY;
+        if (bX+bW < mX) dx = (bX + bW) - mX;
+        if (bY+bH < mY) dy = (bY + bH) - mY;
+
+        if ( abs(dx) > 2 || abs(dy) > 2 ){
+            setTopLeftPosition(getX() + dx*0.5f, getY() + dy*0.5f);
+            beginDragAutoRepeat(10);
+        }
+
         repaint();
     }
     if (modelChanged) propagatePatch();

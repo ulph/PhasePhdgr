@@ -849,6 +849,7 @@ const vector<PadDescription> c_voiceChainInBus = {
     { "time", "", 0 },
 
     { "noteIndex", "", 0 },
+    { "noteIndex2", "", 0 },
     { "voiceIndex", "", 0 },
     { "polyphony", "" , 0 }
 };

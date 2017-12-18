@@ -87,7 +87,8 @@ namespace PhasePhckr {
         float pitchHz[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
         int gateTarget = 0; // open or closed, for statey stuff
         float gate[ConnectionGraph::k_blockSize] = { 0.0f };
-        float noteIndex = 0.0f; // which (normalized) note
+        float noteIndex[ConnectionGraph::k_blockSize] = { 0.0f }; // which (normalized) note including pitch offset
+        float noteIndex2 = 0.0f; // which (normalized)
         float voiceIndex = 0.0f; // which voice
         float polyphony = 0.0f; // how many voices
         void reset() {
@@ -97,6 +98,7 @@ namespace PhasePhckr {
                 glideX[i] = 0.0f;
                 pitchHz[i] = 0.0f;
                 gate[i] = 0.0f;
+                noteIndex[i] = 0.0f;
             }
             strikeZ = 0.0f;
             pressZTarget = 0.0f;
@@ -104,7 +106,7 @@ namespace PhasePhckr {
             slideYTarget = 0.0f;
             glideXTarget = 0.0f;
             gateTarget = 0;
-            noteIndex = 0.0f;
+            noteIndex2 = 0.0f;
             voiceIndex = 0.0f;
             polyphony = 0.0f;
         }
@@ -135,8 +137,8 @@ namespace PhasePhckr {
             age = 0;
             st.gateTarget = 2;
             rootNote = note;
+            st.noteIndex2 = (float)rootNote / 127.f;
             st.strikeZ = velocity;
-            st.noteIndex = (float)note / 127.f;
         }
         void off(int note, float velocity) {
             if (note == rootNote && st.gateTarget) {
@@ -206,8 +208,10 @@ namespace PhasePhckr {
         int rootNote = 0;
         unsigned int age = UINT_MAX;
         void calculatePitchHz(int i) {
-            float bendSemi = st.glideX > 0 ? st.glideX[i] * cfg.pitchRangeUp : st.glideX[i] * cfg.pitchRangeDown;
-            st.pitchHz[i] = NoteToHz(rootNote + bendSemi);
+            auto bendSemi = st.glideX > 0 ? st.glideX[i] * cfg.pitchRangeUp : st.glideX[i] * cfg.pitchRangeDown;
+            auto floatNote = (float)rootNote + bendSemi;
+            st.noteIndex[i] = floatNote / 127.f;
+            st.pitchHz[i] = NoteToHz(floatNote);
         }
     };
 

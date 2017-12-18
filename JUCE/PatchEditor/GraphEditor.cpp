@@ -106,7 +106,7 @@ bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule
         }
         selection.clear();
         string newType = "";
-        return 0 == patch.createNewComponentType(selectedModules, newType);
+        return 0 == patch.createNewComponentType(rootComponent(), selectedModules, newType);
     }
     return true;
     case 2:

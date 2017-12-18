@@ -283,6 +283,12 @@ void PatchDescriptor::pruneUnusedComponents() {
         const ModuleVariable m(kv);
         usedTypes.insert(m.type);
     }
+    for (const auto& c : components) {
+        for (const auto& kv : c.second.graph.modules) {
+            const ModuleVariable m(kv);
+            usedTypes.insert(m.type);
+        }
+    }
     auto it = components.begin();
     while (it != components.end()) {
         if (!usedTypes.count(it->first)) {
@@ -366,8 +372,9 @@ int PatchDescriptor::addComponentType(string& type, const ComponentDescriptor& d
     return 0;
 }
 
-int PatchDescriptor::createNewComponentType(const set<string>& modules, string& newType) {
+int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, const set<string>& modules, string& newType) {
     if (modules.size() < 2) return -1;
+    if (rootComponent == nullptr) return -2;
 
     string t = string(&componentMarker) + "CMP";
     ComponentDescriptor cd;
@@ -384,7 +391,7 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
 
     i = 0;
     auto m = "new_" + t.substr(1);
-    while (root.graph.modules.count(m + "_" + to_string(i))) i++;
+    while (rootComponent->graph.modules.count(m + "_" + to_string(i))) i++;
     m += "_" + to_string(i);
 
     set<string> outBusAlias;
@@ -392,12 +399,12 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
     map<ModulePort, string> externalSourcesAlias;
     map<ModulePort, string> externalTargetsAlias;
 
-    auto cit = root.graph.connections.begin();
-    while (cit != root.graph.connections.end()) {
+    auto cit = rootComponent->graph.connections.begin();
+    while (cit != rootComponent->graph.connections.end()) {
         auto& c = *cit;
         if (modules.count(c.source.module) && modules.count(c.target.module)) {
             cd.graph.connections.push_back(c);
-            cit = root.graph.connections.erase(cit);
+            cit = rootComponent->graph.connections.erase(cit);
         }
         else if (modules.count(c.source.module)) {
             bool prune = true;
@@ -412,7 +419,7 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
             auto p = externalTargetsAlias.at(c.target);
             cd.graph.connections.push_back(ModulePortConnection(c.source, ModulePort(c_outBus.name, p)));
             if (prune) {
-                cit = root.graph.connections.erase(cit);
+                cit = rootComponent->graph.connections.erase(cit);
             }
             else {
                 c.source.module = m;
@@ -428,14 +435,14 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
                 inBusAlias.insert(p_);
                 externalSourcesAlias[c.source] = p_;
                 auto v = 0.0f;
-                if (root.graph.values.count(c.target)) { v = root.graph.values.at(c.target); }
+                if (rootComponent->graph.values.count(c.target)) { v = rootComponent->graph.values.at(c.target); }
                 cd.inBus.push_back(PadDescription(p_, "", v));
                 prune = false;
             }
             auto p = externalSourcesAlias.at(c.source);
             cd.graph.connections.push_back(ModulePortConnection(ModulePort(c_inBus.name, p), c.target));
             if (prune) {
-                cit = root.graph.connections.erase(cit);
+                cit = rootComponent->graph.connections.erase(cit);
             }
             else {
                 c.target.module = m;
@@ -448,32 +455,33 @@ int PatchDescriptor::createNewComponentType(const set<string>& modules, string& 
         }
     }
 
-    auto mit = root.graph.modules.begin();
-    while (mit != root.graph.modules.end()) {
+    auto mit = rootComponent->graph.modules.begin();
+    while (mit != rootComponent->graph.modules.end()) {
         if (modules.count(mit->first)) {
             cd.graph.modules[mit->first] = mit->second;
-            mit = root.graph.modules.erase(mit);
+            mit = rootComponent->graph.modules.erase(mit);
         }
         else ++mit;
     }
 
-    auto vit = root.graph.values.begin();
-    while (vit != root.graph.values.end()) {
+    auto vit = rootComponent->graph.values.begin();
+    while (vit != rootComponent->graph.values.end()) {
         if (modules.count(vit->first.module)) {
             cd.graph.values[vit->first] = vit->second;
-            vit = root.graph.values.erase(vit);
+            vit = rootComponent->graph.values.erase(vit);
         }
         else ++vit;
     }
 
     components[newType] = cd;
-    root.graph.modules[m] = newType;
+    rootComponent->graph.modules[m] = newType;
 
     return 0;
 }
 
 int PatchDescriptor::removeComponentType(const string& type, bool cleanUp) {
     if (!components.count(type)) return -1;
+    // TODO, also in subcomponents?
     if (cleanUp) {
         set<string> instances;
         for (const auto& kv : root.graph.modules) {

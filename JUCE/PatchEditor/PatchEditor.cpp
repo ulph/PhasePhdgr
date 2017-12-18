@@ -245,7 +245,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     p.root = cmp;
 
     editorStack.addTab(
-        to_string(subPatchTypes.size()) + " " + componentName + " (" + componentType + ") ",
+        componentType,
         Colours::black,
         b,
         true

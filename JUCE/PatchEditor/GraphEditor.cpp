@@ -469,19 +469,20 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         );
         recalculateWires(mv);
         gfxGraphLock.unlock();
-
         updateBounds(getVirtualBounds());
-        repaint();
     }
     if (looseWire.isValid) {
         auto l = gfxGraphLock.make_scoped_lock();
         looseWire.destination = mousePos;
         updateBounds(getVirtualBounds());
         findHoverDoodat(mousePos);
-        repaint();
     }
     if (selecting) {
         selectionStop = event.position;
+    }
+    if (draggedModule || looseWire.isValid || selecting) {
+        viewPort.autoScroll(mousePos.x, mousePos.y, 0.25f*c_GridSize, 10);
+        beginDragAutoRepeat(10);
         repaint();
     }
     if (modelChanged) propagatePatch();

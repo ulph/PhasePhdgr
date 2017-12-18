@@ -135,7 +135,6 @@ void GfxPort::updateValue(const string& module, const map<ModulePort, float> &mp
     }
 }
 
-
 void GfxModule::repositionPorts() {
     size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
     if (max_p > 3.0f) {
@@ -158,11 +157,11 @@ void GfxModule::repositionPorts() {
 }
 
 XY GfxModule::midTop() const {
-    return XY(position.x + 0.5 * size.x, position.y - 0.5f*c_PortSize);
+    return XY(position.x + 0.5f * size.x, position.y - 0.5f*c_PortSize);
 }
 
 XY GfxModule::midBottom() const {
-    return XY(position.x + 0.5 * size.x, position.y + size.y - 0.5f*c_PortSize);
+    return XY(position.x + 0.5f * size.x, position.y + size.y - 0.5f*c_PortSize);
 }
 
 bool GfxModule::within(XY p) const {

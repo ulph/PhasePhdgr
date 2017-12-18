@@ -72,13 +72,6 @@ void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int n
 
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
-    if (sampleRate != lastKnownSampleRate) {
-        auto& v0 = voices[0];
-        v0->preCompile(sampleRate);
-        for (int i = 1; i < voices.size(); ++i) {
-            voices[i] = v0;
-        }
-    }
     lastKnownSampleRate = sampleRate;
 
     int samplesLeft = numSamples;

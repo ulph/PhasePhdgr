@@ -76,20 +76,38 @@ namespace PhasePhckr {
     };
 
     struct MPEVoiceState {
-        float strikeZ = 0; // velocity, 0 to 1
+        float strikeZ = 0.0f; // velocity, 0 to 1
         float pressZ[ConnectionGraph::k_blockSize] = { 0.0f }; // aftertouch, 0 to 1
-        float pressZTarget = 0;
-        float liftZ; // release velocity, 0 to 1
+        float pressZTarget = 0.0f;
+        float liftZ = 0.0f; // release velocity, 0 to 1
         float slideY[ConnectionGraph::k_blockSize] = { 0.0f }; // horizontal up/down, 0 to 1
-        float slideYTarget = 0;
+        float slideYTarget = 0.0f;
         float glideX[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch bend, -1 to 1
-        float glideXTarget = 0;
+        float glideXTarget = 0.0f;
         float pitchHz[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
         int gateTarget = 0; // open or closed, for statey stuff
         float gate[ConnectionGraph::k_blockSize] = { 0.0f };
-        float noteIndex = 0; // which (normalized) note
-        float voiceIndex = 0; // which voice
-        float polyphony = 0; // how many voices
+        float noteIndex = 0.0f; // which (normalized) note
+        float voiceIndex = 0.0f; // which voice
+        float polyphony = 0.0f; // how many voices
+        void reset() {
+            for (int i = 0; i < ConnectionGraph::k_blockSize; i++) {
+                pressZ[i] = 0.0f;
+                slideY[i] = 0.0f;
+                glideX[i] = 0.0f;
+                pitchHz[i] = 0.0f;
+                gate[i] = 0.0f;
+            }
+            strikeZ = 0.0f;
+            pressZTarget = 0.0f;
+            liftZ = 0.0f;
+            slideYTarget = 0.0f;
+            glideXTarget = 0.0f;
+            gateTarget = 0;
+            noteIndex = 0.0f;
+            voiceIndex = 0.0f;
+            polyphony = 0.0f;
+        }
     };
 
     struct MPEVoiceConfig {
@@ -163,8 +181,8 @@ namespace PhasePhckr {
             auto vi = st.voiceIndex;
             auto p = st.polyphony;
 
-            memset(&st, 0, sizeof(st));
-            age = UINT_MAX;
+            st.reset();
+            age = 1;
             lastGateTarget = -1;
             int rootNote = 0;
 

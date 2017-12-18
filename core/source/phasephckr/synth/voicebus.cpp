@@ -159,6 +159,7 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
     for (const auto &v : voices) {
         if(v->mpe.getState().gateTarget && v->mpe.getAge() > max){
             idx = i;
+            max = v->mpe.getAge();
         }
         i++;
     }

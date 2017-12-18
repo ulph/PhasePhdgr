@@ -140,7 +140,6 @@ struct ComponentDescriptor {
     }
     void componentTypeWasRenamed(const string& type, const string& newType);
     void componentTypePortWasRenamed(const string& type, const string& port, const string& newPort, bool inputPort);
-    void componentTypeWasRemoved(const string& type);
 };
 
 /* Patch */
@@ -163,7 +162,7 @@ struct PatchDescriptor {
     int addComponentType(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict=false);
     int renameComponentType(const string& type, const string& newType);
     int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort);
-    int removeComponentType(const string& type, bool cleanUp=true);
+    int removeComponentType(const string& type);
 
     void pruneUnusedComponents();
 

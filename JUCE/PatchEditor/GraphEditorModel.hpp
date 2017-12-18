@@ -86,7 +86,8 @@ struct GfxModule {
         MODULE,
         LOCALCOMPONENT,
         GLOBALCOMPONENT,
-        CONFLICTINGCOMPONENT
+        CONFLICTINGCOMPONENT,
+        UNKONWN
     };
 
     moduleState state = MODULE;
@@ -97,6 +98,9 @@ struct GfxModule {
     ModuleVariable module;
     XY position;
     XY size = { c_NodeSize , c_NodeSize };
+
+    XY midTop() const;
+    XY midBottom() const;
 
     void designPorts(
         const Doc &doc,

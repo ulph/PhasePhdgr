@@ -711,6 +711,9 @@ void GraphEditor::updateRenderComponents()
             else if (globalComponents.count(m.type)) {
                 gfxM.state = GfxModule::GLOBALCOMPONENT;
             }
+            else if (!doc.get().count(m.type)){
+                gfxM.state = GfxModule::UNKONWN;
+            }
             modules.push_back(gfxM);
         }
 
@@ -778,7 +781,7 @@ void GraphEditor::moveIntoView() {
     }
 }
 
-void GraphEditor::recalculateWires(const vector<GfxModule>& modules) {
+void GraphEditor::recalculateWires(vector<GfxModule>& modules) {
     for (auto &w : wires) {
         w.calculatePath(modules);
     }

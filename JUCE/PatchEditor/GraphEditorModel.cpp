@@ -137,6 +137,11 @@ void GfxPort::updateValue(const string& module, const map<ModulePort, float> &mp
 
 
 void GfxModule::repositionPorts() {
+    size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
+    if (max_p > 3.0f) {
+        size.x = c_NodeSize + c_NodeSize*max_p / 3.0f;
+    }
+
     for (auto it = inputs.begin(); it != inputs.end(); ++it)
     {
         float n = (float)distance(inputs.begin(), it);
@@ -150,6 +155,14 @@ void GfxModule::repositionPorts() {
         it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
         it->position.y = position.y + size.y - 0.5f*c_PortSize;
     }
+}
+
+XY GfxModule::midTop() const {
+    return XY(position.x + 0.5 * size.x, position.y - 0.5f*c_PortSize);
+}
+
+XY GfxModule::midBottom() const {
+    return XY(position.x + 0.5 * size.x, position.y + size.y - 0.5f*c_PortSize);
 }
 
 bool GfxModule::within(XY p) const {
@@ -233,6 +246,7 @@ void GfxModule::draw(Graphics & g, bool selected) {
     g.setColour(Colours::white);
     if (state == CONFLICTINGCOMPONENT) g.setColour(Colours::red);
     else if (state == LOCALCOMPONENT) g.setColour(Colours::yellow);
+    else if (state == UNKONWN) g.setColour(Colours::cyan);
 
     g.drawFittedText(
         module.name + "\n" + module.type,
@@ -287,10 +301,6 @@ void GfxModule::designPorts(const Doc &doc, const map<ModulePort, float> &mpvs){
     for(auto &ip : inputs){
         ip.updateValue(module.name, mpvs);
     }
-    size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
-    if (max_p > 3.0f) {
-        size.x = c_NodeSize + c_NodeSize*max_p/3.0f;
-    }
     repositionPorts();
 }
 
@@ -342,7 +352,8 @@ void GfxWire::draw(Graphics & g) {
 void GfxWire::calculatePath(const vector<GfxModule> & modules) {
     bool foundSource = false;
     bool foundTarget = false;
-    for (const auto & m : modules) {
+
+    for (auto & m : modules) {
         if (!foundSource && m.module.name == connection.source.module) {
             for (const auto & p : m.outputs) {
                 if (p.port == connection.source.port) {
@@ -350,6 +361,10 @@ void GfxWire::calculatePath(const vector<GfxModule> & modules) {
                     foundSource = true;
                     break;
                 }
+            }
+            if (m.state == GfxModule::UNKONWN) {
+                position = m.midBottom();
+                foundSource = true;
             }
         }
         if (!foundTarget && m.module.name == connection.target.module) {
@@ -359,6 +374,10 @@ void GfxWire::calculatePath(const vector<GfxModule> & modules) {
                     foundTarget = true;
                     break;
                 }
+            }
+            if (m.state == GfxModule::UNKONWN) {
+                destination = m.midTop();
+                foundTarget = true;
             }
         }
         if (foundTarget && foundSource) break;

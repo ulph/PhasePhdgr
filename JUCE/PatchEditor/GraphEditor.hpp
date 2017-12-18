@@ -78,11 +78,10 @@ private:
     pair<XY, XY> getVirtualBounds();
     bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
     bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
-    void createComponentFromSelection(const set<string> & selectedModules, Doc & doc, XY& position);
     void moveDelta(XY delta);
     void moveIntoView();
     void designPorts(const Doc &doc);
-    void recalculateWires(const vector<GfxModule>& modules);
+    void recalculateWires(vector<GfxModule>& modules);
 
     ComponentDescriptor* rootComponent();
 

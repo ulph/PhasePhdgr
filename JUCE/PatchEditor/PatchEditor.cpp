@@ -67,10 +67,10 @@ bool applyComponentPopuMenuChoice(
         return 0 == patch.components.at(type).addPort("newPort", choice == ids.createInputMenuId, "", 0.0f);
     }
     else if (choice == ids.removeConflictingComponentMenuId) {
-        return 0 == patch.removeComponentType(type, true);
+        return 0 == patch.removeComponentType(type);
     }
     else if (choice == ids.removeLocalComponentMenuId) {
-        return 0 == patch.removeComponentType(type, false);
+        return 0 == patch.removeComponentType(type);
     }
     else if (choice == ids.addLocalComponentMenuId) {
         if (!global.count(type)) return false;

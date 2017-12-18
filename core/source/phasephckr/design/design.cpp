@@ -346,21 +346,6 @@ void ComponentDescriptor::componentTypePortWasRenamed(const string& type, const 
     }
 }
 
-void ComponentDescriptor::componentTypeWasRemoved(const string& type) {
-    set<string> instances;
-    for (const auto& kv : graph.modules) {
-        if (kv.second == type) instances.insert(kv.first);
-    }
-    for (const auto& i : instances) {
-        graph.modules.erase(i);
-    }
-    auto it = graph.connections.begin();
-    while (it != graph.connections.end()) {
-        if (instances.count(it->source.module) || instances.count(it->target.module)) it = graph.connections.erase(it);
-        else ++it;
-    }
-}
-
 int PatchDescriptor::renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort) {
     if (!components.count(type)) return -4;
     auto ret = components[type].renamePort(port, newPort, inputPort);
@@ -509,14 +494,8 @@ int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, 
     return 0;
 }
 
-int PatchDescriptor::removeComponentType(const string& type, bool cleanUp) {
+int PatchDescriptor::removeComponentType(const string& type) {
     if (!components.count(type)) return -1;
-    if (cleanUp) {
-        root.componentTypeWasRemoved(type);
-        for (auto& c : components) {
-            c.second.componentTypeWasRemoved(type);
-        }
-    }
     components.erase(type);
     return 0;
 }

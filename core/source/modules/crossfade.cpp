@@ -12,7 +12,7 @@ void CrossFade::process() {
 
 FadeCross::FadeCross() {
     inputs.push_back(Pad("input"));
-    inputs.push_back(Pad("crossfade", 0.5));
+    inputs.push_back(Pad("fadecross", 0.5));
     outputs.push_back(Pad("first"));
     outputs.push_back(Pad("second"));
 }

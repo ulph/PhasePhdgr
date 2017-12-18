@@ -52,6 +52,7 @@ namespace PhasePhckr {
         void handleY(int channel, float position);
         void handleZ(int channel, float position);
         void handleNoteZ(int channel, int note, float position);
+        void handleSustain(int channel, float position);
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);

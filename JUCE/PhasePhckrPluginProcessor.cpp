@@ -152,6 +152,9 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
             float val = (float)msg.getControllerValue() / 127.f;
             // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
             switch (cc) {
+                case 64:
+                    synth->handleSustain(ch, val);
+                    break;
                 case 74:
                     synth->handleY(ch, val);
                     break;

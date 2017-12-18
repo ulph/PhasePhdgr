@@ -31,7 +31,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             int i = 0;
             for (const auto *v : voices) {
                 auto age = v->mpe.getAge();
-                if (v->mpe.getState().gate == 0) {
+                if (v->mpe.getState().gateTarget == 0) {
                     if (v->isSilent() && age > oldestInactiveSilent) {
                         oldestInactiveSilent = age;
                         oldestInactiveSilentIdx = i;
@@ -57,6 +57,8 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
 
             voices[idxToUse]->mpe.reset();
             n->voiceIndex = idxToUse;
+            n->velocity = velocity;
+            n->state = NoteState::ON;
         }
 
         freeVoice = voices[n->voiceIndex];
@@ -64,11 +66,18 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
         freeVoice->mpe.glide(channelData[channel].x);
         freeVoice->mpe.slide(channelData[channel].y);
         freeVoice->mpe.press(channelData[channel].z);
+
     }
     else if (idx != -1) {
-        if (notes.at(idx).voiceIndex != -1) 
-            voices[notes.at(idx).voiceIndex]->mpe.off(note, velocity);
-        notes.erase(notes.begin() + idx);
+        if (channelData[channel].sustain < 0.5f) {
+            if (notes.at(idx).voiceIndex != -1)
+                voices[notes.at(idx).voiceIndex]->mpe.off(note, velocity);
+            notes.erase(notes.begin() + idx);
+        }
+        else {
+            notes.at(idx).velocity = 0.0f;
+            notes.at(idx).state = NoteState::SUSTAINED;
+        }
     }
 }
 
@@ -115,6 +124,23 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
     }
 }
 
+void VoiceBus::handleSustain(int channel, float position, std::vector<SynthVoice*> &voices) {
+    if (channelData[channel].sustain >= 0.5f && position < 0.5f) {
+        for (auto it = notes.begin(); it != notes.end();) {
+            if (it->channel == channel && it->state == NoteState::SUSTAINED) {
+                if (it->voiceIndex != -1) {
+                    voices[it->voiceIndex]->mpe.off(it->note, it->velocity);
+                }
+                it = notes.erase(it);
+            }
+            else {
+                it++;
+            }
+        }
+    }
+    channelData[channel].sustain = position;
+}
+
 int VoiceBus::getNoteDataIndex(int channel, int note) {
     int idx = 0;
     for (const auto &n : notes) {
@@ -131,7 +157,7 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
     int idx = -1;
     int i = 0;
     for (const auto &v : voices) {
-        if(v->mpe.getState().gate && v->mpe.getAge() > max){
+        if(v->mpe.getState().gateTarget && v->mpe.getAge() > max){
             idx = i;
         }
         i++;

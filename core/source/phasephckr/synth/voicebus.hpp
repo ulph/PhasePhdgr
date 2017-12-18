@@ -4,21 +4,30 @@
 
 namespace PhasePhckr {
 
+enum class NoteState {
+//    OFF,
+    ON,
+    SUSTAINED
+};
+
 struct NoteData {
+    NoteState state;
     int channel;
     int note;
-    float velocity; // off velocity is meaningless as it's a transient state
     int voiceIndex;
     float notePressure;
+    float velocity;
     unsigned int age;
-    NoteData(int channel, int note, float velocity) :
-        channel(channel),
-        note(note),
-        velocity(velocity),
-        voiceIndex(-1),
-        notePressure(0),
-        age(0)
-    {}
+    NoteData(int channel, int note, float velocity) 
+        : state(NoteState::ON)
+        , channel(channel)
+        , note(note)
+        , voiceIndex(-1)
+        , notePressure(0)
+        , velocity(velocity)
+        , age(0)
+    {
+    }
 };
 
 struct ChannelData {
@@ -26,6 +35,7 @@ struct ChannelData {
     float x;
     float y;
     float z;
+    float sustain;
 };
 
 class VoiceBus {
@@ -35,6 +45,7 @@ public:
     void handleY(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
+    void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices);
     void update();
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
 private:

@@ -130,6 +130,7 @@ void Synth::handleX(int a, float b) { voiceBus->handleX(a, b, voices); }
 void Synth::handleY(int a, float b) { voiceBus->handleY(a, b, voices); }
 void Synth::handleZ(int a, float b) { voiceBus->handleZ(a, b, voices); }
 void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c, voices); }
+void Synth::handleSustain(int a, float b) { voiceBus->handleSustain(a, b, voices); }
 void Synth::handleExpression(float a) { globalData->expression(a); }
 void Synth::handleBreath(float a) { globalData->breath(a); }
 void Synth::handleModWheel(float a) { globalData->modwheel(a); }

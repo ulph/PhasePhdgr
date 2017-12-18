@@ -85,7 +85,8 @@ namespace PhasePhckr {
         float glideX[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch bend, -1 to 1
         float glideXTarget = 0;
         float pitchHz[ConnectionGraph::k_blockSize] = { 0.0f }; // pitch in Hz, combination of root note and pitch bend with bend ranges taken into account
-        float gate = 0; // open or closed, for statey stuff
+        int gateTarget = 0; // open or closed, for statey stuff
+        float gate[ConnectionGraph::k_blockSize] = { 0.0f };
         float noteIndex = 0; // which (normalized) note
         float voiceIndex = 0; // which voice
         float polyphony = 0; // how many voices
@@ -114,14 +115,14 @@ namespace PhasePhckr {
         MPEVoice(){ reset(); }
         void on(int note, float velocity) {
             age = 0;
-            st.gate = 1.f;
+            st.gateTarget = 2;
             rootNote = note;
             st.strikeZ = velocity;
             st.noteIndex = (float)note / 127.f;
         }
         void off(int note, float velocity) {
-            if (note == rootNote && st.gate) {
-                st.gate = 0.f;
+            if (note == rootNote && st.gateTarget) {
+                st.gateTarget = 0;
                 st.liftZ = velocity;
             }
         }
@@ -140,7 +141,19 @@ namespace PhasePhckr {
                 st.pressZ[i] = a * st.pressZ[i-1] + (1.0f - a) * st.pressZTarget;
                 calculatePitchHz(i);
             }
-            if (age < UINT_MAX) age++;
+            if (age < UINT_MAX) age++;            
+            if (st.gateTarget == 2) {
+                st.gateTarget = 1;
+                st.gate[0] = 0;
+                for (int i = 1; i < ConnectionGraph::k_blockSize; i++) { 
+                    st.gate[i] = 1.0f; 
+                }
+            }
+            else {
+                for (int i = 0; i < ConnectionGraph::k_blockSize; i++) { 
+                    st.gate[i] = (float)st.gateTarget; 
+                }
+            }
         }
         void reset() {
             // retain

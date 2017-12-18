@@ -75,11 +75,11 @@ void SynthVoice::threadedProcess()
     assert(numSamples % ConnectionGraph::k_blockSize == 0);
 
     const MPEVoiceState &v = mpe.getState();
-    if (v.gate) {
+    if (v.gateTarget) {
         rms = 1;
         buffersSilenced = false;
     }
-    else if (v.gate == 0 && isSilent()) {
+    else if (v.gateTarget == 0 && isSilent()) {
         if (!buffersSilenced) {
             for (int i = 0; i < SYNTH_VOICE_BUFFER_LENGTH; i++) {
                 internalBuffer[0][i] = 0.f;
@@ -93,7 +93,6 @@ void SynthVoice::threadedProcess()
     const GlobalDataState &g = threadStuff.globalData.getState();
     const GlobalTimeDataState &t = threadStuff.globalData.getTimeState();
 
-    connectionGraph.setInput(inBus, 0, v.gate);
     connectionGraph.setInput(inBus, 1, v.strikeZ);
     connectionGraph.setInput(inBus, 2, v.liftZ);
 
@@ -113,6 +112,8 @@ void SynthVoice::threadedProcess()
     for (j; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
         mpe.update();
         threadStuff.globalData.update();
+
+        connectionGraph.setInputBlock(inBus, 0, v.gate);
 
         connectionGraph.setInputBlock(inBus, 3, v.pitchHz);
         connectionGraph.setInputBlock(inBus, 4, v.glideX);

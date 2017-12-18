@@ -52,11 +52,11 @@ const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain
     }
     voices.clear();
     SynthVoice v(voiceChain, cp);
+    v.preCompile(lastKnownSampleRate);
     for (int i = 0; i<numVoices; ++i) {
         SynthVoice *v_ = new SynthVoice(v);
         v_->mpe.setIndex(i, numVoices);
         voices.push_back(v_);
-        v_->preCompile(lastKnownSampleRate);
     }
     return voices[0]->getParameterHandles(); // they're identical
 }
@@ -73,8 +73,10 @@ void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int n
 void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate)
 {
     if (sampleRate != lastKnownSampleRate) {
-        for (auto* v : voices) {
-            v->preCompile(sampleRate);
+        auto& v0 = voices[0];
+        v0->preCompile(sampleRate);
+        for (int i = 1; i < voices.size(); ++i) {
+            voices[i] = v0;
         }
     }
     lastKnownSampleRate = sampleRate;

@@ -40,10 +40,11 @@ ConnectionGraph::ConnectionGraph(bool forceSampleWise)
 }
 
 ConnectionGraph::ConnectionGraph(const ConnectionGraph& other)
-    : compilationStatus(NOT_COMPILED)
+    : compilationStatus(other.compilationStatus)
     , forceSampleWise(other.forceSampleWise)
+    , program(other.program)
+    , fsCompiled(other.fsCompiled)
 {
-    // copy constructor that creates an non-compiled version
     for(int i=0; i < (int)other.modules.size(); ++i){
         const auto& m = other.modules[i];
         Module * mCopy = m->clone();

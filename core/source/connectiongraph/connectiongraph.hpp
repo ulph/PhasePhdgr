@@ -21,26 +21,20 @@ protected:
     std::vector<Cable*> cables;
     std::vector<Instruction> program;
     int compilationStatus;
+    std::set<int> recursiveModules;
+    const bool forceSampleWise;
+    float fsCompiled = 48000.f;
     void findRecursions(int module, std::vector<int> processedModulesToHere);
     void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void finalizeProgram(std::vector<Instruction>& protoProgram);
-
     Module* getModule(int id);
-
     void printProgram(const vector<Instruction>& p);
-
-    enum ProccesingType{
+    enum ProccesingType {
         BlockWise,
         SampleWise,
     };
-
-    std::set<int> recursiveModules;
     ProccesingType getProcessingType(int module);
-
-    const bool forceSampleWise;
-
-    float fsCompiled = 48000.f;
 
 public:
     static const int k_blockSize = 64;

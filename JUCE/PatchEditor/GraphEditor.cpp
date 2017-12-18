@@ -493,10 +493,17 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         int bW = viewPort.getWidth();
         int bH = viewPort.getHeight();
 
-        if (0 > mX) dx = 0 - mX;
-        if (0 > mY) dy = 0 - mY;
-        if (bW < mX) dx = bW - mX;
-        if (bH < mY) dy = bH - mY;
+        int border = 25;
+
+        int minX = border;
+        int minY = border;
+        int maxX = bW - border;
+        int maxY = bH - border;
+
+        if (minX > mX) dx = minX - mX;
+        if (minY > mY) dy = minY - mY;
+        if (maxX < mX) dx = maxX - mX;
+        if (maxY < mY) dy = maxY - mY;
 
         if ( abs(dx) > 2 || abs(dy) > 2 ){
             setTopLeftPosition(getX() + dx*0.5f, getY() + dy*0.5f);

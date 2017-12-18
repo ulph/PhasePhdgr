@@ -319,28 +319,56 @@ void ComponentDescriptor::pruneLayout() {
     }
 }
 
-int PatchDescriptor::renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort) {
-    if (!components.count(type)) return -4;
-    auto ret = components[type].renamePort(port, newPort, inputPort);
-    if (ret != 0) return ret;
+void ComponentDescriptor::componentTypeWasRenamed(const string& type, const string& newType) {
+    for (auto& kv : graph.modules) {
+        if (kv.second == type) kv.second = newType;
+    }
+}
 
+void ComponentDescriptor::componentTypePortWasRenamed(const string& type, const string& port, const string& newPort, bool inputPort) {
     set<string> instances;
-    for (const auto& kv : root.graph.modules) {
+    for (const auto& kv : graph.modules) {
         if (kv.second == type) instances.insert(kv.first);
     }
 
     for (const auto& m : instances) {
         auto mp = ModulePort(m, port);
         auto newMp = ModulePort(m, newPort);
-        for (auto & c : root.graph.connections) {
+        for (auto & c : graph.connections) {
             if (inputPort && c.target == mp) c.target = newMp;
             else if (!inputPort && c.source == mp) c.source = newMp;
         }
-        if (inputPort && root.graph.values.count(mp)) {
-            auto v = root.graph.values.at(mp);
-            root.graph.values.erase(mp);
-            root.graph.values[newMp] = v;
+        if (inputPort && graph.values.count(mp)) {
+            auto v = graph.values.at(mp);
+            graph.values.erase(mp);
+            graph.values[newMp] = v;
         }
+    }
+}
+
+void ComponentDescriptor::componentTypeWasRemoved(const string& type) {
+    set<string> instances;
+    for (const auto& kv : graph.modules) {
+        if (kv.second == type) instances.insert(kv.first);
+    }
+    for (const auto& i : instances) {
+        graph.modules.erase(i);
+    }
+    auto it = graph.connections.begin();
+    while (it != graph.connections.end()) {
+        if (instances.count(it->source.module) || instances.count(it->target.module)) it = graph.connections.erase(it);
+        else ++it;
+    }
+}
+
+int PatchDescriptor::renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort) {
+    if (!components.count(type)) return -4;
+    auto ret = components[type].renamePort(port, newPort, inputPort);
+    if (ret != 0) return ret;
+
+    root.componentTypePortWasRenamed(type, port, newPort, inputPort);
+    for (auto& c : components) {
+        c.second.componentTypePortWasRenamed(type, port, newPort, inputPort);
     }
 
     return 0;
@@ -353,10 +381,12 @@ int PatchDescriptor::renameComponentType(const string& type, const string& newTy
     auto v = components[type];
     components.erase(type);
     components[newType] = v;
-    set<string> instances;
-    for (auto& kv : root.graph.modules) {
-        if (kv.second == type) kv.second = newType;
+
+    root.componentTypeWasRenamed(type, newType);
+    for (auto& c : components) {
+        c.second.componentTypeWasRenamed(type, newType);
     }
+
     return 0;
 }
 
@@ -481,19 +511,10 @@ int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, 
 
 int PatchDescriptor::removeComponentType(const string& type, bool cleanUp) {
     if (!components.count(type)) return -1;
-    // TODO, also in subcomponents?
     if (cleanUp) {
-        set<string> instances;
-        for (const auto& kv : root.graph.modules) {
-            if (kv.second == type) instances.insert(kv.first);
-        }
-        for (const auto& i : instances) {
-            root.graph.modules.erase(i);
-        }
-        auto it = root.graph.connections.begin();
-        while (it != root.graph.connections.end()) {
-            if (instances.count(it->source.module) || instances.count(it->target.module)) it = root.graph.connections.erase(it);
-            else ++it;
+        root.componentTypeWasRemoved(type);
+        for (auto& c : components) {
+            c.second.componentTypeWasRemoved(type);
         }
     }
     components.erase(type);

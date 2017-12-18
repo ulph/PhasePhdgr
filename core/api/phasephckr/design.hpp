@@ -138,6 +138,9 @@ struct ComponentDescriptor {
         pruneLayout();
         graph.cleanUp();
     }
+    void componentTypeWasRenamed(const string& type, const string& newType);
+    void componentTypePortWasRenamed(const string& type, const string& port, const string& newPort, bool inputPort);
+    void componentTypeWasRemoved(const string& type);
 };
 
 /* Patch */

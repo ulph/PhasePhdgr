@@ -8,8 +8,21 @@ using namespace PhasePhckr;
 
 
 bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
-    if (rootComponentName == rootMarker && (moduleName == c_inBus.name || moduleName == c_outBus.name)) return false;
-    if (!rootComponent() || !rootComponent()->graph.modules.count(moduleName)) return false;
+    bool isBusModule = (moduleName == c_inBus.name || moduleName == c_outBus.name);
+    if (rootComponentName == rootMarker && isBusModule) return false;
+    if (!rootComponent()) return false;
+
+    bool isComponentBus = rootComponentName != rootMarker && isBusModule;
+    bool isComponent = moduleType.front() == componentMarker || isComponentBus;
+
+    auto validModule = rootComponent()->graph.modules.count(moduleName);
+
+    if (!isComponentBus) {
+        if (!validModule) return false;
+    }
+    else {
+        if(!validModule && !(isBusModule)) return false;
+    }
 
     TextLabelMenuEntry nameLbl;
     nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
@@ -32,14 +45,14 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
 
     PopupMenu cmpPoop;
 
-    if (moduleType.front() == componentMarker) {
+    if (isComponent && !isComponentBus) {
         cloneComponentMenuId = ctr++;
         cmpPoop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
 
         makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
 
     }
-    else if (rootComponentName.size() && rootComponentName != rootMarker && patch.components.count(rootComponentName) ){
+    else if (isComponentBus){
         if (moduleName == c_inBus.name) {
             addComponentInputMenuId = ctr++;
             cmpPoop.addItem(addComponentInputMenuId, c_componentMenuStrings.createInput);
@@ -50,7 +63,7 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
         }
     }
 
-    if(moduleType.front() == componentMarker) poop.addSubMenu("Component", cmpPoop);
+    if(isComponent) poop.addSubMenu("Component", cmpPoop);
 
     int choice = poop.show();
 

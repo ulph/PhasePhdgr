@@ -586,6 +586,7 @@ void ConnectionGraphDescriptor::pruneBusModules() {
             if (it->first == m) {
                 it = modules.erase(it);
                 prunedStuff = true;
+                break;
             }
         }
         if (!prunedStuff) ++it;

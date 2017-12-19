@@ -143,8 +143,8 @@ if __name__ == "__main__":
             print(args.doff)
             depsdeps, deps, locals = list(find_dependencies_off(FLAT_BLOB[args.doff], include_modules=args.modules))
             if deps: print("depends on:\n"+("\n".join(deps)))
-            if locals: print("\nlocally defined dependencies:\n"+("\n".join(locals)))
-            if depsdeps: print("\nlocally defined dependencies depends on:\n"+("\n".join(depsdeps)))
+            if locals: print("\nlocally defined components:\n"+("\n".join(locals)))
+            if depsdeps: print("\nlocally defined components depends on:\n"+("\n".join(depsdeps)))
         else:
             print("No such thing!")
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             if what[0] == "@":
                 print("aka "+what)
                 if args.don not in FLAT_BLOB:
-                    print("is not defined")            
+                    print("is not defined globally")            
             who, whodeps, locals = list(find_dependencies_on(what, include_modules=args.modules))
             if who:
                 print("\nis a dependency to:\n")

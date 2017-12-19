@@ -41,28 +41,27 @@ struct ProcessorFileThings {
 
     void updateComponentRegister(const DirectoryContentsList* d)
     {
-        for (int i = 0; i<d->getNumFiles(); i++) {
-            const File& f = d->getFile(i);
-            if (!f.existsAsFile()) continue; // TODO, recurse into subdirs
-            String p = f.getRelativePathFrom(componentsDir);
-            string n = string(&componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
-            string s = f.loadFileAsString().toStdString();
-            try {
-                json j = json::parse(s.c_str());
-                ComponentDescriptor cd = j;
-                componentRegister.registerComponent(n, cd);
-                if (!d->isStillLoading()) {
-                    subComponentRegister.set(-1, componentRegister);
+        if (!d->isStillLoading()) {
+            for (int i = 0; i < d->getNumFiles(); i++) {
+                const File& f = d->getFile(i);
+                if (!f.existsAsFile()) continue; // TODO, recurse into subdirs
+                String p = f.getRelativePathFrom(componentsDir);
+                string n = string(&componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
+                string s = f.loadFileAsString().toStdString();
+                try {
+                    json j = json::parse(s.c_str());
+                    ComponentDescriptor cd = j;
+                    componentRegister.registerComponent(n, cd);
+                }
+                catch (const std::exception& e) {
+                    (void)e;
+                    continue;
+                    assert(0);
                 }
             }
-            catch (const std::exception& e) {
-                (void)e;
-                continue;
-                assert(0);
-            }
+            subComponentRegister.set(-1, componentRegister);
         }
     }
-
 };
 
 

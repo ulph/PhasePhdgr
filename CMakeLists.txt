@@ -25,6 +25,8 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/python)
+
 set( PHASEPHCKR_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>
     $<TARGET_OBJECTS:dsp_obj>

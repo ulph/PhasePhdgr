@@ -29,6 +29,8 @@ PhasePhckrProcessorFX::PhasePhckrProcessorFX()
 
     // create the synth and push down the initial chains
     effect = new PhasePhckr::Effect();
+    fileThings.rescan();
+
     setPatch(getExampleEffectChain());
 }
 

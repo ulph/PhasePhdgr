@@ -27,11 +27,13 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     });
 
     createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
+
     // parameter mumbo
     parameters.initialize(this);
 
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
+    fileThings.rescan();
 
     PresetDescriptor initialPreset;
     initialPreset.voice = getExampleVoiceChain();

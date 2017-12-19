@@ -42,6 +42,7 @@ struct ProcessorFileThings {
             try {
                 json j = json::parse(s.c_str());
                 ComponentDescriptor cd = j;
+                cd.cleanUp();
                 componentRegister.registerComponent(n, cd);
             }
             catch (const std::exception& e) {

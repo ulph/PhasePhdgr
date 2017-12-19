@@ -5,6 +5,8 @@
 
 #include "JuceHeader.h"
 
+#include <regex>
+
 namespace PhasePhckrFileStuff {
     nlohmann::json loadJson(const File & f);
     void storeJson(File &f, const nlohmann::json& j);
@@ -35,5 +37,9 @@ namespace PhasePhckrFileStuff {
     File getInitialEffectFile();
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr);
+
+    string make_path_agnostic(string& path);
+
+    string make_path_specific(string& path);
 
 }

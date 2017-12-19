@@ -4,6 +4,8 @@
 
 #include "PatchEditor.hpp"
 
+#include <regex>
+
 using namespace PhasePhckr;
 
 
@@ -602,13 +604,24 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
 
     {
         auto l = gfxGraphLock.make_scoped_lock();
-        string name = "new_" + thing.substr(1) + "_";
-        int i = 0;
+
+        string name = thing;
+        
+        if (name.front() == componentMarker) {
+            auto re = regex("\\" + string(1, PhasePhckr::c_pathSeparator)); // remove any paths
+            name = regex_replace(name, re, "_");
+            name = name.substr(1);
+        }
+        else if (name.front() == parameterMarker) {
+            name = name.substr(1);
+        }
+
+        name = "new_" + name + "_";
 
         if (!moduleTypeIsValid(thing)) return;
 
+        int i = 0;
         string fullName = name + to_string(i);
-
         while (rootComponent()->graph.add(fullName, thing)) {
             if (!moduleNameIsValid(fullName)) return;
             i++;

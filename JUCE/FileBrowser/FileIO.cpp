@@ -69,4 +69,17 @@ namespace PhasePhckrFileStuff {
         }
     }
 
+    string make_path_agnostic(string& path) {
+        string fromSep = String(File::getSeparatorString()).toStdString();
+        auto re = regex("\\" + fromSep);
+        auto newStr = regex_replace(path, re, string(1, PhasePhckr::c_pathSeparator));
+        return newStr;
+    }
+
+    string make_path_specific(string& path) {
+        string toSep = String(File::getSeparatorString()).toStdString();
+        auto re = regex("\\" + string(1, PhasePhckr::c_pathSeparator));
+        auto newStr = regex_replace(path, re, toSep);
+        return newStr;
+    }
 }

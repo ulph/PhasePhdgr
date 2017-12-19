@@ -793,15 +793,18 @@ bool moduleNameIsValid(const string& moduleName){
 }
 
 bool moduleTypeIsValid(const string& moduleType) {
-    if(moduleType.front() == componentMarker
-    || moduleType.front() == parameterMarker
-    ) return stringIsValid(moduleType.substr(1));
+    if (moduleType.front() == componentMarker) return componentTypeIsValid(moduleType);
+    else if(moduleType.front() == parameterMarker) return stringIsValid(moduleType.substr(1));
     return stringIsValid(moduleType);
 }
 
 bool componentTypeIsValid(const string& componentType){
     if(componentType.front() != componentMarker) return false;
-    return stringIsValid(componentType.substr(1));
+    for (auto c : componentType.substr(1)) {
+        if (c == c_pathSeparator) continue;
+        if (!characterIsValid(c, false)) return false;
+    }
+    return true;
 }
 
 const vector<PadDescription> c_effectChainInBus = {

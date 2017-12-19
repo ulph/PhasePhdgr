@@ -223,6 +223,8 @@ bool moduleNameIsValid(const string& moduleName);
 bool moduleTypeIsValid(const string& componentName);
 bool componentTypeIsValid(const string& componentName);
 
+const char c_pathSeparator = '/';
+
 // TODO SynthGraphTypeIsValid
 // TODO typeIsValid (checks that all uppercase?)
 

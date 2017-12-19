@@ -37,6 +37,7 @@ struct ProcessorFileThings {
             auto &f = initialFiles[i];
             String p = f.getRelativePathFrom(componentsDir);
             string n = string(&componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
+            n = make_path_agnostic(n);
             string s = f.loadFileAsString().toStdString();
             try {
                 json j = json::parse(s.c_str());

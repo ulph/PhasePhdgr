@@ -15,6 +15,8 @@
 
 #include "PhasePhckrPluginCommon.h"
 
+#include <functional>
+
 
 using namespace std;
 using namespace PhasePhckrFileStuff;
@@ -39,9 +41,12 @@ private:
     PhasePhckr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
-    simple_lock synthUpdateLock;
-
     GeneratingBufferingProcessor bufferingProcessor;
+
+    size_t voiceHash = 0;
+    size_t effectHash = 0;
+
+    simple_lock synthUpdateLock;
 
 public:
     PhasePhckrProcessor();

@@ -297,6 +297,11 @@ void PhasePhckrProcessor::setPreset(const PresetDescriptor& preset) {
 void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
+    json j = p;
+    auto hash = std::hash<string>{}( j.dump() );
+    if (hash == voiceHash) return;
+    voiceHash = hash;
+
     voiceChain = p;
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
     parameters.setParametersHandleMap(VOICE, pv);
@@ -306,6 +311,11 @@ void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
 
 void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
+
+    json j = p;
+    auto hash = std::hash<string>{}(j.dump());
+    if (hash == effectHash) return;
+    effectHash = hash;
 
     effectChain = p;
     auto pv = synth->setEffectChain(effectChain, componentRegister);

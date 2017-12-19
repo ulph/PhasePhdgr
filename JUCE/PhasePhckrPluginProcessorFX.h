@@ -3,6 +3,8 @@
 
 #include <list>
 
+#include <functional>
+
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
@@ -33,6 +35,8 @@ private:
     int componentRegisterHandle;
 
     InputBufferingProcessor bufferingProcessor;
+
+    size_t effectHash = 0;
 
     simple_lock synthUpdateLock;
 

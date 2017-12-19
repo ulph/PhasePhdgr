@@ -155,6 +155,11 @@ float ConnectionGraph::getOutput(int module, int pad)
     return m->sample_getOutput(pad);
 }
 
+void ConnectionGraph::getOutputBlock(int module, int pad, float* buffer)
+{
+    modules[module]->block_getOutput(pad, buffer);
+}
+
 void ConnectionGraph::compileProgram(int module, float fs)
 {
     if (fs == -1) return;
@@ -502,41 +507,12 @@ void ConnectionGraph::processSample(int module, float fs)
     }
 }
 
-void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers) {
+void ConnectionGraph::processBlock(int module, float fs) {
     if (fs != fsCompiled) compilationStatus = NOT_COMPILED;
     if (module != compilationStatus) compileProgram(module, fs);
 
-    const size_t inBufferSize = inBuffers.size();
-    const size_t outBufferSize = outBuffers.size();
-
-    // write input buffers
-    for (size_t n = 0; n < inBufferSize; ++n) {
-        auto* m = modules[inBuffers[n].module];
-        auto p = inBuffers[n].pad;
-        const auto* src = inBuffers[n].bufPtr;
-        m->block_setInput(p, src);
-    }
-
     if (forceSampleWise) {
-        // process per sample
-        for (uint32_t i = 0; i < k_blockSize; ++i) {
-            // unbuffer input sample
-            for (size_t n = 0; n < inBufferSize; ++n) {
-                auto* m = modules[inBuffers[n].module];
-                auto p = inBuffers[n].pad;
-                m->unbuffer_set_input(p, i);
-            }
-
-            // actual process
-            processSample(module, fs);
-
-            // buffer output sample
-            for (size_t n = 0; n < outBufferSize; ++n) {
-                auto* m = modules[outBuffers[n].module];
-                auto p = outBuffers[n].pad;
-                m->buffer_set_output(p, i);
-            }
-        }
+        assert(0); // won't work, as we've probably used setInputBlock ...
     }
     else {
         // process per block
@@ -597,15 +573,6 @@ void ConnectionGraph::processBlock(int module, float fs, const vector<SampleBuff
             }
         }
     }
-
-    // collect output buffers
-    for (size_t n = 0; n < outBufferSize; ++n) {
-        auto* m = modules[outBuffers[n].module];
-        auto p = outBuffers[n].pad;
-        auto* dst = outBuffers[n].bufPtr;
-        m->block_getOutput(p, dst);
-    }
-
 }
 
 void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList) {

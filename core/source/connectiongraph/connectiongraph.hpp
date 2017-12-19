@@ -40,12 +40,6 @@ protected:
 
 public:
     static const int k_blockSize = 64;
-    struct SampleBuffer {
-        int module;
-        int pad;
-        float * bufPtr;
-    };
-
     ConnectionGraph(bool forceSampleWise=false);
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
@@ -56,12 +50,13 @@ public:
     void connect(int fromModule, int fromPad, int toModule, int toPad);
     void connect(int fromModule, int toModule, int toPad) { connect(fromModule, 0, toModule, toPad); }
     void connect(int fromModule, int toModule) { connect(fromModule, 0, toModule, 0); }
-    void setInputBlock(int module, int pad, const float* value);
+    void setInputBlock(int module, int pad, const float* buffer);
     void setInput(int module, int pad, float value);
     void setInput(int module, std::string pad, float value);
     float getOutput(int module, int pad);
+    void getOutputBlock(int module, int pad, float* buffer);
     void processSample(int module, float fs);
-    void processBlock(int module, float fs, const vector<SampleBuffer>& inBuffers, vector<SampleBuffer>& outBuffers);
+    void processBlock(int module, float fs);
     void compileProgram(int module, float fs);
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
 };

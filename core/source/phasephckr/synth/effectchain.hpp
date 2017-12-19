@@ -16,8 +16,6 @@ private:
     int outBus;
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
-    vector<ConnectionGraph::SampleBuffer> inBuffers;
-    vector<ConnectionGraph::SampleBuffer> outBuffers;
 public:
     EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp);
     void setParameter(int handle, float value);

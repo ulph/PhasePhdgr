@@ -28,9 +28,6 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
 
     inBus = moduleHandles["inBus"];
     outBus = moduleHandles["outBus"];
-
-    outBuffers.push_back({ outBus, 0, nullptr });
-    outBuffers.push_back({ outBus, 1, nullptr });
 }
 
 void SynthVoice::preCompile(float fs) {
@@ -62,7 +59,7 @@ void SynthVoice::processingFinish(float * bufferL, float * bufferR, int numSampl
 }
 
 bool SynthVoice::isSilent() const {
-    return rms < 0.00000001;
+    return rms < 0.000000001;
 }
 
 float SynthVoice::getRms() const {
@@ -128,14 +125,14 @@ void SynthVoice::threadedProcess()
 
         connectionGraph.setInputBlock(inBus, 17, v.noteIndex);
 
-        outBuffers[0].bufPtr = &internalBuffer[0][j];
-        outBuffers[1].bufPtr = &internalBuffer[1][j];
+        connectionGraph.processBlock(outBus, threadStuff.sampleRate);
 
-        connectionGraph.processBlock(outBus, threadStuff.sampleRate, inBuffers, outBuffers);
+        connectionGraph.getOutputBlock(outBus, 0, &internalBuffer[0][j]);
+        connectionGraph.getOutputBlock(outBus, 1, &internalBuffer[1][j]);
 
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            float v = outBuffers[0].bufPtr[i] + outBuffers[1].bufPtr[i];
-            rms = rms*rmsSlew + (1 - rmsSlew)*v*v;
+            float v = internalBuffer[0][j+i]*internalBuffer[0][j+i] + internalBuffer[1][j+i]*internalBuffer[1][j+i];
+            rms = rms*rmsSlew + (1 - rmsSlew)*v;
         }
 
     }

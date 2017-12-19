@@ -36,7 +36,6 @@ protected:
         SampleWise,
     };
     ProccesingType getProcessingType(int module);
-    bool validateProgram(const std::vector<Instruction>& program);
 
 public:
     static const int k_blockSize = 64;
@@ -60,8 +59,6 @@ public:
     void compileProgram(int module);
     void setSamplerate(float fs);
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
-    const std::vector<Instruction>& dumpProgragram();
-    int recallProgram(const std::vector<Instruction>& program);
 };
 
 #endif

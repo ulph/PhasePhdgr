@@ -523,17 +523,3 @@ void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList
         delete m;
     }
 }
-
-const std::vector<Instruction>& ConnectionGraph::dumpProgragram() {
-    return program;
-}
-
-bool ConnectionGraph::validateProgram(const std::vector<Instruction>& program_) {
-    return true;
-}
-
-int ConnectionGraph::recallProgram(const std::vector<Instruction>& program_) {
-    if (!validateProgram(program_)) return -1;
-    program = program_;
-    return 0;
-}

@@ -31,7 +31,7 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
 }
 
 void SynthVoice::preCompile(float fs) {
-    connectionGraph.compileProgram(outBus, fs);
+    connectionGraph.compileProgram(outBus);
 }
 
 SynthVoice::~SynthVoice()

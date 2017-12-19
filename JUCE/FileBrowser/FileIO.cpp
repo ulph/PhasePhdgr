@@ -17,6 +17,18 @@ namespace PhasePhckrFileStuff {
         f.replaceWithText(j.dump(2, 4, ' ', true));
     }
 
+    void createFileIfNeeded(File &file, const nlohmann::json& j) {
+        if (!file.exists()) {
+            storeJson(file, j);
+        }
+        else {
+            json j2 = loadJson(file);
+            if (j != j2) {
+                storeJson(file, j);
+            }
+        }
+    }
+
     void createDirIfNeeded(File dir) {
         cout << "resource directory " + dir.getFullPathName();
         if (!dir.exists()) {
@@ -35,20 +47,28 @@ namespace PhasePhckrFileStuff {
 
     }
 
+    const String sep = File::getSeparatorString();
+
+    const String factorySubDir = sep + "factory";
+
     void createLibraryDirectoriesIfNeeded() {
         createDirIfNeeded(rootDir);
         createDirIfNeeded(effectsDir);
+        createDirIfNeeded(effectsDir.getFullPathName() + factorySubDir);
         createDirIfNeeded(voicesDir);
+        createDirIfNeeded(voicesDir.getFullPathName() + factorySubDir);
         createDirIfNeeded(componentsDir);
+        createDirIfNeeded(componentsDir.getFullPathName() + factorySubDir);
         createDirIfNeeded(presetsDir);
+        createDirIfNeeded(presetsDir.getFullPathName() + factorySubDir);
     }
 
     File getInitialVoiceFile() {
-        return voicesDir.getFullPathName() + File::getSeparatorString() + "_init.json";
+        return voicesDir.getFullPathName() + factorySubDir + sep + "_init.json";
     }
 
     File getInitialEffectFile() {
-        return effectsDir.getFullPathName() + File::getSeparatorString() + "_init.json";
+        return effectsDir.getFullPathName() + factorySubDir + sep + "_init.json";
     }
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
@@ -57,14 +77,14 @@ namespace PhasePhckrFileStuff {
         // load init patches and dump to disk
         auto vf = getInitialVoiceFile();
         auto ef = getInitialEffectFile();
-        storeJson(vf, PhasePhckr::getExampleVoiceChain());
-        storeJson(ef, PhasePhckr::getExampleEffectChain());
+        createFileIfNeeded(getInitialVoiceFile(), PhasePhckr::getExampleVoiceChain());
+        createFileIfNeeded(getInitialEffectFile(), PhasePhckr::getExampleEffectChain());
 
         // dump all factory components to disk
         for (const auto &kv : cr.all()) {
             const auto &type = kv.first;
             const auto &body = kv.second;
-            File cmp = componentsDir.getFullPathName() + File::getSeparatorString() + type.substr(1) + ".json";
+            File cmp = componentsDir.getFullPathName() + factorySubDir + sep + type.substr(1) + ".json";
             storeJson(cmp, body);
         }
     }

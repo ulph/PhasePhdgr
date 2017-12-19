@@ -49,26 +49,47 @@ def scan():
 
 def find_dependencies_on(something, include_modules=False):
     who = set()
+    whodeps = set()
+    locals = set()
     for k, v in FLAT_BLOB.items():
-        dep, local = find_dependencies_off(v, include_modules=include_modules)
+        depsdeps, dep, local = find_dependencies_off(v, include_modules=include_modules)
         if something in dep:
             who.add(k)
-    return who
+        if something in depsdeps:
+            whodeps.add(k)
+        if something in local:
+            locals.add(k)
+    return who, whodeps, locals
 
 def find_dependencies_off(data, include_modules=False):
+    depsdeps  = set()
     deps = set()
     locals = set()
+    if "voice" in data:
+        dd, d, l = find_dependencies_off(data["voice"], include_modules=include_modules)
+        depsdeps.update(dd)
+        deps.update(d)
+        locals.update(l)
+    if "effect" in data:
+        dd, d, l = find_dependencies_off(data["effect"], include_modules=include_modules)
+        depsdeps.update(dd)
+        deps.update(d)
+        locals.update(l)
     if "root" in data:
-        d, l = find_dependencies_off(data["root"], include_modules=include_modules)
+        dd, d, l = find_dependencies_off(data["root"], include_modules=include_modules)
+        depsdeps.update(dd)
         deps.update(d)
         locals.update(l)
     if "graph" in data:
-        d, l = find_dependencies_off(data["graph"], include_modules=include_modules)
+        dd, d, l = find_dependencies_off(data["graph"], include_modules=include_modules)
+        depsdeps.update(dd)
         deps.update(d)
         locals.update(l)
     if "components" in data:
         for k, v in data["components"].items():
             locals.add(k)
+            _, d, _ = find_dependencies_off(v, include_modules=include_modules)
+            depsdeps.update(d)
     if "modules" in data:
         for k, v in data["modules"]:
             if v[0] == "@":
@@ -76,7 +97,7 @@ def find_dependencies_off(data, include_modules=False):
             elif include_modules:
                 deps.add(v)
 
-    return deps, locals
+    return depsdeps, deps, locals
 
 def resolve_component_or_module(cmp):
     if cmp.split(SEP)[0] == COMPONENT: return "@"+SEP.join(cmp.split(SEP)[1:])
@@ -120,9 +141,10 @@ if __name__ == "__main__":
     if args.doff:
         if(args.doff in FLAT_BLOB):
             print(args.doff)
-            deps, locals = list(find_dependencies_off(FLAT_BLOB[args.doff], include_modules=args.modules))
+            depsdeps, deps, locals = list(find_dependencies_off(FLAT_BLOB[args.doff], include_modules=args.modules))
             if deps: print("depends on:\n"+("\n".join(deps)))
-            if locals: print("defines:\n"+("\n".join(locals)))
+            if locals: print("\nlocally defined dependencies:\n"+("\n".join(locals)))
+            if depsdeps: print("\nlocally defined dependencies depends on:\n"+("\n".join(depsdeps)))
         else:
             print("No such thing!")
 
@@ -134,9 +156,15 @@ if __name__ == "__main__":
                 print("aka "+what)
                 if args.don not in FLAT_BLOB:
                     print("is not defined")            
-            who = list(find_dependencies_on(what, include_modules=args.modules))
+            who, whodeps, locals = list(find_dependencies_on(what, include_modules=args.modules))
             if who:
-                print("is a dependency to:\n")
+                print("\nis a dependency to:\n")
                 print("\n".join(who))
-            else:
+            if whodeps:
+                print("\nis a dependency to, via a locally defined component:\n")
+                print("\n".join(whodeps))
+            if locals:
+                print("\nis locally defined in:\n")
+                print("\n".join(locals))
+            if not who and not whodeps and not locals:
                 print("is not a dependency to anything else")

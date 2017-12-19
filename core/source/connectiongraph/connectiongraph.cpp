@@ -43,7 +43,6 @@ ConnectionGraph::ConnectionGraph(const ConnectionGraph& other)
     : compilationStatus(other.compilationStatus)
     , forceSampleWise(other.forceSampleWise)
     , program(other.program)
-    , fsCompiled(other.fsCompiled)
 {
     for(int i=0; i < (int)other.modules.size(); ++i){
         const auto& m = other.modules[i];
@@ -160,12 +159,8 @@ void ConnectionGraph::getOutputBlock(int module, int pad, float* buffer)
     modules[module]->block_getOutput(pad, buffer);
 }
 
-void ConnectionGraph::compileProgram(int module, float fs)
+void ConnectionGraph::compileProgram(int module)
 {
-    if (fs == -1) return;
-
-    fsCompiled = fs;
-
     // parse the graph once to find all modules involved in recursion loops
     recursiveModules.clear();
     recursiveScannedModules.clear();
@@ -308,65 +303,6 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     }
 }
 
-void ConnectionGraph::printProgram(const vector<Instruction>& p) {
-    // TODO - not threadsafe
-    for (int i = 0; i < p.size(); ++i) {
-        const auto& instr = p[i];
-        std::cout << i << ": ";
-        switch (instr.opcode) {
-
-        case OP_PROCESS:
-            std::cout << "OP_PROCESS " << instr.param0; 
-            break;
-        case OP_CLEAR_INPUT:
-            std::cout << "OP_CLEAR_INPUT " << instr.param0 << "," << instr.param1;
-            break;
-        case OP_SET_OUTPUT_TO_INPUT:
-            std::cout << "OP_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
-            break;
-        case OP_ADD_OUTPUT_TO_INPUT:
-            std::cout << "OP_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3; 
-            break;
-
-        case OP_X_UNBUFFER_CLEAR_INPUT:
-            std::cout << "OP_X_UNBUFFER_CLEAR_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
-            break;
-        case OP_X_BUFFER_CLEAR_OUTPUT:
-            std::cout << "OP_X_BUFFER_CLEAR_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
-            break;
-
-        case OP_X_UNBUFFER_SET_INPUT:
-            std::cout << "OP_X_UNBUFFER_SET_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
-            break;
-        case OP_X_BUFFER_SET_OUTPUT:
-            std::cout << "OP_X_BUFFER_SET_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
-            break;
-
-        case OP_X_UNBUFFER_ADD_INPUT:
-            std::cout << "OP_X_UNBUFFER_INPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
-            break;
-        case OP_X_BUFFER_ADD_OUTPUT:
-            std::cout << "OP_X_BUFFER_OUTPUT " << instr.param2 << " " << instr.param0 << "," << instr.param1;
-            break;
-
-        case OP_B_PROCESS:
-            std::cout << "OP_B_PROCESS " << instr.param0;
-            break;
-        case OP_B_SET_OUTPUT_TO_INPUT:
-            std::cout << "OP_B_SET_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
-            break;
-        case OP_B_ADD_OUTPUT_TO_INPUT:
-            std::cout << "OP_B_ADD_OUTPUT_TO_INPUT " << instr.param0 << "," << instr.param1 << " -> " << instr.param2 << "," << instr.param3;
-            break;
-
-        default:
-            std::cout << "? " << instr.opcode;
-            break;
-        }
-        std::cout << std::endl;
-    }
-}
-
 void ConnectionGraph::findRecursions(int module, std::vector<int> processedModulesToHere) {
     bool doneDone = true;
     bool foundSelf = false;
@@ -447,9 +383,6 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
     processedModules.insert(module);
 
     Module *m = getModule(module);
-
-    m->setFs(fsCompiled);
-
     // Iterate over all input pads
 
     std::set<int> connectedPads;
@@ -482,10 +415,10 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
 
 }
 
-void ConnectionGraph::processSample(int module, float fs)
+void ConnectionGraph::processSample(int module, float sampleRate)
 {
-    if (fs != fsCompiled) compilationStatus = NOT_COMPILED;
-    if (module != compilationStatus) compileProgram(module, fs);
+    if (module != compilationStatus) compileProgram(module);
+    if (sampleRate != fs) setSamplerate(sampleRate);
 
     float out = 0.0f;
 
@@ -507,9 +440,9 @@ void ConnectionGraph::processSample(int module, float fs)
     }
 }
 
-void ConnectionGraph::processBlock(int module, float fs) {
-    if (fs != fsCompiled) compilationStatus = NOT_COMPILED;
-    if (module != compilationStatus) compileProgram(module, fs);
+void ConnectionGraph::processBlock(int module, float sampleRate) {
+    if (module != compilationStatus) compileProgram(module);
+    if (sampleRate != fs) setSamplerate(sampleRate);
 
     if (forceSampleWise) {
         assert(0); // won't work, as we've probably used setInputBlock ...
@@ -575,6 +508,13 @@ void ConnectionGraph::processBlock(int module, float fs) {
     }
 }
 
+void ConnectionGraph::setSamplerate(float fs_) {
+    fs = fs_;
+    for (int i = 0; i < modules.size(); i++) {
+        modules[i]->setFs(fs);
+    }
+}
+
 void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList) {
     for (const auto & p : moduleRegister) {
         auto m = p.second();
@@ -582,4 +522,18 @@ void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList
         docList.emplace_back(m->makeDoc());
         delete m;
     }
+}
+
+const std::vector<Instruction>& ConnectionGraph::dumpProgragram() {
+    return program;
+}
+
+bool ConnectionGraph::validateProgram(const std::vector<Instruction>& program_) {
+    return true;
+}
+
+int ConnectionGraph::recallProgram(const std::vector<Instruction>& program_) {
+    if (!validateProgram(program_)) return -1;
+    program = program_;
+    return 0;
 }

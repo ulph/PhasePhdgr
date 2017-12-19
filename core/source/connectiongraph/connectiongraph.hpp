@@ -25,18 +25,18 @@ protected:
     std::set<int> recursiveScannedModules;
     int recursivePathsSkipped = 0;
     const bool forceSampleWise;
-    float fsCompiled = 48000.f;
+    float fs = -1.0;
     void findRecursions(int module, std::vector<int> processedModulesToHere);
     void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void finalizeProgram(std::vector<Instruction>& protoProgram);
     Module* getModule(int id);
-    void printProgram(const vector<Instruction>& p);
     enum ProccesingType {
         BlockWise,
         SampleWise,
     };
     ProccesingType getProcessingType(int module);
+    bool validateProgram(const std::vector<Instruction>& program);
 
 public:
     static const int k_blockSize = 64;
@@ -55,10 +55,13 @@ public:
     void setInput(int module, std::string pad, float value);
     float getOutput(int module, int pad);
     void getOutputBlock(int module, int pad, float* buffer);
-    void processSample(int module, float fs);
-    void processBlock(int module, float fs);
-    void compileProgram(int module, float fs);
+    void processSample(int module, float sampleRate);
+    void processBlock(int module, float sampleRate);
+    void compileProgram(int module);
+    void setSamplerate(float fs);
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
+    const std::vector<Instruction>& dumpProgragram();
+    int recallProgram(const std::vector<Instruction>& program);
 };
 
 #endif

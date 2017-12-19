@@ -163,6 +163,7 @@ void ConnectionGraph::compileProgram(int module, float fs)
 
     // parse the graph once to find all modules involved in recursion loops
     recursiveModules.clear();
+    recursiveScannedModules.clear();
 
     if (!forceSampleWise) {
         findRecursions(module, std::vector<int>());
@@ -362,8 +363,10 @@ void ConnectionGraph::printProgram(const vector<Instruction>& p) {
 }
 
 void ConnectionGraph::findRecursions(int module, std::vector<int> processedModulesToHere) {
+    bool doneDone = true;
     bool foundSelf = false;
     for (auto otherModule : processedModulesToHere) {
+        doneDone = doneDone && recursiveScannedModules.count(otherModule);
         if (otherModule == module) foundSelf = true;
         if (foundSelf) {
             recursiveModules.insert(otherModule);
@@ -376,10 +379,17 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
     for (int pad = 0; pad < m->getNumInputPads(); pad++) {
         for (const Cable *c : cables) {
             if (c->isConnected(module, pad)) {
-                findRecursions(c->getFromModule(), processedModulesToHere);
+                auto from = c->getFromModule();
+                if (doneDone && recursiveScannedModules.count(from)) {
+                    recursivePathsSkipped++;
+                    continue;
+                }
+                findRecursions(from, processedModulesToHere);
             }
         }
     }
+
+    recursiveScannedModules.insert(module);
 }
 
 ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {

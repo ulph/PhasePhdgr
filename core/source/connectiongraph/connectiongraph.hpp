@@ -22,6 +22,8 @@ protected:
     std::vector<Instruction> program;
     int compilationStatus;
     std::set<int> recursiveModules;
+    std::set<int> recursiveScannedModules;
+    int recursivePathsSkipped = 0;
     const bool forceSampleWise;
     float fsCompiled = 48000.f;
     void findRecursions(int module, std::vector<int> processedModulesToHere);

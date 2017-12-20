@@ -232,7 +232,9 @@ void VoiceBus::update() {
     for (auto &n : notes) {
         n.age++;
     }
-    // TODO, clean up notes? there's no guarantee we won't leak here with the different policies etc in play
+    // TODO, clean up notes? 
+    // there's no guarantee we won't leak here with the different policies etc in play
+    // also, make sure only one note is assigned per voice
 }
 
 }

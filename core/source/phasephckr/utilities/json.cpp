@@ -178,12 +178,22 @@ void to_json(json& j, const PresetDescriptor& preset) {
     j["voice"] = preset.voice;
     j["effect"] = preset.effect;
     if(preset.parameters.size()) j["parameters"] = preset.parameters;
+    j["settings"] = preset.settings;
 }
 
 void from_json(const json& j, PresetDescriptor& preset) {
     preset.voice = j.at("voice").get<PatchDescriptor>();
     preset.effect = j.at("effect").get<PatchDescriptor>();
     if(j.count("parameters")) preset.parameters = j.at("parameters").get<vector<PresetParameterDescriptor>>();
+    if (j.count("settings")) preset.settings = j.at("settings").get<VoiceSettings>();
+}
+
+void to_json(json& j, const VoiceSettings& settings) {
+    j["polyphony"] = settings.polyphony;
+}
+
+void from_json(const json& j, VoiceSettings& settings) {
+    if (j.count("polyphony")) settings.polyphony = j.at("polyphony").get<int>();
 }
 
 }

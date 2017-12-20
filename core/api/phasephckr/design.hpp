@@ -9,7 +9,7 @@
 
 class ConnectionGraph;
 
-#define NYI assert(0)
+#define PP_NYI assert(0)
 
 using namespace std;
 
@@ -83,11 +83,11 @@ struct ConnectionGraphDescriptor {
     int rename(const string& module, const string& newModule);
 
     int clone(const string& module, const string& clone) {
-        NYI; return -1;
+        PP_NYI; return -1;
     }
 
     int clone(const set<string*>& modules) {
-        NYI; return -1;
+        PP_NYI; return -1;
     }
 
     bool validConnection(const ModulePortConnection& connection);
@@ -177,7 +177,10 @@ struct PatchDescriptor {
 };
 
 /* Preset (voice patch + effect patch + parameters) */
-// these are managed by JUCE layer
+
+struct VoiceSettings {
+    int polyphony = 16;
+};
 
 enum SynthGraphType {
     UNDEFINED = 0,
@@ -195,6 +198,7 @@ struct PresetDescriptor {
     PatchDescriptor voice;
     PatchDescriptor effect;
     vector<PresetParameterDescriptor> parameters;
+    VoiceSettings settings;
 };
 
 /* Functions and aux types */

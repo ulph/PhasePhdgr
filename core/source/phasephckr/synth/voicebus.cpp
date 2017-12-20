@@ -7,6 +7,8 @@ namespace PhasePhckr {
 
 void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
+
+    // handle note-on
     if (on && velocity > 0) {
         bool newVoice = true;
 
@@ -21,8 +23,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             n = &notes[idx];
         }
 
-        // find a free voice - 1. oldest inactive silent, 2. oldest inactive, 3. depending on stealPolicy, take active voice
-        SynthVoice *freeVoice;
+        // find a free voice
         if (n->voiceIndex == -1) {
             unsigned int oldestInactiveSilent = 0;
             int selectedInactiveSilentIdx = -1;
@@ -90,36 +91,34 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             else if (selectedActiveIdx != -1) {
                 idxToUse = selectedActiveIdx;
                 newVoice = false;
+                // TODO, depending on retriggering policy and/or legato - actually create a new voice and park the current
             }
 
             if(idxToUse < 0 || idxToUse >= voices.size()){
                 return; 
             }
 
-            voices[idxToUse]->mpe.reset();
+            if(newVoice && !legato) voices[idxToUse]->mpe.reset();
             n->voiceIndex = idxToUse;
-        }
-        else {
-            // TODO, corner case when existing voice ...
-            // should that retrigger or be legato??
-            // probably retrigger
         }
 
         n->velocity = newVoice ? velocity : legato ? n->velocity : velocity;
         n->state = NoteState::ON;
 
-        freeVoice = voices[n->voiceIndex];
-        freeVoice->mpe.on(note, n->velocity, newVoice ? false : legato);
-        freeVoice->mpe.glide(channelData[channel].x);
-        freeVoice->mpe.slide(channelData[channel].y);
-        freeVoice->mpe.press(channelData[channel].z);
+        SynthVoice *selectedVoice = voices[n->voiceIndex];
+        selectedVoice->mpe.on(note, n->velocity, newVoice ? false : legato);
+        selectedVoice->mpe.glide(channelData[channel].x);
+        selectedVoice->mpe.slide(channelData[channel].y);
+        selectedVoice->mpe.press(channelData[channel].z);
 
     }
+    // handle note off
     else if (idx != -1) {
         if (channelData[channel].sustain < 0.5f) {
             if (notes.at(idx).voiceIndex != -1)
                 voices[notes.at(idx).voiceIndex]->mpe.off(note, velocity);
             notes.erase(notes.begin() + idx);
+            // TODO, depending on retriggering policy and/or legato - find a voice in ::OFF and kick back alive
         }
         else {
             notes.at(idx).velocity = 0.0f;
@@ -217,6 +216,7 @@ void VoiceBus::update() {
     for (auto &n : notes) {
         n.age++;
     }
+    // TODO, clean up notes? there's no guarantee we won't leak here with the different policies etc in play
 }
 
 }

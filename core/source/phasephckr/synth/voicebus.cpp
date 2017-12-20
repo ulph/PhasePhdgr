@@ -5,6 +5,83 @@
 
 namespace PhasePhckr {
 
+bool VoiceBus::findVoice(NoteData* n, const std::vector<SynthVoice*> &voices) {
+    bool newVoice = true;
+
+    unsigned int oldestInactiveSilent = 0;
+    int selectedInactiveSilentIdx = -1;
+
+    unsigned int oldestInactive = 0;
+    int selectedInactiveIdx = -1;
+
+    unsigned int oldestActive = 0;
+    unsigned int lowestActive = UINT_MAX;
+    unsigned int highestActive = 0;
+    float quietestActive = 99.f;
+    int selectedActiveIdx = -1;
+
+    int i = 0;
+    for (const auto *v : voices) {
+        auto age = v->mpe.getAge();
+        if (v->mpe.getState().gateTarget == 0) {
+            // active a voice
+            switch (activationPolicy) {
+            case NoteActivationPolicyPreferOldestSilent:
+                if (v->isSilent() && age > oldestInactiveSilent) {
+                    oldestInactiveSilent = age;
+                    selectedInactiveSilentIdx = i;
+                }
+                else if (age > oldestInactive) {
+                    oldestInactive = age;
+                    selectedInactiveIdx = i;
+                }
+                break;
+            default:
+                PP_NYI;
+                break;
+            }
+        }
+        else if (stealPolicy != NoteStealPolicyDoNotSteal) {
+            // steal a voice
+            switch (stealPolicy) {
+            case NoteStealPolicyStealOldest:
+                if (age > oldestActive) {
+                    oldestActive = age;
+                    selectedActiveIdx = i;
+                }
+                break;
+            case NoteStealPolicyStealLowestRMS:
+                if (v->getRms() < quietestActive) {
+                    quietestActive = v->getRms();
+                    selectedActiveIdx = i;
+                }
+                break;
+            default:
+                PP_NYI;
+                break;
+            }
+        }
+        i++;
+    }
+
+    int idxToUse = -1;
+    if (selectedInactiveSilentIdx != -1) {
+        idxToUse = selectedInactiveSilentIdx;
+    }
+    else if (selectedInactiveIdx != -1) {
+        idxToUse = selectedInactiveIdx;
+    }
+    else if (selectedActiveIdx != -1) {
+        idxToUse = selectedActiveIdx;
+        newVoice = false;
+        // TODO, depending on retriggering policy and/or legato - actually create a new voice and park the current
+    }
+
+    n->voiceIndex = idxToUse;
+
+    return newVoice;
+}
+
 void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
 
@@ -23,76 +100,7 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
     // find a free voice (if note has none assigned)
     if (n->voiceIndex == -1) {
-        unsigned int oldestInactiveSilent = 0;
-        int selectedInactiveSilentIdx = -1;
-
-        unsigned int oldestInactive = 0;
-        int selectedInactiveIdx = -1;
-
-        unsigned int oldestActive = 0;
-        unsigned int lowestActive = UINT_MAX;
-        unsigned int highestActive = 0;
-        float quietestActive = 99.f;
-        int selectedActiveIdx = -1;
-
-        int i = 0;
-        for (const auto *v : voices) {
-            auto age = v->mpe.getAge();
-            if (v->mpe.getState().gateTarget == 0) {
-                // active a voice
-                switch (activationPolicy) {
-                case NoteActivationPolicyPreferOldestSilent:
-                    if (v->isSilent() && age > oldestInactiveSilent) {
-                        oldestInactiveSilent = age;
-                        selectedInactiveSilentIdx = i;
-                    }
-                    else if (age > oldestInactive) {
-                        oldestInactive = age;
-                        selectedInactiveIdx = i;
-                    }
-                    break;
-                default:
-                    PP_NYI;
-                    break;
-                }
-            }
-            else if (stealPolicy != NoteStealPolicyDoNotSteal) {
-                // steal a voice
-                switch (stealPolicy) {
-                case NoteStealPolicyStealOldest:
-                    if (age > oldestActive) {
-                        oldestActive = age;
-                        selectedActiveIdx = i;
-                    }
-                    break;
-                case NoteStealPolicyStealLowestRMS:
-                    if (v->getRms() < quietestActive) {
-                        quietestActive = v->getRms();
-                        selectedActiveIdx = i;
-                    }
-                    break;
-                default:
-                    PP_NYI;
-                    break;
-                }
-            }
-            i++;
-        }
-
-        int idxToUse = -1;
-        if (selectedInactiveSilentIdx != -1) {
-            idxToUse = selectedInactiveSilentIdx;
-        }
-        else if (selectedInactiveIdx != -1) {
-            idxToUse = selectedInactiveIdx;
-        }
-        else if (selectedActiveIdx != -1) {
-            idxToUse = selectedActiveIdx;
-            newVoice = false;
-            // TODO, depending on retriggering policy and/or legato - actually create a new voice and park the current
-        }
-
-        n->voiceIndex = idxToUse;
+        newVoice = findVoice(n, voices);
     }
     else {
         newVoice = false;

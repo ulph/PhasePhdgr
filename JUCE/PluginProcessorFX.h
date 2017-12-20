@@ -26,7 +26,7 @@ private:
     void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Effect* effect;
 
-    ProcessorFileThings fileThings;
+    ComponentFileLoader componentLoader;
     
     PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;

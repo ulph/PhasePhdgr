@@ -12,7 +12,7 @@ using namespace std;
 
 PhasePhckrProcessorFX::PhasePhckrProcessorFX()
     : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
-    , fileThings(subComponentRegister)
+    , componentLoader(subComponentRegister)
 {
     activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){
         setEffectChain(e);
@@ -22,14 +22,14 @@ PhasePhckrProcessorFX::PhasePhckrProcessorFX()
         setEffectChain(effectChain);
     });
 
-    createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
+    createInitialUserLibrary(componentRegister);
 
     // parameter mumbo
     parameters.initialize(this);
 
     // create the synth and push down the initial chains
     effect = new PhasePhckr::Effect();
-    fileThings.rescan();
+    componentLoader.rescan();
 
     setPatch(getExampleEffectChain());
 }
@@ -118,27 +118,14 @@ AudioProcessorEditor* PhasePhckrProcessorFX::createEditor()
 
 void PhasePhckrProcessorFX::getStateInformation (MemoryBlock& destData)
 {
-    json j = getPreset();
-    string ss = j.dump(2); // json lib bugged with long rows
-    const char* s = ss.c_str();
-    size_t n = (strlen(s) + 1) / sizeof(char);
-    destData.fillWith(0);
-    destData.insert((const void*)s, n, 0);
-    assert(destData.getSize() == n);
+    auto p = getPreset();
+    storeState(p, destData);
 }
 
 void PhasePhckrProcessorFX::setStateInformation (const void* data, int sizeInBytes)
 {
-    string ss((const char*)data);
     PresetDescriptor preset;
-    try {
-        preset = json::parse(ss.c_str());
-    }
-    catch (const nlohmann::detail::exception& e) {
-        auto msg = e.what();
-        cerr << "setStateInformation: " << msg << endl;
-        return;
-    }
+    loadState(data, sizeInBytes, preset);
     setPreset(preset);
 }
 

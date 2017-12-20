@@ -11,8 +11,8 @@ using namespace PhasePhckrFileStuff;
 using namespace std;
 
 PhasePhckrProcessor::PhasePhckrProcessor()    
-    : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
-    , fileThings(subComponentRegister)
+    : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
+    , componentLoader(subComponentRegister)
 {
     activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){
         setVoiceChain(v);
@@ -26,14 +26,14 @@ PhasePhckrProcessor::PhasePhckrProcessor()
         setEffectChain(effectChain);
     });
 
-    createInitialUserLibrary(componentRegister); // TODO, only do this on FIRST start
+    createInitialUserLibrary(componentRegister);
 
     // parameter mumbo
     parameters.initialize(this);
 
     // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
-    fileThings.rescan();
+    componentLoader.rescan();
 
     PresetDescriptor initialPreset;
     initialPreset.voice = getExampleVoiceChain();
@@ -194,27 +194,14 @@ AudioProcessorEditor* PhasePhckrProcessor::createEditor()
 
 void PhasePhckrProcessor::getStateInformation (MemoryBlock& destData)
 {
-    json j = getPreset();
-    string ss = j.dump(2); // json lib bugged with long rows
-    const char* s = ss.c_str(); 
-    size_t n = (strlen(s)+1) / sizeof(char);
-    destData.fillWith(0);
-    destData.insert((const void*)s, n, 0);
-    assert(destData.getSize() == n);
+    auto p = getPreset();
+    storeState(p, destData);
 }
 
 void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    string ss((const char*)data);
     PresetDescriptor preset;
-    try {
-        preset = json::parse(ss.c_str());
-    }
-    catch (const nlohmann::detail::exception& e) {
-        auto msg = e.what();
-        cerr << "setStateInformation: " << msg << endl;
-        return;
-    }
+    loadState(data, sizeInBytes, preset);
     setPreset(preset);
 }
 

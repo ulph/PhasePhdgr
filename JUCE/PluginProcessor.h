@@ -29,7 +29,7 @@ private:
     void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Synth* synth;
 
-    ProcessorFileThings fileThings;
+    ComponentFileLoader componentLoader;
 
     PhasePhckr::PatchDescriptor voiceChain;
     int activeVoiceHandle;

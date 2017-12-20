@@ -16,45 +16,11 @@ using namespace PhasePhckrFileStuff;
 using namespace PhasePhckr;
 using namespace std;
 
-void proccessHandleCommonMidi(Effect* effect);
+void storeState(const PresetDescriptor& preset, MemoryBlock& destData);
+
+void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset);
 
 void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition);
-
-struct ProcessorFileThings {
-    PhasePhckr::ComponentRegister componentRegister;
-    SubValue<PhasePhckr::ComponentRegister>& subComponentRegister;
-
-    ProcessorFileThings(SubValue<PhasePhckr::ComponentRegister>& subComponentRegister_)
-        : subComponentRegister(subComponentRegister_)
-    {
-    }
-
-    void rescan() {
-        Array<File> initialFiles;
-        int res = componentsDir.findChildFiles(initialFiles, File::findFiles, true, "*.json");
-        if (res == 0) return;
-        for (int i = 0; i < initialFiles.size(); i++) {
-            auto &f = initialFiles[i];
-            String p = f.getRelativePathFrom(componentsDir);
-            string n = string(&componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
-            n = make_path_agnostic(n);
-            string s = f.loadFileAsString().toStdString();
-            try {
-                json j = json::parse(s.c_str());
-                ComponentDescriptor cd = j;
-                cd.cleanUp();
-                componentRegister.registerComponent(n, cd);
-            }
-            catch (const std::exception& e) {
-                (void)e;
-                continue;
-                assert(0);
-            }
-        }
-        subComponentRegister.set(-1, componentRegister);
-    }
-};
-
 
 class BufferingProcessor {
 public:

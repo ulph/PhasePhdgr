@@ -2,8 +2,26 @@
 
 #include "PluginCommon.h"
 
-void proccessHandleCommonMidi(Effect* effect) {
+void storeState(const PresetDescriptor& preset, MemoryBlock& destData) {
+    json j = preset;
+    string ss = j.dump(2); // json lib bugged with long rows
+    const char* s = ss.c_str();
+    size_t n = (strlen(s) + 1) / sizeof(char);
+    destData.fillWith(0);
+    destData.insert((const void*)s, n, 0);
+    assert(destData.getSize() == n);
+}
 
+void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset) {
+    string ss((const char*)data);
+    try {
+        preset = json::parse(ss.c_str());
+    }
+    catch (const nlohmann::detail::exception& e) {
+        auto msg = e.what();
+        cerr << "loadState: " << msg << endl;
+        return;
+    }
 }
 
 void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition) {

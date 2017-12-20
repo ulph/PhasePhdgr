@@ -508,7 +508,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         if (maxY < mY) dy = maxY - mY;
 
         if ( abs(dx) > 2 || abs(dy) > 2 ){
-            setTopLeftPosition(getX() + dx*0.5f, getY() + dy*0.5f);
+            setTopLeftPosition(getX() + (int)(dx*0.5f), getY() + (int)(dy*0.5f));
             beginDragAutoRepeat(10);
         }
 

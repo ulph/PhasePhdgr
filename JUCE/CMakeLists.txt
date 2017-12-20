@@ -41,21 +41,21 @@ set(PH_COMMON_SRC
 
     Components/DocView.cpp
     Components/DocView.hpp
-    Components/PhasePhckrGrid.cpp
-    Components/PhasePhckrGrid.h
-    Components/PhasePhckrScope.cpp
-    Components/PhasePhckrScope.h
+    Components/PPGrid.cpp
+    Components/PPGrid.h
+    Components/ScopeView.cpp
+    Components/ScopeView.h
     Components/ParameterKnob.hpp
 
     Utils/Utils.hpp
     Utils/Style.cpp
     Utils/Style.hpp
 
-    PhasePhckrParameter.cpp
-    PhasePhckrParameter.hpp
+    Parameter.cpp
+    Parameter.hpp
 
-    PhasePhckrPluginCommon.h
-    PhasePhckrPluginCommon.cpp
+    PluginCommon.h
+    PluginCommon.cpp
 )
 
 add_library(phasephckr_common_juce_obj OBJECT ${PH_COMMON_SRC})
@@ -65,10 +65,10 @@ set_target_properties(phasephckr_common_juce_obj PROPERTIES FOLDER JUCE)
 set(PH_SYNTH_SRC
   FileBrowser/FileBrowserPanel.cpp
   FileBrowser/FileBrowserPanel.hpp
-  PhasePhckrPluginEditor.cpp
-  PhasePhckrPluginEditor.h
-  PhasePhckrPluginProcessor.cpp
-  PhasePhckrPluginProcessor.h
+  PluginEditor.cpp
+  PluginEditor.h
+  PluginProcessor.cpp
+  PluginProcessor.h
   exportSynth.cpp
 )
 
@@ -79,10 +79,10 @@ set_target_properties(phasephckr_synth_juce_obj PROPERTIES FOLDER JUCE)
 set(PH_EFFECT_SRC
   FileBrowser/FileBrowserPanelFX.cpp
   FileBrowser/FileBrowserPanelFX.hpp
-  PhasePhckrPluginEditorFX.cpp
-  PhasePhckrPluginEditorFX.h
-  PhasePhckrPluginProcessorFX.cpp
-  PhasePhckrPluginProcessorFX.h
+  PluginEditorFX.cpp
+  PluginEditorFX.h
+  PluginProcessorFX.cpp
+  PluginProcessorFX.h
   exportEffect.cpp
 )
 

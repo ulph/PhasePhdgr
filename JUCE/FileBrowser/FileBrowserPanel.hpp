@@ -8,12 +8,12 @@ private:
     int subVoiceHandle;
     int subEffectHandle;
     TimeSliceThread fileWatchThread;
-    PhasePhckrGrid filesGrid;
+    PPGrid filesPPGrid;
     FileEditorBundle voiceFiles;
     FileEditorBundle effectFiles;
     FileEditorBundle presetFiles;
 
-    PhasePhckrGrid componentFilesGrid;
+    PPGrid componentFilesPPGrid;
     FileEditorBundle componentFiles;
     TabbedComponent docViewTab;
     map<string, ComponentDescriptor> voiceComponents;

@@ -3,13 +3,13 @@
 #include <atomic>
 #include <phasephckr/locks.hpp>
 
-#include "PhasePhckrParameter.hpp"
+#include "Parameter.hpp"
 
 class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {
 private:
     Slider slider;
     Label label;
-    PhasePhckrParameter * parameter;
+    Parameter * parameter;
     float lastValue;
     int lastActivity = -1;
     String lastText;
@@ -18,7 +18,7 @@ private:
     const function<void(int, int)> swapParameterIndicesCallback;
     bool isDragging = false; // a soft lock to prevent update() to mess
 public:
-    ParameterKnob(PhasePhckrParameter * parameter, const function<void(int, int)> &swapParameterIndicesCallback)
+    ParameterKnob(Parameter * parameter, const function<void(int, int)> &swapParameterIndicesCallback)
         : parameter(parameter)
         , swapParameterIndicesCallback(swapParameterIndicesCallback)
     {

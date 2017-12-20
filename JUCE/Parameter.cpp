@@ -1,20 +1,20 @@
-#include "PhasePhckrParameter.hpp"
-#include "PhasePhckrPluginEditor.h"
+#include "Parameter.hpp"
+#include "PluginEditor.h"
 
 #include <list>
 
 using namespace std;
 
-void PhasePhckrParameters::initialize(AudioProcessor * p){
+void Parameters::initialize(AudioProcessor * p){
     // only call once right after constructor or shit hits the fan
     for (int i = 0; i < knobsPerBank*banksPerPage*numberOfPages; i++) {
-        auto knb_ptr = new PhasePhckrParameter(i);
+        auto knb_ptr = new Parameter(i);
         floatParameters.push_back(knb_ptr);
         p->addParameter(knb_ptr);
     }
 }
 
-void PhasePhckrParameters::updateParameters(bool reset)
+void Parameters::updateParameters(bool reset)
 {
     // clear the routing
     parameterRouting.clear();
@@ -110,25 +110,25 @@ void PhasePhckrParameters::updateParameters(bool reset)
     }
 }
 
-bool PhasePhckrParameters::accessParameter(int index, PhasePhckrParameter ** param) {
+bool Parameters::accessParameter(int index, Parameter ** param) {
     // potentially unsafe hack
     if (index >= numberOfParameters()) return false;
     *param = floatParameters[index];
     return true;
 }
 
-size_t PhasePhckrParameters::numberOfParameters() {
+size_t Parameters::numberOfParameters() {
     return floatParameters.size();
 }
 
-void PhasePhckrParameters::swapParameterIndices(int onto_idx, int dropped_idx) {
+void Parameters::swapParameterIndices(int onto_idx, int dropped_idx) {
 
     if (onto_idx == dropped_idx) return;
     if (onto_idx < 0 || dropped_idx < 0) return;
     if (onto_idx >= floatParameters.size() || dropped_idx >= floatParameters.size()) return;
 
-    PhasePhckrParameter * a = nullptr;
-    PhasePhckrParameter * b = nullptr;
+    Parameter * a = nullptr;
+    Parameter * b = nullptr;
 
     auto scoped_lock = parameterLock.make_scoped_lock();
 
@@ -160,7 +160,7 @@ void PhasePhckrParameters::swapParameterIndices(int onto_idx, int dropped_idx) {
 
 }
 
-void PhasePhckrParameters::setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv) {
+void Parameters::setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv) {
     // from synth
     auto scoped_lock = parameterLock.make_scoped_lock();
 
@@ -174,7 +174,7 @@ void PhasePhckrParameters::setParametersHandleMap(SynthGraphType type, const Par
     }
 }
 
-void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
+void Parameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {
@@ -193,7 +193,7 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Effect* effect
     }
 }
 
-void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
+void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {
@@ -215,7 +215,7 @@ void PhasePhckrParameters::visitHandleParameterValues(PhasePhckr::Synth* synth) 
     }
 }
 
-vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
+vector<PresetParameterDescriptor> Parameters::serialize() {
     // from patch serialization - convert to a struct with strings
     auto scoped_lock = parameterLock.make_scoped_lock();
     vector<PresetParameterDescriptor> pv;
@@ -236,7 +236,7 @@ vector<PresetParameterDescriptor> PhasePhckrParameters::serialize() {
     return pv;
 }
 
-void PhasePhckrParameters::deserialize(const vector<PresetParameterDescriptor>& pv) {
+void Parameters::deserialize(const vector<PresetParameterDescriptor>& pv) {
     // from patch deserialization - convert from struct with strings
     auto scoped_lock = parameterLock.make_scoped_lock();
 

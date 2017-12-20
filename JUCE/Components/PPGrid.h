@@ -8,15 +8,15 @@
 
 using namespace std;
 
-class PhasePhckrGrid : public Component
+class PPGrid : public Component
 {
 private:
     vector<float> coloumnSizes;
-    vector<Component*> gridComponents;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrGrid)
+    vector<Component*> components;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PPGrid)
 
 public:
-    PhasePhckrGrid() : coloumnSizes({ 0.5f, 0.5f }) {}
+    PPGrid() : coloumnSizes({ 0.5f, 0.5f }) {}
     void paint (Graphics&) override;
     void resized() override;
     void addComponent(Component* component);

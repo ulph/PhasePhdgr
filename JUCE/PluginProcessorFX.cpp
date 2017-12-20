@@ -1,11 +1,11 @@
 #include <phasephckr_json.hpp>
 #include <xmmintrin.h>
 
-#include "PhasePhckrPluginProcessorFX.h"
-#include "PhasePhckrPluginEditorFX.h"
+#include "PluginProcessorFX.h"
+#include "PluginEditorFX.h"
 #include "FileIO.hpp"
 
-#include "PhasePhckrPluginCommon.h"
+#include "PluginCommon.h"
 
 using namespace PhasePhckrFileStuff;
 using namespace std;
@@ -216,7 +216,7 @@ void PhasePhckrProcessorFX::updateLayout(const string &component, const map<stri
     c->layout = layout;
 
     // hack, as updateHostDisplay() doesn't work for Reaper
-    PhasePhckrParameter* pa = nullptr;
+    Parameter* pa = nullptr;
     parameters.accessParameter(0, &pa);
     if (pa != nullptr) pa->setValueNotifyingHost(*pa);
 

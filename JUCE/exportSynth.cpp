@@ -1,5 +1,5 @@
 #include "JuceHeader.h"
-#include "PhasePhckrPluginProcessor.h"
+#include "PluginProcessor.h"
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

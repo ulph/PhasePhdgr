@@ -15,7 +15,7 @@
 using namespace PhasePhckr;
 using namespace std;
 
-const float c_GridSize = 200;
+const float c_PPGridSize = 200;
 const float c_NodeSize = 125;
 const float c_PortSize = 10;
 

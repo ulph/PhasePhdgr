@@ -5,8 +5,8 @@
 #include <phasephckr_json.hpp>
 #include "JuceHeader.h"
 
-#include "PhasePhckrPluginProcessorFX.h"
-#include "PhasePhckrPluginEditorFX.h"
+#include "PluginProcessorFX.h"
+#include "PluginEditorFX.h"
 #include "DirectoryWatcher.hpp"
 
 #include "FileIO.hpp"
@@ -50,14 +50,14 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
     addAndMakeVisible(mainFrame);
     
-    mainFrame.addTab("scopes", Colours::black, &scopeGrid, false);
-    scopeGrid.addComponent(&inputScopeL);
-    scopeGrid.addComponent(&inputScopeXY);
-    scopeGrid.addComponent(&inputScopeR);
-    scopeGrid.addComponent(&outputScopeL);
-    scopeGrid.addComponent(&outputScopeXY);
-    scopeGrid.addComponent(&outputScopeR);
-    scopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
+    mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
+    scopePPGrid.addComponent(&inputScopeL);
+    scopePPGrid.addComponent(&inputScopeXY);
+    scopePPGrid.addComponent(&inputScopeR);
+    scopePPGrid.addComponent(&outputScopeL);
+    scopePPGrid.addComponent(&outputScopeXY);
+    scopePPGrid.addComponent(&outputScopeR);
+    scopePPGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
 

@@ -65,7 +65,7 @@ void bubbleUpSetX(
     ModulePositionMap & modulePositions,
     const ConnectionsMap & connections,
     set<string> & bubbledThrough,
-    set<pair<int, int>> & gridOccupation,
+    set<pair<int, int>> & PPGridOccupation,
     const string & start,
     int iteration
 ) {
@@ -73,12 +73,12 @@ void bubbleUpSetX(
     while (true) {
         if (!bubbledThrough.count(n)) {
             auto position = make_pair(iteration, (int)modulePositions[n].y);
-            while (gridOccupation.count(position)) {
+            while (PPGridOccupation.count(position)) {
                 // something is allready there, move in x momentarily
                 iteration += 2; // odd even thing below ... +1 or +2 depends on the graph I think
                 position = make_pair(iteration, (int)modulePositions[n].y);
             }
-            gridOccupation.insert(position);
+            PPGridOccupation.insert(position);
             // place symmetric around 0!
             modulePositions[n].x = (float)(((iteration % 2) == 0) ? (-iteration / 2) : (iteration / 2 + 1));
         }
@@ -168,7 +168,7 @@ void setNodePositionsInner(
 
     set<string> bubbledFrom; // track from where we started
     set<string> bubbledThrough; // track where we passed through
-    set<pair<int, int>> gridOccupation; // track where things are placed to mitigate overlap
+    set<pair<int, int>> PPGridOccupation; // track where things are placed to mitigate overlap
     queue<pair<string, int>> xQueue; // node + x position to work over (as we do breadth-first)
 
     // for each node, starting from 'stop',
@@ -185,7 +185,7 @@ void setNodePositionsInner(
         bubbleUpSetX(modulePositions,
             undirectedConnections, 
             bubbledThrough,
-            gridOccupation, 
+            PPGridOccupation, 
             m, 
             d
         );

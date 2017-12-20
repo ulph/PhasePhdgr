@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PhasePhckrPluginCommon.h"
+#include "PluginCommon.h"
 
 void proccessHandleCommonMidi(Effect* effect) {
 
@@ -27,25 +27,25 @@ void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize
     effect->handleBarPosition(barPosition);
 }
 
-PhasePhckrParameterEditor::PhasePhckrParameterEditor()
+ParameterEditor::ParameterEditor()
 {
     addAndMakeVisible(pageTabs);
 }
 
-PhasePhckrParameterEditor::~PhasePhckrParameterEditor() {
+ParameterEditor::~ParameterEditor() {
     for (auto* p : pages) delete p;
 }
 
-void PhasePhckrParameterEditor::resized()
+void ParameterEditor::resized()
 {
     pageTabs.setBoundsRelative(0.f, 0.0f, 1.f, 1.0f);
     repaint();
 }
 
-void PhasePhckrParameterEditor::addKnob(ParameterKnob* knob) {
-    const int knobsPerPage = PhasePhckrParameters::knobsPerBank*PhasePhckrParameters::banksPerPage;
+void ParameterEditor::addKnob(ParameterKnob* knob) {
+    const int knobsPerPage = Parameters::knobsPerBank*Parameters::banksPerPage;
     if (0 == (knobCtr % knobsPerPage)) {
-        auto* p = new PhasePhckrGrid;
+        auto* p = new PPGrid;
         p->setColoumns(rowLayout);
         pages.push_back(p);
         pageTabs.addTab(String(knobCtr) + "-" + String(knobCtr + knobsPerPage-1), Colours::black, p, false);

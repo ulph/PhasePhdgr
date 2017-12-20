@@ -8,7 +8,7 @@
 
 #include "JuceHeader.h"
 
-#include "PhasePhckrGrid.h"
+#include "PPGrid.h"
 
 using namespace std;
 using namespace PhasePhckr;
@@ -39,7 +39,7 @@ public:
 
 class DocView : public Component {
 private:
-    PhasePhckrGrid docGrid;
+    PPGrid docPPGrid;
     DocListModel docListModel;
     TextEditor docTextView;
     ListBox docList;

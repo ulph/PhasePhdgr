@@ -1,6 +1,6 @@
 #include "FileEditorBundle.hpp"
 #include "FileIO.hpp"
-#include "PhasePhckrPluginEditor.h"
+#include "PluginEditor.h"
 #include "Style.hpp"
 
 using namespace PhasePhckrFileStuff;

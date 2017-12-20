@@ -80,15 +80,15 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
     fileWatchThread.startThread();
     fileWatchThread.notify();
 
-    addAndMakeVisible(filesGrid);
+    addAndMakeVisible(filesPPGrid);
 
-    filesGrid.addComponent(&voiceFiles);
-    filesGrid.addComponent(&effectFiles);
-    filesGrid.addComponent(&presetFiles);
+    filesPPGrid.addComponent(&voiceFiles);
+    filesPPGrid.addComponent(&effectFiles);
+    filesPPGrid.addComponent(&presetFiles);
 
-    filesGrid.addComponent(&componentFilesGrid);
-    componentFilesGrid.addComponent(&componentFiles);
-    componentFilesGrid.addComponent(&docViewTab);
+    filesPPGrid.addComponent(&componentFilesPPGrid);
+    componentFilesPPGrid.addComponent(&componentFiles);
+    componentFilesPPGrid.addComponent(&docViewTab);
     docViewTab.addTab("voice", Colours::black, &voiceDocView, false);
     docViewTab.addTab("effect", Colours::black, &effectDocView, false);
 
@@ -97,7 +97,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
 
 void FileBrowserPanel::resized()
 {
-    filesGrid.setBoundsRelative(0, 0, 1.0f, 1.0f);
+    filesPPGrid.setBoundsRelative(0, 0, 1.0f, 1.0f);
 }
 
 FileBrowserPanel::~FileBrowserPanel(){

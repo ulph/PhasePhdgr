@@ -739,8 +739,8 @@ void GraphEditor::updateRenderComponents()
             XY xy(mp.at(m.name).x, mp.at(m.name).y);
             if (rootComponent()->layout.count(m.name)) {
                 auto xy_ = rootComponent()->layout.at(m.name);
-                xy.x = (float)xy_.x / (float)c_GridSize;
-                xy.y = (float)xy_.y / (float)c_GridSize;
+                xy.x = (float)xy_.x / (float)c_PPGridSize;
+                xy.y = (float)xy_.y / (float)c_PPGridSize;
             }
             auto gfxM = GfxModule(m, xy.x, xy.y, doc, rootComponent()->graph.values);
             if (globalComponents.count(m.type) && patch.components.count(m.type)) {

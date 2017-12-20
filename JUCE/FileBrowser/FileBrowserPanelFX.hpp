@@ -7,10 +7,10 @@ private:
     PhasePhckrProcessorFX& processor;
     int subEffectHandle;
     TimeSliceThread fileWatchThread;
-    PhasePhckrGrid filesGrid;
+    PPGrid filesPPGrid;
     FileEditorBundle effectFiles;
 
-    PhasePhckrGrid componentFilesGrid;
+    PPGrid componentFilesPPGrid;
     FileEditorBundle componentFiles;
     TabbedComponent docViewTab;
     map<string, ComponentDescriptor> voiceComponents;

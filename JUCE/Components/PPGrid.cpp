@@ -1,8 +1,8 @@
 #include "JuceHeader.h"
-#include "PhasePhckrGrid.h"
+#include "PPGrid.h"
 
-void PhasePhckrGrid::paint(Graphics& g){
-  float numberOfRows = (float)gridComponents.size()/coloumnSizes.size();
+void PPGrid::paint(Graphics& g){
+  float numberOfRows = (float)components.size()/coloumnSizes.size();
   float size_y = (float)this->getHeight();
   float size_x = (float)this->getWidth();
 
@@ -20,12 +20,12 @@ void PhasePhckrGrid::paint(Graphics& g){
   }
 }
 
-void PhasePhckrGrid::resized(){
-  float numberOfRows = (float)(gridComponents.size()/coloumnSizes.size());
+void PPGrid::resized(){
+  float numberOfRows = (float)(components.size()/coloumnSizes.size());
 
   int i=0;
   float x = 0;
-  for(auto &c : gridComponents){
+  for(auto &c : components){
     //indices
     if ((i % coloumnSizes.size()) == 0) { x = 0; }
     float w = coloumnSizes[i%coloumnSizes.size()];
@@ -44,13 +44,13 @@ void PhasePhckrGrid::resized(){
   repaint();
 }
 
-void PhasePhckrGrid::addComponent(Component* component){
+void PPGrid::addComponent(Component* component){
   addAndMakeVisible(*component);
-  gridComponents.push_back(component);
+  components.push_back(component);
   resized();
 }
 
-void PhasePhckrGrid::setColoumns(const std::vector<float> &sizes) {
+void PPGrid::setColoumns(const std::vector<float> &sizes) {
     coloumnSizes = sizes;
     // normalize
     float sum = 0;

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "PhasePhckrPluginProcessor.h"
-#include "PhasePhckrPluginProcessorFX.h"
+#include "PluginProcessor.h"
+#include "PluginProcessorFX.h"
 
 #include "FileIO.hpp"
 #include "DirectoryWatcher.hpp"
-#include "PhasePhckrGrid.h"
+#include "PPGrid.h"
 
 #include "PatchEditor.hpp" // TODO for _stylize
 

@@ -6,7 +6,7 @@
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
-#include "PhasePhckrGrid.h"
+#include "PPGrid.h"
 #include "Utils.hpp"
 #include "GraphEditor.hpp"
 
@@ -106,7 +106,7 @@ class PatchEditor : public Component
     SubValue<PhasePhckr::ComponentRegister> &subCmpReg;
     int cmpRegHandle;
 
-    PhasePhckrGrid grid;
+    PPGrid PPGrid;
 
     GraphEditorBundle rootBundle;
 

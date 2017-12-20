@@ -8,7 +8,7 @@
 #include "Utils.hpp"
 
 #include "ParameterKnob.hpp"
-#include "PhasePhckrGrid.h"
+#include "PPGrid.h"
 
 #include <functional>
 
@@ -294,15 +294,15 @@ public:
     }
 };
 
-class PhasePhckrParameterEditor : public Component, public DragAndDropContainer {
+class ParameterEditor : public Component, public DragAndDropContainer {
 private:
     ParameterPages pageTabs;
-    vector<PhasePhckrGrid*> pages;
+    vector<PPGrid*> pages;
     int knobCtr = 0;
     const vector<float> rowLayout = { 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
 public:
-    PhasePhckrParameterEditor();
-    virtual ~PhasePhckrParameterEditor();
+    ParameterEditor();
+    virtual ~ParameterEditor();
     void addKnob(ParameterKnob* knob);
     void resized() override;
 };

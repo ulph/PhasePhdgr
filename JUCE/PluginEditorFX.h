@@ -5,8 +5,8 @@
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
-#include "PhasePhckrPluginProcessorFX.h"
-#include "PhasePhckrScope.h"
+#include "PluginProcessorFX.h"
+#include "ScopeView.h"
 #include "DirectoryWatcher.hpp"
 #include "FileBrowserPanelFX.hpp"
 #include "GraphEditor.hpp"
@@ -27,22 +27,22 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
-    friend PhasePhckrParameters;
+    friend Parameters;
 
 private:
     PhasePhckrProcessorFX& processor;
 
-    PhasePhckrScope inputScopeL;
-    PhasePhckrScope inputScopeR;
-    PhasePhckrXYScope inputScopeXY;
+    ScopeView inputScopeL;
+    ScopeView inputScopeR;
+    XYScopeView inputScopeXY;
 
-    PhasePhckrScope outputScopeL;
-    PhasePhckrScope outputScopeR;
-    PhasePhckrXYScope outputScopeXY;
+    ScopeView outputScopeL;
+    ScopeView outputScopeR;
+    XYScopeView outputScopeXY;
 
     TabbedComponent mainFrame;
-    PhasePhckrGrid scopeGrid;
-    PhasePhckrParameterEditor parameterEditor;
+    PPGrid scopePPGrid;
+    ParameterEditor parameterEditor;
 
     FileBrowserPanelFX fileBrowserPanel;
 

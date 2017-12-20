@@ -12,9 +12,7 @@
 using namespace std;
 using namespace PhasePhckr;
 
-class PhasePhckrEditor;
-
-class PhasePhckrParameter : public AudioParameterFloat {
+class Parameter : public AudioParameterFloat {
 private:
     int idx;
     SynthGraphType type = UNDEFINED;
@@ -25,7 +23,7 @@ private:
         return to_string(idx / 8) + "_" + to_string(idx % 8);
     }
 public:
-    PhasePhckrParameter(int idx)
+    Parameter(int idx)
         : AudioParameterFloat(
             to_string(idx),
             clearedName(idx),
@@ -87,8 +85,8 @@ public:
 
 typedef pair<SynthGraphType, string> ParameterIdentifier;
 
-class PhasePhckrParameters {
-    vector<PhasePhckrParameter *> floatParameters; // the actual JUCE parameter, also holds the preset level name
+class Parameters {
+    vector<Parameter *> floatParameters; // the actual JUCE parameter, also holds the preset level name
     map<int, int> parameterRouting; // maps index of floatParameters to a handle
     ParameterHandleMap effectParameters;
     ParameterHandleMap voiceParameters;
@@ -103,7 +101,7 @@ public:
 
     void initialize(AudioProcessor * p);
     template<class T> void initializeKnobs(T* e);
-    bool accessParameter(int index, PhasePhckrParameter ** param); // JUCE layer needs to couple to UI element
+    bool accessParameter(int index, Parameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
     void swapParameterIndices(int onto_idx, int dropped_idx); // via gui
     void setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv);
@@ -113,9 +111,9 @@ public:
     void deserialize(const vector<PresetParameterDescriptor>& pv);
 };
 
-template<class T> void PhasePhckrParameters::initializeKnobs(T * e) {
+template<class T> void Parameters::initializeKnobs(T * e) {
     for (int i = 0; i<numberOfParameters(); i++) {
-        PhasePhckrParameter* p = nullptr;
+        Parameter* p = nullptr;
         if (accessParameter(i, &p)) {
             auto knob = new ParameterKnob(p,
                 [this](int onto_idx, int dropped_idx) {

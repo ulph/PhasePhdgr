@@ -83,11 +83,11 @@ DocView::DocView(const ComponentClickedCallback& cb)
     : docListModel(docTextView, cb)
     , docList("docList", &docListModel)
 {
-    addAndMakeVisible(docGrid);
+    addAndMakeVisible(docPPGrid);
 
-    docGrid.addComponent(&docTextView);
-    docGrid.addComponent(&docList);
-    docGrid.setColoumns({ 1.0f });
+    docPPGrid.addComponent(&docTextView);
+    docPPGrid.addComponent(&docList);
+    docPPGrid.setColoumns({ 1.0f });
     docList.updateContent();
 
     _stylize(&docTextView);
@@ -112,5 +112,5 @@ void DocView::setLocalComponents(const set<string>& localComponents) {
 }
 
 void DocView::resized(){
-    docGrid.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
+    docPPGrid.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
 }

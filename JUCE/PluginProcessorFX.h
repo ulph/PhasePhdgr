@@ -8,13 +8,13 @@
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
-#include "PhasePhckrGrid.h"
+#include "PPGrid.h"
 #include "Utils.hpp"
 #include "PatchEditor.hpp"
 
-#include "PhasePhckrParameter.hpp"
+#include "Parameter.hpp"
 
-#include "PhasePhckrPluginCommon.h"
+#include "PluginCommon.h"
 
 using namespace std;
 
@@ -82,7 +82,7 @@ public:
 
     void setComponentRegister(const ComponentRegister& cr);
 
-    PhasePhckrParameters parameters;
+    Parameters parameters;
 
     void updateLayout(const string &component, const map<string, ModulePosition> &layout);
 

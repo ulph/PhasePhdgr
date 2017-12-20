@@ -44,13 +44,13 @@ FileBrowserPanelFX::FileBrowserPanelFX(PhasePhckrProcessorFX& p)
     fileWatchThread.startThread();
     fileWatchThread.notify();
 
-    addAndMakeVisible(filesGrid);
+    addAndMakeVisible(filesPPGrid);
 
-    filesGrid.addComponent(&effectFiles);
+    filesPPGrid.addComponent(&effectFiles);
 
-    filesGrid.addComponent(&componentFilesGrid);
-    componentFilesGrid.addComponent(&componentFiles);
-    componentFilesGrid.addComponent(&docViewTab);
+    filesPPGrid.addComponent(&componentFilesPPGrid);
+    componentFilesPPGrid.addComponent(&componentFiles);
+    componentFilesPPGrid.addComponent(&docViewTab);
     docViewTab.addTab("effect", Colours::black, &effectDocView, false);
 
     resized();
@@ -58,7 +58,7 @@ FileBrowserPanelFX::FileBrowserPanelFX(PhasePhckrProcessorFX& p)
 
 void FileBrowserPanelFX::resized()
 {
-    filesGrid.setBoundsRelative(0, 0, 1.0f, 1.0f);
+    filesPPGrid.setBoundsRelative(0, 0, 1.0f, 1.0f);
 }
 
 FileBrowserPanelFX::~FileBrowserPanelFX(){

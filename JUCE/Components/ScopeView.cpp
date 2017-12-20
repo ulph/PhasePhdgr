@@ -1,7 +1,7 @@
 #include "JuceHeader.h"
-#include "PhasePhckrScope.h"
+#include "ScopeView.h"
 
-void PhasePhckrScope::paint (Graphics& g)
+void ScopeView::paint (Graphics& g)
 {
     float size_y = (float)this->getHeight();
     float size_x = (float)this->getWidth();
@@ -30,13 +30,13 @@ void PhasePhckrScope::paint (Graphics& g)
     }
 }
 
-void PhasePhckrScope::resized()
+void ScopeView::resized()
 {
     repaint();
 }
 
 
-void PhasePhckrXYScope::paint (Graphics& g)
+void XYScopeView::paint (Graphics& g)
 {
     float size_y = (float)this->getHeight();
     float size_x = (float)this->getWidth();
@@ -60,7 +60,7 @@ void PhasePhckrXYScope::paint (Graphics& g)
     }
 }
 
-void PhasePhckrXYScope::resized()
+void XYScopeView::resized()
 {
     repaint();
 }

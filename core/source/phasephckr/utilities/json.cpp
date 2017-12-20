@@ -185,15 +185,21 @@ void from_json(const json& j, PresetDescriptor& preset) {
     preset.voice = j.at("voice").get<PatchDescriptor>();
     preset.effect = j.at("effect").get<PatchDescriptor>();
     if(j.count("parameters")) preset.parameters = j.at("parameters").get<vector<PresetParameterDescriptor>>();
-    if (j.count("settings")) preset.settings = j.at("settings").get<VoiceSettings>();
+    if (j.count("settings")) preset.settings = j.at("settings").get<PresetSettings>();
 }
 
-void to_json(json& j, const VoiceSettings& settings) {
+void to_json(json& j, const PresetSettings& settings) {
     j["polyphony"] = settings.polyphony;
+    j["multicore"] = settings.multicore;
+    j["noteStealPolicy"] = settings.noteStealPolicy;
+    j["noteActivationPolicy"] = settings.noteActivationPolicy;
 }
 
-void from_json(const json& j, VoiceSettings& settings) {
+void from_json(const json& j, PresetSettings& settings) {
     if (j.count("polyphony")) settings.polyphony = j.at("polyphony").get<int>();
+    if (j.count("multicore")) settings.multicore = j.at("multicore").get<bool>();
+    if (j.count("noteStealPolicy")) settings.noteStealPolicy = j.at("noteStealPolicy").get<NoteStealPolicy>();
+    if (j.count("noteActivationPolicy")) settings.noteActivationPolicy = j.at("noteActivationPolicy").get<NoteActivationPolicy>();
 }
 
 }

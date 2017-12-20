@@ -8,6 +8,8 @@ namespace PhasePhckr {
 void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
     if (on && velocity > 0) {
+        bool newVoice = true;
+
         // find matching note data (or create new)
         NoteData* n = nullptr;
         if (idx == -1) {
@@ -19,50 +21,88 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
             n = &notes[idx];
         }
 
-        // find a free voice - 1. oldest inactive silent, 2. oldest inactive
+        // find a free voice - 1. oldest inactive silent, 2. oldest inactive, 3. depending on stealPolicy, take active voice
         SynthVoice *freeVoice;
         if (n->voiceIndex == -1) {
             unsigned int oldestInactiveSilent = 0;
-            int oldestInactiveSilentIdx = -1;
+            int selectedInactiveSilentIdx = -1;
 
             unsigned int oldestInactive = 0;
-            int oldestInactiveIdx = -1;
+            int selectedInactiveIdx = -1;
+
+            unsigned int oldestActive = 0;
+            unsigned int lowestActive = UINT_MAX;
+            unsigned int highestActive = 0;
+            float quietestActive = 99.f;
+            int selectedActiveIdx = -1;
 
             int i = 0;
             for (const auto *v : voices) {
                 auto age = v->mpe.getAge();
                 if (v->mpe.getState().gateTarget == 0) {
+                    // active a voice
                     if (v->isSilent() && age > oldestInactiveSilent) {
                         oldestInactiveSilent = age;
-                        oldestInactiveSilentIdx = i;
+                        selectedInactiveSilentIdx = i;
                     }
                     else if (age > oldestInactive) {
                         oldestInactive = age;
-                        oldestInactiveIdx = i;
+                        selectedInactiveIdx = i;
+                    }
+                }
+                else if(stealPolicy != NoteStealPolicyDoNotSteal){
+                    // steal a voice
+                    switch (stealPolicy) {
+                    case NoteStealPolicyStealOldest:
+                        if (age > oldestActive) {
+                            oldestActive = age;
+                            selectedActiveIdx = i;
+                        }
+                        break;
+                    case NoteStealPolicyStealLowestRMS:
+                        if (v->getRms() < quietestActive) {
+                            quietestActive = v->getRms();
+                            selectedActiveIdx = i;
+                        }
+                        break;
+                    case NoteStealPolicyDoNotSteal:
+                    default:
+                        break;
                     }
                 }
                 i++;
             }
 
             int idxToUse = -1;
-            if (oldestInactiveSilentIdx != -1) {
-                idxToUse = oldestInactiveSilentIdx;
+            if (selectedInactiveSilentIdx != -1) {
+                idxToUse = selectedInactiveSilentIdx;
             }
-            else if (oldestInactiveIdx != -1) {
-                idxToUse = oldestInactiveIdx;
+            else if (selectedInactiveIdx != -1) {
+                idxToUse = selectedInactiveIdx;
             }
-            else {
+            else if (selectedActiveIdx != -1) {
+                idxToUse = selectedActiveIdx;
+                newVoice = false;
+            }
+
+            if(idxToUse < 0 || idxToUse >= voices.size()){
                 return; 
             }
 
             voices[idxToUse]->mpe.reset();
             n->voiceIndex = idxToUse;
-            n->velocity = velocity;
-            n->state = NoteState::ON;
+        }
+        else {
+            // TODO, corner case when existing voice ...
+            // should that retrigger or be legato??
+            // probably retrigger
         }
 
+        n->velocity = newVoice ? velocity : legato ? n->velocity : velocity;
+        n->state = NoteState::ON;
+
         freeVoice = voices[n->voiceIndex];
-        freeVoice->mpe.on(note, velocity);
+        freeVoice->mpe.on(note, n->velocity, newVoice ? false : legato);
         freeVoice->mpe.glide(channelData[channel].x);
         freeVoice->mpe.slide(channelData[channel].y);
         freeVoice->mpe.press(channelData[channel].z);

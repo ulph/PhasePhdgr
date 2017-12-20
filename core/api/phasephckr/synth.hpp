@@ -40,6 +40,7 @@ namespace PhasePhckr {
         Scope outputScopeL;
         Scope outputScopeR;
         GlobalData *globalData;
+        PresetSettings settings;
     };
 
     class Synth : public Effect {
@@ -59,9 +60,12 @@ namespace PhasePhckr {
         const ParameterHandleMap& setVoiceChain(const PatchDescriptor & chain, const ComponentRegister & cp);
         void handleVoiceParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;
+        virtual void applySettings(const PresetSettings& settings);
+        virtual const PresetSettings& retrieveSettings();
     protected:
         VoiceBus *voiceBus;
         vector<SynthVoice*> voices;
+        void resetVoiceBus(const SynthVoice* voice);
         float lastKnownSampleRate = -1.0f;
         int scopeVoiceIndex;
         Scope voiceScopeL;

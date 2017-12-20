@@ -5,8 +5,6 @@
 
 namespace PhasePhckr {
 
-const size_t numVoices = 32;
-
 Effect::Effect()
     : effects(nullptr)
     , globalData(new GlobalData())
@@ -43,21 +41,34 @@ const ParameterHandleMap& Effect::setEffectChain(const PatchDescriptor& fxChain,
     return effects->getParameterHandles();
 }
 
-const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
-    assert(numVoices > 0);
+void Synth::resetVoiceBus(const SynthVoice* voice) {
+    assert(settings.polyphony >= 0);
+    bool legato = settings.polyphony == 0;
+
     delete voiceBus;
     voiceBus = new VoiceBus();
+    voiceBus->setLegato(legato);
+    voiceBus->setStealPolicy(settings.noteStealPolicy);
+    voiceBus->setActivationPolicy(settings.noteActivationPolicy);
+
     for (SynthVoice *v : voices) {
         delete v;
     }
     voices.clear();
-    SynthVoice v(voiceChain, cp);
-    v.preCompile(lastKnownSampleRate);
+
+    auto numVoices = settings.polyphony > 0 ? settings.polyphony : 1;
+
     for (int i = 0; i<numVoices; ++i) {
-        SynthVoice *v_ = new SynthVoice(v);
-        v_->mpe.setIndex(i, numVoices);
+        SynthVoice *v_ = new SynthVoice(*voice);
+        v_->mpe.setIndex(i, settings.polyphony);
         voices.push_back(v_);
     }
+}
+
+const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
+    SynthVoice v(voiceChain, cp);
+    v.preCompile(lastKnownSampleRate);
+    resetVoiceBus(&v);
     return voices[0]->getParameterHandles(); // they're identical
 }
 
@@ -92,13 +103,18 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
 
         for (auto & v : voices) v->processingStart(chunkSize, sampleRate, *globalData);
 
-        std::vector< std::future<void> > results;
-        for (auto & v : voices) {
-            results.emplace_back(
-                pool.enqueue([v]{v->threadedProcess();})
-            );
+        if (settings.multicore) {
+            std::vector< std::future<void> > results;
+            for (auto & v : voices) {
+                results.emplace_back(
+                    pool.enqueue([v] {v->threadedProcess(); })
+                );
+            }
+            for (auto && result : results) result.get();
         }
-        for (auto && result : results) result.get(); // get all the futures
+        else {
+            for (auto & v : voices) v->threadedProcess();
+        }
 
         for (auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);
 
@@ -160,6 +176,24 @@ const Scope& Effect::getInputScope(int i) const {
     if (i == 0) return inputScopeL;
     else if (i == 1) return inputScopeR;
     return inputScopeL;
+}
+
+const PresetSettings& Synth::retrieveSettings() {
+    return settings;
+}
+
+void Synth::applySettings(const PresetSettings& newSettings) {
+    if (voices.size()) {
+        if (settings.polyphony != newSettings.polyphony) {
+            auto v = *voices[0];
+            resetVoiceBus(&v);
+        }
+    }
+    else {
+        settings.polyphony = -1;
+    }
+
+    settings = newSettings;
 }
 
 }

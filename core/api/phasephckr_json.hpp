@@ -36,8 +36,8 @@ namespace PhasePhckr {
     void to_json(json& j, const PresetParameterDescriptor& param);
     void from_json(const json& j, PresetParameterDescriptor& param);
 
-    void to_json(json& j, const VoiceSettings& param);
-    void from_json(const json& j, VoiceSettings& param);
+    void to_json(json& j, const PresetSettings& param);
+    void from_json(const json& j, PresetSettings& param);
 
     void to_json(json& j, const PresetDescriptor& preset);
     void from_json(const json& j, PresetDescriptor& preset);

@@ -133,9 +133,9 @@ namespace PhasePhckr {
     class MPEVoice {
     public:
         MPEVoice(){ reset(); }
-        void on(int note, float velocity) {
+        void on(int note, float velocity, bool legato=false) {
             age = 0;
-            st.gateTarget = 2;
+            st.gateTarget = legato ? 1 : 2;
             rootNote = note;
             st.noteIndex2 = (float)rootNote / 127.f;
             st.strikeZ = velocity;

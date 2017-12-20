@@ -24,10 +24,8 @@ PhasePhckrProcessorFX::PhasePhckrProcessorFX()
 
     createInitialUserLibrary(componentRegister);
 
-    // parameter mumbo
     parameters.initialize(this);
 
-    // create the synth and push down the initial chains
     effect = new PhasePhckr::Effect();
     componentLoader.rescan();
 

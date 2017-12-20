@@ -5,7 +5,7 @@
 namespace PhasePhckr {
 
 enum class NoteState {
-//    OFF,
+    OFF,
     ON,
     SUSTAINED
 };
@@ -48,7 +48,13 @@ public:
     void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices);
     void update();
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
+    void setLegato(bool status) { legato = status; }
+    void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
+    void setActivationPolicy(NoteActivationPolicy newPolicy) { activationPolicy = newPolicy; }
 private:
+    NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
+    NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
+    bool legato = false;
     std::vector<NoteData> notes;
     int getNoteDataIndex(int channel, int note);
     ChannelData channelData[16];

@@ -28,10 +28,8 @@ PhasePhckrProcessor::PhasePhckrProcessor()
 
     createInitialUserLibrary(componentRegister);
 
-    // parameter mumbo
     parameters.initialize(this);
 
-    // create the synth and push down the initial chains
     synth = new PhasePhckr::Synth();
     componentLoader.rescan();
 

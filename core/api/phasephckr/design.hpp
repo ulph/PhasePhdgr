@@ -178,8 +178,28 @@ struct PatchDescriptor {
 
 /* Preset (voice patch + effect patch + parameters) */
 
-struct VoiceSettings {
-    int polyphony = 16;
+enum NoteStealPolicy {
+    NoteStealPolicyDoNotSteal = 0, // never steal an active voice
+    NoteStealPolicyStealOldest, // steal the oldest active voice
+    NoteStealPolicyStealLowestRMS, // steal the most quiet active voice
+    NoteStealPolicyStealLowest, // steal the lowest voice (in note number)
+    NoteStealPolicyStealHighest, // steal the highest voice (in note number)
+};
+
+// TODO, retriggering policy also ...
+
+enum NoteActivationPolicy {
+    NoteActivationPolicyOnlySilent = 0, // pick any silent inactive, but nothing else
+    NoteActivationPolicyPreferOldestSilent, // pick the oldest inactive and silent, and then pick oldest inactive
+    NoteActivationPolicyPreferOldestNotSilent, // pick the oldest inactive, but not silent, before anything else
+    NoteActivationPolicyPreferYoungestNotSilent, // pick the youngest inactive, but not silent, before anything else
+};
+
+struct PresetSettings {
+    NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyPreferOldestSilent; // how to select which inactive voice to activate
+    NoteStealPolicy noteStealPolicy = NoteStealPolicyStealOldest; // if, and how, to steal voices
+    int polyphony = 0; // 0: legato monophonic; 1-> retriggering (poly)phonic
+    bool multicore = true; // process each voice on it's own thread
 };
 
 enum SynthGraphType {
@@ -198,7 +218,7 @@ struct PresetDescriptor {
     PatchDescriptor voice;
     PatchDescriptor effect;
     vector<PresetParameterDescriptor> parameters;
-    VoiceSettings settings;
+    PresetSettings settings;
 };
 
 /* Functions and aux types */

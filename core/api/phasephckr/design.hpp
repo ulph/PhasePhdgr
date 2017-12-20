@@ -197,8 +197,8 @@ enum NoteActivationPolicy {
 
 struct PresetSettings {
     NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyPreferOldestSilent; // how to select which inactive voice to activate
-    NoteStealPolicy noteStealPolicy = NoteStealPolicyStealOldest; // if, and how, to steal voices
-    int polyphony = 0; // 0: legato monophonic; 1-> retriggering (poly)phonic
+    NoteStealPolicy noteStealPolicy = NoteStealPolicyDoNotSteal; // if, and how, to steal voices
+    int polyphony = 16; // 0: legato monophonic; 1-> retriggering (poly)phonic
     bool multicore = true; // process each voice on it's own thread
 };
 

@@ -41,13 +41,20 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
                 auto age = v->mpe.getAge();
                 if (v->mpe.getState().gateTarget == 0) {
                     // active a voice
-                    if (v->isSilent() && age > oldestInactiveSilent) {
-                        oldestInactiveSilent = age;
-                        selectedInactiveSilentIdx = i;
-                    }
-                    else if (age > oldestInactive) {
-                        oldestInactive = age;
-                        selectedInactiveIdx = i;
+                    switch (activationPolicy) {
+                    case NoteActivationPolicyPreferOldestSilent:
+                        if (v->isSilent() && age > oldestInactiveSilent) {
+                            oldestInactiveSilent = age;
+                            selectedInactiveSilentIdx = i;
+                        }
+                        else if (age > oldestInactive) {
+                            oldestInactive = age;
+                            selectedInactiveIdx = i;
+                        }
+                        break;
+                    default:
+                        PP_NYI;
+                        break;
                     }
                 }
                 else if(stealPolicy != NoteStealPolicyDoNotSteal){
@@ -65,8 +72,8 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
                             selectedActiveIdx = i;
                         }
                         break;
-                    case NoteStealPolicyDoNotSteal:
                     default:
+                        PP_NYI;
                         break;
                     }
                 }

@@ -52,6 +52,8 @@ public:
     void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
     void setActivationPolicy(NoteActivationPolicy newPolicy) { activationPolicy = newPolicy; }
 private:
+    void handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
+    void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
     bool legato = false;

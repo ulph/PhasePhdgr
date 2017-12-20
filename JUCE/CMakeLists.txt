@@ -58,9 +58,9 @@ set(PH_COMMON_SRC
     PluginCommon.cpp
 )
 
-add_library(phasephckr_common_juce_obj OBJECT ${PH_COMMON_SRC})
-set_target_properties(phasephckr_common_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(phasephckr_common_juce_obj PROPERTIES FOLDER JUCE)
+add_library(pp_common_obj OBJECT ${PH_COMMON_SRC})
+set_target_properties(pp_common_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(pp_common_obj PROPERTIES FOLDER JUCE)
 
 set(PH_SYNTH_SRC
   FileBrowser/FileBrowserPanel.cpp
@@ -72,9 +72,9 @@ set(PH_SYNTH_SRC
   exportSynth.cpp
 )
 
-add_library(phasephckr_synth_juce_obj OBJECT ${PH_SYNTH_SRC})
-set_target_properties(phasephckr_synth_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(phasephckr_synth_juce_obj PROPERTIES FOLDER JUCE)
+add_library(pp_synth_obj OBJECT ${PH_SYNTH_SRC})
+set_target_properties(pp_synth_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(pp_synth_obj PROPERTIES FOLDER JUCE)
 
 set(PH_EFFECT_SRC
   FileBrowser/FileBrowserPanelFX.cpp
@@ -86,9 +86,9 @@ set(PH_EFFECT_SRC
   exportEffect.cpp
 )
 
-add_library(phasephckr_effect_juce_obj OBJECT ${PH_EFFECT_SRC})
-set_target_properties(phasephckr_effect_juce_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-set_target_properties(phasephckr_effect_juce_obj PROPERTIES FOLDER JUCE)
+add_library(pp_effect_obj OBJECT ${PH_EFFECT_SRC})
+set_target_properties(pp_effect_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(pp_effect_obj PROPERTIES FOLDER JUCE)
 
 option(INTERCEPT_STD_STREAMS ON)
 option(FORCE_FTZ_DAZ OFF)
@@ -113,9 +113,9 @@ include_directories(${VST3_SDK_ROOT})
 include(vst_sdk)
 
 set( PHASEPHCKR_JUCE_SYNTH_SRC
-    $<TARGET_OBJECTS:juce_synth_lib_obj>
-    $<TARGET_OBJECTS:phasephckr_common_juce_obj>
-    $<TARGET_OBJECTS:phasephckr_synth_juce_obj>
+    $<TARGET_OBJECTS:juce_synth_obj>
+    $<TARGET_OBJECTS:pp_common_obj>
+    $<TARGET_OBJECTS:pp_synth_obj>
 )
 
 mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_SYNTH_SRC})
@@ -124,9 +124,9 @@ set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
 
 
 set( PHASEPHCKR_JUCE_EFFECT_SRC
-    $<TARGET_OBJECTS:juce_effect_lib_obj>
-    $<TARGET_OBJECTS:phasephckr_common_juce_obj>
-    $<TARGET_OBJECTS:phasephckr_effect_juce_obj>
+    $<TARGET_OBJECTS:juce_effect_obj>
+    $<TARGET_OBJECTS:pp_common_obj>
+    $<TARGET_OBJECTS:pp_effect_obj>
 )
 
 mod_smtg_add_vst3plugin(PhasePhckrFX ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_EFFECT_SRC})

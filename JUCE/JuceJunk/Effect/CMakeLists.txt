@@ -8,6 +8,6 @@ function(make_juce_effect_lib)
     add_definitions(-DJucePlugin_VSTCategory=kPlugCategEffect) # override
     add_definitions(-DJucePlugin_PluginCode=0x4f6f6162) # 0x4f6f6161 + 1
 
-    make_juce_lib(juce_effect_lib_obj)
+    make_juce_lib(juce_effect_obj)
 endfunction(make_juce_effect_lib)
 make_juce_effect_lib()

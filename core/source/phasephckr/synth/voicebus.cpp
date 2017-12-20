@@ -6,59 +6,76 @@
 namespace PhasePhckr {
 
 bool VoiceBus::findVoice(NoteData* n, const std::vector<SynthVoice*> &voices) {
+    // active or steal a voice based on policies
+
     bool newVoice = true;
 
     unsigned int oldestInactiveSilent = 0;
     int selectedInactiveSilentIdx = -1;
 
     unsigned int oldestInactive = 0;
+    unsigned int youngestInactive = UINT_MAX;
     int selectedInactiveIdx = -1;
 
     unsigned int oldestActive = 0;
-    unsigned int lowestActive = UINT_MAX;
-    unsigned int highestActive = 0;
-    float quietestActive = 99.f;
+//    unsigned int lowestActive = UINT_MAX;
+//    unsigned int highestActive = 0;
+    float quietestActive = 99.f; // just make it hillariously big
     int selectedActiveIdx = -1;
 
     int i = 0;
     for (const auto *v : voices) {
         auto age = v->mpe.getAge();
         if (v->mpe.getState().gateTarget == 0) {
-            // active a voice
-            switch (activationPolicy) {
-            case NoteActivationPolicyPreferOldestSilent:
-                if (v->isSilent() && age > oldestInactiveSilent) {
+            if (v->isSilent()) {
+                // always find the oldest inactive silent
+                if (age > oldestInactiveSilent) {
                     oldestInactiveSilent = age;
                     selectedInactiveSilentIdx = i;
                 }
-                else if (age > oldestInactive) {
-                    oldestInactive = age;
-                    selectedInactiveIdx = i;
+            }
+            else if (activationPolicy != NoteActivationPolicyOnlySilent){
+                // find an inactive (non-silent) based on policy
+                switch (activationPolicy) {
+                case NoteActivationPolicyPreferOldestSilent:
+                case NoteActivationPolicyPreferOldestNotSilent:
+                    if (age > oldestInactive) {
+                        oldestInactive = age;
+                        selectedInactiveIdx = i;
+                    }
+                    break;
+                case NoteActivationPolicyPreferYoungestNotSilent:
+                    if (age < youngestInactive) {
+                        youngestInactive = age;
+                        selectedInactiveIdx = i;
+                    }
+                    break;
+                default:
+                    PP_NYI;
+                    break;
                 }
-                break;
-            default:
-                PP_NYI;
-                break;
             }
         }
-        else if (stealPolicy != NoteStealPolicyDoNotSteal) {
-            // steal a voice
-            switch (stealPolicy) {
-            case NoteStealPolicyStealOldest:
-                if (age > oldestActive) {
-                    oldestActive = age;
-                    selectedActiveIdx = i;
+        else {
+            if (stealPolicy != NoteStealPolicyDoNotSteal) {
+                // steal a voice based on policy
+                switch (stealPolicy) {
+                case NoteStealPolicyStealOldest:
+                    if (age > oldestActive) {
+                        oldestActive = age;
+                        selectedActiveIdx = i;
+                    }
+                    break;
+                case NoteStealPolicyStealLowestRMS:
+                    if (v->getRms() < quietestActive) {
+                        quietestActive = v->getRms();
+                        selectedActiveIdx = i;
+                    }
+                    break;
+                default:
+                    PP_NYI;
+                    break;
                 }
-                break;
-            case NoteStealPolicyStealLowestRMS:
-                if (v->getRms() < quietestActive) {
-                    quietestActive = v->getRms();
-                    selectedActiveIdx = i;
-                }
-                break;
-            default:
-                PP_NYI;
-                break;
             }
         }
         i++;
@@ -74,7 +91,17 @@ bool VoiceBus::findVoice(NoteData* n, const std::vector<SynthVoice*> &voices) {
     else if (selectedActiveIdx != -1) {
         idxToUse = selectedActiveIdx;
         newVoice = false;
-        // TODO, depending on retriggering policy and/or legato - actually create a new voice and park the current
+        if(reactivationPolicy == NoteReactivationPolicyReactivateMatching){
+            auto nIdxToSteal = getNoteDataIndexForVoice(selectedActiveIdx);
+            if (nIdxToSteal != -1) {
+                auto& nts = notes[nIdxToSteal];
+                nts.state = NoteState::STOLEN;
+                stolenNotes.emplace_back(nts.channel, nts.note);
+            }
+            else {
+                assert(0); // eh, this should not happen!
+            }
+        }
     }
 
     n->voiceIndex = idxToUse;
@@ -106,10 +133,12 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
         newVoice = false;
     }
 
+    n->channel = channel;
+    n->note = note;
     n->velocity = newVoice ? velocity : legato ? n->velocity : velocity;
     n->state = NoteState::ON;
 
-    if (n->voiceIndex < 0 || n->velocity >= voices.size()) return;
+    if (n->voiceIndex < 0 || n->voiceIndex >= voices.size()) return;
     if (newVoice && !legato) voices[n->voiceIndex]->mpe.reset();
 
     SynthVoice *selectedVoice = voices[n->voiceIndex];
@@ -122,15 +151,44 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
     if (idx == -1) return;
+
     if (channelData[channel].sustain < 0.5f) {
-        if (notes.at(idx).voiceIndex != -1)
-            voices[notes.at(idx).voiceIndex]->mpe.off(note, velocity);
+        int voiceIdx = notes.at(idx).voiceIndex;
+        float legatoVelocity = notes.at(idx).velocity;
         notes.erase(notes.begin() + idx);
-        // TODO, depending on retriggering policy and/or legato - find a voice in ::OFF and kick back alive
+
+        if (voiceIdx != -1) {           
+            auto toReviveIdx = -1;
+
+            for (auto sIt = stolenNotes.begin(); sIt != stolenNotes.end();) {
+                if (sIt->channel == channel && sIt->note == note) {
+                    sIt = stolenNotes.erase(sIt);
+                }
+                else {
+                    auto sIdx = getNoteDataIndex(sIt->channel, sIt->note);
+                    if (sIdx != -1) {
+                        toReviveIdx = sIdx;
+                        break;
+                    }
+                    sIt++;
+                }
+            }
+            if (toReviveIdx != -1) {
+                auto& toRevive = notes.at(toReviveIdx);
+                toRevive.voiceIndex = voiceIdx;
+                toRevive.velocity = legato ? legatoVelocity : toRevive.velocity;
+                toRevive.state = NoteState::ON;
+                voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, legato);
+            }
+            else {
+                voices[voiceIdx]->mpe.off(note, velocity);
+            }
+        }
     }
     else {
-        notes.at(idx).velocity = 0.0f;
-        notes.at(idx).state = NoteState::SUSTAINED;
+        auto& n = notes.at(idx);
+        n.velocity = 0.0f;
+        n.state = NoteState::SUSTAINED;
     }
 }
 
@@ -214,6 +272,17 @@ int VoiceBus::getNoteDataIndex(int channel, int note) {
     return -1;
 }
 
+int VoiceBus::getNoteDataIndexForVoice(int voiceIdx) {
+    int idx = 0;
+    for (const auto &n : notes) {
+        if (n.voiceIndex == voiceIdx && n.state != NoteState::STOLEN) {
+            return idx;
+        }
+        idx++;
+    }
+    return -1;
+}
+
 int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
     unsigned int max = 0;
     int idx = -1;
@@ -234,7 +303,8 @@ void VoiceBus::update() {
     }
     // TODO, clean up notes? 
     // there's no guarantee we won't leak here with the different policies etc in play
-    // also, make sure only one note is assigned per voice
+    // also, make sure only one note is assigned ON/SUSTAIN per voice
+    // also, make sure there's only one note of given number per channel
 }
 
 }

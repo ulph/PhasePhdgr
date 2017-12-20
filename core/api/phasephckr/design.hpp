@@ -186,7 +186,10 @@ enum NoteStealPolicy {
     NoteStealPolicyStealHighest, // steal the highest voice (in note number)
 };
 
-// TODO, retriggering policy also ...
+enum NoteReactivationPolicy {
+    NoteReactivationPolicyDoNotReactivate = 0,
+    NoteReactivationPolicyReactivateMatching
+};
 
 enum NoteActivationPolicy {
     NoteActivationPolicyOnlySilent = 0, // pick any silent inactive, but nothing else
@@ -197,8 +200,9 @@ enum NoteActivationPolicy {
 
 struct PresetSettings {
     NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyPreferOldestSilent; // how to select which inactive voice to activate
-    NoteStealPolicy noteStealPolicy = NoteStealPolicyDoNotSteal; // if, and how, to steal voices
-    int polyphony = 16; // 0: legato monophonic; 1-> retriggering (poly)phonic
+    NoteStealPolicy noteStealPolicy = NoteStealPolicyStealOldest; // NoteStealPolicyDoNotSteal; // if, and how, to steal voices
+    NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyReactivateMatching; // NoteReactivationPolicyDoNotReactivate; // if stolen a voice, what should happend when thief is stopped
+    int polyphony = 0; //16; // 0: legato monophonic; 1-> retriggering (poly)phonic
     bool multicore = true; // process each voice on it's own thread
 };
 

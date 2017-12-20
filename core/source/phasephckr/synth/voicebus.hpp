@@ -2,12 +2,24 @@
 
 #include "synthvoice.hpp"
 
+#include <stack>
+#include <vector>
+
 namespace PhasePhckr {
 
 enum class NoteState {
-    OFF,
     ON,
-    SUSTAINED
+    SUSTAINED,
+    STOLEN
+};
+
+struct StolenNoteData {
+    int channel;
+    int note;
+    StolenNoteData(int c, int n) 
+        : channel(c)
+        , note(n)
+    {}
 };
 
 struct NoteData {
@@ -51,15 +63,19 @@ public:
     void setLegato(bool status) { legato = status; }
     void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
     void setActivationPolicy(NoteActivationPolicy newPolicy) { activationPolicy = newPolicy; }
+    void setReactivationPolicy(NoteReactivationPolicy newPolicy) { reactivationPolicy = newPolicy; }
 private:
     bool findVoice(NoteData* n, const std::vector<SynthVoice*> &voices);
     void handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
+    NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyDoNotReactivate;
     bool legato = false;
-    std::vector<NoteData> notes;
+    std::vector<NoteData> notes; // make map of channel,note instead ??
+    std::vector<StolenNoteData> stolenNotes;
     int getNoteDataIndex(int channel, int note);
+    int getNoteDataIndexForVoice(int voiceIdx);
     ChannelData channelData[16];
 };
 

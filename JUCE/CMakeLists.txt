@@ -51,7 +51,9 @@ set(PH_COMMON_SRC
     Utils/Style.cpp
     Utils/Style.hpp
 
-    Parameter.cpp
+    Parameters.cpp
+    Parameters.hpp
+
     Parameter.hpp
 
     PluginCommon.h

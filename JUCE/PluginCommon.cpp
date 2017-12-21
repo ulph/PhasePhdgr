@@ -1,6 +1,5 @@
-#pragma once
-
 #include "PluginCommon.h"
+#include "Parameters.hpp"
 
 void storeState(const PresetDescriptor& preset, MemoryBlock& destData) {
     json j = preset;

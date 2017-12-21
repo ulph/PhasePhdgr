@@ -58,7 +58,7 @@ namespace PhasePhckrFileStuff {
             int res = componentsDir.findChildFiles(initialFiles, File::findFiles, true, "*.json");
             if (res == 0) return;
             for (int i = 0; i < initialFiles.size(); i++) {
-                auto &f = initialFiles[i];
+                const auto &f = initialFiles[i];
                 String p = f.getRelativePathFrom(componentsDir);
                 string n = string(&PhasePhckr::componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
                 n = make_path_agnostic(n);

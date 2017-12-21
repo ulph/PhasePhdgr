@@ -1,6 +1,7 @@
 #pragma once
 
 #include "connectiongraph.hpp"
+#include <math.h>
 
 namespace PhasePhckr {
 
@@ -211,7 +212,7 @@ namespace PhasePhckr {
         int rootNote = 0;
         unsigned int age = UINT_MAX;
         void calculatePitchHz(int i) {
-            auto bendSemi = st.glideX > 0 ? st.glideX[i] * cfg.pitchRangeUp : st.glideX[i] * cfg.pitchRangeDown;
+            auto bendSemi = st.glideX[i] > 0 ? st.glideX[i] * cfg.pitchRangeUp : st.glideX[i] * cfg.pitchRangeDown;
             auto floatNote = (float)rootNote + bendSemi;
             st.noteIndex[i] = floatNote / 127.f;
             st.pitchHz[i] = NoteToHz(floatNote);

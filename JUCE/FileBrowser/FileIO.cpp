@@ -14,7 +14,7 @@ namespace PhasePhckrFileStuff {
     }
 
     void storeJson(File &f, const nlohmann::json& j) {
-        f.replaceWithText(j.dump(2, 4, ' ', true));
+        f.replaceWithText(j.dump(2, 4, ' '));
     }
 
     void createFileIfNeeded(File &file, const nlohmann::json& j) {
@@ -77,8 +77,10 @@ namespace PhasePhckrFileStuff {
         // load init patches and dump to disk
         auto vf = getInitialVoiceFile();
         auto ef = getInitialEffectFile();
-        createFileIfNeeded(getInitialVoiceFile(), PhasePhckr::getExampleVoiceChain());
-        createFileIfNeeded(getInitialEffectFile(), PhasePhckr::getExampleEffectChain());
+        const auto& vp = PhasePhckr::getExampleVoiceChain();
+        const auto& ep = PhasePhckr::getExampleEffectChain();
+        createFileIfNeeded(vf, vp);
+        createFileIfNeeded(ef, ep);
 
         // dump all factory components to disk
         for (const auto &kv : cr.all()) {

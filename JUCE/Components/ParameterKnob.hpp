@@ -2,7 +2,6 @@
 
 #include <atomic>
 #include <phasephckr/locks.hpp>
-
 #include "Parameter.hpp"
 
 class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {

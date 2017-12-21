@@ -56,7 +56,9 @@ function(make_juce_lib lib_target)
         FIND_LIBRARY(IOKIT_LIB IOkit)
         FIND_LIBRARY(WEBKIT_LIB WebKit)
         FIND_LIBRARY(COREFOUNDATION_LIB CoreFoundation)
-        include(FindOpenGL)
+        FIND_LIBRARY(CORESERVICES_LIB CoreServices)
+        FIND_LIBRARY(OPENGL_LIB OpenGL)
+#        include(FindOpenGL)
         set(JUCE_DEPS
             ${ACCELERATE_LIB}
             ${COCOA_LIB}
@@ -64,7 +66,9 @@ function(make_juce_lib lib_target)
             ${IOKIT_LIB}
             ${WEBKIT_LIB}
             ${COREFOUNDATION_LIB}
-            ${OPENGL_LIBRARIES}
+            ${CORESERVICES_LIB}
+            ${OPENGL_LIB}
+#            ${OPENGL_LIBRARIES}
             PARENT_SCOPE
         )
     elseif(UNIX)

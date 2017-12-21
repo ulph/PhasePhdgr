@@ -97,7 +97,7 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
             if (rootComponent()->layout.count(moduleName)) {
                 auto v = rootComponent()->layout.at(moduleName);
                 rootComponent()->layout.erase(moduleName);
-                rootComponent()->layout.insert_or_assign(newModuleName, v);
+                rootComponent()->layout[newModuleName] = v;
             }
             return true;
         }
@@ -465,10 +465,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         auto mv = vector<GfxModule>{ *draggedModule };
 
         gfxGraphLock.lock();
-        rootComponent()->layout.insert_or_assign(
-            draggedModule->module.name,
-            ModulePosition(draggedModule->position.x, draggedModule->position.y)
-        );
+        rootComponent()->layout[draggedModule->module.name] = ModulePosition(draggedModule->position.x, draggedModule->position.y);
         recalculateWires(mv);
         gfxGraphLock.unlock();
         updateBounds(getVirtualBounds());

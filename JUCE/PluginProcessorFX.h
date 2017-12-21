@@ -12,7 +12,7 @@
 #include "Utils.hpp"
 #include "PatchEditor.hpp"
 
-#include "Parameter.hpp"
+#include "Parameters.hpp"
 
 #include "PluginCommon.h"
 

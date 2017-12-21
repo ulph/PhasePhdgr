@@ -10,7 +10,7 @@
 #include "PatchEditor.hpp"
 #include "DirectoryWatcher.hpp"
 
-#include "Parameter.hpp"
+#include "Parameters.hpp"
 
 #include "PluginCommon.h"
 

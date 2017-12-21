@@ -180,9 +180,9 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
     // ok, all good. let's see of legato or not
 
     if (
-        fvr::StolenVoice == r && !legato
+        (fvr::StolenVoice == r && !legato)
         ||
-        fvr::NewVoice == r
+        (fvr::NewVoice == r)
     ) {
         voices[n->voiceIndex]->mpe.reset();
         // TODO, fill in the mpe-esque things which actually could live in channelData

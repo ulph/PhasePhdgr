@@ -134,13 +134,15 @@ namespace PhasePhckr {
     public:
         MPEVoice(){ reset(); }
         void on(int note, float velocity, bool legato=false) {
-            age = 0;
+            age = 1;
             st.gateTarget = legato ? 1 : 2;
             rootNote = note;
             st.noteIndex2 = (float)rootNote / 127.f;
             st.strikeZ = velocity;
+            calculatePitchHz(0); // so it can be queried before calls to update
         }
         void off(int note, float velocity) {
+            age = 1;
             if (note == rootNote && st.gateTarget) {
                 st.gateTarget = 0;
                 st.liftZ = velocity;
@@ -197,9 +199,10 @@ namespace PhasePhckr {
             st.voiceIndex = (float)index / float(polyPhony);
             st.polyphony = (float)polyPhony;
         }
-        bool gateChanged() {
+        bool gateChanged() const {
             return st.gateTarget != lastGateTarget;
         }
+        int getRootNote() const { return rootNote; }
     private:
         int lastGateTarget = -1;
         MPEVoiceState st;

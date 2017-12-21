@@ -50,7 +50,6 @@ void Synth::resetVoiceBus(const SynthVoice* voice) {
     voiceBus->setLegato(legato);
     voiceBus->setStealPolicy(settings.noteStealPolicy);
     voiceBus->setActivationPolicy(settings.noteActivationPolicy);
-    voiceBus->setReactivationPolicy(settings.noteReactivationPolicy);
 
     for (SynthVoice *v : voices) {
         delete v;

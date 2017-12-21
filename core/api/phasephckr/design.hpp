@@ -182,13 +182,8 @@ enum NoteStealPolicy {
     NoteStealPolicyDoNotSteal = 0, // never steal an active voice
     NoteStealPolicyStealOldest, // steal the oldest active voice
     NoteStealPolicyStealLowestRMS, // steal the most quiet active voice
-    NoteStealPolicyStealLowest, // steal the lowest voice (in note number)
-    NoteStealPolicyStealHighest, // steal the highest voice (in note number)
-};
-
-enum NoteReactivationPolicy {
-    NoteReactivationPolicyDoNotReactivate = 0,
-    NoteReactivationPolicyReactivateMatching
+    NoteStealPolicyStealIfLower, // steal the lowest voice (in note number) - when released the lowest stolen voice get revived
+    NoteStealPolicyStealIfHigher, // steal the highest voice (in note number) - when released the highest stolen voice get revived
 };
 
 enum NoteActivationPolicy {
@@ -200,8 +195,7 @@ enum NoteActivationPolicy {
 
 struct PresetSettings {
     NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyPreferOldestSilent; // how to select which inactive voice to activate
-    NoteStealPolicy noteStealPolicy = NoteStealPolicyStealOldest; // NoteStealPolicyDoNotSteal; // if, and how, to steal voices
-    NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyReactivateMatching; // NoteReactivationPolicyDoNotReactivate; // if stolen a voice, what should happend when thief is stopped
+    NoteStealPolicy noteStealPolicy = NoteStealPolicyStealIfHigher; // NoteStealPolicyDoNotSteal; // if, and how, to steal voices
     int polyphony = 0; //16; // 0: legato monophonic; 1-> retriggering (poly)phonic
     bool multicore = true; // process each voice on it's own thread
 };

@@ -193,7 +193,6 @@ void to_json(json& j, const PresetSettings& settings) {
     j["multicore"] = settings.multicore;
     j["noteStealPolicy"] = settings.noteStealPolicy;
     j["noteActivationPolicy"] = settings.noteActivationPolicy;
-    j["noteReactivationPolicy"] = settings.noteReactivationPolicy;
 }
 
 void from_json(const json& j, PresetSettings& settings) {
@@ -201,7 +200,6 @@ void from_json(const json& j, PresetSettings& settings) {
     if (j.count("multicore")) settings.multicore = j.at("multicore").get<bool>();
     if (j.count("noteStealPolicy")) settings.noteStealPolicy = j.at("noteStealPolicy").get<NoteStealPolicy>();
     if (j.count("noteActivationPolicy")) settings.noteActivationPolicy = j.at("noteActivationPolicy").get<NoteActivationPolicy>();
-    if (j.count("noteReactivationPolicy")) settings.noteReactivationPolicy = j.at("noteReactivationPolicy").get<NoteReactivationPolicy>();
 }
 
 }

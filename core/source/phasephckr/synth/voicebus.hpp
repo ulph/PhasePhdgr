@@ -29,7 +29,6 @@ struct NoteData {
     int voiceIndex;
     float notePressure;
     float velocity;
-    unsigned int age;
     NoteData(int channel, int note, float velocity) 
         : state(NoteState::ON)
         , channel(channel)
@@ -37,13 +36,17 @@ struct NoteData {
         , voiceIndex(-1)
         , notePressure(0)
         , velocity(velocity)
-        , age(0)
     {
     }
 };
 
 struct ChannelData {
-    ChannelData() : x(0), y(0), z(0) {}
+    ChannelData() 
+        : x(0.0f)
+        , y(0.0f)
+        , z(0.0f)
+        , sustain(0.0f) 
+    {}
     float x;
     float y;
     float z;
@@ -63,19 +66,23 @@ public:
     void setLegato(bool status) { legato = status; }
     void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
     void setActivationPolicy(NoteActivationPolicy newPolicy) { activationPolicy = newPolicy; }
-    void setReactivationPolicy(NoteReactivationPolicy newPolicy) { reactivationPolicy = newPolicy; }
 private:
-    bool findVoice(NoteData* n, const std::vector<SynthVoice*> &voices);
+    enum class fvr {
+        NewVoice,
+        StolenVoice,
+        NoVoice,
+        WaitingForVoice
+    };
+    fvr findVoice(int note, int& idxToUse, const std::vector<SynthVoice*> &voices);
     void handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
-    NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyDoNotReactivate;
     bool legato = false;
     std::vector<NoteData> notes; // make map of channel,note instead ??
     std::vector<StolenNoteData> stolenNotes;
     int getNoteDataIndex(int channel, int note);
-    int getNoteDataIndexForVoice(int voiceIdx);
+    int getNoteDataIndexForStealingVoice(int voiceIdx);
     ChannelData channelData[16];
 };
 

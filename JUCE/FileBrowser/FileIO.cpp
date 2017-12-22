@@ -72,6 +72,8 @@ namespace PhasePhckrFileStuff {
     }
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
+        return;
+
         createLibraryDirectoriesIfNeeded();
 
         // load init patches and dump to disk

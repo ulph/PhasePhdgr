@@ -10,8 +10,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # JUCE stuff
 set(JUCE_SDK_ROOT "" CACHE FILEPATH "JUCE5 SDK root")
-
 include_directories(${JUCE_SDK_ROOT}/modules)
+
+# VST3 SDK stuff
+set(VST3_SDK_ROOT "" CACHE FILEPATH "VST3 SDK root")
+include_directories(${VST3_SDK_ROOT})
 
 add_subdirectory(JuceJunk)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JuceJunk/JuceLibraryCode)
@@ -106,10 +109,6 @@ if(${FORCE_FTZ_DAZ})
 else()
     add_definitions(-DFORCE_FTZ_DAZ=0)
 endif()
-
-# VST3 SDK stuff
-set(VST3_SDK_ROOT "" CACHE FILEPATH "VST3 SDK root")
-include_directories(${VST3_SDK_ROOT})
 
 # utilize the (modded) templates from VST SDK ...
 include(vst_sdk)

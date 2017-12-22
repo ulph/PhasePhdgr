@@ -69,7 +69,9 @@ function(make_juce_lib lib_target)
             ${CORESERVICES_LIB}
             ${OPENGL_LIB}
 #            ${OPENGL_LIBRARIES}
-            PARENT_SCOPE
+            CACHE
+            INTERNAL
+            ""
         )
     elseif(UNIX)
 
@@ -115,6 +117,9 @@ function(make_juce_lib lib_target)
         set(JUCE_DEPS
             ${JUCE_DEPS}
             PARENT_SCOPE
+            CACHE
+            INTERNAL
+            ""
         )
 
     else()

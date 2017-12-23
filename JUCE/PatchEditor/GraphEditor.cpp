@@ -446,6 +446,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 }
 
 void GraphEditor::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & d){
+    if (fabs(d.deltaX) < 0.001 && fabs(d.deltaY) < 0.001) return;
     if (d.deltaY >= 0) {
         increaseZoom();
     }

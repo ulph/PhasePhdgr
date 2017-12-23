@@ -70,6 +70,6 @@ namespace PhasePhckr {
         int scopeVoiceIndex;
         Scope voiceScopeL;
         Scope voiceScopeR;
-        ThreadPool pool;
+        progschj::ThreadPool pool;
     };
 }

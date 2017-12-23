@@ -62,8 +62,9 @@ bool Wrap::iterate(float *v, float th) {
 }
 
 void Wrap::process() {
-    float v = inputs[1].value*inputs[0].value;
-    float t = limit(inputs[2].value, 0.01f, 1.0f);
+    float s = limitLow(inputs[1].value, 0.01f);
+    float t = limitLow(inputs[2].value, 0.01f);
+    float v = s*inputs[0].value;
     for (int i = 0; i < 100; ++i) {
         if (iterate(&v, t)) break;
     }

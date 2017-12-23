@@ -2,6 +2,7 @@
 
 #include "connectiongraph.hpp"
 #include <math.h>
+#include <limits.h>
 
 namespace PhasePhckr {
 

@@ -289,7 +289,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 break;
             }
             program.emplace_back(instr);
-            if (getProcessingType(instr.param2) == SampleWise && instr.opcode == OP_B_SET_OUTPUT_TO_INPUT || instr.opcode == OP_B_ADD_OUTPUT_TO_INPUT) {
+            if (getProcessingType(instr.param2) == SampleWise && (instr.opcode == OP_B_SET_OUTPUT_TO_INPUT || instr.opcode == OP_B_ADD_OUTPUT_TO_INPUT)) {
                 if (!sampleWiseEntrypoints.count(instr.param2)) sampleWiseEntrypoints[instr.param2] = std::set<int>();
                 sampleWiseEntrypoints[instr.param2].insert(instr.param3);
                 if (instr.opcode == OP_B_SET_OUTPUT_TO_INPUT) {

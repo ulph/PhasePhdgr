@@ -184,7 +184,7 @@ void to_json(json& j, const PresetDescriptor& preset) {
 void from_json(const json& j, PresetDescriptor& preset) {
     preset.voice = j.at("voice").get<PatchDescriptor>();
     preset.effect = j.at("effect").get<PatchDescriptor>();
-    if(j.count("parameters")) preset.parameters = j.at("parameters").get<vector<PresetParameterDescriptor>>();
+    if (j.count("parameters")) preset.parameters = j.at("parameters").get<vector<PresetParameterDescriptor>>();
     if (j.count("settings")) preset.settings = j.at("settings").get<PresetSettings>();
 }
 

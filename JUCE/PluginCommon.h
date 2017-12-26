@@ -87,7 +87,7 @@ public:
             auto* l = buffer.getWritePointer(0);
             auto* r = buffer.getWritePointer(1);
             int i = 0;
-            for (i; i < outputBufferSamples && i < blockSize; ++i) {
+            for (i = 0; i < outputBufferSamples && i < blockSize; ++i) {
                 l[i] = outputBuffer[0][bufferOffset + i];
                 r[i] = outputBuffer[1][bufferOffset + i];
                 outputBuffer[0][bufferOffset + i] = 0.f;
@@ -128,7 +128,7 @@ public:
             auto* l = buffer.getWritePointer(0, destinationBufferOffset);
             auto* r = buffer.getWritePointer(1, destinationBufferOffset);
             int i = 0;
-            for (i; i < carryOverSamples; ++i) {
+            for (i = 0; i < carryOverSamples; ++i) {
                 l[i] = outputBuffer[0][i];
                 r[i] = outputBuffer[1][i];
                 outputBuffer[0][i] = 0.f;
@@ -168,7 +168,7 @@ public:
 
         // buffer input and process, bump to scratchBuffer
         int i = 0;
-        for (i; i < internalBlockSize - inputBufferSamples && i < blockSize; i++) {
+        for (i = 0; i < internalBlockSize - inputBufferSamples && i < blockSize; i++) {
             inputBuffer[0][inputBufferSamples + i] = buffer.getSample(0, i);
             inputBuffer[1][inputBufferSamples + i] = buffer.getSample(1, i);
         }
@@ -206,7 +206,7 @@ public:
         int toCopy = 0;
         if (outputBufferSamples + scratchBufferSize >= blockSize) {
             int o = 0;
-            for (o; o < outputBufferSamples && o < blockSize; o++) {
+            for (o = 0; o < outputBufferSamples && o < blockSize; o++) {
                 buffer.setSample(0, o, outputBuffer[0][o]);
                 buffer.setSample(1, o, outputBuffer[1][o]);
             }

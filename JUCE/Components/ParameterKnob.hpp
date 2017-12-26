@@ -57,7 +57,7 @@ public:
 
         float newMin = parameter->range.start;
         float newMax = parameter->range.end;
-        if (!isDragging && lastMin != newMin || lastMax != newMax) {
+        if (!isDragging && (lastMin != newMin || lastMax != newMax)) {
             slider.setRange(newMin, newMax);
         }
 

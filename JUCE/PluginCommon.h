@@ -275,16 +275,229 @@ public:
 };
 
 
-class SettingsEditor : public Component {
+#define shutup NotificationType::dontSendNotification
+
+
+class SettingsEditor : public Component, public ButtonListener {
 private:
+    PresetSettings settings;
     int subSettingsHandle = -1;
-    const SubValue<PresetSettings> &subSettings;
+    SubValue<PresetSettings> &subSettings;
+
+    PPGrid grid;
+
+    PPGrid polyGrid;
+    TextButton polyphony0;
+    TextButton polyphony1;
+    TextButton polyphony2;
+    TextButton polyphony4;
+    TextButton polyphony8;
+    TextButton polyphony16;
+    TextButton polyphony32;
+    TextButton polyphony64;
+
+    PPGrid stealGrid;
+    TextButton steal0;
+    TextButton steal1;
+    TextButton steal2;
+    TextButton steal3;
+    TextButton steal4;
+
+    PPGrid activateGrid;
+    TextButton activate0;
+    TextButton activate1;
+    TextButton activate2;
+    TextButton activate3;
+
+    void applySettings(){
+        switch(settings.polyphony){
+        case 0: polyphony0.triggerClick(); break;
+        case 1: polyphony1.triggerClick(); break;
+        case 2: polyphony2.triggerClick(); break;
+        case 4: polyphony4.triggerClick(); break;
+        case 8: polyphony8.triggerClick(); break;
+        case 16: polyphony16.triggerClick(); break;
+        case 32: polyphony32.triggerClick(); break;
+        case 64: polyphony64.triggerClick(); break;
+        default: PP_NYI; break;
+        }
+
+        switch(settings.noteStealPolicy){
+        case NoteStealPolicyDoNotSteal: steal0.triggerClick(); break;
+        case NoteStealPolicyStealOldest: steal1.triggerClick(); break;
+        case NoteStealPolicyStealLowestRMS: steal2.triggerClick(); break;
+        case NoteStealPolicyStealIfLower: steal3.triggerClick(); break;
+        case NoteStealPolicyStealIfHigher: steal4.triggerClick(); break;
+        default: PP_NYI; break;
+        }
+
+        switch(settings.noteActivationPolicy){
+        case NoteActivationPolicyOnlySilent: activate0.triggerClick(); break;
+        case NoteActivationPolicyPreferOldestSilent: activate1.triggerClick(); break;
+        case NoteActivationPolicyPreferOldestNotSilent: activate2.triggerClick(); break;
+        case NoteActivationPolicyPreferYoungestNotSilent: activate3.triggerClick(); break;
+        default: PP_NYI; break;
+        }
+
+    }
+
 public:
-    SettingsEditor(const SubValue<PresetSettings>& subSettings_)
+    virtual ~SettingsEditor(){
+        subSettings.unsubscribe(subSettingsHandle);
+    }
+
+    SettingsEditor(SubValue<PresetSettings>& subSettings_)
         : subSettings(subSettings_)
     {
+        addAndMakeVisible(&grid, false);
         subSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s){
-            // do something
+            settings = s;
+            applySettings();
         });
+
+        // polyphony
+        grid.addComponent(&polyGrid);
+
+        polyphony0.addListener(this);
+        polyphony1.addListener(this);
+        polyphony2.addListener(this);
+        polyphony4.addListener(this);
+        polyphony8.addListener(this);
+        polyphony16.addListener(this);
+        polyphony32.addListener(this);
+        polyphony64.addListener(this);
+
+        polyGrid.addComponent(&polyphony0);
+        polyGrid.addComponent(&polyphony1);
+        polyGrid.addComponent(&polyphony2);
+        polyGrid.addComponent(&polyphony4);
+        polyGrid.addComponent(&polyphony8);
+        polyGrid.addComponent(&polyphony16);
+        polyGrid.addComponent(&polyphony32);
+        polyGrid.addComponent(&polyphony64);
+
+        polyphony0.setButtonText("0");
+        polyphony1.setButtonText("1");
+        polyphony2.setButtonText("2");
+        polyphony4.setButtonText("4");
+        polyphony8.setButtonText("8");
+        polyphony16.setButtonText("16");
+        polyphony32.setButtonText("32");
+        polyphony64.setButtonText("64");
+
+        polyphony0.setRadioGroupId(1);
+        polyphony1.setRadioGroupId(1);
+        polyphony2.setRadioGroupId(1);
+        polyphony4.setRadioGroupId(1);
+        polyphony8.setRadioGroupId(1);
+        polyphony16.setRadioGroupId(1);
+        polyphony32.setRadioGroupId(1);
+        polyphony64.setRadioGroupId(1);
+
+        polyphony0.setClickingTogglesState(true);
+        polyphony1.setClickingTogglesState(true);
+        polyphony2.setClickingTogglesState(true);
+        polyphony4.setClickingTogglesState(true);
+        polyphony8.setClickingTogglesState(true);
+        polyphony16.setClickingTogglesState(true);
+        polyphony32.setClickingTogglesState(true);
+        polyphony64.setClickingTogglesState(true);
+
+        // steal policy
+        grid.addComponent(&stealGrid);
+
+        steal0.addListener(this);
+        steal1.addListener(this);
+        steal2.addListener(this);
+        steal3.addListener(this);
+        steal4.addListener(this);
+
+        stealGrid.addComponent(&steal0);
+        stealGrid.addComponent(&steal1);
+        stealGrid.addComponent(&steal2);
+        stealGrid.addComponent(&steal3);
+        stealGrid.addComponent(&steal4);
+
+        steal0.setButtonText("do not steal");
+        steal1.setButtonText("oldest");
+        steal2.setButtonText("lowest rms");
+        steal3.setButtonText("if lower");
+        steal4.setButtonText("if higher");
+
+        steal0.setRadioGroupId(2);
+        steal1.setRadioGroupId(2);
+        steal2.setRadioGroupId(2);
+        steal3.setRadioGroupId(2);
+        steal4.setRadioGroupId(2);
+
+        steal0.setClickingTogglesState(true);
+        steal1.setClickingTogglesState(true);
+        steal2.setClickingTogglesState(true);
+        steal3.setClickingTogglesState(true);
+        steal4.setClickingTogglesState(true);
+
+        // activation policy
+        grid.addComponent(&activateGrid);
+
+        activate0.addListener(this);
+        activate1.addListener(this);
+        activate2.addListener(this);
+        activate3.addListener(this);
+
+        activateGrid.addComponent(&activate0);
+        activateGrid.addComponent(&activate1);
+        activateGrid.addComponent(&activate2);
+        activateGrid.addComponent(&activate3);
+
+        activate0.setButtonText("only inactive silent");
+        activate1.setButtonText("prefer inactive silent");
+        activate2.setButtonText("prefer oldest nonsilent");
+        activate3.setButtonText("prefer youngest nonsilent");
+
+        activate0.setRadioGroupId(3);
+        activate1.setRadioGroupId(3);
+        activate2.setRadioGroupId(3);
+        activate3.setRadioGroupId(3);
+
+        activate0.setClickingTogglesState(true);
+        activate1.setClickingTogglesState(true);
+        activate2.setClickingTogglesState(true);
+        activate3.setClickingTogglesState(true);
+
+        applySettings();
+
+        resized();
     }
+
+    void resized() override {
+        grid.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
+    }
+
+    virtual void buttonClicked (Button* b) override {
+        if(b->getToggleState() == false) return;
+        else if (b == &polyphony0) settings.polyphony = 0;
+        else if (b == &polyphony1) settings.polyphony = 1;
+        else if (b == &polyphony2) settings.polyphony = 2;
+        else if (b == &polyphony4) settings.polyphony = 4;
+        else if (b == &polyphony8) settings.polyphony = 8;
+        else if (b == &polyphony16) settings.polyphony = 16;
+        else if (b == &polyphony32) settings.polyphony = 32;
+        else if (b == &polyphony64) settings.polyphony = 64;
+
+        else if (b == &steal0) settings.noteStealPolicy = NoteStealPolicyDoNotSteal;
+        else if (b == &steal1) settings.noteStealPolicy = NoteStealPolicyStealOldest;
+        else if (b == &steal2) settings.noteStealPolicy = NoteStealPolicyStealLowestRMS;
+        else if (b == &steal3) settings.noteStealPolicy = NoteStealPolicyStealIfLower;
+        else if (b == &steal4) settings.noteStealPolicy = NoteStealPolicyStealIfHigher;
+
+        else if (b == &activate0) settings.noteActivationPolicy = NoteActivationPolicyOnlySilent;
+        else if (b == &activate1) settings.noteActivationPolicy = NoteActivationPolicyPreferOldestSilent;
+        else if (b == &activate2) settings.noteActivationPolicy = NoteActivationPolicyPreferOldestNotSilent;
+        else if (b == &activate3) settings.noteActivationPolicy = NoteActivationPolicyPreferYoungestNotSilent;
+
+        else PP_NYI;
+
+        subSettings.set(subSettingsHandle, settings);
+    }
+
 };

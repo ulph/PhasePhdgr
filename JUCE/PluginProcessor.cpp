@@ -282,6 +282,7 @@ void PhasePhckrProcessor::setComponentRegister(const ComponentRegister& cr) {
 void PhasePhckrProcessor::setPreset(const PresetDescriptor& preset) {
     setPatch(VOICE, preset.voice);
     setPatch(EFFECT, preset.effect);
+    setSettings(preset.settings);
     parameters.deserialize(preset.parameters);
 }
 

@@ -25,6 +25,10 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     , outputScopeXY(processor.getSynth()->getEffectScope(0), processor.getSynth()->getEffectScope(1))
     , mainFrame(TabbedButtonBar::TabsAtTop)
 
+    , settingsEditor(
+        processor.subSettings
+    )
+
     , voiceEditor(
         processor.subVoiceChain,
         processor.subComponentRegister,
@@ -81,7 +85,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 
     processor.parameters.initializeKnobs(this);
 
-    mainFrame.addTab("preset settings", Colours::black, &settingsEditor, false);
+    mainFrame.addTab("settings", Colours::black, &settingsEditor, false);
 
     mainFrame.addTab("voice patch", Colours::black, &voiceEditor, false);
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);

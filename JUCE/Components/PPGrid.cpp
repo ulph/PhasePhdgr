@@ -2,7 +2,8 @@
 #include "PPGrid.h"
 
 void PPGrid::paint(Graphics& g){
-  float numberOfRows = (float)components.size()/coloumnSizes.size();
+  float numberOfRows = ceilf(((float)components.size()) / ((float)coloumnSizes.size()));
+
   float size_y = (float)this->getHeight();
   float size_x = (float)this->getWidth();
 
@@ -21,7 +22,7 @@ void PPGrid::paint(Graphics& g){
 }
 
 void PPGrid::resized(){
-  float numberOfRows = (float)(components.size()/coloumnSizes.size());
+  float numberOfRows = ceilf(((float)components.size()) / ((float)coloumnSizes.size()));
 
   int i=0;
   float x = 0;

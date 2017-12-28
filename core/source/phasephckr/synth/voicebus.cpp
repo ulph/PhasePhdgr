@@ -112,6 +112,10 @@ namespace PhasePhckr {
             (stealPolicy == NoteStealPolicyStealIfLower && newNote < lowestActive)
         ||  
             (stealPolicy == NoteStealPolicyStealIfHigher && newNote > highestActive)
+        ||
+            (stealPolicy == NoteStealPolicyStealLowestRMS)
+        ||
+            (stealPolicy == NoteStealPolicyStealOldest)
         ) {
             auto nIdxToSteal = getNoteDataIndexForStealingVoice(selectedActiveIdx);
             if (nIdxToSteal != -1) {
@@ -121,11 +125,9 @@ namespace PhasePhckr {
                 voiceIdxToUse = selectedActiveIdx;
                 res = fvr::StolenVoice;
             }
-            else {
-                assert(0); // eh, this should not happen!
-            }
+            else assert(0);
         }
-        else if (stealPolicy == NoteStealPolicyStealIfLower || stealPolicy == NoteStealPolicyStealIfHigher) {
+        else if (stealPolicy != NoteStealPolicyDoNotSteal) {
             res = fvr::WaitingForVoice;
         }
     }
@@ -204,11 +206,11 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
     if (idx == -1) return;
 
     if (channelData[channel].sustain < 0.5f) {
-        bool shouldEraseNote = true;
         int voiceIdx = notes.at(idx).voiceIndex;
         float legatoVelocity = notes.at(idx).velocity;
 
-        if (voiceIdx != -1) {
+        if (voiceIdx != -1 && notes.at(idx).state == NoteState::ON) {
+
             auto toReviveIdx = -1;
             auto policyScanIdx = -1;
 
@@ -221,7 +223,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                 if (sIdx != -1 && notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
                     sIt = stolenNotes.erase(sIt);
                 }
-                else if (sIdx != -1 && (stealPolicy == NoteStealPolicyStealIfHigher || stealPolicy == NoteStealPolicyStealIfLower)) {
+                else if (sIdx != -1 && (stealPolicy != NoteStealPolicyDoNotSteal)) {
                     auto sNote = notes.at(sIdx).note;
                     if (stealPolicy == NoteStealPolicyStealIfHigher && sNote > highestWaiting) {
                         highestWaiting = sNote;
@@ -229,6 +231,9 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                     }
                     else if(stealPolicy == NoteStealPolicyStealIfLower && sNote < lowestWaiting) {
                         lowestWaiting = sNote;
+                        policyScanIdx = sIdx;
+                    }
+                    else if((stealPolicy == NoteStealPolicyStealOldest || stealPolicy == NoteStealPolicyStealLowestRMS) && sIdx != -1) {
                         policyScanIdx = sIdx;
                     }
                     sIt++;
@@ -242,6 +247,9 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                 toReviveIdx = policyScanIdx;
             }
             else if(stealPolicy == NoteStealPolicyStealIfLower && lowestWaiting > note) {
+                toReviveIdx = policyScanIdx;
+            }
+            else if(stealPolicy == NoteStealPolicyStealOldest || stealPolicy == NoteStealPolicyStealLowestRMS) {
                 toReviveIdx = policyScanIdx;
             }
 

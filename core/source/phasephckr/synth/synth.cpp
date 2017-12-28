@@ -183,17 +183,12 @@ const PresetSettings& Synth::retrieveSettings() {
 }
 
 void Synth::applySettings(const PresetSettings& newSettings) {
-    if (voices.size()) {
-        if (settings.polyphony != newSettings.polyphony) {
-            auto v = *voices[0];
-            resetVoiceBus(&v);
-        }
-    }
-    else {
-        settings.polyphony = -1;
-    }
-
     settings = newSettings;
+    if (voices.size()) {
+        auto v = *voices[0];
+        v.mpe.reset();
+        resetVoiceBus(&v);
+    }
 }
 
 }

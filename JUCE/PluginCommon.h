@@ -260,6 +260,7 @@ public:
     }
 };
 
+
 class ParameterEditor : public Component, public DragAndDropContainer {
 private:
     ParameterPages pageTabs;
@@ -271,4 +272,19 @@ public:
     virtual ~ParameterEditor();
     void addKnob(ParameterKnob* knob);
     void resized() override;
+};
+
+
+class SettingsEditor : public Component {
+private:
+    int subSettingsHandle = -1;
+    const SubValue<PresetSettings> &subSettings;
+public:
+    SettingsEditor(const SubValue<PresetSettings>& subSettings_)
+        : subSettings(subSettings_)
+    {
+        subSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s){
+            // do something
+        });
+    }
 };

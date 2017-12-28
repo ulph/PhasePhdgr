@@ -81,6 +81,8 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 
     processor.parameters.initializeKnobs(this);
 
+    mainFrame.addTab("preset settings", Colours::black, &settingsEditor, false);
+
     mainFrame.addTab("voice patch", Colours::black, &voiceEditor, false);
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 

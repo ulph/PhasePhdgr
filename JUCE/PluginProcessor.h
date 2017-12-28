@@ -31,6 +31,9 @@ private:
 
     ComponentFileLoader componentLoader;
 
+    PhasePhckr::PresetSettings activeSettings;
+    int activeSettingsHandle;
+
     PhasePhckr::PatchDescriptor voiceChain;
     int activeVoiceHandle;
 
@@ -78,6 +81,7 @@ public:
 
     const PhasePhckr::Synth* getSynth() const;
 
+    SubValue<PresetSettings> subSettings;
     SubValue<PatchDescriptor> subVoiceChain;
     SubValue<PatchDescriptor> subEffectChain;
     SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
@@ -87,7 +91,9 @@ public:
     vector<PatchParameterDescriptor> getParameters(SynthGraphType type);
     PatchDescriptor getPatch(SynthGraphType type, bool extractParameters=false);
     PresetDescriptor getPreset();
+
     void setPreset(const PresetDescriptor& preset);
+    void setSettings(const PhasePhckr::PresetSettings &settings);
     void setPatch(SynthGraphType type, const PatchDescriptor& patch);
 
     void setComponentRegister(const ComponentRegister& cr);

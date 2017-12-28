@@ -14,6 +14,9 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
     , componentLoader(subComponentRegister)
 {
+    activeSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s){
+        setSettings(s);
+    });
     activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){
         setVoiceChain(v);
     });
@@ -248,6 +251,7 @@ PresetDescriptor PhasePhckrProcessor::getPreset() {
     preset.voice = getPatch(VOICE);
     preset.effect = getPatch(EFFECT);
     preset.parameters = parameters.serialize();
+    preset.settings = activeSettings;
 
     return preset;
 }
@@ -279,6 +283,16 @@ void PhasePhckrProcessor::setPreset(const PresetDescriptor& preset) {
     setPatch(VOICE, preset.voice);
     setPatch(EFFECT, preset.effect);
     parameters.deserialize(preset.parameters);
+}
+
+void PhasePhckrProcessor::setSettings(const PhasePhckr::PresetSettings &s) {
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+
+    synth->applySettings(s);
+
+    activeSettings = s;
+    // TODO, force update HOST state
+    updateHostDisplay();
 }
 
 void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {

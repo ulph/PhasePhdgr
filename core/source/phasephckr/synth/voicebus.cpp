@@ -220,62 +220,69 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
     if (idx == -1) return;
 
     if (channelData[channel].sustain < 0.5f) {
-        int voiceIdx = notes.at(idx).voiceIndex;
-        float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
+        if(notes.at(idx).state == NoteState::ON) {
+            int voiceIdx = notes.at(idx).voiceIndex;
+            if (voiceIdx != -1 && voiceIdx < voices.size()) {
+                if(voices.at(voiceIdx)->mpe.getState().gateTarget > 0){
+                    float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
 
-        if (voiceIdx != -1 && notes.at(idx).state == NoteState::ON) {
+                    auto toReviveIdx = -1;
 
-            auto toReviveIdx = -1;
+                    auto lowestWaiting = INT_MAX;
+                    auto highestWaiting = INT_MIN;
 
-            auto lowestWaiting = INT_MAX;
-            auto highestWaiting = INT_MIN;
-
-            // sift through the stolen notes and revive the one matching the policy
-            auto pickedIt = stolenNotes.end();
-            for (auto sIt = stolenNotes.begin(); sIt != stolenNotes.end();) {
-                auto sIdx = getNoteDataIndex(sIt->channel, sIt->note);
-                if (sIdx != -1 && notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
-                    sIt = stolenNotes.erase(sIt); // do not steal ourselves
-                }
-                else if (sIdx != -1 && reactivationPolicy != NoteReactivationPolicyDoNotReactivate) {
-                    auto sNote = notes.at(sIdx).note;
-                    if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
-                        highestWaiting = sNote;
-                        toReviveIdx = sIdx;
-                        pickedIt = sIt;
+                    // sift through the stolen notes and revive the one matching the policy
+                    auto pickedIt = stolenNotes.end();
+                    for (auto sIt = stolenNotes.begin(); sIt != stolenNotes.end();) {
+                        auto sIdx = getNoteDataIndex(sIt->channel, sIt->note);
+                        if(sIdx != -1 && notes.at(sIdx).state == NoteState::STOLEN){
+                            if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
+                                sIt = stolenNotes.erase(sIt); // do not steal ourselves
+                            }
+                            else if (reactivationPolicy == NoteReactivationPolicyDoNotReactivate){
+                                sIt = stolenNotes.erase(sIt);
+                            }
+                            else {
+                                auto sNote = notes.at(sIdx).note;
+                                if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
+                                    highestWaiting = sNote;
+                                    toReviveIdx = sIdx;
+                                    pickedIt = sIt;
+                                }
+                                else if(reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
+                                    lowestWaiting = sNote;
+                                    toReviveIdx = sIdx;
+                                    pickedIt = sIt;
+                                }
+                                else if(reactivationPolicy == NoteReactivationPolicyLast) {
+                                    toReviveIdx = sIdx;
+                                    pickedIt = sIt;
+                                }
+                                // more policies goes here
+                                sIt++;
+                            }
+                        }
+                        else {
+                            sIt = stolenNotes.erase(sIt);
+                        }
                     }
-                    else if(reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
-                        lowestWaiting = sNote;
-                        toReviveIdx = sIdx;
-                        pickedIt = sIt;
-                    }
-                    else if((reactivationPolicy == NoteReactivationPolicyLast) && sIdx != -1) {
-                        toReviveIdx = sIdx;
-                        pickedIt = sIt;
-                    }
-                    sIt++;
-                }
-                else {
-                    sIt = stolenNotes.erase(sIt);
-                }
-            }
 
-            if (toReviveIdx != -1) {
-                auto& toRevive = notes.at(toReviveIdx);
-                toRevive.voiceIndex = voiceIdx;
-                toRevive.velocity = legato == LegatoModeFreezeVelocity ? legatoVelocity : toRevive.velocity;
-                // TODO, adhere to the other legato modes
-                toRevive.state = NoteState::ON;
-                voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, legato);
-                stolenNotes.erase(pickedIt);
-            }
-            else {
-                voices[voiceIdx]->mpe.off(note, velocity);
+                    if (toReviveIdx != -1) {
+                        auto& toRevive = notes.at(toReviveIdx);
+                        toRevive.voiceIndex = voiceIdx;
+                        toRevive.velocity = legato == LegatoModeFreezeVelocity ? legatoVelocity : toRevive.velocity;
+                        // TODO, adhere to the other legato modes
+                        toRevive.state = NoteState::ON;
+                        voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, legato);
+                        stolenNotes.erase(pickedIt);
+                    }
+                    else {
+                        voices[voiceIdx]->mpe.off(note, velocity);
+                    }
+                }
             }
         }
-
         notes.erase(notes.begin() + idx);
-
     }
     else {
         auto& n = notes.at(idx);

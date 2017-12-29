@@ -322,45 +322,45 @@ private:
 
     void applySettings(){
         switch(settings.polyphony){
-        case 1: polyphony1.triggerClick(); break;
-        case 2: polyphony2.triggerClick(); break;
-        case 4: polyphony4.triggerClick(); break;
-        case 8: polyphony8.triggerClick(); break;
-        case 16: polyphony16.triggerClick(); break;
-        case 32: polyphony32.triggerClick(); break;
-        case 64: polyphony64.triggerClick(); break;
+        case 1: polyphony1.setToggleState(true, shutup); break;
+        case 2: polyphony2.setToggleState(true, shutup); break;
+        case 4: polyphony4.setToggleState(true, shutup); break;
+        case 8: polyphony8.setToggleState(true, shutup); break;
+        case 16: polyphony16.setToggleState(true, shutup); break;
+        case 32: polyphony32.setToggleState(true, shutup); break;
+        case 64: polyphony64.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
         switch(settings.noteStealPolicy){
-        case NoteStealPolicyDoNotSteal: steal0.triggerClick(); break;
-        case NoteStealPolicyStealOldest: steal1.triggerClick(); break;
-        case NoteStealPolicyStealLowestRMS: steal2.triggerClick(); break;
-        case NoteStealPolicyStealIfLower: steal3.triggerClick(); break;
-        case NoteStealPolicyStealIfHigher: steal4.triggerClick(); break;
+        case NoteStealPolicyDoNotSteal: steal0.setToggleState(true, shutup); break;
+        case NoteStealPolicyStealOldest: steal1.setToggleState(true, shutup); break;
+        case NoteStealPolicyStealLowestRMS: steal2.setToggleState(true, shutup); break;
+        case NoteStealPolicyStealIfLower: steal3.setToggleState(true, shutup); break;
+        case NoteStealPolicyStealIfHigher: steal4.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
         switch(settings.noteStealPolicy){
-        case LegatoModeRetrigger: legato0.triggerClick(); break;
-        case LegatoModeUpdateVelocity: legato1.triggerClick(); break;
-        case LegatoModeFreezeVelocity: legato2.triggerClick(); break;
+        case LegatoModeRetrigger: legato0.setToggleState(true, shutup); break;
+        case LegatoModeUpdateVelocity: legato1.setToggleState(true, shutup); break;
+        case LegatoModeFreezeVelocity: legato2.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
         switch(settings.noteReactivationPolicy){
-        case NoteReactivationPolicyDoNotReactivate: reactivate0.triggerClick(); break;
-        case NoteReactivationPolicyLast: reactivate1.triggerClick(); break;
-        case NoteReactivationPolicyHighest: reactivate2.triggerClick(); break;
-        case NoteReactivationPolicyLowest: reactivate3.triggerClick(); break;
+        case NoteReactivationPolicyDoNotReactivate: reactivate0.setToggleState(true, shutup); break;
+        case NoteReactivationPolicyLast: reactivate1.setToggleState(true, shutup); break;
+        case NoteReactivationPolicyHighest: reactivate2.setToggleState(true, shutup); break;
+        case NoteReactivationPolicyLowest: reactivate3.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
         switch(settings.noteActivationPolicy){
-        case NoteActivationPolicyOnlySilent: activate0.triggerClick(); break;
-        case NoteActivationPolicyPreferOldestSilent: activate1.triggerClick(); break;
-        case NoteActivationPolicyPreferOldestNotSilent: activate2.triggerClick(); break;
-        case NoteActivationPolicyPreferYoungestNotSilent: activate3.triggerClick(); break;
+        case NoteActivationPolicyOnlySilent: activate0.setToggleState(true, shutup); break;
+        case NoteActivationPolicyPreferOldestSilent: activate1.setToggleState(true, shutup); break;
+        case NoteActivationPolicyPreferOldestNotSilent: activate2.setToggleState(true, shutup); break;
+        case NoteActivationPolicyPreferYoungestNotSilent: activate3.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 

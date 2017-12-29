@@ -215,6 +215,7 @@ void PhasePhckrProcessor::broadcastPatch() {
     subComponentRegister.set(componentRegisterHandle, componentRegister);
     subVoiceChain.set(activeVoiceHandle, voiceChain);
     subEffectChain.set(activeEffectHandle, effectChain);
+    subSettings.set(activeSettingsHandle, activeSettings);
 }
 
 PatchDescriptor PhasePhckrProcessor::getPatch(SynthGraphType type, bool extractParameters) {

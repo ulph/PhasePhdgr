@@ -287,7 +287,6 @@ private:
     PPGrid grid;
 
     PPGrid polyGrid;
-    TextButton polyphony0;
     TextButton polyphony1;
     TextButton polyphony2;
     TextButton polyphony4;
@@ -303,6 +302,18 @@ private:
     TextButton steal3;
     TextButton steal4;
 
+    PPGrid reactivateGrid;
+    TextButton reactivate0;
+    TextButton reactivate1;
+    TextButton reactivate2;
+    TextButton reactivate3;
+
+    PPGrid legatoGrid;
+    TextButton legato0;
+    TextButton legato1;
+    TextButton legato2;
+    TextButton legato3;
+
     PPGrid activateGrid;
     TextButton activate0;
     TextButton activate1;
@@ -311,7 +322,6 @@ private:
 
     void applySettings(){
         switch(settings.polyphony){
-        case 0: polyphony0.triggerClick(); break;
         case 1: polyphony1.triggerClick(); break;
         case 2: polyphony2.triggerClick(); break;
         case 4: polyphony4.triggerClick(); break;
@@ -328,6 +338,21 @@ private:
         case NoteStealPolicyStealLowestRMS: steal2.triggerClick(); break;
         case NoteStealPolicyStealIfLower: steal3.triggerClick(); break;
         case NoteStealPolicyStealIfHigher: steal4.triggerClick(); break;
+        default: PP_NYI; break;
+        }
+
+        switch(settings.noteStealPolicy){
+        case LegatoModeRetrigger: legato0.triggerClick(); break;
+        case LegatoModeUpdateVelocity: legato1.triggerClick(); break;
+        case LegatoModeFreezeVelocity: legato2.triggerClick(); break;
+        default: PP_NYI; break;
+        }
+
+        switch(settings.noteReactivationPolicy){
+        case NoteReactivationPolicyDoNotReactivate: reactivate0.triggerClick(); break;
+        case NoteReactivationPolicyLast: reactivate1.triggerClick(); break;
+        case NoteReactivationPolicyHighest: reactivate2.triggerClick(); break;
+        case NoteReactivationPolicyLowest: reactivate3.triggerClick(); break;
         default: PP_NYI; break;
         }
 
@@ -358,7 +383,6 @@ public:
         // polyphony
         grid.addComponent(&polyGrid);
 
-        polyphony0.addListener(this);
         polyphony1.addListener(this);
         polyphony2.addListener(this);
         polyphony4.addListener(this);
@@ -367,7 +391,6 @@ public:
         polyphony32.addListener(this);
         polyphony64.addListener(this);
 
-        polyGrid.addComponent(&polyphony0);
         polyGrid.addComponent(&polyphony1);
         polyGrid.addComponent(&polyphony2);
         polyGrid.addComponent(&polyphony4);
@@ -376,7 +399,6 @@ public:
         polyGrid.addComponent(&polyphony32);
         polyGrid.addComponent(&polyphony64);
 
-        polyphony0.setButtonText("0");
         polyphony1.setButtonText("1");
         polyphony2.setButtonText("2");
         polyphony4.setButtonText("4");
@@ -385,7 +407,6 @@ public:
         polyphony32.setButtonText("32");
         polyphony64.setButtonText("64");
 
-        polyphony0.setRadioGroupId(1);
         polyphony1.setRadioGroupId(1);
         polyphony2.setRadioGroupId(1);
         polyphony4.setRadioGroupId(1);
@@ -394,7 +415,6 @@ public:
         polyphony32.setRadioGroupId(1);
         polyphony64.setRadioGroupId(1);
 
-        polyphony0.setClickingTogglesState(true);
         polyphony1.setClickingTogglesState(true);
         polyphony2.setClickingTogglesState(true);
         polyphony4.setClickingTogglesState(true);
@@ -436,6 +456,57 @@ public:
         steal3.setClickingTogglesState(true);
         steal4.setClickingTogglesState(true);
 
+        // legato mode
+        grid.addComponent(&legatoGrid);
+
+        legato0.addListener(this);
+        legato1.addListener(this);
+        legato2.addListener(this);
+
+        legatoGrid.addComponent(&legato0);
+        legatoGrid.addComponent(&legato1);
+        legatoGrid.addComponent(&legato2);
+
+        legato0.setButtonText("retrigger");
+        legato1.setButtonText("legato, update velocity");
+        legato2.setButtonText("legato, freeze velocity");
+
+        legato0.setRadioGroupId(4);
+        legato1.setRadioGroupId(4);
+        legato2.setRadioGroupId(4);
+
+        legato0.setClickingTogglesState(true);
+        legato1.setClickingTogglesState(true);
+        legato2.setClickingTogglesState(true);
+
+        // reactivation policy
+        grid.addComponent(&reactivateGrid);
+
+        reactivate0.addListener(this);
+        reactivate1.addListener(this);
+        reactivate2.addListener(this);
+        reactivate3.addListener(this);
+
+        reactivateGrid.addComponent(&reactivate0);
+        reactivateGrid.addComponent(&reactivate1);
+        reactivateGrid.addComponent(&reactivate2);
+        reactivateGrid.addComponent(&reactivate3);
+
+        reactivate0.setButtonText("do not reactivate");
+        reactivate1.setButtonText("reactivate last");
+        reactivate2.setButtonText("reactivate highest");
+        reactivate3.setButtonText("reactivate lowest");
+
+        reactivate0.setRadioGroupId(3);
+        reactivate1.setRadioGroupId(3);
+        reactivate2.setRadioGroupId(3);
+        reactivate3.setRadioGroupId(3);
+
+        reactivate0.setClickingTogglesState(true);
+        reactivate1.setClickingTogglesState(true);
+        reactivate2.setClickingTogglesState(true);
+        reactivate3.setClickingTogglesState(true);
+
         // activation policy
         grid.addComponent(&activateGrid);
 
@@ -454,10 +525,10 @@ public:
         activate2.setButtonText("prefer oldest nonsilent");
         activate3.setButtonText("prefer youngest nonsilent");
 
-        activate0.setRadioGroupId(3);
-        activate1.setRadioGroupId(3);
-        activate2.setRadioGroupId(3);
-        activate3.setRadioGroupId(3);
+        activate0.setRadioGroupId(5);
+        activate1.setRadioGroupId(5);
+        activate2.setRadioGroupId(5);
+        activate3.setRadioGroupId(5);
 
         activate0.setClickingTogglesState(true);
         activate1.setClickingTogglesState(true);
@@ -475,7 +546,6 @@ public:
 
     virtual void buttonClicked (Button* b) override {
         if(b->getToggleState() == false) return;
-        else if (b == &polyphony0) settings.polyphony = 0;
         else if (b == &polyphony1) settings.polyphony = 1;
         else if (b == &polyphony2) settings.polyphony = 2;
         else if (b == &polyphony4) settings.polyphony = 4;
@@ -489,6 +559,15 @@ public:
         else if (b == &steal2) settings.noteStealPolicy = NoteStealPolicyStealLowestRMS;
         else if (b == &steal3) settings.noteStealPolicy = NoteStealPolicyStealIfLower;
         else if (b == &steal4) settings.noteStealPolicy = NoteStealPolicyStealIfHigher;
+
+        else if (b == &legato0) settings.legatoMode = LegatoModeRetrigger;
+        else if (b == &legato1) settings.legatoMode = LegatoModeUpdateVelocity;
+        else if (b == &legato2) settings.legatoMode = LegatoModeFreezeVelocity;
+
+        else if (b == &reactivate0) settings.noteReactivationPolicy = NoteReactivationPolicyDoNotReactivate;
+        else if (b == &reactivate1) settings.noteReactivationPolicy = NoteReactivationPolicyLast;
+        else if (b == &reactivate2) settings.noteReactivationPolicy = NoteReactivationPolicyHighest;
+        else if (b == &reactivate3) settings.noteReactivationPolicy = NoteReactivationPolicyLowest;
 
         else if (b == &activate0) settings.noteActivationPolicy = NoteActivationPolicyOnlySilent;
         else if (b == &activate1) settings.noteActivationPolicy = NoteActivationPolicyPreferOldestSilent;

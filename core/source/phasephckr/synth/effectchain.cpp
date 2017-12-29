@@ -47,7 +47,7 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
     connectionGraph.setInput(inBus, 11, t.time);
 
     int j = 0;
-    for (j; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
+    for (j = 0; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
         globalData.update();
 
         connectionGraph.setInputBlock(inBus, 2, g.mod);
@@ -78,6 +78,5 @@ void EffectChain::setParameter(int handle, float value){
 const ParameterHandleMap& EffectChain::getParameterHandles(){
     return parameterHandles;
 }
-
 
 }

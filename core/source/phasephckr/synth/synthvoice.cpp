@@ -106,7 +106,7 @@ void SynthVoice::threadedProcess()
     connectionGraph.setInput(inBus, 20, v.polyphony);
 
     int j = 0;
-    for (j; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
+    for (j = 0; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
         bool gateChange = mpe.gateChanged();
 
         mpe.update();

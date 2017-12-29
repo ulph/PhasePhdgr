@@ -192,6 +192,8 @@ void to_json(json& j, const PresetSettings& settings) {
     j["polyphony"] = settings.polyphony;
     j["multicore"] = settings.multicore;
     j["noteStealPolicy"] = settings.noteStealPolicy;
+    j["noteReactivationPolicy"] = settings.noteReactivationPolicy;
+    j["legatoMode"] = settings.legatoMode;
     j["noteActivationPolicy"] = settings.noteActivationPolicy;
 }
 
@@ -199,6 +201,8 @@ void from_json(const json& j, PresetSettings& settings) {
     if (j.count("polyphony")) settings.polyphony = j.at("polyphony").get<int>();
     if (j.count("multicore")) settings.multicore = j.at("multicore").get<bool>();
     if (j.count("noteStealPolicy")) settings.noteStealPolicy = j.at("noteStealPolicy").get<NoteStealPolicy>();
+    if (j.count("noteReactivationPolicy")) settings.noteReactivationPolicy = j.at("noteReactivationPolicy").get<NoteReactivationPolicy>();
+    if (j.count("legatoMode")) settings.legatoMode = j.at("legatoMode").get<LegatoMode>();
     if (j.count("noteActivationPolicy")) settings.noteActivationPolicy = j.at("noteActivationPolicy").get<NoteActivationPolicy>();
 }
 

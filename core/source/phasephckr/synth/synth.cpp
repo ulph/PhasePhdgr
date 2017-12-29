@@ -42,13 +42,13 @@ const ParameterHandleMap& Effect::setEffectChain(const PatchDescriptor& fxChain,
 }
 
 void Synth::resetVoiceBus(const SynthVoice* voice) {
-    assert(settings.polyphony >= 0);
-    bool legato = settings.polyphony == 0;
+    assert(settings.polyphony > 0);
 
     delete voiceBus;
     voiceBus = new VoiceBus();
-    voiceBus->setLegato(legato);
+    voiceBus->setLegato(settings.legatoMode);
     voiceBus->setStealPolicy(settings.noteStealPolicy);
+    voiceBus->setReactivationPolicy(settings.noteReactivationPolicy);
     voiceBus->setActivationPolicy(settings.noteActivationPolicy);
 
     for (SynthVoice *v : voices) {

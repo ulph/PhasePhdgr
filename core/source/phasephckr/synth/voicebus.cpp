@@ -7,11 +7,11 @@
 
 namespace PhasePhckr {
 
- VoiceBus::fvr VoiceBus::findVoice(int newNote, int& voiceIdxToUse, const std::vector<SynthVoice*> &voices) {
+ VoiceBus::fvr VoiceBus::findVoice(int newNote, NoteData* noteData, const std::vector<SynthVoice*> &voices) {
     // active or steal a voice based on policies
 
     fvr res = fvr::NoVoice;
-    voiceIdxToUse = -1;
+    noteData->voiceIndex = -1;
 
     unsigned int oldestInactiveSilent = 0;
     auto selectedInactiveSilentIdx = -1;
@@ -26,11 +26,14 @@ namespace PhasePhckr {
     auto quietestActive = std::numeric_limits<float>::max();
     auto selectedActiveIdx = -1;
 
+    float stolenNoteVelocity = 0;
+
     int i = 0;
     for (const auto *v : voices) {
         auto age = v->mpe.getAge();
         auto note = v->mpe.getRootNote();
         auto rms = v->getRms();
+        auto vel = v->mpe.getState().strikeZ;
 
         if (v->mpe.getState().gateTarget == 0) {
             if (v->isSilent()) {
@@ -70,24 +73,28 @@ namespace PhasePhckr {
                     if (note < lowestActive) {
                         lowestActive = note;
                         selectedActiveIdx = i;
+                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyStealIfHigher:
                     if (note > highestActive) {
                         highestActive = note;
                         selectedActiveIdx = i;
+                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyStealOldest:
                     if (age > oldestActive) {
                         oldestActive = age;
                         selectedActiveIdx = i;
+                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyStealLowestRMS:
                     if (rms < quietestActive) {
                         quietestActive = rms;
                         selectedActiveIdx = i;
+                        stolenNoteVelocity = vel;
                     }
                     break;
                 default:
@@ -100,11 +107,11 @@ namespace PhasePhckr {
     }
 
     if (selectedInactiveSilentIdx != -1) {
-        voiceIdxToUse = selectedInactiveSilentIdx;
+        noteData->voiceIndex = selectedInactiveSilentIdx;
         res = fvr::NewVoice;
     }
     else if (selectedInactiveIdx != -1) {
-        voiceIdxToUse = selectedInactiveIdx;
+        noteData->voiceIndex = selectedInactiveIdx;
         res = fvr::NewVoice;
     }
     else if (selectedActiveIdx != -1) {
@@ -122,7 +129,8 @@ namespace PhasePhckr {
                 auto& nts = notes[nIdxToSteal];
                 nts.state = NoteState::STOLEN;
                 stolenNotes.emplace_back(nts.channel, nts.note);
-                voiceIdxToUse = selectedActiveIdx;
+                noteData->voiceIndex = selectedActiveIdx;
+                noteData->velocity = stolenNoteVelocity; // in case of legato
                 res = fvr::StolenVoice;
             }
             else assert(0);
@@ -154,7 +162,7 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
     // find a free voice (if note has none assigned)
 
     if (n->voiceIndex == -1) {
-        r = findVoice(note, n->voiceIndex, voices);
+        r = findVoice(note, n, voices);
     }
     else {
         r = fvr::StolenVoice; // from itself, so to speak
@@ -169,7 +177,16 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
     n->channel = channel;
     n->note = note;
-    n->velocity = fvr::StolenVoice == r ? velocity : legato ? n->velocity : velocity;
+
+    if(r != fvr::StolenVoice){
+        n->velocity = velocity;
+    }
+    else if( legato == LegatoModeFreezeVelocity ){
+        n->velocity = n->velocity;
+    }
+    else {
+        n->velocity = velocity;
+    }
 
     if (r == fvr::WaitingForVoice) {
         n->state = NoteState::STOLEN;
@@ -179,15 +196,12 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
     if (n->voiceIndex < 0 || n->voiceIndex >= voices.size()) return;
 
-    // ok, all good. let's see of legato or not
-
     if (
         (fvr::StolenVoice == r && !legato)
         ||
         (fvr::NewVoice == r)
     ) {
         voices[n->voiceIndex]->mpe.reset();
-        // TODO, fill in the mpe-esque things which actually could live in channelData
     }
 
     // trigger the voice
@@ -195,7 +209,7 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
     n->state = NoteState::ON;
 
     SynthVoice *selectedVoice = voices[n->voiceIndex];
-    selectedVoice->mpe.on(note, n->velocity, fvr::NewVoice == r ? false : legato);
+    selectedVoice->mpe.on(note, n->velocity, fvr::NewVoice == r ? false : legato != LegatoModeRetrigger);
     selectedVoice->mpe.glide(channelData[channel].x);
     selectedVoice->mpe.slide(channelData[channel].y);
     selectedVoice->mpe.press(channelData[channel].z);
@@ -207,34 +221,37 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
 
     if (channelData[channel].sustain < 0.5f) {
         int voiceIdx = notes.at(idx).voiceIndex;
-        float legatoVelocity = notes.at(idx).velocity;
+        float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
 
         if (voiceIdx != -1 && notes.at(idx).state == NoteState::ON) {
 
             auto toReviveIdx = -1;
-            auto policyScanIdx = -1;
 
             auto lowestWaiting = INT_MAX;
             auto highestWaiting = INT_MIN;
 
             // sift through the stolen notes and revive the one matching the policy
+            auto pickedIt = stolenNotes.end();
             for (auto sIt = stolenNotes.begin(); sIt != stolenNotes.end();) {
                 auto sIdx = getNoteDataIndex(sIt->channel, sIt->note);
                 if (sIdx != -1 && notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
-                    sIt = stolenNotes.erase(sIt);
+                    sIt = stolenNotes.erase(sIt); // do not steal ourselves
                 }
-                else if (sIdx != -1 && (stealPolicy != NoteStealPolicyDoNotSteal)) {
+                else if (sIdx != -1 && reactivationPolicy != NoteReactivationPolicyDoNotReactivate) {
                     auto sNote = notes.at(sIdx).note;
-                    if (stealPolicy == NoteStealPolicyStealIfHigher && sNote > highestWaiting) {
+                    if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
                         highestWaiting = sNote;
-                        policyScanIdx = sIdx;
+                        toReviveIdx = sIdx;
+                        pickedIt = sIt;
                     }
-                    else if(stealPolicy == NoteStealPolicyStealIfLower && sNote < lowestWaiting) {
+                    else if(reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
                         lowestWaiting = sNote;
-                        policyScanIdx = sIdx;
+                        toReviveIdx = sIdx;
+                        pickedIt = sIt;
                     }
-                    else if((stealPolicy == NoteStealPolicyStealOldest || stealPolicy == NoteStealPolicyStealLowestRMS) && sIdx != -1) {
-                        policyScanIdx = sIdx;
+                    else if((reactivationPolicy == NoteReactivationPolicyLast) && sIdx != -1) {
+                        toReviveIdx = sIdx;
+                        pickedIt = sIt;
                     }
                     sIt++;
                 }
@@ -243,22 +260,14 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                 }
             }
 
-            if (stealPolicy == NoteStealPolicyStealIfHigher && highestWaiting < note) {
-                toReviveIdx = policyScanIdx;
-            }
-            else if(stealPolicy == NoteStealPolicyStealIfLower && lowestWaiting > note) {
-                toReviveIdx = policyScanIdx;
-            }
-            else if(stealPolicy == NoteStealPolicyStealOldest || stealPolicy == NoteStealPolicyStealLowestRMS) {
-                toReviveIdx = policyScanIdx;
-            }
-
             if (toReviveIdx != -1) {
                 auto& toRevive = notes.at(toReviveIdx);
                 toRevive.voiceIndex = voiceIdx;
-                toRevive.velocity = legato ? legatoVelocity : toRevive.velocity;
+                toRevive.velocity = legato == LegatoModeFreezeVelocity ? legatoVelocity : toRevive.velocity;
+                // TODO, adhere to the other legato modes
                 toRevive.state = NoteState::ON;
                 voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, legato);
+                stolenNotes.erase(pickedIt);
             }
             else {
                 voices[voiceIdx]->mpe.off(note, velocity);

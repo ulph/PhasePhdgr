@@ -63,8 +63,9 @@ public:
     void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices);
     void update();
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
-    void setLegato(bool status) { legato = status; }
+    void setLegato(LegatoMode status) { legato = status; }
     void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
+    void setReactivationPolicy(NoteReactivationPolicy newPolicy) { reactivationPolicy = newPolicy; }
     void setActivationPolicy(NoteActivationPolicy newPolicy) { activationPolicy = newPolicy; }
 private:
     enum class fvr {
@@ -73,12 +74,13 @@ private:
         NoVoice,
         WaitingForVoice
     };
-    fvr findVoice(int note, int& idxToUse, const std::vector<SynthVoice*> &voices);
+    fvr findVoice(int note, NoteData* noteData, const std::vector<SynthVoice*> &voices);
     void handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
+    NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyDoNotReactivate;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
-    bool legato = false;
+    LegatoMode legato = LegatoModeRetrigger;
     std::vector<NoteData> notes; // make map of channel,note instead ??
     std::vector<StolenNoteData> stolenNotes;
     int getNoteDataIndex(int channel, int note);

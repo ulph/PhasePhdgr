@@ -184,6 +184,30 @@ enum NoteStealPolicy {
     NoteStealPolicyStealLowestRMS, // steal the most quiet active voice
     NoteStealPolicyStealIfLower, // steal the lowest voice (in note number) - when released the lowest stolen voice get revived
     NoteStealPolicyStealIfHigher, // steal the highest voice (in note number) - when released the highest stolen voice get revived
+//  NoteStealPolicyYoungest,
+//  NoteStealPolicyClosest,
+//  NoteStealPolicyHigher,
+//  NoteStealPolicyLower,
+//  NoteStealAuto, // best match given polyphony etc
+};
+
+enum NoteReactivationPolicy {
+    NoteReactivationPolicyDoNotReactivate = 0, // do not reactivate stolen voices
+    NoteReactivationPolicyLast, // reactivate the last stolen voice
+    NoteReactivationPolicyHighest, // reactivate the highest stolen voice
+    NoteReactivationPolicyLowest, // reactivate the lowest stolen voice
+//  NoteReactivationPolicyFirst,
+//  NoteReactivationPolicyClosest,
+//  NoteReactivationPolicyLower,
+//  NoteReactivationPolicyHigher,
+//  NoteReactivationPolicyAuto, // best match given NoteStealPolicy and polyphony ...
+};
+
+enum LegatoMode {
+    LegatoModeRetrigger = 0,
+    LegatoModeUpdateVelocity,
+    LegatoModeFreezeVelocity,
+//    LegatoModeReleaseVelocity,
 };
 
 enum NoteActivationPolicy {
@@ -195,8 +219,12 @@ enum NoteActivationPolicy {
 
 struct PresetSettings {
     NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyPreferOldestSilent; // how to select which inactive voice to activate
+
     NoteStealPolicy noteStealPolicy = NoteStealPolicyDoNotSteal; // if, and how, to steal voices
-    int polyphony = 16; // 0: legato monophonic; 1-> retriggering (poly)phonic
+    NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyDoNotReactivate; // if, and how, to re-activate stolen notes
+    LegatoMode legatoMode = LegatoModeRetrigger; // if stealing a voice, retrigger or legato - with frozen or updated velocity
+
+    int polyphony = 16; // how many simultaneous voices to process
     bool multicore = true; // process each voice on it's own thread
 };
 

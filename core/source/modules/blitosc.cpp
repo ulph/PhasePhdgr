@@ -31,8 +31,8 @@ inline void BlitOsc::blitOnePulse(float fraction, float multiplier) {
 }
 
 inline void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
-    if (syncPhase >= 1.f) {
-        if (phase >= syncAmount) {
+    if (syncPhase > 1.f) {
+        if (phase > syncAmount) {
             float interval = (1.f - (syncPhase - syncNFreq));
             float syncFraction = interval / syncNFreq;
             float phaseInc = nFreq * (syncPhase - 1.0f)/syncNFreq;

@@ -7,7 +7,7 @@
 class BlitOsc : public ModuleCRTP<BlitOsc>
 {
 public:
-    static const int c_blitN = 32; // TODO, find a sweet spot or at least use min-phase sinc
+    static const int c_blitN = 16; // TODO, find a sweet spot or at least use min-phase sinc
 private:
     float buf[c_blitN] = { 0.f };
     int bufPos = 0;

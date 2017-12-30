@@ -31,16 +31,13 @@ inline void BlitOsc::blitOnePulse(float fraction, float multiplier) {
 }
 
 inline void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
-    if (syncPhase > 1.f) {
-        bool resetPhase = false;
+    if (syncPhase >= 1.f) {
         if (phase >= syncAmount) {
-            resetPhase = true;
             float interval = (1.f - (syncPhase - syncNFreq));
             float syncFraction = interval / syncNFreq;
-
-            float freqFractionCorrection = (syncNFreq / nFreq); // this helps a tiny bit extra, need to do the math as of why :P
-            float sawCorrection = (1.f - shape)*nFreq*(1.f - syncFraction*freqFractionCorrection); // adjust for saw shape
-
+            float phaseInc = nFreq * (syncPhase - 1.0f)/syncNFreq;
+            float sawCorrection = (1.f - shape) * phaseInc;
+            phase = -1.0 + phaseInc;
             float target = -1.0f + sawCorrection; // target value
 
             float remainderTail = 0.f;
@@ -57,9 +54,6 @@ inline void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAm
             stage = 0;
         }
         syncPhase -= 2.f;
-        if (resetPhase) {
-            phase = syncPhase;
-        }
     }
 }
 

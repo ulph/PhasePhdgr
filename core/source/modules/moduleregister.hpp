@@ -79,7 +79,7 @@ public:
         cg.registerModule("FADEX", &(FadeCross::factory));
         cg.registerModule("SAMPHOLD", &(SampleAndHold::factory));
         cg.registerModule("TRESH", &(Threshold::factory));
-        // todo: counters, etc
+        cg.registerModule("COUNTER", &(Counter::factory));
 
         /* conversions */
         cg.registerModule("TEMPO2TIME", &(TempoToTime::factory));
@@ -96,8 +96,8 @@ public:
         cg.registerModule("BQLPF", &(LowPass::factory));
         cg.registerModule("BQPEAK", &(PeakingEQ::factory));
 
-        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory));
-        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory));
+        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory)); // deprecate?
+        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // deprecate?
         cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
         cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory));
 
@@ -105,6 +105,7 @@ public:
         cg.registerModule("RCLP", &(RcLp::factory));
         cg.registerModule("ORCHP", &(OpenRcHp::factory));
         cg.registerModule("ORCLP", &(OpenRcLp::factory));
+        // TODO, lin-phase and/or ZDF variants
         cg.registerModule("LAG", &(Lag::factory));
 
         /* envelopes */

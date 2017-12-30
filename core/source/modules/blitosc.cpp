@@ -15,7 +15,9 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("sync")); // how much to sync -- TODO non-linear map input range
     inputs.push_back(Pad("reset")); // reset both internal phases ... not suitable for osc sync as it'll alias
     inputs.push_back(Pad("offset", -1.f));
+    outputs.push_back(Pad("derivative"));
     outputs.push_back(Pad("output"));
+    outputs.push_back(Pad("integral"));
 }
 
 inline void BlitOsc::blitOnePulse(float fraction, float multiplier) {
@@ -93,12 +95,17 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
 
-    float fc = freq*0.125f;
+    float value = buf[bufPos] + (1.f - shape)*nFreq;
+    outputs[0].value = value;
 
-    last_cumSum = cumSum; // x
-    cumSum = cumSum*leak + buf[bufPos] + (1.f - shape)*nFreq; // x+1
+    last_cumSum = cumSum;
+    cumSum = cumSum*leak + value;
+    outputs[1].value = CalcRcHp(cumSum, last_cumSum, outputs[1].value, freq*0.125f, fsInv);
 
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, outputs[0].value, fc, fsInv);
+    last_cumCumSum = cumCumSum;
+    cumCumSum = cumCumSum*leak + 2*nFreq*outputs[1].value;
+    outputs[2].value = CalcRcHp(cumCumSum, last_cumCumSum, outputs[2].value, freq*0.125f, fsInv);
+
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;

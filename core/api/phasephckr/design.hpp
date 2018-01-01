@@ -193,7 +193,7 @@ enum NoteStealPolicy {
 
 enum NoteReactivationPolicy {
     NoteReactivationPolicyDoNotReactivate = 0, // do not reactivate stolen voices
-    NoteReactivationPolicyLast, // reactivate the last stolen voice
+    NoteReactivationPolicyLast, // reactivate the last pressed key (that is stolen)
     NoteReactivationPolicyHighest, // reactivate the highest stolen voice
     NoteReactivationPolicyLowest, // reactivate the lowest stolen voice
 //  NoteReactivationPolicyFirst,

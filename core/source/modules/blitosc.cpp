@@ -106,15 +106,18 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
 }
 
 inline void BlitOsc::resetOnSignal(float resetSignal) {
-    // reset the clocks on an upflank through zero
-
-    // TODO, either re-introduce the derived syncFreq or 
-    // do something sort of ok without it, 
-    // so that one can do sync using the reset signal
-
+    // TODO, introduce softReset port for sync-esque things (should work ok)
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
         internalSyncPhase = inputs[6].value;
         internalPhase = inputs[6].value;
+        cumSum = 0.0f;
+        cumCumSum = 0.0f;
+        last_cumSum = 0.0f;
+        last_cumCumSum = 0.0f;
+        outputs[1].value = 0.0f;
+        outputs[2].value = 0.0f;
+        for(int i=0; i<c_blitN; i++) buf[i] = 0.0f;
+        bufPos = 0;
         stage = 0;
     }
     last_resetSignal = resetSignal;

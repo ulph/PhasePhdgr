@@ -93,12 +93,14 @@ namespace PhasePhckr {
         float noteIndex2 = 0.0f; // which (normalized)
         float voiceIndex = 0.0f; // which voice
         float polyphony = 0.0f; // how many voices
-        void reset() {
+        void reset(bool retainGlidSlidePress=false) {
             for (int i = 0; i < ConnectionGraph::k_blockSize; i++) {
-                pressZ[i] = 0.0f;
-                slideY[i] = 0.0f;
-                glideX[i] = 0.0f;
-                pitchHz[i] = 0.0f;
+                if(!retainGlidSlidePress){
+                    pressZ[i] = 0.0f;
+                    slideY[i] = 0.0f;
+                    glideX[i] = 0.0f;
+                    pitchHz[i] = 0.0f;
+                }
                 gate[i] = 0.0f;
                 noteIndex[i] = 0.0f;
             }
@@ -189,15 +191,15 @@ namespace PhasePhckr {
                 }
             }
         }
-        void reset() {
+        void reset(bool retainGlideSlidePress=false) {
             // retain
             auto vi = st.voiceIndex;
             auto p = st.polyphony;
 
-            st.reset();
+            st.reset(retainGlideSlidePress);
             age = 1;
             lastGateTarget = -1;
-            int rootNote = 0;
+            rootNote = 0;
 
             st.voiceIndex = vi;
             st.polyphony = p;

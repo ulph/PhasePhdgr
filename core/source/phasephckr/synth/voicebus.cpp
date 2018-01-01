@@ -135,6 +135,7 @@ namespace PhasePhckr {
             else assert(0);
         }
         else if (stealPolicy != NoteStealPolicyDoNotSteal) {
+            noteData->state = NoteState::STOLEN;
             res = fvr::WaitingForVoice;
         }
     }
@@ -152,66 +153,47 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
         n = &notes.back();
         idx = (int)notes.size()-1;
     }
-    else {
-        n = &notes[idx];
-    }
+    else n = &notes[idx];
 
-    fvr r = fvr::StolenVoice;
+    // prevent re-activation of stolen voices
+    if(n->state == NoteState::STOLEN) return;
 
-    // find a free voice (if note has none assigned)
+    // find a free voice
+    fvr r;
+    if(n->voiceIndex == -1) r = findVoice(note, n, voices);
+    else r = fvr::StolenVoice;
 
-    if (n->voiceIndex == -1) {
-        r = findVoice(note, n, voices);
-    }
-    else {
-        r = fvr::StolenVoice; // from itself, so to speak
-    }
-
-    // act on the results, if NoVoice or WaitingForVoice, bail out
-
+    // not possible to assign a voice nor wait for one, throw the note state away and bail out
     if (r == fvr::NoVoice) {
         notes.erase(notes.begin() + idx);
         return;
     }
 
+    // update channel/note
     n->channel = channel;
     n->note = note;
 
-    if(r != fvr::StolenVoice){
-        n->velocity = velocity;
-    }
-    else if( legato == LegatoModeFreezeVelocity ){
-        n->velocity = n->velocity;
-    }
-    else {
-        n->velocity = velocity;
-    }
+    // update velocity
+    if(r != fvr::StolenVoice) n->velocity = velocity;
+    else if( legato == LegatoModeFreezeVelocity ) n->velocity = n->velocity;
+    else n->velocity = velocity;
 
-    if (r == fvr::WaitingForVoice) {
-        n->state = NoteState::STOLEN;
-        return;
-    }
-
+    // if waiting for voice, or error condition, bail out
+    if (r == fvr::WaitingForVoice) return;
     if (n->voiceIndex < 0 || n->voiceIndex >= voices.size()) return;
 
-    if (
-        (fvr::StolenVoice == r && !legato)
-        ||
-        (fvr::NewVoice == r)
-    ) {
-        voices[n->voiceIndex]->mpe.reset();
-    }
+    // reset the voice
+    if (fvr::StolenVoice == r && !legato) voices[n->voiceIndex]->mpe.reset(true);
+    else if(fvr::NewVoice == r) voices[n->voiceIndex]->mpe.reset(false);
 
     // trigger the voice
-
     n->state = NoteState::ON;
-
     SynthVoice *selectedVoice = voices[n->voiceIndex];
     selectedVoice->mpe.on(note, n->velocity, fvr::NewVoice == r ? false : legato != LegatoModeRetrigger);
     selectedVoice->mpe.glide(channelData[channel].x);
     selectedVoice->mpe.slide(channelData[channel].y);
     selectedVoice->mpe.press(channelData[channel].z);
-    selectedVoice->mpe.fillGlideSlidePress();
+    if(fvr::NewVoice == r) selectedVoice->mpe.fillGlideSlidePress();
 }
 
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
@@ -252,7 +234,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                                 else if(reactivationPolicy == NoteReactivationPolicyLast) {
                                     toReviveIdx = sIdx;
                                 }
-                                // more policies goes here
+                                // ...
                             }
                         }
                     }
@@ -260,8 +242,11 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                     if (toReviveIdx != -1) {
                         auto& toRevive = notes.at(toReviveIdx);
                         toRevive.voiceIndex = voiceIdx;
-                        toRevive.velocity = legato == LegatoModeFreezeVelocity ? legatoVelocity : toRevive.velocity;
-                        // TODO, adhere to the other legato modes
+                        if(legato == LegatoModeFreezeVelocity)
+                            toRevive.velocity = legatoVelocity;
+                        else if(legato == LegatoModeReleaseVelocity)
+                            toRevive.velocity = velocity;
+                        // ...
                         toRevive.state = NoteState::ON;
                         voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, legato);
                     }
@@ -386,10 +371,7 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
 }
 
 void VoiceBus::update() {
-    // TODO, clean up notes? 
-    // there's no guarantee we won't leak here with the different policies etc in play
-    // also, make sure only one note is assigned ON/SUSTAIN per voice
-    // also, make sure there's only one note of given number per channel
+    // TODO, sanitize/clean up (at least in debug builds)
 }
 
 }

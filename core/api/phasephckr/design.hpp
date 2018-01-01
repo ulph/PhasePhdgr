@@ -207,7 +207,7 @@ enum LegatoMode {
     LegatoModeRetrigger = 0,
     LegatoModeUpdateVelocity,
     LegatoModeFreezeVelocity,
-//    LegatoModeReleaseVelocity,
+    LegatoModeReleaseVelocity,
 };
 
 enum NoteActivationPolicy {

@@ -13,15 +13,6 @@ enum class NoteState {
     STOLEN
 };
 
-struct StolenNoteData {
-    int channel;
-    int note;
-    StolenNoteData(int c, int n) 
-        : channel(c)
-        , note(n)
-    {}
-};
-
 struct NoteData {
     NoteState state;
     int channel;
@@ -81,8 +72,7 @@ private:
     NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyDoNotReactivate;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
     LegatoMode legato = LegatoModeRetrigger;
-    std::vector<NoteData> notes; // make map of channel,note instead ??
-    std::vector<StolenNoteData> stolenNotes;
+    std::vector<NoteData> notes;
     int getNoteDataIndex(int channel, int note);
     int getNoteDataIndexForStealingVoice(int voiceIdx);
     ChannelData channelData[16];

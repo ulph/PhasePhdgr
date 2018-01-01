@@ -184,7 +184,7 @@ enum NoteStealPolicy {
     NoteStealPolicyStealLowestRMS, // steal the most quiet active voice
     NoteStealPolicyStealIfLower, // steal the lowest voice (in note number) - when released the lowest stolen voice get revived
     NoteStealPolicyStealIfHigher, // steal the highest voice (in note number) - when released the highest stolen voice get revived
-//  NoteStealPolicyYoungest,
+    NoteStealPolicyStealYoungest, // steal the youngest active voice
 //  NoteStealPolicyClosest,
 //  NoteStealPolicyHigher,
 //  NoteStealPolicyLower,
@@ -196,7 +196,7 @@ enum NoteReactivationPolicy {
     NoteReactivationPolicyLast, // reactivate the last pressed key (that is stolen)
     NoteReactivationPolicyHighest, // reactivate the highest stolen voice
     NoteReactivationPolicyLowest, // reactivate the lowest stolen voice
-//  NoteReactivationPolicyFirst,
+    NoteReactivationPolicyFirst,
 //  NoteReactivationPolicyClosest,
 //  NoteReactivationPolicyLower,
 //  NoteReactivationPolicyHigher,

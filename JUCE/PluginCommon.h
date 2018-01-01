@@ -301,12 +301,14 @@ private:
     TextButton steal2;
     TextButton steal3;
     TextButton steal4;
+    TextButton steal5;
 
     PPGrid reactivateGrid;
     TextButton reactivate0;
     TextButton reactivate1;
     TextButton reactivate2;
     TextButton reactivate3;
+    TextButton reactivate4;
 
     PPGrid legatoGrid;
     TextButton legato0;
@@ -338,6 +340,7 @@ private:
         case NoteStealPolicyStealLowestRMS: steal2.setToggleState(true, shutup); break;
         case NoteStealPolicyStealIfLower: steal3.setToggleState(true, shutup); break;
         case NoteStealPolicyStealIfHigher: steal4.setToggleState(true, shutup); break;
+        case NoteStealPolicyStealYoungest: steal5.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
@@ -345,6 +348,7 @@ private:
         case LegatoModeRetrigger: legato0.setToggleState(true, shutup); break;
         case LegatoModeUpdateVelocity: legato1.setToggleState(true, shutup); break;
         case LegatoModeFreezeVelocity: legato2.setToggleState(true, shutup); break;
+        case LegatoModeReleaseVelocity: legato3.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
@@ -353,6 +357,7 @@ private:
         case NoteReactivationPolicyLast: reactivate1.setToggleState(true, shutup); break;
         case NoteReactivationPolicyHighest: reactivate2.setToggleState(true, shutup); break;
         case NoteReactivationPolicyLowest: reactivate3.setToggleState(true, shutup); break;
+        case NoteReactivationPolicyFirst: reactivate4.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
@@ -431,30 +436,35 @@ public:
         steal2.addListener(this);
         steal3.addListener(this);
         steal4.addListener(this);
+        steal5.addListener(this);
 
         stealGrid.addComponent(&steal0);
         stealGrid.addComponent(&steal1);
         stealGrid.addComponent(&steal2);
         stealGrid.addComponent(&steal3);
         stealGrid.addComponent(&steal4);
+        stealGrid.addComponent(&steal5);
 
         steal0.setButtonText("do not steal");
         steal1.setButtonText("oldest");
         steal2.setButtonText("lowest rms");
         steal3.setButtonText("if lower");
         steal4.setButtonText("if higher");
+        steal5.setButtonText("youngest");
 
         steal0.setRadioGroupId(2);
         steal1.setRadioGroupId(2);
         steal2.setRadioGroupId(2);
         steal3.setRadioGroupId(2);
         steal4.setRadioGroupId(2);
+        steal5.setRadioGroupId(2);
 
         steal0.setClickingTogglesState(true);
         steal1.setClickingTogglesState(true);
         steal2.setClickingTogglesState(true);
         steal3.setClickingTogglesState(true);
         steal4.setClickingTogglesState(true);
+        steal5.setClickingTogglesState(true);
 
         // legato mode
         grid.addComponent(&legatoGrid);
@@ -462,22 +472,27 @@ public:
         legato0.addListener(this);
         legato1.addListener(this);
         legato2.addListener(this);
+        legato3.addListener(this);
 
         legatoGrid.addComponent(&legato0);
         legatoGrid.addComponent(&legato1);
         legatoGrid.addComponent(&legato2);
+        legatoGrid.addComponent(&legato3);
 
         legato0.setButtonText("retrigger");
         legato1.setButtonText("legato, update velocity");
         legato2.setButtonText("legato, freeze velocity");
+        legato3.setButtonText("legato, release velocity");
 
         legato0.setRadioGroupId(4);
         legato1.setRadioGroupId(4);
         legato2.setRadioGroupId(4);
+        legato3.setRadioGroupId(4);
 
         legato0.setClickingTogglesState(true);
         legato1.setClickingTogglesState(true);
         legato2.setClickingTogglesState(true);
+        legato3.setClickingTogglesState(true);
 
         // reactivation policy
         grid.addComponent(&reactivateGrid);
@@ -486,26 +501,31 @@ public:
         reactivate1.addListener(this);
         reactivate2.addListener(this);
         reactivate3.addListener(this);
+        reactivate4.addListener(this);
 
         reactivateGrid.addComponent(&reactivate0);
         reactivateGrid.addComponent(&reactivate1);
         reactivateGrid.addComponent(&reactivate2);
         reactivateGrid.addComponent(&reactivate3);
+        reactivateGrid.addComponent(&reactivate4);
 
         reactivate0.setButtonText("do not reactivate");
         reactivate1.setButtonText("reactivate last");
         reactivate2.setButtonText("reactivate highest");
         reactivate3.setButtonText("reactivate lowest");
+        reactivate4.setButtonText("reactivate first");
 
         reactivate0.setRadioGroupId(3);
         reactivate1.setRadioGroupId(3);
         reactivate2.setRadioGroupId(3);
         reactivate3.setRadioGroupId(3);
+        reactivate4.setRadioGroupId(3);
 
         reactivate0.setClickingTogglesState(true);
         reactivate1.setClickingTogglesState(true);
         reactivate2.setClickingTogglesState(true);
         reactivate3.setClickingTogglesState(true);
+        reactivate4.setClickingTogglesState(true);
 
         // activation policy
         grid.addComponent(&activateGrid);
@@ -559,15 +579,18 @@ public:
         else if (b == &steal2) settings.noteStealPolicy = NoteStealPolicyStealLowestRMS;
         else if (b == &steal3) settings.noteStealPolicy = NoteStealPolicyStealIfLower;
         else if (b == &steal4) settings.noteStealPolicy = NoteStealPolicyStealIfHigher;
+        else if (b == &steal5) settings.noteStealPolicy = NoteStealPolicyStealYoungest;
 
         else if (b == &legato0) settings.legatoMode = LegatoModeRetrigger;
         else if (b == &legato1) settings.legatoMode = LegatoModeUpdateVelocity;
         else if (b == &legato2) settings.legatoMode = LegatoModeFreezeVelocity;
+        else if (b == &legato3) settings.legatoMode = LegatoModeReleaseVelocity;
 
         else if (b == &reactivate0) settings.noteReactivationPolicy = NoteReactivationPolicyDoNotReactivate;
         else if (b == &reactivate1) settings.noteReactivationPolicy = NoteReactivationPolicyLast;
         else if (b == &reactivate2) settings.noteReactivationPolicy = NoteReactivationPolicyHighest;
         else if (b == &reactivate3) settings.noteReactivationPolicy = NoteReactivationPolicyLowest;
+        else if (b == &reactivate4) settings.noteReactivationPolicy = NoteReactivationPolicyFirst;
 
         else if (b == &activate0) settings.noteActivationPolicy = NoteActivationPolicyOnlySilent;
         else if (b == &activate1) settings.noteActivationPolicy = NoteActivationPolicyPreferOldestSilent;

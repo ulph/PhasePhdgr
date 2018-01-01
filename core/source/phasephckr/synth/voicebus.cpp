@@ -21,6 +21,7 @@ namespace PhasePhckr {
     auto selectedInactiveIdx = -1;
 
     unsigned int oldestActive = 0;
+    unsigned int youngestActive = UINT_MAX;
     auto lowestActive = INT_MAX;
     auto highestActive = INT_MIN;
     auto quietestActive = std::numeric_limits<float>::max();
@@ -30,7 +31,7 @@ namespace PhasePhckr {
 
     int i = 0;
     for (const auto *v : voices) {
-        auto age = v->mpe.getAge();
+        auto age = v->mpe.getAge(); // TODO, this is a bit odd since the age of the voice state, when sometimes we want the note age (or order) -- steal oldest for instance
         auto note = v->mpe.getRootNote();
         auto rms = v->getRms();
         auto vel = v->mpe.getState().strikeZ;
@@ -97,6 +98,13 @@ namespace PhasePhckr {
                         stolenNoteVelocity = vel;
                     }
                     break;
+                case NoteStealPolicyStealYoungest:
+                    if (age < youngestActive) {
+                        youngestActive = age;
+                        selectedActiveIdx = i;
+                        stolenNoteVelocity = vel;
+                    }
+                    break;
                 default:
                     PP_NYI;
                     break;
@@ -123,6 +131,9 @@ namespace PhasePhckr {
             (stealPolicy == NoteStealPolicyStealLowestRMS)
         ||
             (stealPolicy == NoteStealPolicyStealOldest)
+        ||
+            (stealPolicy == NoteStealPolicyStealYoungest)
+        // ...
         ) {
             auto nIdxToSteal = getNoteDataIndexForStealingVoice(selectedActiveIdx);
             if (nIdxToSteal != -1) {
@@ -134,7 +145,7 @@ namespace PhasePhckr {
             }
             else assert(0);
         }
-        else if (stealPolicy != NoteStealPolicyDoNotSteal) {
+        else if (stealPolicy != NoteStealPolicyDoNotSteal) { // TODO refactor
             noteData->state = NoteState::STOLEN;
             res = fvr::WaitingForVoice;
         }
@@ -232,6 +243,9 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                                     toReviveIdx = sIdx;
                                 }
                                 else if(reactivationPolicy == NoteReactivationPolicyLast) {
+                                    toReviveIdx = sIdx;
+                                }
+                                else if(reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
                                     toReviveIdx = sIdx;
                                 }
                                 // ...

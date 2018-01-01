@@ -153,6 +153,13 @@ namespace PhasePhckr {
         void glide(float glide) { st.glideXTarget = glide; }
         void slide(float slide) { st.slideYTarget = slide; }
         void press(float press) { st.pressZTarget = press; }
+        void fillGlideSlidePress(){
+            for (int i = 0; i < ConnectionGraph::k_blockSize; i++) {
+                st.glideX[i] = st.glideXTarget;
+                st.slideY[i] = st.slideYTarget;
+                st.pressZ[i] = st.pressZTarget;
+            }
+        }
         void update() {
             const auto last = ConnectionGraph::k_blockSize - 1;
             st.glideX[0] = a * st.glideX[last] + (1.0f - a) * st.glideXTarget;

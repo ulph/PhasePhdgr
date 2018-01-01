@@ -213,6 +213,7 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
     selectedVoice->mpe.glide(channelData[channel].x);
     selectedVoice->mpe.slide(channelData[channel].y);
     selectedVoice->mpe.press(channelData[channel].z);
+    selectedVoice->mpe.fillGlideSlidePress();
 }
 
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {

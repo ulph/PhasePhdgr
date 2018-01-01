@@ -13,15 +13,13 @@ private:
     int bufPos = 0;
     float cumSum = 0.0f;
     float cumCumSum = 0.0f;
-    float cumCumCumSum = 0.0f;
     int stage = 0;
     float internalSyncPhase = 0.0f;
     float internalPhase = 0.0f;
     float last_cumSum = 0.0f;
     float last_cumCumSum = 0.0f;
-    float last_cumCumCumSum = 0.0f;
     float last_resetSignal = 0.0f;
-    inline void resetOnSignal(float resetSignal, float syncNFreq, float nFreq);
+    inline void resetOnSignal(float resetSignal);
     inline void incrementClocks(float nFreq, float syncNFreq);
     inline void blitOnePulse(float fraction, float multiplier);
     inline void blitForward(float& phase, float nFreq, float shape, float pwm);

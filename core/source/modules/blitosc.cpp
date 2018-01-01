@@ -18,6 +18,7 @@ BlitOsc::BlitOsc()
     outputs.push_back(Pad("derivative"));
     outputs.push_back(Pad("output"));
     outputs.push_back(Pad("integral"));
+    outputs.push_back(Pad("integral2"));
 }
 
 inline void BlitOsc::blitOnePulse(float fraction, float multiplier) {
@@ -100,21 +101,21 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
     cumCumSum = cumCumSum*leak + 2*nFreq*outputs[1].value;
     outputs[2].value = CalcRcHp(cumCumSum, last_cumCumSum, outputs[2].value, freq*0.125f, fsInv);
 
+    last_cumCumCumSum = cumCumCumSum;
+    cumCumCumSum = cumCumCumSum*leak + 2*nFreq*outputs[2].value;
+    outputs[3].value = CalcRcHp(cumCumCumSum, last_cumCumCumSum, outputs[3].value, freq*0.125f, fsInv);
+
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;
 }
 
-inline void BlitOsc::resetOnSignal(float resetSignal) {
-    // reset the clocks on an upflank through zero
-
-    // TODO, either re-introduce the derived syncFreq or 
-    // do something sort of ok without it, 
-    // so that one can do sync using the reset signal
-
+inline void BlitOsc::resetOnSignal(float resetSignal, float syncNFreq, float nFreq) {
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
-        internalSyncPhase = inputs[6].value;
-        internalPhase = inputs[6].value;
+        float estResetNFreq = resetSignal - last_resetSignal;
+        float fraction = resetSignal / estResetNFreq;
+        internalSyncPhase = inputs[6].value + fraction*syncNFreq;
+        internalPhase = inputs[6].value + fraction*nFreq;
     }
     last_resetSignal = resetSignal;
 }
@@ -132,7 +133,7 @@ void BlitOsc::process()
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    resetOnSignal(inputs[5].value);
+    resetOnSignal(inputs[5].value, syncNFreq, nFreq);
 
     incrementClocks(nFreq, syncNFreq);
 

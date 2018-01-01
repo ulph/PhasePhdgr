@@ -97,7 +97,7 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
     outputs[1].value = CalcRcHp(cumSum, last_cumSum, outputs[1].value, freq*0.125f, fsInv);
 
     last_cumCumSum = cumCumSum;
-    cumCumSum = cumCumSum*leak + 2*nFreq*outputs[1].value;
+    cumCumSum = cumCumSum*leak + (2 + 2*(1-shape))*nFreq*outputs[1].value;
     outputs[2].value = CalcRcHp(cumCumSum, last_cumCumSum, outputs[2].value, freq*0.125f, fsInv);
 
     buf[bufPos] = 0.f;
@@ -115,6 +115,7 @@ inline void BlitOsc::resetOnSignal(float resetSignal) {
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
         internalSyncPhase = inputs[6].value;
         internalPhase = inputs[6].value;
+        stage = 0;
     }
     last_resetSignal = resetSignal;
 }

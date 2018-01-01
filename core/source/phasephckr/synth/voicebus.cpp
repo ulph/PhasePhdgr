@@ -20,7 +20,6 @@ namespace PhasePhckr {
     unsigned int youngestInactive = UINT_MAX;
     auto selectedInactiveIdx = -1;
 
-    unsigned int oldestActive = 0;
     unsigned int youngestActive = UINT_MAX;
     auto lowestActive = INT_MAX;
     auto highestActive = INT_MIN;
@@ -31,7 +30,7 @@ namespace PhasePhckr {
 
     int i = 0;
     for (const auto *v : voices) {
-        auto age = v->mpe.getAge(); // TODO, this is a bit odd since the age of the voice state, when sometimes we want the note age (or order) -- steal oldest for instance
+        auto age = v->mpe.getAge();
         auto note = v->mpe.getRootNote();
         auto rms = v->getRms();
         auto vel = v->mpe.getState().strikeZ;
@@ -67,7 +66,7 @@ namespace PhasePhckr {
             }
         }
         else {
-            if (stealPolicy != NoteStealPolicyDoNotSteal) {
+            if (stealPolicy != NoteStealPolicyDoNotSteal && stealPolicy != NoteStealPolicyStealOldest) {
                 // steal a voice based on policy
                 switch (stealPolicy) {
                 case NoteStealPolicyStealIfLower:
@@ -80,13 +79,6 @@ namespace PhasePhckr {
                 case NoteStealPolicyStealIfHigher:
                     if (note > highestActive) {
                         highestActive = note;
-                        selectedActiveIdx = i;
-                        stolenNoteVelocity = vel;
-                    }
-                    break;
-                case NoteStealPolicyStealOldest:
-                    if (age > oldestActive) {
-                        oldestActive = age;
                         selectedActiveIdx = i;
                         stolenNoteVelocity = vel;
                     }
@@ -114,6 +106,17 @@ namespace PhasePhckr {
         i++;
     }
 
+    if(selectedInactiveSilentIdx == -1 && selectedInactiveIdx == -1 && stealPolicy == NoteStealPolicyStealOldest){
+        // a bit special, as mpe state has lost knowledge of when a key was originally pressed down
+        for(int i=0; i<notes.size(); i++){
+            const auto& n = notes.at(i);
+            if(n.voiceIndex >= 0 && n.state == NoteState::ON && n.voiceIndex < voices.size()){
+                selectedActiveIdx = n.voiceIndex;
+                break;
+            }
+        }
+    }
+
     if (selectedInactiveSilentIdx != -1) {
         noteData->voiceIndex = selectedInactiveSilentIdx;
         res = fvr::NewVoice;
@@ -122,7 +125,7 @@ namespace PhasePhckr {
         noteData->voiceIndex = selectedInactiveIdx;
         res = fvr::NewVoice;
     }
-    else if (selectedActiveIdx != -1) {
+    else if (selectedActiveIdx != -1) {        
         if (
             (stealPolicy == NoteStealPolicyStealIfLower && newNote < lowestActive)
         ||  

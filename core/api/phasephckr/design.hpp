@@ -185,10 +185,10 @@ enum NoteStealPolicy {
     NoteStealPolicyStealIfLower, // steal the lowest voice (in note number) - when released the lowest stolen voice get revived
     NoteStealPolicyStealIfHigher, // steal the highest voice (in note number) - when released the highest stolen voice get revived
     NoteStealPolicyStealYoungest, // steal the youngest active voice
-//  NoteStealPolicyClosest,
-//  NoteStealPolicyHigher,
-//  NoteStealPolicyLower,
-//  NoteStealAuto, // best match given polyphony etc
+//    NoteStealPolicyClosest,
+//    NoteStealPolicyHigher,
+//    NoteStealPolicyLower,
+    NoteStealPolicyStealAuto = 99, // best match given NoteActivationPolicy and polyphony
 };
 
 enum NoteReactivationPolicy {
@@ -196,11 +196,11 @@ enum NoteReactivationPolicy {
     NoteReactivationPolicyLast, // reactivate the last pressed key (that is stolen)
     NoteReactivationPolicyHighest, // reactivate the highest stolen voice
     NoteReactivationPolicyLowest, // reactivate the lowest stolen voice
-    NoteReactivationPolicyFirst,
-//  NoteReactivationPolicyClosest,
-//  NoteReactivationPolicyLower,
-//  NoteReactivationPolicyHigher,
-//  NoteReactivationPolicyAuto, // best match given NoteStealPolicy and polyphony ...
+    NoteReactivationPolicyFirst, // reactivate the first pressed key (that is stolen)
+//    NoteReactivationPolicyClosest,
+//    NoteReactivationPolicyLower,
+//    NoteReactivationPolicyHigher,
+    NoteReactivationPolicyAuto = 99, // best match given NoteStealPolicy and polyphony
 };
 
 enum LegatoMode {
@@ -211,14 +211,17 @@ enum LegatoMode {
 };
 
 enum NoteActivationPolicy {
-    NoteActivationPolicyOnlySilent = 0, // pick any silent inactive, but nothing else
-    NoteActivationPolicyPreferOldestSilent, // pick the oldest inactive and silent, and then pick oldest inactive
-    NoteActivationPolicyPreferOldestNotSilent, // pick the oldest inactive, but not silent, before anything else
-    NoteActivationPolicyPreferYoungestNotSilent, // pick the youngest inactive, but not silent, before anything else
+    // TODO, change up to be
+    // FirstInactive
+    // RoundRobin
+    // ...
+    // and permutate whether to tolerate non-silent or not.
+    NoteActivationPolicyOnlySilent = 0, // any silent inactive, but nothing else
+    NoteActivationPolicyOldest, // any silent voice, fall back to oldest not silent (longest in gate off)
 };
 
 struct PresetSettings {
-    NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyPreferOldestSilent; // how to select which inactive voice to activate
+    NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyOldest; // how to select which inactive voice to activate
 
     NoteStealPolicy noteStealPolicy = NoteStealPolicyDoNotSteal; // if, and how, to steal voices
     NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyDoNotReactivate; // if, and how, to re-activate stolen notes

@@ -319,8 +319,6 @@ private:
     PPGrid activateGrid;
     TextButton activate0;
     TextButton activate1;
-    TextButton activate2;
-    TextButton activate3;
 
     void applySettings(){
         switch(settings.polyphony){
@@ -363,9 +361,7 @@ private:
 
         switch(settings.noteActivationPolicy){
         case NoteActivationPolicyOnlySilent: activate0.setToggleState(true, shutup); break;
-        case NoteActivationPolicyPreferOldestSilent: activate1.setToggleState(true, shutup); break;
-        case NoteActivationPolicyPreferOldestNotSilent: activate2.setToggleState(true, shutup); break;
-        case NoteActivationPolicyPreferYoungestNotSilent: activate3.setToggleState(true, shutup); break;
+        case NoteActivationPolicyOldest: activate1.setToggleState(true, shutup); break;
         default: PP_NYI; break;
         }
 
@@ -532,28 +528,18 @@ public:
 
         activate0.addListener(this);
         activate1.addListener(this);
-        activate2.addListener(this);
-        activate3.addListener(this);
 
         activateGrid.addComponent(&activate0);
         activateGrid.addComponent(&activate1);
-        activateGrid.addComponent(&activate2);
-        activateGrid.addComponent(&activate3);
 
         activate0.setButtonText("only inactive silent");
-        activate1.setButtonText("prefer inactive silent");
-        activate2.setButtonText("prefer oldest nonsilent");
-        activate3.setButtonText("prefer youngest nonsilent");
+        activate1.setButtonText("prefer inactive silent, then pick oldest inactive non-silent");
 
         activate0.setRadioGroupId(5);
         activate1.setRadioGroupId(5);
-        activate2.setRadioGroupId(5);
-        activate3.setRadioGroupId(5);
 
         activate0.setClickingTogglesState(true);
         activate1.setClickingTogglesState(true);
-        activate2.setClickingTogglesState(true);
-        activate3.setClickingTogglesState(true);
 
         applySettings();
 
@@ -593,9 +579,7 @@ public:
         else if (b == &reactivate4) settings.noteReactivationPolicy = NoteReactivationPolicyFirst;
 
         else if (b == &activate0) settings.noteActivationPolicy = NoteActivationPolicyOnlySilent;
-        else if (b == &activate1) settings.noteActivationPolicy = NoteActivationPolicyPreferOldestSilent;
-        else if (b == &activate2) settings.noteActivationPolicy = NoteActivationPolicyPreferOldestNotSilent;
-        else if (b == &activate3) settings.noteActivationPolicy = NoteActivationPolicyPreferYoungestNotSilent;
+        else if (b == &activate1) settings.noteActivationPolicy = NoteActivationPolicyOldest;
 
         else PP_NYI;
 

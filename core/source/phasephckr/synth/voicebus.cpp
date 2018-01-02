@@ -46,16 +46,9 @@ namespace PhasePhckr {
             else if (activationPolicy != NoteActivationPolicyOnlySilent){
                 // find an inactive (non-silent) based on policy
                 switch (activationPolicy) {
-                case NoteActivationPolicyPreferOldestSilent:
-                case NoteActivationPolicyPreferOldestNotSilent:
+                case NoteActivationPolicyOldest:
                     if (age > oldestInactive) {
                         oldestInactive = age;
-                        selectedInactiveIdx = i;
-                    }
-                    break;
-                case NoteActivationPolicyPreferYoungestNotSilent:
-                    if (age < youngestInactive) {
-                        youngestInactive = age;
                         selectedInactiveIdx = i;
                     }
                     break;

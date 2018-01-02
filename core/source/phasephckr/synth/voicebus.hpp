@@ -70,7 +70,7 @@ private:
     void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
     NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyDoNotReactivate;
-    NoteActivationPolicy activationPolicy = NoteActivationPolicyPreferOldestSilent;
+    NoteActivationPolicy activationPolicy = NoteActivationPolicyOldest;
     LegatoMode legato = LegatoModeRetrigger;
     std::vector<NoteData> notes;
     int getNoteDataIndex(int channel, int note);

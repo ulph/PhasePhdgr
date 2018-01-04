@@ -342,7 +342,7 @@ private:
         default: PP_NYI; break;
         }
 
-        switch(settings.noteStealPolicy){
+        switch(settings.legatoMode){
         case LegatoModeRetrigger: legato0.setToggleState(true, shutup); break;
         case LegatoModeUpdateVelocity: legato1.setToggleState(true, shutup); break;
         case LegatoModeFreezeVelocity: legato2.setToggleState(true, shutup); break;

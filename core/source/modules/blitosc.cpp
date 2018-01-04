@@ -89,7 +89,7 @@ inline void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
     internalPhase += nFreq;
 }
 
-inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
+inline void BlitOsc::integrateAndStore(float nFreq, float shape, float freq) {
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
 
@@ -109,7 +109,7 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
     bufPos %= c_blitN;
 }
 
-inline void BlitOsc::resetOnSignal(float resetSignal) {
+inline void BlitOsc::hardResetOnSignal(float resetSignal) {
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
         internalSyncPhase = -1.0f;
         internalPhase = -1.0f;
@@ -148,7 +148,8 @@ void BlitOsc::process()
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    resetOnSignal(inputs[5].value);
+    hardResetOnSignal(inputs[5].value);
+
     softResetOnSignal(inputs[6].value, syncAmount, nFreq, shape);
 
     incrementClocks(nFreq, syncNFreq);
@@ -157,6 +158,6 @@ void BlitOsc::process()
 
     syncPhase(internalPhase, internalSyncPhase, syncAmount, syncNFreq, nFreq, shape);
 
-    integrateBuffer(nFreq, shape, freq);
+    integrateAndStore(nFreq, shape, freq);
 
 }

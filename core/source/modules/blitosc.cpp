@@ -15,6 +15,7 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("sync")); // how much to sync -- TODO non-linear map input range
     inputs.push_back(Pad("reset")); // reset both internal phases ... not suitable for osc sync as it'll alias
     inputs.push_back(Pad("offset", -1.f));
+    inputs.push_back(Pad("softReset"));
     outputs.push_back(Pad("derivative"));
     outputs.push_back(Pad("output"));
     outputs.push_back(Pad("integral"));
@@ -30,17 +31,17 @@ inline void BlitOsc::blitOnePulse(float fraction, float multiplier) {
     }
 }
 
-inline void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape) {
-    if (syncPhase > 1.f) {
-        if (phase > syncAmount) {
-            float interval = (1.f - (syncPhase - syncNFreq));
-            float syncFraction = interval / syncNFreq;
-            float phaseInc = nFreq * (syncPhase - 1.0f)/syncNFreq;
-            float sawCorrection = (1.f - shape) * phaseInc;
-            phase = -1.0 + phaseInc;
+inline void BlitOsc::syncPhase(float& slavePhase, float& masterPhase, float syncAmount, float masterNFreq, float slaveNFreq, float shape) {
+    if (masterPhase > 1.0f) {
+        if (slavePhase > syncAmount) {
+            float interval = (1.0f - (masterPhase - masterNFreq));
+            float syncFraction = interval / masterNFreq;
+            float phaseInc = slaveNFreq * (masterPhase - 1.0f)/masterNFreq;
+            float sawCorrection = (1.0f - shape) * phaseInc;
+            slavePhase = -1.0f + phaseInc;
             float target = -1.0f + sawCorrection; // target value
 
-            float remainderTail = 0.f;
+            float remainderTail = 0.0f;
             for (int n = 0; n<c_blitN; ++n) {
                 remainderTail += buf[(bufPos + n) % c_blitN];
             }
@@ -53,7 +54,7 @@ inline void BlitOsc::syncOnAuxPhase(float& phase, float& syncPhase, float syncAm
             }
             stage = 0;
         }
-        syncPhase -= 2.f;
+        masterPhase -= 2.f;
     }
 }
 
@@ -106,7 +107,6 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
 }
 
 inline void BlitOsc::resetOnSignal(float resetSignal) {
-    // TODO, introduce softReset port for sync-esque things (should work ok)
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
         internalSyncPhase = inputs[6].value;
         internalPhase = inputs[6].value;
@@ -123,6 +123,16 @@ inline void BlitOsc::resetOnSignal(float resetSignal) {
     last_resetSignal = resetSignal;
 }
 
+inline void BlitOsc::softResetOnSignal(float resetSignal, float syncAmount, float nFreq, float shape) {
+    if (resetSignal > 0.f && last_softResetSignal <= 0.f) {
+        float mockSyncPhase = 1.0f + resetSignal;
+        float new_mockSyncNFreq = resetSignal / (resetSignal - last_softResetSignal);
+        mockSyncNFreq = 0.5f*mockSyncNFreq + 0.5f*new_mockSyncNFreq;
+        syncPhase(internalPhase, mockSyncPhase, syncAmount, mockSyncNFreq, nFreq, shape);
+    }
+    last_softResetSignal = resetSignal;
+}
+
 void BlitOsc::process()
 {
     float freq = limit(inputs[0].value, 1.f, fs*0.5f);
@@ -131,18 +141,19 @@ void BlitOsc::process()
     float syncFreq = inputs[3].value;
     float syncAmount = 2.f*(1.f-limit(inputs[4].value, 0.f, 1.f)) - 1.f;
 
-    float nFreq = 2.f*freq * fsInv; // TODO get this from inBus wall directly
-    float syncNFreq = 2.f*syncFreq * fsInv; // TODO get this from inBus wall directly
+    float nFreq = 2.f*freq * fsInv;
+    float syncNFreq = 2.f*syncFreq * fsInv;
 
     if(nFreq == 0) return; // nothing to do, just exit
 
     resetOnSignal(inputs[5].value);
+    softResetOnSignal(inputs[7].value, syncAmount, nFreq, shape);
 
     incrementClocks(nFreq, syncNFreq);
 
     blitForward(internalPhase, nFreq, shape, pwm);
 
-    syncOnAuxPhase(internalPhase, internalSyncPhase, syncAmount, syncNFreq, nFreq, shape);
+    syncPhase(internalPhase, internalSyncPhase, syncAmount, syncNFreq, nFreq, shape);
 
     integrateBuffer(nFreq, shape, freq);
 

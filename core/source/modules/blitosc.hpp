@@ -19,12 +19,15 @@ private:
     float last_cumSum = 0.0f;
     float last_cumCumSum = 0.0f;
     float last_resetSignal = 0.0f;
+    float last_softResetSignal = 0.0f;
+    float mockSyncNFreq = 0.0f;
     inline void resetOnSignal(float resetSignal);
+    inline void softResetOnSignal(float resetSignal, float syncAmount, float nFreq, float shape);
     inline void incrementClocks(float nFreq, float syncNFreq);
     inline void blitOnePulse(float fraction, float multiplier);
     inline void blitForward(float& phase, float nFreq, float shape, float pwm);
     inline void integrateBuffer(float nFreq, float shape, float freq);
-    inline void syncOnAuxPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
+    inline void syncPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();
     void process();

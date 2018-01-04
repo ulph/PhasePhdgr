@@ -14,10 +14,11 @@ public:
 };
 
 class simple_lock {
+    friend class scoped_simple_lock;
 private:
     atomic_flag flag = ATOMIC_FLAG_INIT;
-public:
     void lock();
     void unlock();
+public:
     scoped_simple_lock make_scoped_lock();
 };

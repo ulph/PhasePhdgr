@@ -469,11 +469,9 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         draggedModule->position += delta;
         draggedModule->repositionPorts();
         auto mv = vector<GfxModule>{ *draggedModule };
-
-        gfxGraphLock.lock();
+        auto l = gfxGraphLock.make_scoped_lock();
         rootComponent()->layout[draggedModule->module.name] = ModulePosition(draggedModule->position.x, draggedModule->position.y);
         recalculateWires(mv);
-        gfxGraphLock.unlock();
         updateBounds(getVirtualBounds());
     }
     if (looseWire.isValid) {

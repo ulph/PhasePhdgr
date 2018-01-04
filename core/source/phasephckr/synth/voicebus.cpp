@@ -211,45 +211,42 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
         if(notes.at(idx).state == NoteState::ON) {
             int voiceIdx = notes.at(idx).voiceIndex;
             if (voiceIdx != -1 && voiceIdx < voices.size()) {
-                if(voices.at(voiceIdx)->mpe.getState().gateTarget > 0){
-                    float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
-
+                if(voices.at(voiceIdx)->mpe.getState().gateTarget > 0) {
                     auto toReviveIdx = -1;
-
                     auto lowestWaiting = INT_MAX;
                     auto highestWaiting = INT_MIN;
 
-                    // sift through the stolen notes and revive the one matching the policy
-                    for (auto sIdx = 0; sIdx < notes.size(); sIdx++) {
-                        if(notes.at(sIdx).state == NoteState::STOLEN){
-                            if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
-                                continue;
-                            }
-                            else if (reactivationPolicy == NoteReactivationPolicyDoNotReactivate){
-                                continue;
-                            }
-                            else {
-                                auto sNote = notes.at(sIdx).note;
-                                if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
-                                    highestWaiting = sNote;
-                                    toReviveIdx = sIdx;
+                    if (reactivationPolicy != NoteReactivationPolicyDoNotReactivate) {
+                        // sift through the stolen notes and revive the one matching the policy
+                        for (auto sIdx = 0; sIdx < notes.size(); sIdx++) {
+                            if (notes.at(sIdx).state == NoteState::STOLEN) {
+                                if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
+                                    continue;
                                 }
-                                else if(reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
-                                    lowestWaiting = sNote;
-                                    toReviveIdx = sIdx;
+                                else {
+                                    auto sNote = notes.at(sIdx).note;
+                                    if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
+                                        highestWaiting = sNote;
+                                        toReviveIdx = sIdx;
+                                    }
+                                    else if (reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
+                                        lowestWaiting = sNote;
+                                        toReviveIdx = sIdx;
+                                    }
+                                    else if (reactivationPolicy == NoteReactivationPolicyLast) {
+                                        toReviveIdx = sIdx;
+                                    }
+                                    else if (reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
+                                        toReviveIdx = sIdx;
+                                    }
+                                    // ...
                                 }
-                                else if(reactivationPolicy == NoteReactivationPolicyLast) {
-                                    toReviveIdx = sIdx;
-                                }
-                                else if(reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
-                                    toReviveIdx = sIdx;
-                                }
-                                // ...
                             }
                         }
                     }
 
                     if (toReviveIdx != -1) {
+                        float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
                         auto& toRevive = notes.at(toReviveIdx);
                         toRevive.voiceIndex = voiceIdx;
                         if(legato == LegatoModeFreezeVelocity)

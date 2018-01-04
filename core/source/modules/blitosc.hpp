@@ -20,7 +20,6 @@ private:
     float last_cumCumSum = 0.0f;
     float last_resetSignal = 0.0f;
     float last_softResetSignal = 0.0f;
-    float mockSyncNFreq = 0.0f;
     inline void resetOnSignal(float resetSignal);
     inline void softResetOnSignal(float resetSignal, float syncAmount, float nFreq, float shape);
     inline void incrementClocks(float nFreq, float syncNFreq);

@@ -15,6 +15,7 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("sync")); // how much to sync -- TODO non-linear map input range
     inputs.push_back(Pad("reset")); // reset both internal phases ... not suitable for osc sync as it'll alias
     inputs.push_back(Pad("softReset"));
+    inputs.push_back(Pad("dcRemoval", 0.125f));
     outputs.push_back(Pad("derivative"));
     outputs.push_back(Pad("output"));
     outputs.push_back(Pad("integral"));
@@ -89,7 +90,7 @@ inline void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
     internalPhase += nFreq;
 }
 
-inline void BlitOsc::integrateAndStore(float nFreq, float shape, float freq) {
+inline void BlitOsc::integrateAndStore(float nFreq, float shape, float freq, float dcRemoval) {
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
 
@@ -98,7 +99,7 @@ inline void BlitOsc::integrateAndStore(float nFreq, float shape, float freq) {
 
     last_cumSum = cumSum;
     cumSum = cumSum*leak + value;
-    outputs[1].value = CalcRcHp(cumSum, last_cumSum, outputs[1].value, freq*0.125f, fsInv);
+    outputs[1].value = CalcRcHp(cumSum, last_cumSum, outputs[1].value, freq*dcRemoval, fsInv);
 
     last_cumCumSum = cumCumSum;
     cumCumSum = cumCumSum*leak + (2 + 2*(1-shape))*nFreq*outputs[1].value;
@@ -143,6 +144,8 @@ void BlitOsc::process()
     float syncFreq = inputs[3].value;
     float syncAmount = 2.f*(1.f-limit(inputs[4].value, 0.f, 1.f)) - 1.f;
 
+    float dcRemoval = limitLow(inputs[7].value, 0.0078125f);
+
     float nFreq = 2.f*freq * fsInv;
     float syncNFreq = 2.f*syncFreq * fsInv;
 
@@ -154,10 +157,10 @@ void BlitOsc::process()
 
     incrementClocks(nFreq, syncNFreq);
 
-    blitForward(internalPhase, nFreq, shape, pwm);
-
     syncPhase(internalPhase, internalSyncPhase, syncAmount, syncNFreq, nFreq, shape);
 
-    integrateAndStore(nFreq, shape, freq);
+    blitForward(internalPhase, nFreq, shape, pwm);
+
+    integrateAndStore(nFreq, shape, freq, dcRemoval);
 
 }

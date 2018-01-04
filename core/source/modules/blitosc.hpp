@@ -25,7 +25,7 @@ private:
     inline void incrementClocks(float nFreq, float syncNFreq);
     inline void blitOnePulse(float fraction, float multiplier);
     inline void blitForward(float& phase, float nFreq, float shape, float pwm);
-    inline void integrateAndStore(float nFreq, float shape, float freq);
+    inline void integrateAndStore(float nFreq, float shape, float freq, float dcRemoval);
     inline void syncPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();

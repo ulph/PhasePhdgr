@@ -1,5 +1,5 @@
 add_definitions(-DJucePlugin_Build_VST=1)
-add_definitions(-DJucePlugin_Build_VST3=1)
+add_definitions(-DJucePlugin_Build_VST3=0)
 add_definitions(-DJucePlugin_WantsMidiInput=0)
 add_definitions(-DJucePlugin_IsSynth=0)
 add_definitions(-DJucePlugin_Name="PhasePhckrFX") # override

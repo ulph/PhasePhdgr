@@ -116,6 +116,7 @@ inline void BlitOsc::resetOnSignal(float resetSignal) {
         last_cumCumSum = 0.0f;
         outputs[1].value = 0.0f;
         outputs[2].value = 0.0f;
+        mockSyncNFreq = 0.0f;
         for(int i=0; i<c_blitN; i++) buf[i] = 0.0f;
         bufPos = 0;
         stage = 0;

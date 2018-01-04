@@ -20,6 +20,7 @@ int Module::getInputPadFromName(std::string padName) const {
             return i;
         }
     }
+    std::cerr << "Error: Module '" << name << "' has no input pad with name '" << padName << "'" << std::endl;
     return -1;
 }
 
@@ -29,6 +30,7 @@ int Module::getOutputPadFromName(std::string padName) const {
             return i;
         }
     }
+    std::cerr << "Error: Module '" << name << "' has no output pad with name '" << padName << "'" << std::endl;
     return -1;
 }
 

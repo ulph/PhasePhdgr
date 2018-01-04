@@ -37,6 +37,15 @@ public:
         Module::outputs.push_back(Pad("out"));
     };
 
+    Delay(const Delay<N>& other)
+        : ModuleCRTP<Delay<N>>(other)
+        , bufferSize(0)
+        , buffer(nullptr)
+        , readPosition(0)
+        , c_table(other.c_table)
+    {
+    }
+
     virtual ~Delay() {
         delete[] buffer;
     };

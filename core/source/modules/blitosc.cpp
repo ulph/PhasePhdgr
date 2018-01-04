@@ -149,7 +149,7 @@ void BlitOsc::process()
     if(nFreq == 0) return; // nothing to do, just exit
 
     resetOnSignal(inputs[5].value);
-    softResetOnSignal(inputs[7].value, syncAmount, nFreq, shape);
+    softResetOnSignal(inputs[6].value, syncAmount, nFreq, shape);
 
     incrementClocks(nFreq, syncNFreq);
 

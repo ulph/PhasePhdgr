@@ -14,7 +14,6 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("syncFreq")); // 'master' osc freq, for osc sync purposes
     inputs.push_back(Pad("sync")); // how much to sync -- TODO non-linear map input range
     inputs.push_back(Pad("reset")); // reset both internal phases ... not suitable for osc sync as it'll alias
-    inputs.push_back(Pad("offset", -1.f));
     inputs.push_back(Pad("softReset"));
     outputs.push_back(Pad("derivative"));
     outputs.push_back(Pad("output"));
@@ -112,8 +111,8 @@ inline void BlitOsc::integrateBuffer(float nFreq, float shape, float freq) {
 
 inline void BlitOsc::resetOnSignal(float resetSignal) {
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
-        internalSyncPhase = inputs[6].value;
-        internalPhase = inputs[6].value;
+        internalSyncPhase = -1.0f;
+        internalPhase = -1.0f;
         cumSum = 0.0f;
         cumCumSum = 0.0f;
         last_cumSum = 0.0f;

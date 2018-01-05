@@ -1,4 +1,5 @@
 #include "rlc.hpp"
+#include "inlines.hpp"
 
 RcLp::RcLp()
 {
@@ -15,6 +16,7 @@ void RcLp::process()
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
     outputs[0].value = y1;
 }
+
 
 RcHp::RcHp() 
     : x(0.0f)
@@ -35,6 +37,7 @@ void RcHp::process()
     x = x1;
 }
 
+
 OpenRcLp::OpenRcLp()
 {
     inputs.push_back(Pad("x1")); // input
@@ -51,6 +54,7 @@ void OpenRcLp::process()
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
     outputs[0].value = y1;
 }
+
 
 OpenRcHp::OpenRcHp()
 {
@@ -73,6 +77,7 @@ void OpenRcHp::process()
     outputs[1].value = x1;
 }
 
+
 Lag::Lag()
 {
     inputs.push_back(Pad("in"));
@@ -89,4 +94,28 @@ void Lag::process()
     if (x1 < y0) wc = inputs[2].value;
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
     outputs[0].value = y1;
+}
+
+
+LeakyIntegrator::LeakyIntegrator()
+{
+    inputs.push_back(Pad("in"));
+    inputs.push_back(Pad("freq"));
+    outputs.push_back(Pad("out"));
+}
+
+void LeakyIntegrator::process()
+{
+    float value = inputs[0].value;
+    float freq = limit(inputs[1].value, 1.f, fs*0.5f);
+    float nFreq = 2.f*freq * fsInv;
+    float prop_leak = nFreq * 0.01f;
+    float leak = 1.f - prop_leak;
+    float dcBlockWc = freq*0.125f;
+
+    last_cumSum = cumSum;
+    last_output = outputs[0].value;
+
+    cumSum = cumSum*leak + value;
+    outputs[0].value = CalcRcHp(cumSum, last_cumSum, last_output, dcBlockWc, fsInv);;
 }

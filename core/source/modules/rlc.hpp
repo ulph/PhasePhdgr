@@ -56,4 +56,16 @@ public:
     static Module* factory() { return new Lag(); }
 };
 
+class LeakyIntegrator : public ModuleCRTP<LeakyIntegrator>
+{
+private:
+    float cumSum = 0.0f;
+    float last_cumSum = 0.0f;
+    float last_output = 0.0f;
+public:
+    LeakyIntegrator();
+    void process();
+    static Module* factory() { return new LeakyIntegrator(); }
+};
+
 #endif

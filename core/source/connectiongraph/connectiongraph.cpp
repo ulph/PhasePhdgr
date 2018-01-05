@@ -218,8 +218,9 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 (instr.opcode == OP_ADD_OUTPUT_TO_INPUT && toType == SampleWise)
             )
         ){
+
             std::vector<Instruction> segment;
-            while (type == SampleWise) {
+            while (i < protoProgram.size()) {
                 instr = protoProgram.at(i);
                 type = getProcessingType(instr.param0);
                 if (type == BlockWise) break;
@@ -243,7 +244,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                         expandedSegment.push_back(instr_);
                         if (sampleWiseEntrypoints.count(instr_.param0)) {
                             for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
-                                expandedSegment.push_back(Instruction(OP_CLEAR_INPUT, instr_.param0, port));
+                                expandedSegment.push_back(Instruction(OP_S_CLEAR_INPUT, instr_.param0, port));
                             }
                         }
                         break;
@@ -276,6 +277,25 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 program.push_back(kv.second);
 
         }
+        else if (type == SampleWise)
+        {
+            if ( 
+                (instr.opcode == OP_ADD_OUTPUT_TO_INPUT || instr.opcode == OP_SET_OUTPUT_TO_INPUT) 
+                && getProcessingType(instr.param2) == BlockWise) 
+            {
+                auto instr__ = instr;
+                instr__.opcode = instr.opcode == OP_ADD_OUTPUT_TO_INPUT ? OP_B_ADD_OUTPUT_TO_INPUT : OP_B_SET_OUTPUT_TO_INPUT;
+                program.push_back(instr__);
+
+                i++;
+                instr = protoProgram.at(i);
+                type = getProcessingType(instr.param0);
+
+            }
+            else {
+                assert(0);
+            }
+        }
 
         if (type == BlockWise) 
         {
@@ -297,7 +317,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 if (!sampleWiseEntrypoints.count(instr.param2)) sampleWiseEntrypoints[instr.param2] = std::set<int>();
                 sampleWiseEntrypoints[instr.param2].insert(instr.param3);
                 if (instr.opcode == OP_B_SET_OUTPUT_TO_INPUT) {
-                    program.emplace_back(Instruction(OP_CLEAR_INPUT, instr.param2, instr.param3));
+                    program.emplace_back(Instruction(OP_S_CLEAR_INPUT, instr.param2, instr.param3));
                 }
             }
         }
@@ -465,7 +485,7 @@ void ConnectionGraph::processBlock(int module, float sampleRate) {
             case OP_PROCESS:
                 modules[i.param0]->process();
                 break;
-            case OP_CLEAR_INPUT:
+            case OP_S_CLEAR_INPUT:
                 modules[i.param0]->sample_resetInput(i.param1);
                 break;
             case OP_SET_OUTPUT_TO_INPUT:

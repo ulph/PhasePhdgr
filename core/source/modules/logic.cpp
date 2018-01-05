@@ -19,7 +19,7 @@ Counter::Counter() {
 
 void Counter::process() {
     auto trigger = inputs[0].value;
-    auto reset = inputs[0].value;
+    auto reset = inputs[1].value;
     if(isHigh(reset) && !isHigh(lastReset)) counter = 0.0f;
     if(isHigh(trigger) && !isHigh(lastTrigger)) counter += 1.0f;
     lastTrigger = trigger;

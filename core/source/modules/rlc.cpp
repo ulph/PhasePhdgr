@@ -101,6 +101,7 @@ LeakyIntegrator::LeakyIntegrator()
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("freq"));
+    inputs.push_back(Pad("dcRemoval", 0.125f));
     outputs.push_back(Pad("out"));
 }
 
@@ -111,7 +112,7 @@ void LeakyIntegrator::process()
     float nFreq = 2.f*freq * fsInv;
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
-    float dcBlockWc = freq*0.125f;
+    float dcBlockWc = freq*limitLow(inputs[2].value, 0.0078125f);
 
     last_cumSum = cumSum;
     last_output = outputs[0].value;

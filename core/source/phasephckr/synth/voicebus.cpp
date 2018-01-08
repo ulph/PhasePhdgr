@@ -268,9 +268,9 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                         // ...
                         toRevive.state = NoteState::ON;
                         voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, doLegato);
-                        voices[voiceIdx]->mpe.glide(channelData[channel].x);
-                        voices[voiceIdx]->mpe.slide(channelData[channel].y);
-                        voices[voiceIdx]->mpe.press(channelData[channel].z);
+                        voices[voiceIdx]->mpe.glide(channelData[toRevive.channel].x);
+                        voices[voiceIdx]->mpe.slide(channelData[toRevive.channel].y);
+                        voices[voiceIdx]->mpe.press(channelData[toRevive.channel].z);
                     }
                     else {
                         voices[voiceIdx]->mpe.off(note, velocity);

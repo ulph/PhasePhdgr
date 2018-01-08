@@ -32,6 +32,7 @@ private:
     TextButton steal3;
     TextButton steal4;
     TextButton steal5;
+    TextButton steal6;
 
     PPGGrid reactivateGrid;
     TextButton reactivate0;
@@ -39,6 +40,7 @@ private:
     TextButton reactivate2;
     TextButton reactivate3;
     TextButton reactivate4;
+    TextButton reactivate5;
 
     PPGGrid legatoGrid;
     TextButton legato0;

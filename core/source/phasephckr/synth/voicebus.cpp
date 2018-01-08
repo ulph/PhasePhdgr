@@ -20,7 +20,8 @@ namespace PhasePhckr {
     unsigned int youngestInactive = UINT_MAX;
     auto selectedInactiveIdx = -1;
 
-    unsigned int youngestActive = UINT_MAX;
+    auto youngestActive = UINT_MAX;
+    auto closestDistanceActive = INT_MAX;
     auto lowestActive = INT_MAX;
     auto highestActive = INT_MIN;
     auto quietestActive = std::numeric_limits<float>::max();
@@ -34,6 +35,7 @@ namespace PhasePhckr {
         auto note = v->mpe.getRootNote();
         auto rms = v->getRms();
         auto vel = v->mpe.getState().strikeZ;
+        auto distance = abs(newNote-note);
 
         if (v->mpe.getState().gateTarget == 0) {
             if (v->isSilent()) {
@@ -90,6 +92,13 @@ namespace PhasePhckr {
                         stolenNoteVelocity = vel;
                     }
                     break;
+                case NoteStealPolicyClosest:
+                    if (distance < closestDistanceActive) {
+                        closestDistanceActive = distance;
+                        selectedActiveIdx = i;
+                        stolenNoteVelocity = vel;
+                    }
+                    break;
                 default:
                     PP_NYI;
                     break;
@@ -118,7 +127,7 @@ namespace PhasePhckr {
         noteData->voiceIndex = selectedInactiveIdx;
         res = fvr::NewVoice;
     }
-    else if (selectedActiveIdx != -1) {        
+    else if (selectedActiveIdx != -1) {
         if (
             (stealPolicy == NoteStealPolicyStealIfLower && newNote < lowestActive)
         ||  
@@ -129,6 +138,8 @@ namespace PhasePhckr {
             (stealPolicy == NoteStealPolicyStealOldest)
         ||
             (stealPolicy == NoteStealPolicyStealYoungest)
+        ||
+            (stealPolicy == NoteStealPolicyClosest)
         // ...
         ) {
             auto nIdxToSteal = getNoteDataIndexForStealingVoice(selectedActiveIdx);
@@ -212,6 +223,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
             int voiceIdx = notes.at(idx).voiceIndex;
             if (voiceIdx != -1 && voiceIdx < voices.size()) {
                 if(voices.at(voiceIdx)->mpe.getState().gateTarget > 0) {
+                    auto closestDistance = INT_MAX;
                     auto toReviveIdx = -1;
                     auto lowestWaiting = INT_MAX;
                     auto highestWaiting = INT_MIN;
@@ -225,6 +237,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                                 }
                                 else {
                                     auto sNote = notes.at(sIdx).note;
+                                    auto distance = abs(note - sNote);
                                     if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
                                         highestWaiting = sNote;
                                         toReviveIdx = sIdx;
@@ -237,6 +250,10 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                                         toReviveIdx = sIdx;
                                     }
                                     else if (reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
+                                        toReviveIdx = sIdx;
+                                    }
+                                    else if (reactivationPolicy == NoteReactivationPolicyClosest && distance < closestDistance) {
+                                        closestDistance = distance;
                                         toReviveIdx = sIdx;
                                     }
                                     // ...

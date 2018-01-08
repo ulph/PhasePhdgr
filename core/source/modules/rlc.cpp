@@ -120,3 +120,27 @@ void LeakyIntegrator::process()
     cumSum = cumSum*leak + value;
     outputs[0].value = CalcRcHp(cumSum, last_cumSum, last_output, dcBlockWc, fsInv);;
 }
+
+
+RateLimiter::RateLimiter()
+{
+    inputs.push_back(Pad("in"));
+    inputs.push_back(Pad("wc_up"));
+    inputs.push_back(Pad("wc_down"));
+    outputs.push_back(Pad("out"));
+}
+
+void RateLimiter::process()
+{
+    float x = inputs[0].value;
+    float y = outputs[0].value;
+
+    float rateLimitUp = limitLow(inputs[1].value) * fsInv;
+    float rateLimitDown = limitLow(inputs[2].value) * fsInv;
+
+    if (x > y && (x - y) > rateLimitUp) y += rateLimitUp;
+    else if( x < y && (y - x) > rateLimitDown) y -= rateLimitDown;
+    else y = x;
+
+    outputs[0].value = y;
+}

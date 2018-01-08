@@ -107,6 +107,7 @@ public:
         cg.registerModule("ORCLP", &(OpenRcLp::factory));
         // TODO, lin-phase and/or ZDF variants
         cg.registerModule("LAG", &(Lag::factory));
+        cg.registerModule("RATELIMITER", &(RateLimiter::factory)); // TODO, not a filter
         cg.registerModule("INTEGRATOR", &(LeakyIntegrator::factory));
 
         /* envelopes */

@@ -73,4 +73,12 @@ public:
     static Module* factory() { return new LeakyIntegrator(); }
 };
 
+class RateLimiter : public ModuleCRTP<RateLimiter>
+{
+public:
+    RateLimiter();
+    void process();
+    static Module* factory() { return new RateLimiter(); }
+};
+
 #endif

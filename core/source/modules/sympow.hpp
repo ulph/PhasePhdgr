@@ -11,5 +11,12 @@ public:
     static Module* factory() { return new SymPow(); }
 };
 
+class SymLog2 : public ModuleCRTP<SymLog2>
+{
+public:
+    SymLog2();
+    void process();
+    static Module* factory() { return new SymLog2(); }
+};
 
 #endif

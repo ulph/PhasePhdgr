@@ -123,6 +123,7 @@ public:
         /* shaping */
         cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SPOW", &(SymPow::factory));
+        cg.registerModule("SLOG2", &(SymLog2::factory));
         cg.registerModule("QUANT", &(Quantize::factory));
         cg.registerModule("ATAN", &(Atan::factory));
         cg.registerModule("SATAN", &(SaturatorAtan::factory));

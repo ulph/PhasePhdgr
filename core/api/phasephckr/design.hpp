@@ -231,35 +231,8 @@ struct PresetSettings {
     int polyphony = 16; // how many simultaneous voices to process
     bool multicore = true; // process each voice on it's own thread
 
-    NoteStealPolicy getNoteStealPolicy() {
-        if (noteStealPolicy == NoteStealPolicyAuto) {
-            if (polyphony <= 4) return NoteStealPolicyClosest;
-            return NoteStealPolicyNone;
-        }        
-        return noteStealPolicy;
-    }
-
-    NoteReactivationPolicy getNoteReactivationPolicy() {
-        if (noteReactivationPolicy == NoteReactivationPolicyAuto) {
-            if(polyphony <= 4)
-            { 
-                switch (getNoteStealPolicy()) {
-                case NoteStealPolicyOldest:
-                    return NoteReactivationPolicyLast;
-                case NoteStealPolicyYoungest:
-                    return NoteReactivationPolicyLast;
-                case NoteStealPolicyIfLower:
-                    return NoteReactivationPolicyClosest;
-                case NoteStealPolicyIfHigher:
-                    return NoteReactivationPolicyClosest;
-                case NoteStealPolicyClosest:
-                    return NoteReactivationPolicyClosest;
-                }
-            }
-            return NoteReactivationPolicyNone;
-        }
-        return noteReactivationPolicy;
-    }
+    NoteStealPolicy getNoteStealPolicy();
+    NoteReactivationPolicy getNoteReactivationPolicy();
 };
 
 enum SynthGraphType {

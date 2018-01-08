@@ -27,14 +27,11 @@ namespace PhasePhckr {
     auto quietestActive = std::numeric_limits<float>::max();
     auto selectedActiveIdx = -1;
 
-    float stolenNoteVelocity = 0;
-
     int i = 0;
     for (const auto *v : voices) {
         auto age = v->mpe.getAge();
         auto note = v->mpe.getRootNote();
         auto rms = v->getRms();
-        auto vel = v->mpe.getState().strikeZ;
         auto distance = abs(newNote-note);
 
         if (v->mpe.getState().gateTarget == 0) {
@@ -68,35 +65,30 @@ namespace PhasePhckr {
                     if (note < lowestActive) {
                         lowestActive = note;
                         selectedActiveIdx = i;
-                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyIfHigher:
                     if (note > highestActive) {
                         highestActive = note;
                         selectedActiveIdx = i;
-                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyLowestRMS:
                     if (rms < quietestActive) {
                         quietestActive = rms;
                         selectedActiveIdx = i;
-                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyYoungest:
                     if (age < youngestActive) {
                         youngestActive = age;
                         selectedActiveIdx = i;
-                        stolenNoteVelocity = vel;
                     }
                     break;
                 case NoteStealPolicyClosest:
                     if (distance < closestDistanceActive) {
                         closestDistanceActive = distance;
                         selectedActiveIdx = i;
-                        stolenNoteVelocity = vel;
                     }
                     break;
                 default:
@@ -147,7 +139,7 @@ namespace PhasePhckr {
                 auto& nts = notes[nIdxToSteal];
                 nts.state = NoteState::STOLEN;
                 noteData->voiceIndex = selectedActiveIdx;
-                noteData->velocity = stolenNoteVelocity; // in case of legato
+                noteData->velocity = nts.velocity; // in case of legato
                 res = fvr::StolenVoice;
             }
             else assert(0);

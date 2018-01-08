@@ -763,6 +763,38 @@ int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
     return 0;
 }
 
+
+NoteStealPolicy PresetSettings::getNoteStealPolicy() {
+    if (noteStealPolicy == NoteStealPolicyAuto) {
+        if (polyphony <= 4) return NoteStealPolicyClosest;
+        return NoteStealPolicyNone;
+    }
+    return noteStealPolicy;
+}
+
+NoteReactivationPolicy PresetSettings::getNoteReactivationPolicy() {
+    if (noteReactivationPolicy == NoteReactivationPolicyAuto) {
+        if (polyphony <= 4)
+        {
+            switch (getNoteStealPolicy()) {
+            case NoteStealPolicyOldest:
+                return NoteReactivationPolicyLast;
+            case NoteStealPolicyYoungest:
+                return NoteReactivationPolicyLast;
+            case NoteStealPolicyIfLower:
+                return NoteReactivationPolicyClosest;
+            case NoteStealPolicyIfHigher:
+                return NoteReactivationPolicyClosest;
+            case NoteStealPolicyClosest:
+                return NoteReactivationPolicyClosest;
+            }
+        }
+        return NoteReactivationPolicyNone;
+    }
+    return noteReactivationPolicy;
+}
+
+
 const locale ansi_loc("C");
 
 bool characterIsValid_base(char c) {

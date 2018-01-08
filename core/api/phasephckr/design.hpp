@@ -179,20 +179,20 @@ struct PatchDescriptor {
 /* Preset (voice patch + effect patch + parameters) */
 
 enum NoteStealPolicy {
-    NoteStealPolicyDoNotSteal = 0, // never steal an active voice
-    NoteStealPolicyStealOldest, // steal the oldest active voice
-    NoteStealPolicyStealLowestRMS, // steal the most quiet active voice
-    NoteStealPolicyStealIfLower, // steal the lowest voice (in note number) - when released the lowest stolen voice get revived
-    NoteStealPolicyStealIfHigher, // steal the highest voice (in note number) - when released the highest stolen voice get revived
-    NoteStealPolicyStealYoungest, // steal the youngest active voice
+    NoteStealPolicyNone = 0, // never steal an active voice
+    NoteStealPolicyOldest, // steal the oldest active voice
+    NoteStealPolicyLowestRMS, // steal the most quiet active voice
+    NoteStealPolicyIfLower, // steal the lowest voice (in note number) - when released the lowest stolen voice get revived
+    NoteStealPolicyIfHigher, // steal the highest voice (in note number) - when released the highest stolen voice get revived
+    NoteStealPolicyYoungest, // steal the youngest active voice
     NoteStealPolicyClosest,
 //    NoteStealPolicyHigher,
 //    NoteStealPolicyLower,
-    NoteStealPolicyStealAuto = 99, // best match given NoteActivationPolicy and polyphony
+    NoteStealPolicyAuto = 99, // best match given NoteActivationPolicy and polyphony
 };
 
 enum NoteReactivationPolicy {
-    NoteReactivationPolicyDoNotReactivate = 0, // do not reactivate stolen voices
+    NoteReactivationPolicyNone = 0, // do not reactivate stolen voices
     NoteReactivationPolicyLast, // reactivate the last pressed key (that is stolen)
     NoteReactivationPolicyHighest, // reactivate the highest stolen voice
     NoteReactivationPolicyLowest, // reactivate the lowest stolen voice
@@ -208,6 +208,7 @@ enum LegatoMode {
     LegatoModeUpdateVelocity,
     LegatoModeFreezeVelocity,
     LegatoModeReleaseVelocity,
+    LegatoModeRetriggerReleaseVelocity,
 };
 
 enum NoteActivationPolicy {
@@ -223,12 +224,42 @@ enum NoteActivationPolicy {
 struct PresetSettings {
     NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyOldest; // how to select which inactive voice to activate
 
-    NoteStealPolicy noteStealPolicy = NoteStealPolicyDoNotSteal; // if, and how, to steal voices
-    NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyDoNotReactivate; // if, and how, to re-activate stolen notes
+    NoteStealPolicy noteStealPolicy = NoteStealPolicyAuto; // if, and how, to steal voices
+    NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyAuto; // if, and how, to re-activate stolen notes
     LegatoMode legatoMode = LegatoModeRetrigger; // if stealing a voice, retrigger or legato - with frozen or updated velocity
 
     int polyphony = 16; // how many simultaneous voices to process
     bool multicore = true; // process each voice on it's own thread
+
+    NoteStealPolicy getNoteStealPolicy() {
+        if (noteStealPolicy == NoteStealPolicyAuto) {
+            if (polyphony <= 4) return NoteStealPolicyClosest;
+            return NoteStealPolicyNone;
+        }        
+        return noteStealPolicy;
+    }
+
+    NoteReactivationPolicy getNoteReactivationPolicy() {
+        if (noteReactivationPolicy == NoteReactivationPolicyAuto) {
+            if(polyphony <= 4)
+            { 
+                switch (getNoteStealPolicy()) {
+                case NoteStealPolicyOldest:
+                    return NoteReactivationPolicyLast;
+                case NoteStealPolicyYoungest:
+                    return NoteReactivationPolicyLast;
+                case NoteStealPolicyIfLower:
+                    return NoteReactivationPolicyClosest;
+                case NoteStealPolicyIfHigher:
+                    return NoteReactivationPolicyClosest;
+                case NoteStealPolicyClosest:
+                    return NoteReactivationPolicyClosest;
+                }
+            }
+            return NoteReactivationPolicyNone;
+        }
+        return noteReactivationPolicy;
+    }
 };
 
 enum SynthGraphType {

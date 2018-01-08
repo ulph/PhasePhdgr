@@ -26,6 +26,7 @@ private:
     TextButton polyphony64;
 
     PPGGrid stealGrid;
+    TextButton stealAuto;
     TextButton steal0;
     TextButton steal1;
     TextButton steal2;
@@ -35,6 +36,7 @@ private:
     TextButton steal6;
 
     PPGGrid reactivateGrid;
+    TextButton reactivateAuto;
     TextButton reactivate0;
     TextButton reactivate1;
     TextButton reactivate2;

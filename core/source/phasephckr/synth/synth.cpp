@@ -47,8 +47,8 @@ void Synth::resetVoiceBus(const SynthVoice* voice) {
     delete voiceBus;
     voiceBus = new VoiceBus();
     voiceBus->setLegato(settings.legatoMode);
-    voiceBus->setStealPolicy(settings.noteStealPolicy);
-    voiceBus->setReactivationPolicy(settings.noteReactivationPolicy);
+    voiceBus->setStealPolicy(settings.getNoteStealPolicy());
+    voiceBus->setReactivationPolicy(settings.getNoteReactivationPolicy());
     voiceBus->setActivationPolicy(settings.noteActivationPolicy);
 
     for (SynthVoice *v : voices) {

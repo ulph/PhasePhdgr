@@ -68,8 +68,8 @@ private:
     fvr findVoice(int note, NoteData* noteData, const std::vector<SynthVoice*> &voices);
     void handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
-    NoteStealPolicy stealPolicy = NoteStealPolicyDoNotSteal;
-    NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyDoNotReactivate;
+    NoteStealPolicy stealPolicy = NoteStealPolicyNone;
+    NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyNone;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyOldest;
     LegatoMode legato = LegatoModeRetrigger;
     std::vector<NoteData> notes;

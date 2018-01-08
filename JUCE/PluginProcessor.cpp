@@ -294,7 +294,12 @@ void PhasePhckrProcessor::setSettings(const PhasePhckr::PresetSettings &s) {
     synth->applySettings(s);
 
     activeSettings = s;
-    // TODO, force update HOST state
+
+    // hack, as updateHostDisplay() doesn't work for Reaper
+    Parameter* pa = nullptr;
+    parameters.accessParameter(0, &pa);
+    if (pa != nullptr) pa->setValueNotifyingHost(*pa);
+
     updateHostDisplay();
 }
 

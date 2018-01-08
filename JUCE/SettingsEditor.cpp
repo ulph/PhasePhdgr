@@ -13,12 +13,13 @@ void SettingsEditor::applySettings(){
     }
 
     switch (settings.noteStealPolicy) {
-    case NoteStealPolicyDoNotSteal: steal0.setToggleState(true, shutup); break;
-    case NoteStealPolicyStealOldest: steal1.setToggleState(true, shutup); break;
-    case NoteStealPolicyStealLowestRMS: steal2.setToggleState(true, shutup); break;
-    case NoteStealPolicyStealIfLower: steal3.setToggleState(true, shutup); break;
-    case NoteStealPolicyStealIfHigher: steal4.setToggleState(true, shutup); break;
-    case NoteStealPolicyStealYoungest: steal5.setToggleState(true, shutup); break;
+    case NoteStealPolicyAuto: stealAuto.setToggleState(true, shutup); break;
+    case NoteStealPolicyNone: steal0.setToggleState(true, shutup); break;
+    case NoteStealPolicyOldest: steal1.setToggleState(true, shutup); break;
+    case NoteStealPolicyLowestRMS: steal2.setToggleState(true, shutup); break;
+    case NoteStealPolicyIfLower: steal3.setToggleState(true, shutup); break;
+    case NoteStealPolicyIfHigher: steal4.setToggleState(true, shutup); break;
+    case NoteStealPolicyYoungest: steal5.setToggleState(true, shutup); break;
     case NoteStealPolicyClosest: steal6.setToggleState(true, shutup); break;
     default: PP_NYI; break;
     }
@@ -32,7 +33,8 @@ void SettingsEditor::applySettings(){
     }
 
     switch (settings.noteReactivationPolicy) {
-    case NoteReactivationPolicyDoNotReactivate: reactivate0.setToggleState(true, shutup); break;
+    case NoteReactivationPolicyAuto: reactivateAuto.setToggleState(true, shutup); break;
+    case NoteReactivationPolicyNone: reactivate0.setToggleState(true, shutup); break;
     case NoteReactivationPolicyLast: reactivate1.setToggleState(true, shutup); break;
     case NoteReactivationPolicyHighest: reactivate2.setToggleState(true, shutup); break;
     case NoteReactivationPolicyLowest: reactivate3.setToggleState(true, shutup); break;
@@ -106,6 +108,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     stealGrid.setText("note steal policy");
     grid.addComponent(&stealGrid);
 
+    stealAuto.addListener(this);
     steal0.addListener(this);
     steal1.addListener(this);
     steal2.addListener(this);
@@ -114,6 +117,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     steal5.addListener(this);
     steal6.addListener(this);
 
+    stealGrid.addComponent(&stealAuto);
     stealGrid.addComponent(&steal0);
     stealGrid.addComponent(&steal1);
     stealGrid.addComponent(&steal2);
@@ -122,6 +126,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     stealGrid.addComponent(&steal5);
     stealGrid.addComponent(&steal6);
 
+    stealAuto.setButtonText("auto");
     steal0.setButtonText("do not steal");
     steal1.setButtonText("oldest");
     steal2.setButtonText("lowest rms");
@@ -130,6 +135,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     steal5.setButtonText("youngest");
     steal6.setButtonText("closest");
 
+    stealAuto.setRadioGroupId(2);
     steal0.setRadioGroupId(2);
     steal1.setRadioGroupId(2);
     steal2.setRadioGroupId(2);
@@ -138,6 +144,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     steal5.setRadioGroupId(2);
     steal6.setRadioGroupId(2);
 
+    stealAuto.setClickingTogglesState(true);
     steal0.setClickingTogglesState(true);
     steal1.setClickingTogglesState(true);
     steal2.setClickingTogglesState(true);
@@ -179,6 +186,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     reactivateGrid.setText("note reactivation policy");
     grid.addComponent(&reactivateGrid);
 
+    reactivateAuto.addListener(this);
     reactivate0.addListener(this);
     reactivate1.addListener(this);
     reactivate2.addListener(this);
@@ -186,6 +194,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     reactivate4.addListener(this);
     reactivate5.addListener(this);
 
+    reactivateGrid.addComponent(&reactivateAuto);
     reactivateGrid.addComponent(&reactivate0);
     reactivateGrid.addComponent(&reactivate1);
     reactivateGrid.addComponent(&reactivate2);
@@ -193,6 +202,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     reactivateGrid.addComponent(&reactivate4);
     reactivateGrid.addComponent(&reactivate5);
 
+    reactivateAuto.setButtonText("auto");
     reactivate0.setButtonText("do not reactivate");
     reactivate1.setButtonText("reactivate last");
     reactivate2.setButtonText("reactivate highest");
@@ -200,6 +210,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     reactivate4.setButtonText("reactivate first");
     reactivate5.setButtonText("closest");
 
+    reactivateAuto.setRadioGroupId(3);
     reactivate0.setRadioGroupId(3);
     reactivate1.setRadioGroupId(3);
     reactivate2.setRadioGroupId(3);
@@ -207,6 +218,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     reactivate4.setRadioGroupId(3);
     reactivate5.setRadioGroupId(3);
 
+    reactivateAuto.setClickingTogglesState(true);
     reactivate0.setClickingTogglesState(true);
     reactivate1.setClickingTogglesState(true);
     reactivate2.setClickingTogglesState(true);
@@ -248,12 +260,13 @@ void SettingsEditor::buttonClicked(Button* b) {
     else if (b == &polyphony32) settings.polyphony = 32;
     else if (b == &polyphony64) settings.polyphony = 64;
 
-    else if (b == &steal0) settings.noteStealPolicy = NoteStealPolicyDoNotSteal;
-    else if (b == &steal1) settings.noteStealPolicy = NoteStealPolicyStealOldest;
-    else if (b == &steal2) settings.noteStealPolicy = NoteStealPolicyStealLowestRMS;
-    else if (b == &steal3) settings.noteStealPolicy = NoteStealPolicyStealIfLower;
-    else if (b == &steal4) settings.noteStealPolicy = NoteStealPolicyStealIfHigher;
-    else if (b == &steal5) settings.noteStealPolicy = NoteStealPolicyStealYoungest;
+    else if (b == &stealAuto) settings.noteStealPolicy = NoteStealPolicyAuto;
+    else if (b == &steal0) settings.noteStealPolicy = NoteStealPolicyNone;
+    else if (b == &steal1) settings.noteStealPolicy = NoteStealPolicyOldest;
+    else if (b == &steal2) settings.noteStealPolicy = NoteStealPolicyLowestRMS;
+    else if (b == &steal3) settings.noteStealPolicy = NoteStealPolicyIfLower;
+    else if (b == &steal4) settings.noteStealPolicy = NoteStealPolicyIfHigher;
+    else if (b == &steal5) settings.noteStealPolicy = NoteStealPolicyYoungest;
     else if (b == &steal6) settings.noteStealPolicy = NoteStealPolicyClosest;
 
     else if (b == &legato0) settings.legatoMode = LegatoModeRetrigger;
@@ -261,7 +274,8 @@ void SettingsEditor::buttonClicked(Button* b) {
     else if (b == &legato2) settings.legatoMode = LegatoModeFreezeVelocity;
     else if (b == &legato3) settings.legatoMode = LegatoModeReleaseVelocity;
 
-    else if (b == &reactivate0) settings.noteReactivationPolicy = NoteReactivationPolicyDoNotReactivate;
+    else if (b == &reactivateAuto) settings.noteReactivationPolicy = NoteReactivationPolicyAuto;
+    else if (b == &reactivate0) settings.noteReactivationPolicy = NoteReactivationPolicyNone;
     else if (b == &reactivate1) settings.noteReactivationPolicy = NoteReactivationPolicyLast;
     else if (b == &reactivate2) settings.noteReactivationPolicy = NoteReactivationPolicyHighest;
     else if (b == &reactivate3) settings.noteReactivationPolicy = NoteReactivationPolicyLowest;

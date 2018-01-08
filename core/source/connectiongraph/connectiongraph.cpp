@@ -204,6 +204,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
     assert(program.size() == 0);
 
     std::map<int, std::set<int>> sampleWiseEntrypoints;
+    std::map<int, std::set<int>> sampleWiseExitpoints;
 
     for (int i = 0; i < protoProgram.size(); ++i) {
         auto instr = protoProgram.at(i);
@@ -247,11 +248,14 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                                 expandedSegment.push_back(Instruction(OP_S_CLEAR_INPUT, instr_.param0, port));
                             }
                         }
+                        if (sampleWiseExitpoints.count(instr_.param0)) {
+                            for (int port : sampleWiseExitpoints.at(instr_.param0)) {
+                                expandedSegment.push_back(Instruction(OP_X_BUFFER_SET_OUTPUT, instr_.param0, port, n));
+                            }
+                        }
+
                         break;
                     case OP_SET_OUTPUT_TO_INPUT:
-                        if (getProcessingType(instr_.param2) == BlockWise) {
-                            expandedSegment.push_back(Instruction(OP_X_BUFFER_CLEAR_OUTPUT, instr_.param0, instr_.param1, n));
-                        }
                     case OP_ADD_OUTPUT_TO_INPUT:
                         if (getProcessingType(instr_.param2) == BlockWise) {
                             if (!postLoopInstructions.count(j)) {
@@ -259,7 +263,11 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                                 instr__.opcode = instr__.opcode == OP_SET_OUTPUT_TO_INPUT ? OP_B_SET_OUTPUT_TO_INPUT : OP_B_ADD_OUTPUT_TO_INPUT;
                                 postLoopInstructions[j] = instr__;
                             }
-                            expandedSegment.push_back(Instruction(OP_X_BUFFER_ADD_OUTPUT, instr_.param0, instr_.param1, n));
+                            if (!sampleWiseExitpoints.count(instr_.param0)) sampleWiseExitpoints[instr_.param0] = std::set<int>();
+                            if (!sampleWiseExitpoints.at(instr_.param0).count(instr_.param1)) {
+                                sampleWiseExitpoints[instr_.param0].insert(instr_.param1);
+                                expandedSegment.push_back(Instruction(OP_X_BUFFER_SET_OUTPUT, instr_.param0, instr_.param1, n));
+                            }
                         }
                         else {
                             expandedSegment.push_back(instr_);

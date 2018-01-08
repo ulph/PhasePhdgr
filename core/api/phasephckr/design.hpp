@@ -221,12 +221,16 @@ enum NoteActivationPolicy {
     NoteActivationPolicyOldest, // any silent voice, fall back to oldest not silent (longest in gate off)
 };
 
-struct PresetSettings {
-    NoteActivationPolicy noteActivationPolicy = NoteActivationPolicyOldest; // how to select which inactive voice to activate
+const auto c_NoteActivationPolicyDefault = NoteActivationPolicyOldest;
+const auto c_NoteStealPolicyDefault = NoteStealPolicyAuto;
+const auto c_NoteReactivationPolicyDefault = NoteReactivationPolicyAuto;
+const auto c_LegatoModeDefault = LegatoModeFreezeVelocity;
 
-    NoteStealPolicy noteStealPolicy = NoteStealPolicyAuto; // if, and how, to steal voices
-    NoteReactivationPolicy noteReactivationPolicy = NoteReactivationPolicyAuto; // if, and how, to re-activate stolen notes
-    LegatoMode legatoMode = LegatoModeRetrigger; // if stealing a voice, retrigger or legato - with frozen or updated velocity
+struct PresetSettings {
+    NoteActivationPolicy noteActivationPolicy = c_NoteActivationPolicyDefault; // how to select which inactive voice to activate
+    NoteStealPolicy noteStealPolicy = c_NoteStealPolicyDefault; // if, and how, to steal voices
+    NoteReactivationPolicy noteReactivationPolicy = c_NoteReactivationPolicyDefault; // if, and how, to re-activate stolen notes
+    LegatoMode legatoMode = c_LegatoModeDefault; // if stealing a voice, retrigger or legato - with frozen or updated velocity
 
     int polyphony = 16; // how many simultaneous voices to process
     bool multicore = true; // process each voice on it's own thread

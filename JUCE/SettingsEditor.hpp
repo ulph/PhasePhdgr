@@ -49,6 +49,7 @@ private:
     TextButton legato1;
     TextButton legato2;
     TextButton legato3;
+    TextButton legato4;
 
     PPGGrid activateGrid;
     TextButton activate0;

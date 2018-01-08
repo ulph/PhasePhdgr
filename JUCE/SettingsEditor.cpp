@@ -29,6 +29,7 @@ void SettingsEditor::applySettings(){
     case LegatoModeUpdateVelocity: legato1.setToggleState(true, shutup); break;
     case LegatoModeFreezeVelocity: legato2.setToggleState(true, shutup); break;
     case LegatoModeReleaseVelocity: legato3.setToggleState(true, shutup); break;
+    case LegatoModeRetriggerReleaseVelocity: legato3.setToggleState(true, shutup); break;
     default: PP_NYI; break;
     }
 
@@ -161,26 +162,31 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     legato1.addListener(this);
     legato2.addListener(this);
     legato3.addListener(this);
+    legato4.addListener(this);
 
     legatoGrid.addComponent(&legato0);
     legatoGrid.addComponent(&legato1);
     legatoGrid.addComponent(&legato2);
     legatoGrid.addComponent(&legato3);
+    legatoGrid.addComponent(&legato4);
 
     legato0.setButtonText("retrigger");
     legato1.setButtonText("legato, update velocity");
     legato2.setButtonText("legato, freeze velocity");
     legato3.setButtonText("legato, release velocity");
+    legato4.setButtonText("retrigger, release velocity");
 
     legato0.setRadioGroupId(4);
     legato1.setRadioGroupId(4);
     legato2.setRadioGroupId(4);
     legato3.setRadioGroupId(4);
+    legato4.setRadioGroupId(4);
 
     legato0.setClickingTogglesState(true);
     legato1.setClickingTogglesState(true);
     legato2.setClickingTogglesState(true);
     legato3.setClickingTogglesState(true);
+    legato4.setClickingTogglesState(true);
 
     // reactivation policy
     reactivateGrid.setText("note reactivation policy");
@@ -273,6 +279,7 @@ void SettingsEditor::buttonClicked(Button* b) {
     else if (b == &legato1) settings.legatoMode = LegatoModeUpdateVelocity;
     else if (b == &legato2) settings.legatoMode = LegatoModeFreezeVelocity;
     else if (b == &legato3) settings.legatoMode = LegatoModeReleaseVelocity;
+    else if (b == &legato4) settings.legatoMode = LegatoModeRetriggerReleaseVelocity;
 
     else if (b == &reactivateAuto) settings.noteReactivationPolicy = NoteReactivationPolicyAuto;
     else if (b == &reactivate0) settings.noteReactivationPolicy = NoteReactivationPolicyNone;

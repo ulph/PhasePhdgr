@@ -63,3 +63,21 @@ void PPGrid::setColoumns(const std::vector<float> &sizes) {
     }
     resized();
 }
+
+PPGGrid::PPGGrid() {
+    addAndMakeVisible(grid);
+    resized();
+}
+
+void PPGGrid::addComponent(Component* component) {
+    grid.addComponent(component);
+}
+
+void PPGGrid::setColoumns(const vector<float> &coloumnSizes) {
+    grid.setColoumns(coloumnSizes);
+}
+
+void PPGGrid::resized() {
+    grid.setBoundsRelative(0.1f, 0.1f, 0.8f, 0.8f);
+    grid.resized();
+}

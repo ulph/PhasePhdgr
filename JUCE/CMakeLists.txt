@@ -61,6 +61,10 @@ set(PH_COMMON_SRC
 
     PluginCommon.h
     PluginCommon.cpp
+
+    SettingsEditor.hpp
+    SettingsEditor.cpp
+
 )
 
 add_library(pp_common_obj OBJECT ${PH_COMMON_SRC})

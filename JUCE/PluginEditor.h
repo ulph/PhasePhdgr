@@ -17,6 +17,8 @@
 
 #include "ParameterKnob.hpp"
 
+#include "SettingsEditor.hpp"
+
 class PhasePhckrEditor  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:

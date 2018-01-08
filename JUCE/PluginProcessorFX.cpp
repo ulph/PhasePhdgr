@@ -99,6 +99,7 @@ bool PhasePhckrProcessorFX::isBusesLayoutSupported (const BusesLayout& layouts) 
 
 void PhasePhckrProcessorFX::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    auto dn = ScopedNoDenormals();
     auto l = synthUpdateLock.make_scoped_lock();
     parameters.visitHandleParameterValues(effect);
     bufferingProcessor.process(buffer, (float)getSampleRate(), effect, getPlayHead());

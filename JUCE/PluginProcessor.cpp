@@ -110,6 +110,8 @@ bool PhasePhckrProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 
 void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    auto dn = ScopedNoDenormals();
+
     const int numOutputChannels = getTotalNumOutputChannels();
     for (int i = 0; i < numOutputChannels; ++i) {
         buffer.clear(i, 0, buffer.getNumSamples());

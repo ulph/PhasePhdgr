@@ -22,6 +22,13 @@ CamelEnvelope::CamelEnvelope()
 
     inputs.push_back(Pad("offAttackPow", 4.0f));
     inputs.push_back(Pad("offDecayPow", 4.0f));
+
+    init();
+}
+
+void CamelEnvelope::init()
+{
+    slew = DesignRcLp(100, fsInv); // TODO, allow tweaking ?
 }
 
 inline void CamelEnvelope::changeState(EnvelopeStage newState) {
@@ -99,7 +106,7 @@ void CamelEnvelope::process() {
 
     stageSamples++;
 
-    value = slew*value + (1 - slew)*targetValue;
+    value = slew*targetValue + (1 - slew)*value;
 
     // limit, apply power law and slew
     outputs[0].value = value;

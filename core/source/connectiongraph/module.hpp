@@ -37,6 +37,7 @@ protected:
     void setName(const std::string &n);
     float fs = 48000.f;
     float fsInv = 1.f / fs;
+    virtual void init() {};
 
 public:
     virtual ~Module() {}
@@ -55,9 +56,10 @@ public:
 private:
     std::string name = "";
 
-    void setFs(float newFs) {
+    virtual void setFs(float newFs) {
         fs = newFs;
         fsInv = 1.f / fs;
+        init();
     }
 
     // sample processing

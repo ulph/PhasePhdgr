@@ -3,9 +3,14 @@
 
 #include "module.hpp"
 
-static inline float CalcRcLp(float x1, float y0, float wc, float fsInv) {
-    float d = 2.0f * (float)M_PI*wc * fsInv;
+static inline float DesignRcLp(float wc, float fsInv) {
+    float d = 2.0f * (float)M_PI*wc*fsInv;
     float a = d / (d + 1.0f);
+    return a;
+}
+
+static inline float CalcRcLp(float x1, float y0, float wc, float fsInv) {
+    float a = DesignRcLp(wc, fsInv);
     return a*x1 + (1.0f - a)*y0;
 }
 

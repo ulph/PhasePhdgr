@@ -296,10 +296,14 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
     }
 }
 
+bool inline voiceAcceptsChannelData(const NoteData& n) {
+    return (n.state == NoteState::ON || n.state == NoteState::SUSTAINED);
+}
+
 void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].x = position;
     for (const auto &n : notes) {
-        if (n.channel == channel) {
+        if (n.channel == channel && voiceAcceptsChannelData(n)) {
             if (n.voiceIndex != -1) {
                 voices[n.voiceIndex]->mpe.glide(position);
             }
@@ -310,7 +314,7 @@ void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].y = position;
     for (const auto &n : notes) {
-        if (n.channel == channel) {
+        if (n.channel == channel && voiceAcceptsChannelData(n)) {
             if (n.voiceIndex != -1) {
                 voices[n.voiceIndex]->mpe.slide(position);
             }
@@ -321,7 +325,7 @@ void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleZ(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].z = position;
     for (const auto &n : notes) {
-        if (n.channel == channel) {
+        if (n.channel == channel && voiceAcceptsChannelData(n)) {
             if (n.voiceIndex != -1) {
                 voices[n.voiceIndex]->mpe.press(position);
             }
@@ -333,7 +337,7 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
     int idx = getNoteDataIndex(channel, note);
     if (idx != -1) {
         notes[idx].notePressure = position;
-        if (notes[idx].voiceIndex != -1) {
+        if (notes[idx].voiceIndex != -1 && voiceAcceptsChannelData(notes[idx])) {
             voices[notes[idx].voiceIndex]->mpe.press(position);
         }
     }

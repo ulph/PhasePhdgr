@@ -50,7 +50,7 @@ void OpenRcLp::process()
 {
     float x1 = inputs[0].value;
     float y0 = inputs[1].value;
-    float wc = inputs[2].value;
+    float wc = limitLow(inputs[2].value);
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
     outputs[0].value = y1;
 }
@@ -71,7 +71,7 @@ void OpenRcHp::process()
     float x1 = inputs[0].value;
     float x0 = inputs[1].value;
     float y0 = inputs[2].value;
-    float wc = inputs[3].value;
+    float wc = limitLow(inputs[3].value);
     float y1 = CalcRcHp(x1, x0, y0, wc, fsInv);
     outputs[0].value = y1;
     outputs[1].value = x1;
@@ -90,8 +90,8 @@ void Lag::process()
 {
     float x1 = inputs[0].value;
     float y0 = outputs[0].value;
-    float wc = inputs[1].value;
-    if (x1 < y0) wc = inputs[2].value;
+    float wc = limitLow(inputs[1].value);
+    if (x1 < y0) wc = limitLow(inputs[2].value);
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
     outputs[0].value = y1;
 }

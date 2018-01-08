@@ -5,7 +5,12 @@
 
 static inline float DesignRcLp(float wc, float fsInv) {
     float d = 2.0f * (float)M_PI*wc*fsInv;
+    assert(wc >= 0.0f);
+    assert(fsInv >= 0.0f);
+    assert(d + 1.0f > 0.0f);
     float a = d / (d + 1.0f);
+    assert(a >= 0.0f);
+    assert(a <= 1.0f);
     return a;
 }
 
@@ -16,6 +21,8 @@ static inline float CalcRcLp(float x1, float y0, float wc, float fsInv) {
 
 static inline float CalcRcHp(float x1, float x0, float y0, float wc, float fsInv) {
     float a = 1.0f / ((2.0f * (float)M_PI*wc * fsInv) + 1.0f);
+    assert(a >= 0.0f);
+    assert(a <= 1.0f);
     return a*y0 + a*(x1 - x0);
 }
 

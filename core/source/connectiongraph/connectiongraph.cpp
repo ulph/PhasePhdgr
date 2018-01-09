@@ -371,7 +371,8 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
     modulesVisitedInFindRecursions++;
     bool foundSelf = false;
     std::set<int> groupsToHere;
-    std::set<int> replacedGroups;
+
+    bool doneDone = true;
     
     for (auto otherModule : processedModulesToHere) {
         if (otherModule == module) foundSelf = true;
@@ -397,6 +398,8 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
                 recursiveModuleGroups[otherModule] = module;
             }
         }
+
+        doneDone = doneDone && recursiveScannedModules.count(otherModule);
     }
 
     if (foundSelf) return;
@@ -407,7 +410,9 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
         for (const Cable *c : cables) {
             if (c->isConnected(module, pad)) {
                 auto from = c->getFromModule();
-                findRecursions(from, processedModulesToHere);
+                if (!(doneDone && recursiveScannedModules.count(from))) {
+                    findRecursions(from, processedModulesToHere);
+                }
             }
         }
     }

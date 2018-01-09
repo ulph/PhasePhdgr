@@ -411,7 +411,11 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
             if (c->isConnected(module, pad)) {
                 auto from = c->getFromModule();
                 if (!(doneDone && recursiveScannedModules.count(from))) {
-                    findRecursions(from, processedModulesToHere);
+                    auto c = make_pair(from, module);
+                    if (!recursiveTraversedConnections.count(c)) {
+                        findRecursions(from, processedModulesToHere);
+                        recursiveTraversedConnections.insert(c);
+                    }
                 }
             }
         }

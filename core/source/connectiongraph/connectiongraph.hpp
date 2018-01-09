@@ -24,6 +24,7 @@ protected:
     int compilationStatus;
     std::map<int, int> recursiveModuleGroups; // aka, colors
     std::set<int> recursiveScannedModules;
+    std::set<std::pair<int,int>> recursiveTraversedConnections;
     std::set<int> visitedModules;
     std::set<int> processedModules;
     int modulesVisitedInFindRecursions = 0;

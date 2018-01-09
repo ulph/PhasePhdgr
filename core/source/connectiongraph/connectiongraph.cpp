@@ -168,9 +168,10 @@ void ConnectionGraph::compileProgram(int module)
     // parse the graph once to find all modules involved in recursion loops
     recursiveModuleGroups.clear();
     recursiveScannedModules.clear();
+    recursiveTraversedConnections.clear();
+    modulesVisitedInFindRecursions = 0;
 
     if (!forceSampleWise) {
-        modulesVisitedInFindRecursions = 0;
         findRecursions(module, std::vector<int>());
 
         // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first

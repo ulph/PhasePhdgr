@@ -25,9 +25,9 @@ protected:
     std::map<int, int> recursiveModuleGroups; // aka, colors
     std::set<int> recursiveScannedModules;
     std::set<std::pair<int,int>> recursiveTraversedConnections;
+    int modulesVisitedInFindRecursions = 0;
     std::set<int> visitedModules;
     std::set<int> processedModules;
-    int modulesVisitedInFindRecursions = 0;
     std::map<int, std::set<int>> sampleWiseEntrypoints;
     std::map<int, std::set<int>> sampleWiseExitpoints;
 

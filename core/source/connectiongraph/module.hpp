@@ -77,25 +77,12 @@ private:
         inputs[inputPad].value += value;
     }
 
-
     // sample to block helpers
-    void unbuffer_set_input(int inputPad, int i) {
-        inputs[inputPad].value = inputs[inputPad].values[i];
-    }
     void unbuffer_add_input(int inputPad, int i) {
         inputs[inputPad].value += inputs[inputPad].values[i];
     }
-    void unbuffer_clear(int inputPad, int i) {
-        inputs[inputPad].values[i] = 0.0f;
-    }
-    void buffer_clear(int outputPad, int i) {
-        outputs[outputPad].values[i] = 0.0f;
-    }
     void buffer_set_output(int outputPad, int i) {
         outputs[outputPad].values[i] = outputs[outputPad].value;
-    }
-    void buffer_add_output(int outputPad, int i) {
-        outputs[outputPad].values[i] += outputs[outputPad].value;
     }
 
     // block processing
@@ -110,11 +97,6 @@ private:
     }
     void block_setInput(int inputPad, const float* buffer) {
         memcpy(inputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
-    }
-    void block_resetInput(int inputPad) {
-        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
-            inputs[inputPad].values[i] = 0.0f;
-        }
     }
     void block_addToInput(int inputPad, const float* buffer) {
         for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {

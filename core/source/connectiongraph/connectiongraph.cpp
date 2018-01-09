@@ -486,7 +486,9 @@ void ConnectionGraph::processSample(int module, float sampleRate)
             modules[i.param0]->process();
             break;
         case OP_SET_OUTPUT_TO_INPUT:
-            modules[i.param2]->sample_resetInput(i.param3);
+            out = modules[i.param0]->sample_getOutput(i.param1);
+            modules[i.param2]->sample_setInput(i.param3, out);
+            break;
         case OP_ADD_OUTPUT_TO_INPUT:
             out = modules[i.param0]->sample_getOutput(i.param1);
             modules[i.param2]->sample_addToInput(i.param3, out);
@@ -519,40 +521,32 @@ void ConnectionGraph::processBlock(int module, float sampleRate) {
             case OP_PROCESS:
                 modules[i.param0]->process();
                 break;
-            case OP_S_CLEAR_INPUT:
-                modules[i.param0]->sample_resetInput(i.param1);
-                break;
             case OP_SET_OUTPUT_TO_INPUT:
-                modules[i.param2]->sample_resetInput(i.param3);
+                out = modules[i.param0]->sample_getOutput(i.param1);
+                modules[i.param2]->sample_setInput(i.param3, out);
+                break;
             case OP_ADD_OUTPUT_TO_INPUT:
                 out = modules[i.param0]->sample_getOutput(i.param1);
                 modules[i.param2]->sample_addToInput(i.param3, out);
                 break;
 
-            case OP_X_UNBUFFER_CLEAR_INPUT:
-                modules[i.param0]->unbuffer_clear(i.param1, i.param2);
-                break;
-            case OP_X_UNBUFFER_SET_INPUT:
-                modules[i.param0]->unbuffer_set_input(i.param1, i.param2);
+            case OP_S_CLEAR_INPUT:
+                modules[i.param0]->sample_resetInput(i.param1);
                 break;
             case OP_X_UNBUFFER_ADD_INPUT:
                 modules[i.param0]->unbuffer_add_input(i.param1, i.param2);
                 break;
-            case OP_X_BUFFER_CLEAR_OUTPUT:
-                modules[i.param0]->buffer_clear(i.param1, i.param2);
-                break;
             case OP_X_BUFFER_SET_OUTPUT:
                 modules[i.param0]->buffer_set_output(i.param1, i.param2);
-                break;
-            case OP_X_BUFFER_ADD_OUTPUT:
-                modules[i.param0]->buffer_add_output(i.param1, i.param2);
                 break;
 
             case OP_B_PROCESS:
                 modules[i.param0]->block_process();
                 break;
             case OP_B_SET_OUTPUT_TO_INPUT:
-                modules[i.param2]->block_resetInput(i.param3);
+                modules[i.param0]->block_getOutput(i.param1, buf);
+                modules[i.param2]->block_setInput(i.param3, buf);
+                break;
             case OP_B_ADD_OUTPUT_TO_INPUT:
                 modules[i.param0]->block_getOutput(i.param1, buf);
                 modules[i.param2]->block_addToInput(i.param3, buf);

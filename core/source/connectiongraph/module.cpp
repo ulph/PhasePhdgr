@@ -5,7 +5,8 @@ void Module::block_process() {
     const size_t outputsSize = outputs.size();
     for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
         for (int k = 0; k < inputsSize; ++k) {
-            unbuffer_set_input(k, i);
+            sample_resetInput(k);
+            unbuffer_add_input(k, i);
         }
         process();
         for (int k = 0; k < outputsSize; ++k) {

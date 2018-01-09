@@ -220,48 +220,51 @@ void ConnectionGraph::buildRepeatedSampleWiseSegment(int& i) {
     for (int n = 0; n < k_blockSize; ++n) {
         for (int j = 0; j < segment.size(); ++j) {
             auto instr_ = segment.at(j);
-            switch (instr_.opcode) {
-            case OP_PROCESS:
-                if (sampleWiseEntrypoints.count(instr_.param0)) {
-                    for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
-                        expandedSegment.push_back(Instruction(OP_X_UNBUFFER_ADD_INPUT, instr_.param0, port, n));
-                    }
-                }
-                expandedSegment.push_back(instr_);
-                if (sampleWiseEntrypoints.count(instr_.param0)) {
-                    for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
-                        expandedSegment.push_back(Instruction(OP_S_CLEAR_INPUT, instr_.param0, port));
-                    }
-                }
-                if (sampleWiseExitpoints.count(instr_.param0)) {
-                    for (int port : sampleWiseExitpoints.at(instr_.param0)) {
-                        expandedSegment.push_back(Instruction(OP_X_BUFFER_SET_OUTPUT, instr_.param0, port, n));
-                    }
-                }
 
-                break;
-            case OP_SET_OUTPUT_TO_INPUT:
-            case OP_ADD_OUTPUT_TO_INPUT:
-                if (getProcessingType(instr_.param2) == BlockWise) {
-                    if (!postLoopInstructions.count(j)) {
-                        auto instr__ = instr_;
-                        instr__.opcode = instr__.opcode == OP_SET_OUTPUT_TO_INPUT ? OP_B_SET_OUTPUT_TO_INPUT : OP_B_ADD_OUTPUT_TO_INPUT;
-                        postLoopInstructions[j] = instr__;
+            switch (instr_.opcode) {
+                case OP_PROCESS:
+                    if (sampleWiseEntrypoints.count(instr_.param0)) {
+                        for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
+                            expandedSegment.push_back(Instruction(OP_X_UNBUFFER_ADD_INPUT, instr_.param0, port, n));
+                        }
                     }
-                    if (!sampleWiseExitpoints.count(instr_.param0)) sampleWiseExitpoints[instr_.param0] = std::set<int>();
-                    if (!sampleWiseExitpoints.at(instr_.param0).count(instr_.param1)) {
-                        sampleWiseExitpoints[instr_.param0].insert(instr_.param1);
-                        expandedSegment.push_back(Instruction(OP_X_BUFFER_SET_OUTPUT, instr_.param0, instr_.param1, n));
-                    }
-                }
-                else {
                     expandedSegment.push_back(instr_);
-                }
-                break;
-            default:
-                assert(0);
-                break;
+                    if (sampleWiseEntrypoints.count(instr_.param0)) {
+                        for (int port : sampleWiseEntrypoints.at(instr_.param0)) {
+                            expandedSegment.push_back(Instruction(OP_S_CLEAR_INPUT, instr_.param0, port));
+                        }
+                    }
+                    if (sampleWiseExitpoints.count(instr_.param0)) {
+                        for (int port : sampleWiseExitpoints.at(instr_.param0)) {
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_SET_OUTPUT, instr_.param0, port, n));
+                        }
+                    }
+                    break;
+
+                case OP_SET_OUTPUT_TO_INPUT:
+                case OP_ADD_OUTPUT_TO_INPUT:
+                    if (getProcessingType(instr_.param2) == BlockWise) {
+                        if (!postLoopInstructions.count(j)) {
+                            auto instr__ = instr_;
+                            instr__.opcode = instr__.opcode == OP_SET_OUTPUT_TO_INPUT ? OP_B_SET_OUTPUT_TO_INPUT : OP_B_ADD_OUTPUT_TO_INPUT;
+                            postLoopInstructions[j] = instr__;
+                        }
+                        if (!sampleWiseExitpoints.count(instr_.param0)) sampleWiseExitpoints[instr_.param0] = std::set<int>();
+                        if (!sampleWiseExitpoints.at(instr_.param0).count(instr_.param1)) {
+                            sampleWiseExitpoints[instr_.param0].insert(instr_.param1);
+                            expandedSegment.push_back(Instruction(OP_X_BUFFER_SET_OUTPUT, instr_.param0, instr_.param1, n));
+                        }
+                    }
+                    else {
+                        expandedSegment.push_back(instr_);
+                    }
+                    break;
+
+                default:
+                    assert(0);
+                    break;
             }
+
         }
     }
 

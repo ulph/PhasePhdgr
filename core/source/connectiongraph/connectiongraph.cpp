@@ -375,24 +375,22 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
     
     for (auto otherModule : processedModulesToHere) {
         if (otherModule == module) foundSelf = true;
+
+        if (recursiveModuleGroups.count(otherModule)) groupsToHere.insert(recursiveModuleGroups.at(otherModule));
+
         if (recursiveModuleGroups.count(module) && groupsToHere.count(recursiveModuleGroups.at(module))) foundSelf = true;
 
         if (foundSelf) {
             if (recursiveModuleGroups.count(otherModule) && recursiveModuleGroups.at(otherModule) != module) {
-                // mark color for merging into current color
-                replacedGroups.insert(recursiveModuleGroups.at(otherModule));
+                auto toReplace = recursiveModuleGroups.at(otherModule);
+                for (auto& kv : recursiveModuleGroups) {
+                    if (kv.second == toReplace) kv.second = module;
+                }
             }
-            // paint
-            recursiveModuleGroups[otherModule] = module;
-        }
-        // track what colors to here
-        if (recursiveModuleGroups.count(otherModule)) groupsToHere.insert(recursiveModuleGroups.at(otherModule));
-    }
-
-    for (auto g : replacedGroups) {
-        // repaint any merged colors into current color
-        for (auto& kv : recursiveModuleGroups) {
-            if (kv.second == g) kv.second = module;
+            else {
+                // paint
+                recursiveModuleGroups[otherModule] = module;
+            }
         }
     }
 

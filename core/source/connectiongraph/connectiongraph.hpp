@@ -27,6 +27,7 @@ protected:
     std::set<int> visitedModules;
     std::set<int> processedModules;
     int recursivePathsSkipped = 0;
+    int modulesVisitedInFindRecursions = 0;
     std::map<int, std::set<int>> sampleWiseEntrypoints;
     std::map<int, std::set<int>> sampleWiseExitpoints;
 

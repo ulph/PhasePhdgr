@@ -170,6 +170,8 @@ void ConnectionGraph::compileProgram(int module)
     recursiveScannedModules.clear();
 
     if (!forceSampleWise) {
+        recursivePathsSkipped = 0;
+        modulesVisitedInFindRecursions = 0;
         findRecursions(module, std::vector<int>());
 
         // sort cables so that the ones that switch BlockWise to SampleWise and vice versa gets processed first
@@ -362,6 +364,7 @@ void ConnectionGraph::finalizeProgram() {
 }
 
 void ConnectionGraph::findRecursions(int module, std::vector<int> processedModulesToHere) {
+    modulesVisitedInFindRecursions++;
     bool doneDone = true;
     bool foundSelf = false;
     for (auto otherModule : processedModulesToHere) {

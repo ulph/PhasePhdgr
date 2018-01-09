@@ -19,20 +19,26 @@ protected:
     std::vector<std::pair<std::string, Module* (*)()>> moduleRegister;
     std::vector<Module*> modules;
     std::vector<Cable*> cables;
+    std::vector<Instruction> protoProgram;
     std::vector<Instruction> program;
     int compilationStatus;
     std::set<int> recursiveModules;
     std::set<int> recursiveScannedModules;
+    std::set<int> visitedModules;
+    std::set<int> processedModules;
     int recursivePathsSkipped = 0;
+    std::map<int, std::set<int>> sampleWiseEntrypoints;
+    std::map<int, std::set<int>> sampleWiseExitpoints;
+
     const bool forceSampleWise;
     float fs = -1.0;
     void findRecursions(int module, std::vector<int> processedModulesToHere);
-    void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
-    void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
-    void finalizeProgram(std::vector<Instruction>& protoProgram);
-    void buildRepeatedSampleWiseSegment(std::vector<Instruction>& protoProgram, int& i, std::map<int, std::set<int>>& sampleWiseEntrypoints);
-    void addSampleWiseToBlockWise(std::vector<Instruction>& protoProgram, const Instruction& instr);
-    void addBlockWiseToSampleWise(std::vector<Instruction>& protoProgram, const Instruction& instr, std::map<int, std::set<int>>& sampleWiseEntrypoints);
+    void compileAllEntryPoints(int module);
+    void compileModule(int module);
+    void finalizeProgram();
+    void buildRepeatedSampleWiseSegment(int& i);
+    void addSampleWiseToBlockWise(const Instruction& instr);
+    void addBlockWiseToSampleWise(const Instruction& instr);
     Module* getModule(int id);
     enum ProccesingType {
         BlockWise,

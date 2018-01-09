@@ -185,21 +185,22 @@ void ConnectionGraph::compileProgram(int module)
     }
 
     program.clear();
-    std::vector<Instruction> protoProgram;
-    std::set<int> processedModules;
-    std::set<int> visitedModules;
-    compileModule(protoProgram, module, processedModules, visitedModules);
+    protoProgram.clear();
+
+    visitedModules.clear();
+    processedModules.clear();
+
+    compileModule( module);
     compilationStatus = module;
 
     if (!forceSampleWise) {
-        finalizeProgram(protoProgram);
-    }
-    else {
-        program = protoProgram;
+        sampleWiseEntrypoints.clear();
+        sampleWiseExitpoints.clear();
+        finalizeProgram();
     }
 }
 
-void ConnectionGraph::buildRepeatedSampleWiseSegment(std::vector<Instruction>& protoProgram, int& i, std::map<int, std::set<int>>& sampleWiseEntrypoints) {
+void ConnectionGraph::buildRepeatedSampleWiseSegment(int& i) {
     auto instr = protoProgram.at(i);
     auto fromType = getProcessingType(instr.param0);
 
@@ -212,8 +213,6 @@ void ConnectionGraph::buildRepeatedSampleWiseSegment(std::vector<Instruction>& p
         i++;
     }
     if (segment.size() == 0) return;
-
-    std::map<int, std::set<int>> sampleWiseExitpoints;
 
     std::vector<Instruction> expandedSegment;
     std::map<int, Instruction> postLoopInstructions;
@@ -272,13 +271,13 @@ void ConnectionGraph::buildRepeatedSampleWiseSegment(std::vector<Instruction>& p
     }
 }
 
-void ConnectionGraph::addSampleWiseToBlockWise(std::vector<Instruction>& protoProgram, const Instruction& instr) {
+void ConnectionGraph::addSampleWiseToBlockWise(const Instruction& instr) {
     auto instr__ = instr;
     instr__.opcode = instr.opcode == OP_ADD_OUTPUT_TO_INPUT ? OP_B_ADD_OUTPUT_TO_INPUT : OP_B_SET_OUTPUT_TO_INPUT;
     program.push_back(instr__);
 }
 
-void ConnectionGraph::addBlockWiseToSampleWise(std::vector<Instruction>& protoProgram, const Instruction& instr, std::map<int, std::set<int>>& sampleWiseEntrypoints) {
+void ConnectionGraph::addBlockWiseToSampleWise(const Instruction& instr) {
     if (!sampleWiseEntrypoints.count(instr.param2)) sampleWiseEntrypoints[instr.param2] = std::set<int>();
     sampleWiseEntrypoints[instr.param2].insert(instr.param3);
     if (instr.opcode == OP_B_SET_OUTPUT_TO_INPUT) {
@@ -286,11 +285,9 @@ void ConnectionGraph::addBlockWiseToSampleWise(std::vector<Instruction>& protoPr
     }
 }
 
-void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
+void ConnectionGraph::finalizeProgram() {
     assert(!forceSampleWise);
     assert(program.size() == 0);
-
-    std::map<int, std::set<int>> sampleWiseEntrypoints;
 
     for (int i = 0; i < protoProgram.size(); ++i) {
         auto instr = protoProgram.at(i);
@@ -307,7 +304,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 )
             {
                 // enter segment
-                buildRepeatedSampleWiseSegment(protoProgram, i, sampleWiseEntrypoints);
+                buildRepeatedSampleWiseSegment(i);
             }
             else if (
                 (instr.opcode == OP_ADD_OUTPUT_TO_INPUT && toType == BlockWise)
@@ -316,7 +313,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 )
             {
                 // samplewise->blockwise add/set not in a segment
-                addSampleWiseToBlockWise(protoProgram, instr);
+                addSampleWiseToBlockWise(instr);
                 i++;
             }
             else {
@@ -352,7 +349,7 @@ void ConnectionGraph::finalizeProgram(std::vector<Instruction>& protoProgram) {
                 (instr.opcode == OP_B_ADD_OUTPUT_TO_INPUT && toType == SampleWise)
             ){
                 // blockwise->samplewise add/set -- transition bookkeeping / buffering
-                addBlockWiseToSampleWise(protoProgram, instr, sampleWiseEntrypoints);
+                addBlockWiseToSampleWise(instr);
             }
         }
         else {
@@ -397,7 +394,7 @@ ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
     return BlockWise;
 }
 
-void ConnectionGraph::compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules)
+void ConnectionGraph::compileAllEntryPoints(int module)
 {
     if (visitedModules.count(module)) return;
     visitedModules.insert(module);
@@ -415,10 +412,10 @@ void ConnectionGraph::compileAllEntryPoints(std::vector<Instruction>& protoProgr
                 auto fromModule = c->getFromModule();
                 auto type = getProcessingType(fromModule);
                 if (type == SampleWise) {
-                    compileAllEntryPoints(protoProgram, fromModule, processedModules, visitedModules);
+                    compileAllEntryPoints(fromModule);
                 }
                 else if (type == BlockWise) {
-                    compileModule(protoProgram, fromModule, processedModules, visitedModules);
+                    compileModule(fromModule);
                     if (!connectedPads.count(pad))
                         protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
                     else
@@ -430,10 +427,10 @@ void ConnectionGraph::compileAllEntryPoints(std::vector<Instruction>& protoProgr
     }
 }
 
-void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules)
+void ConnectionGraph::compileModule(int module)
 {
     if (getProcessingType(module) == SampleWise) {
-        compileAllEntryPoints(protoProgram, module, processedModules, visitedModules);
+        compileAllEntryPoints(module);
     }
 
     // Check if this module is already processed by the compiler
@@ -441,8 +438,8 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
     processedModules.insert(module);
 
     Module *m = getModule(module);
-    // Iterate over all input pads
 
+    // Iterate over all input pads (order of cables matters!)
     std::set<int> connectedPads;
     for (int i = 0; i < cables.size(); ++i) {
         const auto* c = cables.at(i);
@@ -453,11 +450,10 @@ void ConnectionGraph::compileModule(std::vector<Instruction>& protoProgram, int 
                 auto fromModule = c->getFromModule();
 
                 if (getProcessingType(module) == SampleWise && getProcessingType(fromModule) == BlockWise) {
-                    assert(visitedModules.count(module)); // should be no need to pass visitedModules around
                     continue;
                 }
 
-                compileModule(protoProgram, fromModule, processedModules, visitedModules);
+                compileModule(fromModule);
 
                 if (!connectedPads.count(pad)) 
                     protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
@@ -480,7 +476,7 @@ void ConnectionGraph::processSample(int module, float sampleRate)
 
     float out = 0.0f;
 
-    for(const Instruction &i : program) {
+    for(const Instruction &i : protoProgram) {
         switch(i.opcode) {
         case OP_PROCESS:
             modules[i.param0]->process();

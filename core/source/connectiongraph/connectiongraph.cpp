@@ -166,11 +166,10 @@ void ConnectionGraph::getOutputBlock(int module, int pad, float* buffer)
 void ConnectionGraph::compileProgram(int module)
 {
     // parse the graph once to find all modules involved in recursion loops
-    recursiveModules.clear();
+    recursiveModuleGroups.clear();
     recursiveScannedModules.clear();
 
     if (!forceSampleWise) {
-        recursivePathsSkipped = 0;
         modulesVisitedInFindRecursions = 0;
         findRecursions(module, std::vector<int>());
 
@@ -184,6 +183,9 @@ void ConnectionGraph::compileProgram(int module)
                 return aFromType != aToType;
             }
         );
+
+        assert(recursiveModuleGroups.size() <= modules.size());
+        assert(recursiveScannedModules.size() == modules.size());
     }
 
     program.clear();
@@ -364,16 +366,36 @@ void ConnectionGraph::finalizeProgram() {
 }
 
 void ConnectionGraph::findRecursions(int module, std::vector<int> processedModulesToHere) {
+    assert(processedModulesToHere.size() <= modules.size()); // module can be twice at max (and all else once)
+
     modulesVisitedInFindRecursions++;
-    bool doneDone = true;
     bool foundSelf = false;
+    std::set<int> groupsToHere;
+    std::set<int> replacedGroups;
+    
     for (auto otherModule : processedModulesToHere) {
-        doneDone = doneDone && recursiveScannedModules.count(otherModule);
         if (otherModule == module) foundSelf = true;
+        if (recursiveModuleGroups.count(module) && groupsToHere.count(recursiveModuleGroups.at(module))) foundSelf = true;
+
         if (foundSelf) {
-            recursiveModules.insert(otherModule);
+            if (recursiveModuleGroups.count(otherModule) && recursiveModuleGroups.at(otherModule) != module) {
+                // mark color for merging into current color
+                replacedGroups.insert(recursiveModuleGroups.at(otherModule));
+            }
+            // paint
+            recursiveModuleGroups[otherModule] = module;
+        }
+        // track what colors to here
+        if (recursiveModuleGroups.count(otherModule)) groupsToHere.insert(recursiveModuleGroups.at(otherModule));
+    }
+
+    for (auto g : replacedGroups) {
+        // repaint any merged colors into current color
+        for (auto& kv : recursiveModuleGroups) {
+            if (kv.second == g) kv.second = module;
         }
     }
+
     if (foundSelf) return;
     processedModulesToHere.push_back(module);
 
@@ -382,10 +404,6 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
         for (const Cable *c : cables) {
             if (c->isConnected(module, pad)) {
                 auto from = c->getFromModule();
-                if (doneDone && recursiveScannedModules.count(from)) {
-                    recursivePathsSkipped++;
-                    continue;
-                }
                 findRecursions(from, processedModulesToHere);
             }
         }
@@ -396,7 +414,7 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
 
 ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
     if(forceSampleWise) return SampleWise;
-    else if (recursiveModules.count(module)) return SampleWise;
+    else if (recursiveModuleGroups.count(module)) return SampleWise;
     return BlockWise;
 }
 

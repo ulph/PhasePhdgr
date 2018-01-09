@@ -22,11 +22,10 @@ protected:
     std::vector<Instruction> protoProgram;
     std::vector<Instruction> program;
     int compilationStatus;
-    std::set<int> recursiveModules;
+    std::map<int, int> recursiveModuleGroups; // aka, colors
     std::set<int> recursiveScannedModules;
     std::set<int> visitedModules;
     std::set<int> processedModules;
-    int recursivePathsSkipped = 0;
     int modulesVisitedInFindRecursions = 0;
     std::map<int, std::set<int>> sampleWiseEntrypoints;
     std::map<int, std::set<int>> sampleWiseExitpoints;

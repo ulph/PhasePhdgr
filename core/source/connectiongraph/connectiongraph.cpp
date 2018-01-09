@@ -378,10 +378,15 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
 
         if (recursiveModuleGroups.count(otherModule)) groupsToHere.insert(recursiveModuleGroups.at(otherModule));
 
-        if (recursiveModuleGroups.count(module) && groupsToHere.count(recursiveModuleGroups.at(module))) foundSelf = true;
+        if (groupsToHere.count(module)) foundSelf = true;
+
+        if (recursiveModuleGroups.count(module)) {
+            if (groupsToHere.count(recursiveModuleGroups.at(module))) foundSelf = true;
+        }
 
         if (foundSelf) {
             if (recursiveModuleGroups.count(otherModule) && recursiveModuleGroups.at(otherModule) != module) {
+                // repaint (all affected)
                 auto toReplace = recursiveModuleGroups.at(otherModule);
                 for (auto& kv : recursiveModuleGroups) {
                     if (kv.second == toReplace) kv.second = module;

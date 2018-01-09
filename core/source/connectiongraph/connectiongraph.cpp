@@ -399,27 +399,34 @@ ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
 
 void ConnectionGraph::compileAllEntryPoints(int module)
 {
+    // TODO, there must be a way to bake this into compileModule
+
     assert(getProcessingType(module) == SampleWise);
 
+    // Allready visited this module 
     if (visitedModules.count(module)) return;
     visitedModules.insert(module);
 
+    // Allready processed this module
     if (processedModules.count(module)) return;
 
     Module *m = getModule(module);
     
     std::set<int> connectedPads;
 
+    // Iterate over all input pads (order doesn't matter as objective is to skip ahead to and processes all entry points)
     for (int pad = 0; pad < m->getNumInputPads(); pad++) {
         for (int i = 0; i < cables.size(); ++i) {
             const auto* c = cables.at(i);
             if (c->isConnected(module, pad)) {
                 auto fromModule = c->getFromModule();
-                auto type = getProcessingType(fromModule);
-                if (type == SampleWise) {
+                auto fromType = getProcessingType(fromModule);
+                if (fromType == SampleWise) {
+                    // Keep skipping ahead
                     compileAllEntryPoints(fromModule);
                 }
-                else if (type == BlockWise) {
+                else if (fromType == BlockWise) {
+                    // From here, compile as usual
                     compileModule(fromModule);
                     if (!connectedPads.count(pad))
                         protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
@@ -434,17 +441,18 @@ void ConnectionGraph::compileAllEntryPoints(int module)
 
 void ConnectionGraph::compileModule(int module)
 {
+    // Do special stuff when entering a SampleWise module - we need to skip ahead
     if (getProcessingType(module) == SampleWise) {
         compileAllEntryPoints(module);
     }
 
-    // Check if this module is already processed by the compiler
+    // Allready processed this module
     if (processedModules.count(module)) return;
     processedModules.insert(module);
 
     Module *m = getModule(module);
 
-    // Iterate over all input pads (order of cables matters!)
+    // Iterate over all input pads (order of cables matters, we need to always enter any SampleWise modules first)
     std::set<int> connectedPads;
     for (int i = 0; i < cables.size(); ++i) {
         const auto* c = cables.at(i);
@@ -455,6 +463,7 @@ void ConnectionGraph::compileModule(int module)
                     auto fromModule = c->getFromModule();
 
                     if (getProcessingType(module) == SampleWise && getProcessingType(fromModule) == BlockWise) {
+                        // allready processed via compileAllEntryPoints
                         continue;
                     }
 

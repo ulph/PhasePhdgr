@@ -399,6 +399,8 @@ ConnectionGraph::ProccesingType ConnectionGraph::getProcessingType(int module) {
 
 void ConnectionGraph::compileAllEntryPoints(int module)
 {
+    assert(getProcessingType(module) == SampleWise);
+
     if (visitedModules.count(module)) return;
     visitedModules.insert(module);
 
@@ -446,24 +448,25 @@ void ConnectionGraph::compileModule(int module)
     std::set<int> connectedPads;
     for (int i = 0; i < cables.size(); ++i) {
         const auto* c = cables.at(i);
+        if (c->getToModule() == module) {
+            // Check if other modules are connected to this pad
+            for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+                if (c->isConnected(module, pad)) {
+                    auto fromModule = c->getFromModule();
 
-        // Check if other modules are connected to this pad
-        for (int pad = 0; pad < m->getNumInputPads(); pad++) {
-            if (c->isConnected(module, pad)) {
-                auto fromModule = c->getFromModule();
+                    if (getProcessingType(module) == SampleWise && getProcessingType(fromModule) == BlockWise) {
+                        continue;
+                    }
 
-                if (getProcessingType(module) == SampleWise && getProcessingType(fromModule) == BlockWise) {
-                    continue;
+                    compileModule(fromModule);
+
+                    if (!connectedPads.count(pad))
+                        protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+                    else
+                        protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
+
+                    connectedPads.insert(pad);
                 }
-
-                compileModule(fromModule);
-
-                if (!connectedPads.count(pad)) 
-                    protoProgram.push_back(Instruction(OP_SET_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
-                else
-                    protoProgram.push_back(Instruction(OP_ADD_OUTPUT_TO_INPUT, fromModule, c->getFromPad(), module, pad));
-
-                connectedPads.insert(pad);
             }
         }
     }

@@ -30,6 +30,9 @@ protected:
     void compileAllEntryPoints(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void compileModule(std::vector<Instruction>& protoProgram, int module, std::set<int> &processedModules, std::set<int>& visitedModules);
     void finalizeProgram(std::vector<Instruction>& protoProgram);
+    void buildRepeatedSampleWiseSegment(std::vector<Instruction>& protoProgram, int& i, std::map<int, std::set<int>>& sampleWiseEntrypoints);
+    void addSampleWiseToBlockWise(std::vector<Instruction>& protoProgram, const Instruction& instr);
+    void addBlockWiseToSampleWise(std::vector<Instruction>& protoProgram, const Instruction& instr, std::map<int, std::set<int>>& sampleWiseEntrypoints);
     Module* getModule(int id);
     enum ProccesingType {
         BlockWise,

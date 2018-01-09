@@ -186,7 +186,9 @@ void ConnectionGraph::compileProgram(int module)
         );
 
         assert(recursiveModuleGroups.size() <= modules.size());
-        assert(recursiveScannedModules.size() == modules.size());
+        assert(recursiveScannedModules.size() <= modules.size());
+        assert(recursiveTraversedConnections.size() <= cables.size());
+
     }
 
     program.clear();

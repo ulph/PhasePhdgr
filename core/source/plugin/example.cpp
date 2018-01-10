@@ -14,14 +14,15 @@ public:
     virtual std::string docString() const override {
         return "An example module from a plugin!";
     }
+    static Module* factory() { return new ExPluginModule(); }
 };
 
 static struct ExPluginData : public PluginData {
     virtual const char* getName() const {
         return c_name;
     }
-    virtual void enumerateFactories(std::map<std::string, std::function<Module*(void)>> modules) const {
-        // ... do stuff
+    virtual void enumerateFactories(ModuleFactoryMap& modules) const {
+        modules["EX"] = ExPluginModule::factory;
     }
 } pluginData;
 

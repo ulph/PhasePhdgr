@@ -25,9 +25,11 @@
 #define LibraryUnloadFunction dlclose
 #endif //ISWINDOWS
 
+typedef std::map<std::string, std::function<Module*(void)>> ModuleFactoryMap;
+
 struct PluginData {
     virtual const char* getName() const = 0;
-    virtual void enumerateFactories( std::map<std::string, std::function<Module*(void)>> modules) const = 0;
+    virtual void enumerateFactories(ModuleFactoryMap& modules) const = 0;
 };
 
 typedef const PluginData*(*GetPluginDataPointer)(void);

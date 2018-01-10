@@ -3,6 +3,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <functional>
 
 #include "module.hpp"
 
@@ -28,7 +29,7 @@ const char* c_pluginEntryPoint = "getPluginData";
 
 struct PluginData {
     const std::string name = "...";
-    virtual void registerPluginModules(ConnectionGraph &cg) = 0;
+    virtual void listModules( std::map<std::string, std::function<Module*(void)>> modules) const = 0;
 };
 
 typedef const PluginData*(*GetPluginDataPointer)(void);
@@ -38,6 +39,7 @@ public:
     const std::string filename;
     PluginLoader(const char* filename);
     virtual ~PluginLoader();
+    const PluginData* getData() const;
 private:
     enum class LoadState {
         notLoaded,

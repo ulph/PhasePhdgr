@@ -1,13 +1,11 @@
 #include "plugin.hpp"
 
-struct ExPluginData : public PluginData {
+static struct ExPluginData : public PluginData {
     const std::string name = "example";
-    virtual void registerPluginModules(ConnectionGraph &cg) {
-
+    virtual void listModules(std::map<std::string, std::function<Module*(void)>> modules) const {
+        // ... do stuff
     }
-};
-
-static const auto pluginData = ExPluginData();
+} pluginData;
 
 EXPORT const PluginData* getPluginData() {
     return &pluginData;

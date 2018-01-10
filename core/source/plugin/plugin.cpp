@@ -38,3 +38,7 @@ const PluginData* PluginLoader::loadPlugin(const char* filename) {
     }
     return nullptr;
 }
+
+const PluginData* PluginLoader::getData() const {
+    return pluginData;
+}

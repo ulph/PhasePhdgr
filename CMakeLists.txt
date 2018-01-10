@@ -11,8 +11,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 option(BUILD_JUCE OFF)
 option(BUILD_CLI OFF)
 
-option(FORCE_FTZ_DAZ OFF)
-
 option(BUILD_GTEST OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -41,10 +39,4 @@ endif()
 
 if(${BUILD_CLI})
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cli)
-endif()
-
-if(${FORCE_FTZ_DAZ})
-    add_definitions(-DFORCE_FTZ_DAZ=1)
-else()
-    add_definitions(-DFORCE_FTZ_DAZ=0)
 endif()

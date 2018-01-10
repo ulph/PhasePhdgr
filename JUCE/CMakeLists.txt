@@ -100,18 +100,11 @@ set_target_properties(pp_effect_obj PROPERTIES COMPILE_FLAGS "-fPIC")
 set_target_properties(pp_effect_obj PROPERTIES FOLDER JUCE)
 
 option(INTERCEPT_STD_STREAMS ON)
-option(FORCE_FTZ_DAZ OFF)
 
 if(${INTERCEPT_STD_STREAMS})
     add_definitions(-DINTERCEPT_STD_STREAMS=1)
 else()
     add_definitions(-DINTERCEPT_STD_STREAMS=0)
-endif()
-
-if(${FORCE_FTZ_DAZ})
-    add_definitions(-DFORCE_FTZ_DAZ=1)
-else()
-    add_definitions(-DFORCE_FTZ_DAZ=0)
 endif()
 
 # utilize the (modded) templates from VST SDK ...

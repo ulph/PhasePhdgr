@@ -1,6 +1,7 @@
 #ifndef RLC_HPP
 #define RLC_HPP
 
+#include <assert.h>
 #include "module.hpp"
 
 static inline float DesignRcLp(float wc, float fsInv) {

@@ -1,5 +1,6 @@
-#include "svf.hpp"
 #include <math.h>
+
+#include "svf.hpp"
 #include "inlines.hpp"
 
 ChamberlinFilter::ChamberlinFilter() 
@@ -94,7 +95,7 @@ static inline float TrapezoidalTanSVFGetK(float res) {
     return 2.0f - 2.0f * res;
 }
 
-static inline void TrapezoidalTanSVFInitPads(vector<Pad>& inputs, vector<Pad>& outputs) {
+static inline void TrapezoidalTanSVFInitPads(std::vector<Pad>& inputs, std::vector<Pad>& outputs) {
     inputs.push_back(Pad("input"));
     inputs.push_back(Pad("fc", 100.f));
     inputs.push_back(Pad("res"));
@@ -107,7 +108,7 @@ static inline void TrapezoidalTanSVFInitPads(vector<Pad>& inputs, vector<Pad>& o
     outputs.push_back(Pad("all"));
 }
 
-static inline void TrapezoidalTanSVFProcess(const vector<Pad>& inputs, vector<Pad>& outputs, float fs, float fsInv, float ic1eq, float ic2eq, float &v1, float &v2) {
+static inline void TrapezoidalTanSVFProcess(const std::vector<Pad>& inputs, std::vector<Pad>& outputs, float fs, float fsInv, float ic1eq, float ic2eq, float &v1, float &v2) {
     // get inputs from pads
     float v0 = inputs[0].value;
     float fc = limit(inputs[1].value, 0.0f, 0.5f*fs);

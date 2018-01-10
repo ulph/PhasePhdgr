@@ -8,7 +8,7 @@
 #include <string>
 #include <string.h>
 
-#include "phasephckr/docs.hpp"
+class ConnectionGraph;
 
 struct Pad
 {
@@ -41,7 +41,6 @@ protected:
 public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    virtual PhasePhckr::ModuleDoc makeDoc() const; // TODO, hide
     virtual std::string docString() const;
 
 private:

@@ -38,24 +38,3 @@ int Module::getOutputPadFromName(std::string padName) const {
 void Module::setName(const std::string &n) { name = n; }
 
 std::string Module::docString() const { return "..."; }
-
-PhasePhckr::ModuleDoc Module::makeDoc() const {
-    PhasePhckr::ModuleDoc doc;
-    doc.type = name;
-    doc.docString = docString();
-    for (const auto p : inputs) {
-        PhasePhckr::PadDescription pd;
-        pd.name = p.name;
-        pd.unit = p.unit;
-        pd.defaultValue = p.value;
-        doc.inputs.push_back(pd);
-    }
-    for (const auto p : outputs) {
-        PhasePhckr::PadDescription pd;
-        pd.name = p.name;
-        pd.unit = p.unit;
-        pd.defaultValue = p.value;
-        doc.outputs.push_back(pd);
-    }
-    return doc;
-}

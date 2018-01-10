@@ -24,6 +24,5 @@ namespace PhasePhckr {
         Doc();
         const map<string, ModuleDoc> & get() const;
         void add(const ModuleDoc & d);
-        static ModuleDoc makeBusModuleDoc(const vector<PadDescription>& ports, bool isInput);
     };
 }

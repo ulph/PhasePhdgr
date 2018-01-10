@@ -33,13 +33,4 @@ public:
             memcpy(outputs[i].values, inputs[i].values, sizeof(float)*ConnectionGraph::k_blockSize);
         }
     }
-
-    virtual PhasePhckr::ModuleDoc makeDoc() {
-        auto d = Module::makeDoc();
-        if(isInput)
-            d.inputs.clear();
-        else
-            d.outputs.clear();
-        return d;
-    }
 };

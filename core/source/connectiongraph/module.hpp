@@ -42,24 +42,26 @@ protected:
 public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    void setInput(int inputPad, float value) {
-        sample_setInput(inputPad, value);
-        block_fillInput(inputPad, value);
-    }
-    virtual PhasePhckr::ModuleDoc makeDoc() const;
+    virtual PhasePhckr::ModuleDoc makeDoc() const; // TODO, hide
     virtual std::string docString() const;
+
+private:
+    std::string name = "";
+
     int getNumInputPads() const { return (int)inputs.size(); }
     int getNumOutputPads() const { return (int)outputs.size(); }
     int getInputPadFromName(std::string padName) const;
     int getOutputPadFromName(std::string padName) const;
 
-private:
-    std::string name = "";
-
     virtual void setFs(float newFs) {
         fs = newFs;
         fsInv = 1.f / fs;
         init();
+    }
+
+    void setInput(int inputPad, float value) {
+        sample_setInput(inputPad, value);
+        block_fillInput(inputPad, value);
     }
 
     // sample processing

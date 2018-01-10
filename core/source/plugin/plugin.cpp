@@ -1,5 +1,9 @@
 #include "plugin.hpp"
 
+#include <iostream>
+
+const char* c_pluginEntryPoint = "getPluginData";
+
 PluginLoader::PluginLoader(const char* filename)
     : filename(filename)
 {
@@ -20,12 +24,14 @@ const PluginData* PluginLoader::loadPlugin(const char* filename) {
     GetPluginDataPointer getPluginData = nullptr;
     lib = LibraryLoadFunction(filename);
     if (lib == NULL) {
+        std::cerr << "PluginLoader::loadPlugin '" << filename << "' not found or invalid." << std::endl;
         return nullptr;
     }
     else {
         state = LoadState::loaded;
         InitializerType initializer = LibraryInitializeFunction(lib, c_pluginEntryPoint);
         if (initializer == NULL) {
+            std::cerr << "PluginLoader::loadPlugin '" << filename << "' is missing function '" << c_pluginEntryPoint << "'." << std::endl;
             return nullptr;
         }
         else {
@@ -36,6 +42,7 @@ const PluginData* PluginLoader::loadPlugin(const char* filename) {
             return d;
         }
     }
+    std::cerr << "PluginLoader::loadPlugin uknown error" << std::endl;
     return nullptr;
 }
 

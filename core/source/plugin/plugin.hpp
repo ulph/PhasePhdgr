@@ -7,17 +7,17 @@
 
 #include "module.hpp"
 
-#define EXPORT extern "C"
-
 #define ISWINDOWS _WIN32
 #if ISWINDOWS
 #include <Windows.h>
+#define EXPORT extern "C" __declspec(dllexport)
 #define LibraryType HMODULE
 #define InitializerType FARPROC
 #define LibraryLoadFunction LoadLibrary
 #define LibraryInitializeFunction GetProcAddress
 #define LibraryUnloadFunction FreeLibrary
 #else
+#define EXPORT extern "C"
 #define LibraryType void*
 #define InitializerType void*
 #define LibraryLoadFunction dlopen
@@ -25,11 +25,9 @@
 #define LibraryUnloadFunction dlclose
 #endif //ISWINDOWS
 
-const char* c_pluginEntryPoint = "getPluginData";
-
 struct PluginData {
-    const std::string name = "...";
-    virtual void listModules( std::map<std::string, std::function<Module*(void)>> modules) const = 0;
+    virtual const char* getName() const = 0;
+    virtual void enumerateFactories( std::map<std::string, std::function<Module*(void)>> modules) const = 0;
 };
 
 typedef const PluginData*(*GetPluginDataPointer)(void);

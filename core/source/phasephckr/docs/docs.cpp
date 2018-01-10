@@ -7,12 +7,40 @@
 
 namespace PhasePhckr {
 
+    void ModuleDoc::fromModule(const Module* module) {
+        type = module->name;
+        docString = module->docString();
+        for (const auto p : module->inputs) {
+            PhasePhckr::PadDescription pd;
+            pd.name = p.name;
+            pd.unit = p.unit;
+            pd.defaultValue = p.value;
+            inputs.push_back(pd);
+            
+        }
+        for (const auto p : module->outputs) {
+            PhasePhckr::PadDescription pd;
+            pd.name = p.name;
+            pd.unit = p.unit;
+            pd.defaultValue = p.value;
+            outputs.push_back(pd);
+        }
+    }
+
+    void ModuleDoc::fromBusModulePorts(const vector<PadDescription>& ports, bool isInput) {
+        BusModule m(ports, isInput);
+        fromModule(&m);
+        if (isInput) inputs.clear();
+        else outputs.clear();
+    }
+
     Doc::Doc()
     {        
         // standard module docs
         std::vector<ModuleDoc> newDoc;
         ConnectionGraph cg;
         ModuleRegister::registerAllModules(cg);
+        cg.makeModuleDocs(newDoc);
         for(const auto &d : newDoc){
             add(d);
         }

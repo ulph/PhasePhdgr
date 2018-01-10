@@ -6,23 +6,25 @@
 
 #include "design.hpp"
 
-using namespace std;
+class Module;
 
 namespace PhasePhckr {
 
     struct ModuleDoc {
         string type;
-        vector<PadDescription> inputs;
-        vector<PadDescription> outputs;
-        string docString;
+        std::vector<PadDescription> inputs;
+        std::vector<PadDescription> outputs;
+        std::string docString;
+        void fromModule(const Module* module);
+        void fromBusModulePorts(const vector<PadDescription>& ports, bool isInput);
     };
 
     class Doc {
     private:
-        map<string, ModuleDoc> docs;
+        std::map<std::string, ModuleDoc> docs;
     public:
         Doc();
-        const map<string, ModuleDoc> & get() const;
+        const std::map<std::string, ModuleDoc> & get() const;
         void add(const ModuleDoc & d);
     };
 }

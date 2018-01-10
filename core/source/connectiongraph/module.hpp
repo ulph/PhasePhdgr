@@ -10,6 +10,10 @@
 
 class ConnectionGraph;
 
+namespace PhasePhckr {
+    struct ModuleDoc;
+}
+
 struct Pad
 {
 private:
@@ -29,6 +33,7 @@ public:
 class Module
 {
     friend ConnectionGraph;
+    friend PhasePhckr::ModuleDoc;
 
 protected:
     std::vector<Pad> inputs;

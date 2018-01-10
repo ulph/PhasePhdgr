@@ -691,6 +691,8 @@ void GraphEditor::setDoc(const Doc& newDoc){
 
     ModuleDoc inBus_;
     ModuleDoc outBus_;
+    inBus_.fromBusModulePorts(inBus, true);
+    outBus_.fromBusModulePorts(outBus, false);
 
     doc.add(inBus_);
     doc.add(outBus_);

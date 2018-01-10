@@ -69,6 +69,7 @@ public:
     void processBlock(int module, float sampleRate);
     void compileProgram(int module);
     void setSamplerate(float fs);
+    void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
 };
 
 #endif

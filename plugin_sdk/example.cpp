@@ -1,4 +1,4 @@
-#include "plugin_api.hpp";
+#include "plugin_api.hpp"
 
 static const char* c_name = "example";
 

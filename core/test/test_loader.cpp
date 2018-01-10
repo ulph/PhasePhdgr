@@ -20,7 +20,7 @@ int main(int argc, const char* argv[])
     d->enumerateFactories(m);
 
     if (!m.size()) {
-        std::cerr << "e: No modules enumerated!" << std::endl;
+        std::cerr << "e: No factories enumerated!" << std::endl;
         return -2;
     }
 

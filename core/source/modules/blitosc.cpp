@@ -114,11 +114,11 @@ inline void BlitOsc::hardResetOnSignal(float resetSignal) {
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
         internalSyncPhase = -1.0f;
         internalPhase = -1.0f;
-        cumSum = 0.0f;
+        cumSum = -1.0f;
         cumCumSum = 0.0f;
-        last_cumSum = 0.0f;
+        last_cumSum = -1.0f;
         last_cumCumSum = 0.0f;
-        outputs[1].value = 0.0f;
+        outputs[1].value = -1.0f;
         outputs[2].value = 0.0f;
         for(int i=0; i<c_blitN; i++) buf[i] = 0.0f;
         bufPos = 0;

@@ -38,7 +38,7 @@ class Module
 protected:
     std::vector<Pad> inputs;
     std::vector<Pad> outputs;
-    void setName(const std::string &n);
+    void setName(const std::string &n) { name = n; }
     float fs = 48000.f;
     float fsInv = 1.f / fs;
     virtual void init() {};
@@ -46,15 +46,31 @@ protected:
 public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
-    virtual std::string docString() const;
+    virtual std::string docString() const { return "..."; }
 
 private:
     std::string name = "";
 
     int getNumInputPads() const { return (int)inputs.size(); }
     int getNumOutputPads() const { return (int)outputs.size(); }
-    int getInputPadFromName(std::string padName) const;
-    int getOutputPadFromName(std::string padName) const;
+    int getInputPadFromName(std::string padName) const {
+        for (int i = 0; i < (int)inputs.size(); i++) {
+            if (inputs[i].name == padName) {
+                return i;
+            }
+        }
+        std::cerr << "Error: Module '" << name << "' has no input pad with name '" << padName << "'" << std::endl;
+        return -1;
+    }
+    int getOutputPadFromName(std::string padName) const {
+        for (int i = 0; i < (int)outputs.size(); i++) {
+            if (outputs[i].name == padName) {
+                return i;
+            }
+        }
+        std::cerr << "Error: Module '" << name << "' has no output pad with name '" << padName << "'" << std::endl;
+        return -1;
+    }
 
     virtual void setFs(float newFs) {
         fs = newFs;
@@ -91,7 +107,21 @@ private:
     }
 
     // block processing
-    virtual void block_process();
+    virtual void block_process() {
+        // default naive implementation
+        const size_t inputsSize = inputs.size();
+        const size_t outputsSize = outputs.size();
+        for (int i = 0; i < Pad::k_blockSize; ++i) {
+            for (int k = 0; k < inputsSize; ++k) {
+                sample_resetInput(k);
+                unbuffer_add_input(k, i);
+            }
+            process();
+            for (int k = 0; k < outputsSize; ++k) {
+                buffer_set_output(k, i);
+            }
+        }
+    }
     void block_getOutput(int outputPad, float* buffer) const {
         memcpy(buffer, outputs[outputPad].values, sizeof(float)*Pad::k_blockSize);
     }

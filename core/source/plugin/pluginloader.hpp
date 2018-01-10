@@ -15,13 +15,17 @@
 #define LibraryLoadFunction LoadLibrary
 #define LibraryInitializeFunction GetProcAddress
 #define LibraryUnloadFunction FreeLibrary
+#define DYLIBEXT ".dll"
 #else
 #define LibraryType void*
 #define InitializerType void*
 #define LibraryLoadFunction dlopen
 #define LibraryInitializeFunction dlsym
 #define LibraryUnloadFunction dlclose
+#define DYLIBEXT ".so"
 #endif //ISWINDOWS
+
+#define PLUGINSUFFIX ".ppp"
 
 class PluginLoader {
 public:

@@ -5,9 +5,11 @@
 
 int main(int argc, const char* argv[])
 {
-    const auto p = "plugin_example";
+    std::string p = "plugin_example"; 
+    p += PLUGINSUFFIX;
+    p += DYLIBEXT;
 
-    PluginLoader ex(p);
+    PluginLoader ex(p.c_str());
     auto d = ex.getData();
 
     if (!d) {

@@ -1,4 +1,4 @@
-#include "plugin.hpp"
+#include "pluginloader.hpp"
 
 #include <iostream>
 

@@ -1,7 +1,7 @@
 set(SRC
     plugin_api.hpp
-    plugin.cpp
-    plugin.hpp
+    pluginloader.cpp
+    pluginloader.hpp
 )
 
 add_library(plugin_obj OBJECT ${SRC})

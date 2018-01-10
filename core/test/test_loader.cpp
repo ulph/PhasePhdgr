@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "plugin.hpp"
+#include "pluginloader.hpp"
 
 int main(int argc, const char* argv[])
 {

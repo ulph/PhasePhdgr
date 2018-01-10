@@ -16,7 +16,7 @@ void ScaleShift::process() {
 }
 
 void ScaleShift::block_process() {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (int i = 0; i < Pad::k_blockSize; ++i) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];
         auto c = inputs[2].values[i];
@@ -41,7 +41,7 @@ void ShiftScale::process() {
 }
 
 void ShiftScale::block_process() {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (int i = 0; i < Pad::k_blockSize; ++i) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];
         auto c = inputs[2].values[i];
@@ -69,7 +69,7 @@ void ScaleShiftMul::process() {
 }
 
 void ScaleShiftMul::block_process() {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (int i = 0; i < Pad::k_blockSize; ++i) {
         auto a = inputs[0].values[i];
         auto b = inputs[1].values[i];
         auto c = inputs[2].values[i];

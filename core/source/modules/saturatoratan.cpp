@@ -13,7 +13,7 @@ void Atan::process()
 
 void Atan::block_process()
 {
-    for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (size_t i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = atanf(inputs[0].values[i]);
     }
 }
@@ -35,7 +35,7 @@ void SaturatorAtan::process()
 
 void SaturatorAtan::block_process()
 {
-    for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (size_t i = 0; i < Pad::k_blockSize; ++i) {
         float s = inputs[1].values[i];
         float f = 1.0f / atanf(s);
         outputs[0].values[i] = atanf(inputs[0].values[i] * s) * f;
@@ -62,7 +62,7 @@ void StereoSaturatorAtan::process()
 
 void StereoSaturatorAtan::block_process()
 {
-    for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (size_t i = 0; i < Pad::k_blockSize; ++i) {
         float s = inputs[2].values[i];
         float f = 1.0f / atanf(s);
         outputs[0].values[i] = atanf(inputs[0].values[i] * s) * f;

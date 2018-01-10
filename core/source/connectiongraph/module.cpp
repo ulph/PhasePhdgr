@@ -3,7 +3,7 @@
 void Module::block_process() {
     const size_t inputsSize = inputs.size();
     const size_t outputsSize = outputs.size();
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (int i = 0; i < Pad::k_blockSize; ++i) {
         for (int k = 0; k < inputsSize; ++k) {
             sample_resetInput(k);
             unbuffer_add_input(k, i);

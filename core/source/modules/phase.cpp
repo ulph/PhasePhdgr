@@ -36,7 +36,7 @@ void Phase::block_process()
 {
     auto f_fs = (float)fs;
     
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (int i = 0; i < Pad::k_blockSize; ++i) {
         float f = inputs[0].values[i];
         float t = inputs[1].values[i];
         float p0 = inputs[2].values[i];

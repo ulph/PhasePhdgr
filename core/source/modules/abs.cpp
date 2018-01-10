@@ -11,7 +11,7 @@ void Abs::process() {
 }
 
 void Abs::block_process() {
-    for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (int i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = fabsf(inputs[0].values[i]);
     }
 }

@@ -8,9 +8,10 @@
 
 #include "phasephckr/docs.hpp"
 
+#include "module.hpp"
+
 #include "instruction.hpp"
 
-class Module;
 class Cable;
 
 class ConnectionGraph
@@ -48,7 +49,7 @@ protected:
     ProccesingType getProcessingType(int module);
 
 public:
-    static const int k_blockSize = 64;
+    static const int k_blockSize = Pad::k_blockSize;
     ConnectionGraph(bool forceSampleWise=false);
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();

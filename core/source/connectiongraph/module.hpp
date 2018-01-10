@@ -8,18 +8,17 @@
 #include <string>
 #include <string.h>
 
-#include "connectiongraph.hpp"
-
 #include "phasephckr/docs.hpp"
 
 struct Pad
 {
 private:
-    void init() { for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) values[i] = value; }
+    void init() { for (int i = 0; i < k_blockSize; ++i) values[i] = value; }
 public:
+    static const int k_blockSize = 64;
     std::string name;
     float value = 0.0f;
-    float values[ConnectionGraph::k_blockSize] = { 0.0f };
+    float values[Pad::k_blockSize] = { 0.0f };
     std::string unit = "";
     Pad(const char *name) : name(name) { init(); }
     Pad(const char *name, float value) : name(name), value(value) { init(); }
@@ -90,18 +89,18 @@ private:
     // block processing
     virtual void block_process();
     void block_getOutput(int outputPad, float* buffer) const {
-        memcpy(buffer, outputs[outputPad].values, sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(buffer, outputs[outputPad].values, sizeof(float)*Pad::k_blockSize);
     }
     void block_fillInput(int inputPad, float value) {
-        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+        for (int i = 0; i < Pad::k_blockSize; ++i) {
             inputs[inputPad].values[i] = value;
         }
     }
     void block_setInput(int inputPad, const float* buffer) {
-        memcpy(inputs[inputPad].values, buffer, sizeof(float)*ConnectionGraph::k_blockSize);
+        memcpy(inputs[inputPad].values, buffer, sizeof(float)*Pad::k_blockSize);
     }
     void block_addToInput(int inputPad, const float* buffer) {
-        for (int i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+        for (int i = 0; i < Pad::k_blockSize; ++i) {
             auto v = inputs[inputPad].values[i];
             v += buffer[i];
             inputs[inputPad].values[i] = v;

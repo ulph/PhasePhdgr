@@ -13,7 +13,7 @@ void Sine::process()
 
 void Sine::block_process()
 {
-    for (size_t i = 0; i < ConnectionGraph::k_blockSize; ++i) {
+    for (size_t i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = sinf(float(M_PI) * inputs[0].values[i]);
     }
 }

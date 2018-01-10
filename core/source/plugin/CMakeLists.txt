@@ -1,4 +1,5 @@
 set(SRC
+    plugin_api.hpp
     plugin.cpp
     plugin.hpp
 )

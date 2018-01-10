@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+typedef const PluginData*(*GetPluginDataPointer)(void);
+
 const char* c_pluginEntryPoint = "getPluginData";
 
 PluginLoader::PluginLoader(const char* filename)

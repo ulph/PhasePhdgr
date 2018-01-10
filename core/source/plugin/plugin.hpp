@@ -5,34 +5,23 @@
 #include <string>
 #include <functional>
 
-#include "module.hpp"
+#include "plugin_api.hpp"
 
 #define ISWINDOWS _WIN32
 #if ISWINDOWS
 #include <Windows.h>
-#define EXPORT extern "C" __declspec(dllexport)
 #define LibraryType HMODULE
 #define InitializerType FARPROC
 #define LibraryLoadFunction LoadLibrary
 #define LibraryInitializeFunction GetProcAddress
 #define LibraryUnloadFunction FreeLibrary
 #else
-#define EXPORT extern "C"
 #define LibraryType void*
 #define InitializerType void*
 #define LibraryLoadFunction dlopen
 #define LibraryInitializeFunction dlsym
 #define LibraryUnloadFunction dlclose
 #endif //ISWINDOWS
-
-typedef std::map<std::string, std::function<Module*(void)>> ModuleFactoryMap;
-
-struct PluginData {
-    virtual const char* getName() const = 0;
-    virtual void enumerateFactories(ModuleFactoryMap& modules) const = 0;
-};
-
-typedef const PluginData*(*GetPluginDataPointer)(void);
 
 class PluginLoader {
 public:

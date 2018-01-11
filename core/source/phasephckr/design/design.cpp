@@ -787,6 +787,7 @@ NoteReactivationPolicy PresetSettings::getNoteReactivationPolicy() {
                 return NoteReactivationPolicyClosest;
             case NoteStealPolicyClosest:
                 return NoteReactivationPolicyClosest;
+            default: break;
             }
         }
         return NoteReactivationPolicyNone;

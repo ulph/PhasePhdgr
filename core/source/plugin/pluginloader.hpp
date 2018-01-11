@@ -8,6 +8,7 @@
 #include "plugin_api.hpp"
 
 #define ISWINDOWS _WIN32
+
 #if ISWINDOWS
 #include <Windows.h>
 #define LibraryType HMODULE
@@ -15,15 +16,25 @@
 #define LibraryLoadFunction LoadLibrary
 #define LibraryInitializeFunction GetProcAddress
 #define LibraryUnloadFunction FreeLibrary
-#define DYLIBEXT ".dll"
 #else
+#include <dlfcn.h>
 #define LibraryType void*
 #define InitializerType void*
-#define LibraryLoadFunction dlopen
+#define LibraryLoadFunction(arg) dlopen(arg, RTLD_LAZY)
 #define LibraryInitializeFunction dlsym
 #define LibraryUnloadFunction dlclose
-#define DYLIBEXT ".so"
 #endif //ISWINDOWS
+
+#if ISWINDOWS
+#define PLUGINPREFIX ""
+#define DYLIBEXT ".dll"
+#elif __APPLE__
+#define PLUGINPREFIX "lib"
+#define DYLIBEXT ".dylib"
+#else
+#define PLUGINPREFIX "lib"
+#define DYLIBEXT ".so"
+#endif
 
 #define PLUGINSUFFIX ".ppp"
 

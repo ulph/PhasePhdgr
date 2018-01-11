@@ -5,7 +5,8 @@
 
 int main(int argc, const char* argv[])
 {
-    std::string p = "plugin_example"; 
+    std::string p = PLUGINPREFIX;
+    p += "plugin_example";
     p += PLUGINSUFFIX;
     p += DYLIBEXT;
 

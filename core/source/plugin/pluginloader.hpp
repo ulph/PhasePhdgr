@@ -38,6 +38,14 @@
 
 #define PLUGINSUFFIX ".ppp"
 
+static inline std::string BuildDylibName(const std::string& name) {
+    std::string str = PLUGINPREFIX;
+    str += name;
+    str += PLUGINSUFFIX;
+    str += DYLIBEXT;
+    return str;
+}
+
 class PluginLoader {
 public:
     const std::string filename;

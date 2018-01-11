@@ -5,10 +5,7 @@
 
 int main(int argc, const char* argv[])
 {
-    std::string p = PLUGINPREFIX;
-    p += "plugin_example";
-    p += PLUGINSUFFIX;
-    p += DYLIBEXT;
+    std::string p = BuildDylibName("plugin_example");
 
     PluginLoader ex(p.c_str());
     auto d = ex.getData();

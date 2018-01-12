@@ -2,6 +2,10 @@
 #define RLC_HPP
 
 #include <assert.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "module.hpp"
 
 static inline float DesignRcLp(float wc, float fsInv) {

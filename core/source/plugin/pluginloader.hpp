@@ -1,9 +1,6 @@
 #pragma once
 
-#include <set>
-#include <map>
 #include <string>
-#include <functional>
 
 #include "plugin_api.hpp"
 

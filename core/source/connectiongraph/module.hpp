@@ -1,11 +1,7 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <iostream>
 #include <vector>
 #include <string>
-#include <string.h>
 
 class ModuleAccessor;
 

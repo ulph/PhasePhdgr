@@ -2,7 +2,6 @@
 
 #include <map>
 #include <string>
-#include <functional>
 
 #include "module.hpp"
 

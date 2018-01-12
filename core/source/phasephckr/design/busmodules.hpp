@@ -2,7 +2,7 @@
 
 #include "phasephckr/docs.hpp"
 
-#include "module.hpp"
+#include "moduleaccessor.hpp"
 
 class BusModule : public ModuleCRTP<BusModule> {
 private:
@@ -14,7 +14,7 @@ public:
         , numPads(ports.size())
     {
         auto newName = isInput ? PhasePhckr::c_inBus.type : PhasePhckr::c_outBus.type;
-        setName(newName);
+        ModuleAccessor::setName(*this, newName);
         for(const auto &p : ports){
             const char * name = p.name.c_str();
             const char * unit = p.name.c_str();

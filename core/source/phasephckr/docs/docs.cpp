@@ -2,23 +2,22 @@
 
 #include "moduleregister.hpp"
 #include "connectiongraph.hpp"
-#include "module.hpp"
+#include "moduleaccessor.hpp"
 #include "busmodules.hpp"
 
 namespace PhasePhckr {
 
     void ModuleDoc::fromModule(const Module* module) {
-        type = module->name;
+        type = ModuleAccessor::getName(*module);
         docString = module->docString();
-        for (const auto p : module->inputs) {
+        for (const auto p : ModuleAccessor::getInputs(*module)) {
             PhasePhckr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
             pd.defaultValue = p.value;
-            inputs.push_back(pd);
-            
+            inputs.push_back(pd);  
         }
-        for (const auto p : module->outputs) {
+        for (const auto p : ModuleAccessor::getOutputs(*module)) {
             PhasePhckr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;

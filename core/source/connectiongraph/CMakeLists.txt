@@ -2,6 +2,7 @@ set(SRC
     connectiongraph.cpp
     connectiongraph.hpp
     module.hpp
+    moduleaccessor.hpp
     instruction.hpp
 )
 

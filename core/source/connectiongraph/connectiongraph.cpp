@@ -5,7 +5,8 @@
 #include <cstring>
 #include <sstream>
 #include "connectiongraph.hpp"
-#include "module.hpp"
+#include "moduleaccessor.hpp"
+
 #include <assert.h>
 
 #define NOT_COMPILED (-1)
@@ -93,7 +94,7 @@ int ConnectionGraph::addModule(std::string type)
     if(m) {
         id = (int)modules.size();
         modules.push_back(m);
-        m->setName(type);
+        ModuleAccessor::setName(*m, type);
     } else {
         std::cerr << "Error: Module '" << type << "' not found" << std::endl;
     }
@@ -119,8 +120,8 @@ void ConnectionGraph::connect(int fromModule, std::string fromPad, int toModule,
     Module *mTo = getModule(toModule);
     
     if(mFrom && mTo) {
-        int fromPadNo = mFrom->getOutputPadFromName(fromPad);
-        int toPadNo = mTo->getInputPadFromName(toPad);
+        int fromPadNo = ModuleAccessor::getOutputPadFromName(*mFrom, fromPad);
+        int toPadNo = ModuleAccessor::getInputPadFromName(*mTo, toPad);
         
         cables.push_back(new Cable(fromModule, fromPadNo, toModule, toPadNo));
     }
@@ -134,33 +135,32 @@ void ConnectionGraph::connect(int fromModule, int fromPad, int toModule, int toP
 
 void ConnectionGraph::setInputBlock(int module, int pad, const float* value)
 {
-    modules[module]->block_setInput(pad, value);
+    ModuleAccessor::block_setInput(*modules[module], pad, value);
 }
 
 void ConnectionGraph::setInput(int module, int pad, float value)
 {
-    modules[module]->setInput(pad, value);
+    ModuleAccessor::setInput(*modules[module], pad, value);
 }
 
 void ConnectionGraph::setInput(int module, std::string pad, float value){
     auto *m = getModule(module);
     if (m) {
-        auto p = m->getInputPadFromName(pad);
+        auto p = ModuleAccessor::getInputPadFromName(*m, pad);
         if (p != -1) {
-            m->setInput(p, value);
+            ModuleAccessor::setInput(*m, p, value);
         }
     }
 }
 
 float ConnectionGraph::getOutput(int module, int pad)
 {
-    Module *m = getModule(module);
-    return m->sample_getOutput(pad);
+    return ModuleAccessor::sample_getOutput(*modules[module], pad);
 }
 
 void ConnectionGraph::getOutputBlock(int module, int pad, float* buffer)
 {
-    modules[module]->block_getOutput(pad, buffer);
+    ModuleAccessor::block_getOutput(*modules[module], pad, buffer);
 }
 
 void ConnectionGraph::compileProgram(int module)
@@ -409,7 +409,7 @@ void ConnectionGraph::findRecursions(int module, std::vector<int> processedModul
     processedModulesToHere.push_back(module);
 
     Module *m = getModule(module);
-    for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+    for (int pad = 0; pad < ModuleAccessor::getNumInputPads(*m); pad++) {
         for (const Cable *c : cables) {
             if (c->isConnected(module, pad)) {
                 auto from = c->getFromModule();
@@ -451,7 +451,7 @@ void ConnectionGraph::compileAllEntryPoints(int module)
     std::set<int> connectedPads;
 
     // Iterate over all input pads (order doesn't matter as objective is to skip ahead to and processes all entry points)
-    for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+    for (int pad = 0; pad < ModuleAccessor::getNumInputPads(*m); pad++) {
         for (int i = 0; i < cables.size(); ++i) {
             const auto* c = cables.at(i);
             if (c->isConnected(module, pad)) {
@@ -494,7 +494,7 @@ void ConnectionGraph::compileModule(int module)
         const auto* c = cables.at(i);
         if (c->getToModule() == module) {
             // Check if other modules are connected to this pad
-            for (int pad = 0; pad < m->getNumInputPads(); pad++) {
+            for (int pad = 0; pad < ModuleAccessor::getNumInputPads(*m); pad++) {
                 if (c->isConnected(module, pad)) {
                     auto fromModule = c->getFromModule();
 
@@ -530,15 +530,15 @@ void ConnectionGraph::processSample(int module, float sampleRate)
     for(const Instruction &i : protoProgram) {
         switch(i.opcode) {
         case OP_PROCESS:
-            modules[i.param0]->process();
+            ModuleAccessor::process(*modules[i.param0]);
             break;
         case OP_SET_OUTPUT_TO_INPUT:
-            out = modules[i.param0]->sample_getOutput(i.param1);
-            modules[i.param2]->sample_setInput(i.param3, out);
+            out = ModuleAccessor::sample_getOutput(*modules[i.param0], i.param1);
+            ModuleAccessor::sample_setInput(*modules[i.param2], i.param3, out);
             break;
         case OP_ADD_OUTPUT_TO_INPUT:
-            out = modules[i.param0]->sample_getOutput(i.param1);
-            modules[i.param2]->sample_addToInput(i.param3, out);
+            out = ModuleAccessor::sample_getOutput(*modules[i.param0], i.param1);
+            ModuleAccessor::sample_addToInput(*modules[i.param2], i.param3, out);
             break;
         default:
             assert(0); 
@@ -566,37 +566,37 @@ void ConnectionGraph::processBlock(int module, float sampleRate) {
             switch (i.opcode) {
 
             case OP_PROCESS:
-                modules[i.param0]->process();
+                ModuleAccessor::process(*modules[i.param0]);
                 break;
             case OP_SET_OUTPUT_TO_INPUT:
-                out = modules[i.param0]->sample_getOutput(i.param1);
-                modules[i.param2]->sample_setInput(i.param3, out);
+                out = ModuleAccessor::sample_getOutput(*modules[i.param0], i.param1);
+                ModuleAccessor::sample_setInput(*modules[i.param2], i.param3, out);
                 break;
             case OP_ADD_OUTPUT_TO_INPUT:
-                out = modules[i.param0]->sample_getOutput(i.param1);
-                modules[i.param2]->sample_addToInput(i.param3, out);
+                out = ModuleAccessor::sample_getOutput(*modules[i.param0], i.param1);
+                ModuleAccessor::sample_addToInput(*modules[i.param2], i.param3, out);
                 break;
 
             case OP_S_CLEAR_INPUT:
-                modules[i.param0]->sample_resetInput(i.param1);
+                ModuleAccessor::sample_resetInput(*modules[i.param0], i.param1);
                 break;
             case OP_X_UNBUFFER_ADD_INPUT:
-                modules[i.param0]->unbuffer_add_input(i.param1, i.param2);
+                ModuleAccessor::unbuffer_add_input(*modules[i.param0], i.param1, i.param2);
                 break;
             case OP_X_BUFFER_SET_OUTPUT:
-                modules[i.param0]->buffer_set_output(i.param1, i.param2);
+                ModuleAccessor::buffer_set_output(*modules[i.param0], i.param1, i.param2);
                 break;
 
             case OP_B_PROCESS:
-                modules[i.param0]->block_process();
+                ModuleAccessor::block_process(*modules[i.param0]);
                 break;
             case OP_B_SET_OUTPUT_TO_INPUT:
-                modules[i.param0]->block_getOutput(i.param1, buf);
-                modules[i.param2]->block_setInput(i.param3, buf);
+                ModuleAccessor::block_getOutput(*modules[i.param0], i.param1, buf);
+                ModuleAccessor::block_setInput(*modules[i.param2], i.param3, buf);
                 break;
             case OP_B_ADD_OUTPUT_TO_INPUT:
-                modules[i.param0]->block_getOutput(i.param1, buf);
-                modules[i.param2]->block_addToInput(i.param3, buf);
+                ModuleAccessor::block_getOutput(*modules[i.param0], i.param1, buf);
+                ModuleAccessor::block_addToInput(*modules[i.param2], i.param3, buf);
                 break;
 
             default:
@@ -610,7 +610,7 @@ void ConnectionGraph::processBlock(int module, float sampleRate) {
 void ConnectionGraph::setSamplerate(float fs_) {
     fs = fs_;
     for (int i = 0; i < modules.size(); i++) {
-        modules[i]->setFs(fs);
+        ModuleAccessor::setFs(*modules[i], fs);
     }
 }
 
@@ -618,10 +618,9 @@ void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList
     for (const auto & p : moduleRegister) {
         auto m = p.second();
         auto d = PhasePhckr::ModuleDoc();
-        m->setName(p.first);
+        ModuleAccessor::setName(*m, p.first);
         d.fromModule(m);
         docList.emplace_back(d);
         delete m;
-        
     }
 }

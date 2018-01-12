@@ -4,7 +4,7 @@
 #include <string>
 #include <functional>
 
-#include "module.hpp" // TODO, split out API/SDK bits from the module class or rethink
+#include "module.hpp"
 
 #define ISWINDOWS _WIN32
 #if ISWINDOWS

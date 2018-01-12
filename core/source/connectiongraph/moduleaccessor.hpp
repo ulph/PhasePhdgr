@@ -4,8 +4,6 @@
 
 class ModuleAccessor
 {
-    // Anti-pattern to break out all the non-sdk stuff ...
-
 public:
     static void process(Module& m) {
         m.process();

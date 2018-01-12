@@ -54,7 +54,6 @@ private:
     }
 };
 
-// CRTP pattern
 template <class D>
 class ModuleCRTP : public Module {
 public:

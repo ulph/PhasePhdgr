@@ -6,4 +6,6 @@ add_subdirectory(modules)
 add_subdirectory(phasephckr)
 add_subdirectory(threading)
 
-add_subdirectory(plugin)
+if(${BUILD_PLUGIN_SDK})
+  add_subdirectory(plugin)
+endif()

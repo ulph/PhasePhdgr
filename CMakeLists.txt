@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 option(BUILD_JUCE OFF)
 option(BUILD_CLI OFF)
-option(BUILD_PLUGIN_SDK ON)
+option(BUILD_PLUGIN_SDK OFF)
 
 option(BUILD_GTEST OFF)
 
@@ -23,10 +23,9 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
+
 if(${BUILD_PLUGIN_SDK})
-    # TODO, some copy sheningans instead
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/source/plugin)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/source/connectiongraph)
+    include_directories(${CMAKE_BINARY_DIR}/plugin_sdk_export)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/plugin_sdk)
 endif()
 

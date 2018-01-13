@@ -28,7 +28,7 @@ set_property(TARGET cli_synth PROPERTY FOLDER core/test)
 target_link_libraries( cli_synth ${CMAKE_THREAD_LIBS_INIT} )
 
 if(${BUILD_PLUGIN_SDK})
-add_executable(test_plugin_sdk ${SRC} test_loader.cpp ${TEST_COMMON_SRC})
+add_executable(test_plugin_sdk test_loader.cpp ${TEST_COMMON_SRC})
 set_property(TARGET test_plugin_sdk PROPERTY FOLDER core/test)
 target_link_libraries(test_plugin_sdk ${CMAKE_THREAD_LIBS_INIT} )
 endif()

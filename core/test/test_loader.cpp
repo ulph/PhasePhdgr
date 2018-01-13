@@ -6,7 +6,7 @@
 
 int main(int argc, const char* argv[])
 {
-    std::string p = BuildDylibName("plugin_example");
+    std::string p = BuildDylibName("plugin_example"); // see example.cpp
 
     {
         std::cout << std::endl << "TEST PhasePhckr::PluginLoader" << std::endl;

@@ -25,7 +25,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 if(${BUILD_PLUGIN_SDK})
-    include_directories(${CMAKE_BINARY_DIR}/plugin_sdk_export)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/plugin_sdk)
 endif()
 

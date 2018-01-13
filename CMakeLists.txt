@@ -36,6 +36,7 @@ set( PHASEPHCKR_SRC
     $<TARGET_OBJECTS:modules_obj>
     $<TARGET_OBJECTS:phasephckr_obj>
     $<TARGET_OBJECTS:threading_obj>
+    $<TARGET_OBJECTS:plugin_obj>
 )
 
 if(${BUILD_JUCE})

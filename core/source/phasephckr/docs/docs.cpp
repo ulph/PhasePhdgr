@@ -5,6 +5,8 @@
 #include "moduleaccessor.hpp"
 #include "busmodules.hpp"
 
+#include "pluginloader.hpp"
+
 namespace PhasePhckr {
 
     void ModuleDoc::fromModule(const Module* module) {
@@ -34,7 +36,7 @@ namespace PhasePhckr {
     }
 
     Doc::Doc()
-    {        
+    {
         // standard module docs
         std::vector<ModuleDoc> newDoc;
         ConnectionGraph cg;

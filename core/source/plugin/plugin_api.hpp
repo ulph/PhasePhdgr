@@ -12,7 +12,7 @@
 #define EXPORT extern "C"
 #endif //ISWINDOWS
 
-typedef std::map<std::string, Module* (*)() > ModuleFactoryMap;
+typedef std::map<std::string, Module* (*)()> ModuleFactoryMap; // move elsewhere
 
 struct PluginData {
     virtual const char* getName() const = 0;

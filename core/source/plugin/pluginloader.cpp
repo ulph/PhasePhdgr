@@ -6,6 +6,8 @@ typedef const PluginData*(*GetPluginDataPointer)(void);
 
 const char* c_pluginEntryPoint = "getPluginData";
 
+namespace PhasePhckr {
+
 PluginLoader::PluginLoader(const char* filename)
     : filename(filename)
 {
@@ -50,4 +52,6 @@ const PluginData* PluginLoader::loadPlugin(const char* filename) {
 
 const PluginData* PluginLoader::getData() const {
     return pluginData;
+}
+
 }

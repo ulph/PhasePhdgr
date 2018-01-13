@@ -43,22 +43,26 @@ static inline std::string BuildDylibName(const std::string& name) {
     return str;
 }
 
-class PluginLoader {
-public:
-    const std::string filename;
-    PluginLoader(const char* filename);
-    virtual ~PluginLoader();
-    const PluginData* getData() const;
-private:
-    enum class LoadState {
-        notLoaded,
-        loaded,
-        initialized,
-        ready
+namespace PhasePhckr {
+
+    class PluginLoader {
+    public:
+        const std::string filename;
+        PluginLoader(const char* filename);
+        virtual ~PluginLoader();
+        const PluginData* getData() const;
+    private:
+        enum class LoadState {
+            notLoaded,
+            loaded,
+            initialized,
+            ready
+        };
+        LibraryType lib;
+        LoadState state = LoadState::notLoaded;
+        const PluginData* pluginData = nullptr;
+        void unloadPlugin();
+        const PluginData* loadPlugin(const char* filename);
     };
-    LibraryType lib;
-    LoadState state = LoadState::notLoaded;
-    const PluginData* pluginData = nullptr;
-    void unloadPlugin();
-    const PluginData* loadPlugin(const char* filename);
-};
+
+}

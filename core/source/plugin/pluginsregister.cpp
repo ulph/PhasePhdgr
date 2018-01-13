@@ -53,6 +53,7 @@ namespace PhasePhckr {
             std::string n = d->getName();
             n += "/";
             n += kv.first;
+            // TODO, modulenameisvalid here
             modules[n] = kv.second;
         }
 

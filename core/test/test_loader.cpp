@@ -61,7 +61,7 @@ int main(int argc, const char* argv[])
         ConnectionGraph cg;
         pr.registerModules(&cg);
 
-        auto m = cg.addModule("example/EX"); // notice, prefixed
+        auto m = cg.addModule("EXAMPLE/EX"); // notice, prefixed and uppercase
     }
 
     return 0;

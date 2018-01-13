@@ -3,8 +3,13 @@
 #include "connectiongraph.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 bool pluginNameIsValid(const char* n) {
+    return true;
+}
+
+bool pluginModuleNameIsValid(const char* n) {
     return true;
 }
 
@@ -53,7 +58,15 @@ namespace PhasePhckr {
             std::string n = d->getName();
             n += "/";
             n += kv.first;
-            // TODO, modulenameisvalid here
+            std::transform(n.begin(), n.end(), n.begin(), ::toupper);
+            if (!pluginModuleNameIsValid(n.c_str())) {
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "' Invalid module name '" << n << "'" << std::endl;
+                continue;
+            }
+            if (modules.count(n)) {
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "' Duplicate module name '" << n << "'" << std::endl;
+                continue;
+            }
             modules[n] = kv.second;
         }
 

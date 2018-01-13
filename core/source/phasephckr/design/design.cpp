@@ -832,13 +832,17 @@ bool moduleTypeIsValid(const string& moduleType) {
     return stringIsValid(moduleType);
 }
 
-bool componentTypeIsValid(const string& componentType){
-    if(componentType.front() != componentMarker) return false;
-    for (auto c : componentType.substr(1)) {
+bool pathedModuleTypeIsValid(const string& moduleType) {
+    for (auto c : moduleType) {
         if (c == c_pathSeparator) continue;
         if (!characterIsValid(c, false)) return false;
     }
     return true;
+}
+
+bool componentTypeIsValid(const string& componentType){
+    if(componentType.front() != componentMarker) return false;
+    return pathedModuleTypeIsValid(componentType.substr(1));
 }
 
 const vector<PadDescription> c_effectChainInBus = {

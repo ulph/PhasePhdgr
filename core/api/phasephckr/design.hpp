@@ -283,6 +283,7 @@ bool portNameIsValid(const string& portName);
 bool moduleNameIsValid(const string& moduleName);
 bool moduleTypeIsValid(const string& componentName);
 bool componentTypeIsValid(const string& componentName);
+bool pathedModuleTypeIsValid(const string& moduleType);
 
 const char c_pathSeparator = '/';
 

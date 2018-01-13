@@ -22,7 +22,7 @@ static struct ExPluginData : public PluginData {
         return c_name;
     }
     virtual void enumerateFactories(ModuleFactoryMap& modules) const {
-        modules["EX"] = ExPluginModule::factory;
+        modules["ex"] = ExPluginModule::factory;
     }
 } pluginData;
 

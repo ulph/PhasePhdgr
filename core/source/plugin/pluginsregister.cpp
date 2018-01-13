@@ -2,18 +2,23 @@
 #include "pluginloader.hpp"
 #include "connectiongraph.hpp"
 
+#include "phasephckr/design.hpp"
+
 #include <iostream>
 #include <algorithm>
 
-bool pluginNameIsValid(const char* n) {
-    return true;
-}
-
-bool pluginModuleNameIsValid(const char* n) {
-    return true;
-}
+#include <string>
 
 namespace PhasePhckr {
+
+    bool pluginNameIsValid(const std::string& n) {
+        return pathedModuleTypeIsValid(n);
+    }
+
+    bool pluginModuleNameIsValid(const std::string& n) {
+        return pathedModuleTypeIsValid(n);
+    }
+
     PluginsRegister::PluginsRegister() {
     }
 
@@ -40,7 +45,7 @@ namespace PhasePhckr {
         std::string pluginName = d->getName();
         std::transform(pluginName.begin(), pluginName.end(), pluginName.begin(), ::toupper);
 
-        if (!pluginNameIsValid(pluginName.c_str())) {
+        if (!pluginNameIsValid(pluginName)) {
             std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid name '" << pluginName << "'" << std::endl;
             delete p;
             return false;
@@ -58,11 +63,15 @@ namespace PhasePhckr {
         d->enumerateFactories(newModules);
 
         for (const auto& kv : newModules) {
-            std::string n = pluginName;
-            n += "/";
-            n += kv.first;
-            std::transform(n.begin(), n.end(), n.begin(), ::toupper);
-            if (!pluginModuleNameIsValid(n.c_str())) {
+            std::string n = pluginName + "/";
+            std::string m = kv.first;
+            std::transform(m.begin(), m.end(), m.begin(), ::toupper);
+            if (!moduleNameIsValid(m)) {
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module name '" << n << "'" << std::endl;
+                continue;
+            }
+            n += m;
+            if (!pluginModuleNameIsValid(n)) {
                 std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module name '" << n << "'" << std::endl;
                 continue;
             }
@@ -70,6 +79,7 @@ namespace PhasePhckr {
                 std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate module name '" << n << "'" << std::endl;
                 continue;
             }
+            std::cout << "PluginsRegister::loadPlugin loaded '" << n << "' ('" << pluginFileName << "')" << std::endl;
             modules[n] = kv.second;
         }
 

@@ -27,50 +27,53 @@ namespace PhasePhckr {
         }
     }
 
-    bool PluginsRegister::loadPlugin(const char* pluginName) {
-        auto p = new PluginLoader(pluginName);
+    bool PluginsRegister::loadPlugin(const char* pluginFileName) {
+        auto p = new PluginLoader(pluginFileName);
         auto d = p->getData();
 
         if (d == nullptr) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "'" << std::endl;
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "'" << std::endl;
             delete p;
             return false;
         }
 
-        if (!pluginNameIsValid(d->getName())) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "' Invalid name '" << d->getName() << "'" << std::endl;
+        std::string pluginName = d->getName();
+        std::transform(pluginName.begin(), pluginName.end(), pluginName.begin(), ::toupper);
+
+        if (!pluginNameIsValid(pluginName.c_str())) {
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid name '" << pluginName << "'" << std::endl;
             delete p;
             return false;
         }
 
-        if (plugins.count(d->getName())) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "' Duplicate name '" << d->getName() << "'" << " was defined in '" << plugins.at(d->getName())->filename << "'" << std::endl;
+        if (plugins.count(pluginName)) {
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate name '" << pluginName << "'" << " was defined in '" << plugins.at(pluginName)->filename << "'" << std::endl;
             delete p;
             return false;
         }
 
-        plugins[d->getName()] = p;
+        plugins[pluginName] = p;
 
         ModuleFactoryMap newModules;
         d->enumerateFactories(newModules);
 
         for (const auto& kv : newModules) {
-            std::string n = d->getName();
+            std::string n = pluginName;
             n += "/";
             n += kv.first;
             std::transform(n.begin(), n.end(), n.begin(), ::toupper);
             if (!pluginModuleNameIsValid(n.c_str())) {
-                std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "' Invalid module name '" << n << "'" << std::endl;
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module name '" << n << "'" << std::endl;
                 continue;
             }
             if (modules.count(n)) {
-                std::cerr << "PluginsRegister::loadPlugin error '" << pluginName << "' Duplicate module name '" << n << "'" << std::endl;
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate module name '" << n << "'" << std::endl;
                 continue;
             }
             modules[n] = kv.second;
         }
 
-        std::cout << "PluginsRegister::loadPlugin ok '" << d->getName() << "' ('" << pluginName << "')" << std::endl;
+        std::cout << "PluginsRegister::loadPlugin ok '" << pluginName << "' ('" << pluginFileName << "')" << std::endl;
 
         return true;
     }

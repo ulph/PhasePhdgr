@@ -203,7 +203,7 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
         poop.addSubMenu("Component", cmpPoop);
     }
 
-    int choice = poop.showMenuAsync();
+    int choice = poop.show();
 
     if (inputPort && !busModule) {
         if (choice == 3) {

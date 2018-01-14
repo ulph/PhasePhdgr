@@ -97,6 +97,7 @@ struct ConnectionGraphDescriptor {
     int clearValue(const ModulePort& target);
     int getValue(const ModulePort& target, float& value);
     int setValue(const ModulePort& target, float value);
+
 };
 
 /* Component (subgraph) stuff */

@@ -402,6 +402,14 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     selectedModules.insert(&m);
                 }
             }
+            else if (event.mods.isCtrlDown()) {
+                auto l = gfxGraphLock.make_scoped_lock();
+                looseWire.isValid = true;
+                looseWire.destination = mouseDownPos;
+                looseWire.attachedAtSource = true;
+                looseWire.attachedPort = { m.module.name, "#@!?" }; // intentionally invalid port
+                looseWire.position = mouseDownPos;
+            }
             else{
                 draggedModule = &m;
             }
@@ -521,7 +529,7 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     bool modelChanged = false;
     if (looseWire.isValid) {
         auto l = gfxGraphLock.make_scoped_lock();
-        modelChanged = connect(looseWire, mousePos);
+        modelChanged = connect(looseWire, mousePos, event.mods.isCtrlDown());
     }
     if (selecting) {
         auto l = gfxGraphLock.make_scoped_lock();
@@ -833,17 +841,22 @@ bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
     return false;
 }
 
-bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
+bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos, bool doAutoConnect) {
     for (const auto& m : modules) {
         if (looseWire.attachedAtSource) {
-            for (const auto& ip : m.inputs) {
-                if (ip.within(mousePos)) {
-                    return 0 == rootComponent()->graph.connect(
-                        ModulePortConnection(
-                            looseWire.attachedPort, 
-                            ModulePort(m.module.name, ip.port)
-                        )
-                    );
+            if (doAutoConnect && m.within(mousePos)) {
+                return autoConnect(looseWire.attachedPort.module, m.module.name);
+            }
+            else {
+                for (const auto& ip : m.inputs) {
+                    if (ip.within(mousePos)) {
+                        return 0 == rootComponent()->graph.connect(
+                            ModulePortConnection(
+                                looseWire.attachedPort,
+                                ModulePort(m.module.name, ip.port)
+                            )
+                        );
+                    }
                 }
             }
         }
@@ -861,6 +874,57 @@ bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos) {
         }
     }
     return false;
+}
+
+bool GraphEditor::autoConnect(const string &source, const string &target) {
+    if(!rootComponent()->graph.modules.count(source) 
+    || !rootComponent()->graph.modules.count(target)
+    ) return false;
+
+    string sourceType = "";
+    string targetType = "";
+
+    for (const auto& m : modules) {
+        if (sourceType.size() && targetType.size()) break;
+        if (m.module.name == source) sourceType = m.module.type;
+        if (m.module.name == target) targetType = m.module.type;
+    }
+    
+    const auto& d = doc.get();
+
+    if (!d.count(sourceType) || !d.count(targetType)) return false;
+
+    if (d.at(targetType).inputs.size() == 1 && d.at(sourceType).outputs.size() == 1) {
+        rootComponent()->graph.connect(
+            ModulePortConnection(
+                ModulePort(source, d.at(sourceType).outputs.at(0).name),
+                ModulePort(source, d.at(targetType).inputs.at(0).name)
+            )
+        );
+        return true;
+    }
+
+    set<string> usedTargetPorts;
+
+    for (const auto& sp : d.at(sourceType).outputs) {
+        for (const auto& tp : d.at(targetType).inputs) {
+            if (usedTargetPorts.count(tp.name)) continue;
+
+            if(sp.name == tp.name
+            || (sp.name == "out" || sp.name == "output") && (tp.name == "in" || tp.name == "input")
+            ) {
+                rootComponent()->graph.connect(
+                    ModulePortConnection(
+                        ModulePort(source, sp.name),
+                        ModulePort(target, tp.name)
+                    )
+                );
+                usedTargetPorts.insert(tp.name);
+            }
+        }
+    }
+
+    return usedTargetPorts.size() > 0;
 }
 
 void GraphEditor::designPorts(const Doc &doc) {

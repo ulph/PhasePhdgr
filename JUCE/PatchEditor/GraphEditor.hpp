@@ -76,7 +76,8 @@ private:
     list<GfxWire> wires;
 
     pair<XY, XY> getVirtualBounds();
-    bool connect(const GfxLooseWire &looseWire, const XY &mousePos);
+    bool connect(const GfxLooseWire &looseWire, const XY &mousePos, bool doAutoConnect);
+    bool autoConnect(const string &source, const string &target);
     bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
     void moveDelta(XY delta);
     void moveIntoView();

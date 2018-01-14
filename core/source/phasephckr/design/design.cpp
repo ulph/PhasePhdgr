@@ -640,6 +640,7 @@ int ConnectionGraphDescriptor::rename(const string& module, const string& newMod
     return 0;
 }
 
+
 int ComponentDescriptor::addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue) {
     auto& bus = inputPort ? inBus : outBus;
     string actualPortName = portName;

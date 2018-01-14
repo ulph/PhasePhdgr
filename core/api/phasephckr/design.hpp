@@ -140,6 +140,7 @@ struct ComponentDescriptor {
     }
     void componentTypeWasRenamed(const string& type, const string& newType);
     void componentTypePortWasRenamed(const string& type, const string& port, const string& newPort, bool inputPort);
+    int addModule(const string& type, string& name);
 };
 
 /* Patch */
@@ -275,22 +276,19 @@ void designPatch(
 
 // TODO, designPreset
 
-const char componentSeparator = '.';
+const char scopeSeparator = '.';
 const char parameterMarker = '=';
 const char componentMarker = '@';
 
-bool portNameIsValid(const string& portName);
-bool moduleNameIsValid(const string& moduleName);
-bool moduleTypeIsValid(const string& componentName);
-bool componentTypeIsValid(const string& componentName);
-bool pathedModuleTypeIsValid(const string& moduleType);
+bool portIsValid(const string& portName);
+bool nameIsValid(const string& moduleName, bool allowScope);
+bool typeIsValid(const string& componentName, bool allowScope);
 
-const char c_pathSeparator = '/';
+bool componentTypeIsValid(const string& componentName, bool allowScope);
+bool parameterTypeIsValid(const string& componentName, bool allowScope);
+bool genericTypeIsValid(const string& componentName, bool allowScope);
 
-// TODO SynthGraphTypeIsValid
-// TODO typeIsValid (checks that all uppercase?)
-
-// TODO isParameter, isComponent (that checks first char but ignores the validity at large)
+string nameFromType(const string& type);
 
 extern const vector<PadDescription> c_effectChainInBus;
 extern const vector<PadDescription> c_effectChainOutBus;

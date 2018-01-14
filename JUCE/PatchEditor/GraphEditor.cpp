@@ -4,8 +4,6 @@
 
 #include "PatchEditor.hpp"
 
-#include <regex>
-
 using namespace PhasePhckr;
 
 
@@ -600,38 +598,18 @@ void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
 
-    auto thing = dragSourceDetails.description.toString().toStdString();
-    auto dropPos = dragSourceDetails.localPosition;
+    auto type = dragSourceDetails.description.toString().toStdString();
+    auto pos = dragSourceDetails.localPosition;
 
     {
         auto l = gfxGraphLock.make_scoped_lock();
 
-        string name = thing;
-        
-        if (name.front() == componentMarker) {
-            auto re = regex("\\" + string(1, PhasePhckr::c_pathSeparator)); // remove any paths
-            name = regex_replace(name, re, "_");
-            name = name.substr(1);
-        }
-        else if (name.front() == parameterMarker) {
-            name = name.substr(1);
-        }
+        string name = "";
+        if (0 != rootComponent()->addModule(type, name)) return;
 
-        name = "new_" + name + "_";
-
-        if (!moduleTypeIsValid(thing)) return;
-
-        int i = 0;
-        string fullName = name + to_string(i);
-        while (rootComponent()->graph.add(fullName, thing)) {
-            if (!moduleNameIsValid(fullName)) return;
-            i++;
-            fullName = name + to_string(i);
-        }
-
-        rootComponent()->layout[fullName] = ModulePosition(
-            (float)dropPos.x - 0.5f*c_NodeSize,
-            (float)dropPos.y - 0.5f*c_NodeSize
+        rootComponent()->layout[name] = ModulePosition(
+            (float)pos.x - 0.5f*c_NodeSize,
+            (float)pos.y - 0.5f*c_NodeSize
         );
     }
 

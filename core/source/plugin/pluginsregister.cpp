@@ -12,11 +12,11 @@
 namespace PhasePhckr {
 
     bool pluginNameIsValid(const std::string& n) {
-        return pathedModuleTypeIsValid(n);
+        return typeIsValid(n, true); // same as a scope type to allow building prefixes
     }
 
     bool pluginModuleNameIsValid(const std::string& n) {
-        return pathedModuleTypeIsValid(n);
+        return typeIsValid(n, true);
     }
 
     PluginsRegister::PluginsRegister() {
@@ -46,13 +46,13 @@ namespace PhasePhckr {
         std::transform(pluginName.begin(), pluginName.end(), pluginName.begin(), ::toupper);
 
         if (!pluginNameIsValid(pluginName)) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid name '" << pluginName << "'" << std::endl;
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid type '" << pluginName << "'" << std::endl;
             delete p;
             return false;
         }
 
         if (plugins.count(pluginName)) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate name '" << pluginName << "'" << " was defined in '" << plugins.at(pluginName)->filename << "'" << std::endl;
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate type '" << pluginName << "'" << " was defined in '" << plugins.at(pluginName)->filename << "'" << std::endl;
             delete p;
             return false;
         }
@@ -66,17 +66,17 @@ namespace PhasePhckr {
             std::string n = pluginName + "/";
             std::string m = kv.first;
             std::transform(m.begin(), m.end(), m.begin(), ::toupper);
-            if (!moduleNameIsValid(m)) {
-                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module name '" << n << "'" << std::endl;
+            if (!typeIsValid(m, false)) {
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module type '" << n << "'" << std::endl;
                 continue;
             }
             n += m;
             if (!pluginModuleNameIsValid(n)) {
-                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module name '" << n << "'" << std::endl;
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module type '" << n << "'" << std::endl;
                 continue;
             }
             if (modules.count(n)) {
-                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate module name '" << n << "'" << std::endl;
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate module type '" << n << "'" << std::endl;
                 continue;
             }
             std::cout << "PluginsRegister::loadPlugin loaded '" << n << "' ('" << pluginFileName << "')" << std::endl;

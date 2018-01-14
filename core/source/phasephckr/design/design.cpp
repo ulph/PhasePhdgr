@@ -7,6 +7,8 @@
 #include <queue>
 #include <locale>
 
+#include <regex>
+
 #include "busmodules.hpp"
 
 #include <assert.h>
@@ -25,7 +27,7 @@ void designChain(
 );
 
 bool checkName(const string& name) {
-    if (!moduleNameIsValid(name)) {
+    if (!nameIsValid(name, true)) {
         cerr << "Error: \"" << name << "\" is not a valid Module name!" << endl;
         return false;
     }
@@ -33,7 +35,7 @@ bool checkName(const string& name) {
 }
 
 bool checkModule(const ModuleVariable& m){
-    if(!moduleTypeIsValid(m.type)){
+    if(!genericTypeIsValid(m.type, true)){
         cerr << "Error: \"" << m.type << "\" is not a valid Module type!" << endl;
         return false;
     }
@@ -45,7 +47,7 @@ bool checkComponent(const ModuleVariable& m, const PatchDescriptor& pd) {
         cerr << "Error: \"" << m.type << "\" is unknown Component type!" << endl;
         return false;
     }
-    if (!componentTypeIsValid(m.type)) {
+    if (!componentTypeIsValid(m.type, true)) {
         cerr << "Error: \"" << m.type << "\" is not a valid Component type!" << endl;
         return false;
     }
@@ -69,7 +71,7 @@ bool unpackComponent(
     cout << "component " << mv.name << " " << mv.type << endl;
 
     // move component subgraph onto the mv's "scope"
-    const string pfx = mv.name + componentSeparator;
+    const string pfx = mv.name + scopeSeparator;
 
     auto inBus = new BusModule(current.inBus, true);
     auto outBus = new BusModule(current.outBus, false);
@@ -361,7 +363,7 @@ int PatchDescriptor::renameComponentTypePort(const string& type, const string& p
 
 int PatchDescriptor::renameComponentType(const string& type, const string& newType) {
     if (!components.count(type)) return -1;
-    if (!componentTypeIsValid(newType)) return -2;
+    if (!componentTypeIsValid(newType, false)) return -2;
     if (components.count(newType)) return -3;
     auto v = components[type];
     components.erase(type);
@@ -376,7 +378,7 @@ int PatchDescriptor::renameComponentType(const string& type, const string& newTy
 }
 
 int PatchDescriptor::addComponentType(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict) {
-    if (!componentTypeIsValid(type)) return -1;
+    if (!componentTypeIsValid(type, true)) return -1;
     if (!resolveNameConflict && components.count(type)) return -2;
 
     string newType = type;
@@ -400,7 +402,7 @@ int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, 
     }
     t += to_string(i);
 
-    if (!componentTypeIsValid(t)) return -2;
+    if (!componentTypeIsValid(t, false)) return -2;
 
     newType = t;
 
@@ -594,8 +596,8 @@ void ConnectionGraphDescriptor::pruneBusModules() {
 }
 
 int ConnectionGraphDescriptor::add(const string& module, const string& type) {
-    if (!moduleNameIsValid(module)) return -1;
-    if (!moduleTypeIsValid(type)) return -2;
+    if (!nameIsValid(module, false)) return -1;
+    if (!genericTypeIsValid(type, true)) return -2;
     if (modules.count(module)) return -3;
     modules[module] = type;
     return 0;
@@ -612,7 +614,7 @@ int ConnectionGraphDescriptor::remove(const string& module) {
 int ConnectionGraphDescriptor::rename(const string& module, const string& newModule) {
     if (!modules.count(module)) return -1;
     if (modules.count(newModule)) return -2;
-    if (!moduleNameIsValid(newModule)) return -3;
+    if (!nameIsValid(newModule, false)) return -3;
 
     auto t = modules.at(module);
     modules.erase(module);
@@ -706,7 +708,7 @@ int ComponentDescriptor::renamePort(const string & portName, const string & newP
     if (inputPort) bus = &inBus;
     else bus = &outBus;
 
-    if (!portNameIsValid(newPortName)) return -2;
+    if (!portIsValid(newPortName)) return -2;
 
     int idx = -1;
     for (int i = 0; i < bus->size(); ++i) {
@@ -763,6 +765,22 @@ int ComponentDescriptor::removePort(const string & portName, bool inputPort) {
     return 0;
 }
 
+int ComponentDescriptor::addModule(const string& type, string& name) {
+    if (!genericTypeIsValid(type, true)) return -1;
+
+    string newName = nameFromType(type);
+
+    int i = 0;
+    string fullName = newName + to_string(i);
+    while (graph.add(fullName, type)) {
+        if (!nameIsValid(fullName, false)) return -2;
+        i++;
+        fullName = newName + to_string(i);
+    }
+
+    name = fullName;
+    return 0;
+}
 
 NoteStealPolicy PresetSettings::getNoteStealPolicy() {
     if (noteStealPolicy == NoteStealPolicyAuto) {
@@ -798,51 +816,76 @@ NoteReactivationPolicy PresetSettings::getNoteReactivationPolicy() {
 
 const locale ansi_loc("C");
 
-bool characterIsValid_base(char c) {
-    return isupper(c, ansi_loc) || islower(c, ansi_loc) || isdigit(c, ansi_loc) || c == '.' || c == '_';
-}
-
-bool characterIsValid(char c, bool isName) {
-    bool isValid = characterIsValid_base(c);
-    if (isName && !isValid) {
-        return c == componentSeparator || c == parameterMarker || c == componentMarker;
+bool characterIsValid(char c, bool allowLower, bool allowScope) {
+    bool isValid = isupper(c, ansi_loc) || isdigit(c, ansi_loc) || c == '_';
+    if (!isValid && allowLower) {
+        isValid = islower(c, ansi_loc);
+    }
+    if (!isValid && allowScope) {
+        isValid = c == scopeSeparator;
     }
     return isValid;
 }
 
-bool stringIsValid(string s, bool isName = false) {
+// ...
+
+bool portIsValid(const string& s) {
     for (auto c : s) {
-        if (!characterIsValid(c, isName)) return false;
+        if (!characterIsValid(c, true, false)) return false;
     }
     return true;
 }
 
-bool portNameIsValid(const string& moduleName) {
-    return stringIsValid(moduleName, true);
-}
-
-bool moduleNameIsValid(const string& moduleName){
-    if (moduleName == c_inBus.name || moduleName == c_outBus.name) return false;
-    return stringIsValid(moduleName, true);
-}
-
-bool moduleTypeIsValid(const string& moduleType) {
-    if (moduleType.front() == componentMarker) return componentTypeIsValid(moduleType);
-    else if(moduleType.front() == parameterMarker) return stringIsValid(moduleType.substr(1));
-    return stringIsValid(moduleType);
-}
-
-bool pathedModuleTypeIsValid(const string& moduleType) {
-    for (auto c : moduleType) {
-        if (c == c_pathSeparator) continue;
-        if (!characterIsValid(c, false)) return false;
+bool nameIsValid(const string& s, bool allowScope){
+    if (s == c_inBus.name || s == c_outBus.name) return false;
+    for (auto c : s) {
+        if (!characterIsValid(c, true, allowScope)) return false;
     }
     return true;
 }
 
-bool componentTypeIsValid(const string& componentType){
-    if(componentType.front() != componentMarker) return false;
-    return pathedModuleTypeIsValid(componentType.substr(1));
+bool typeIsValid(const string& s, bool allowScope) {
+    if (s == c_inBus.type || s == c_outBus.type) return false;
+    for (auto c : s) {
+        if (!characterIsValid(c, true, allowScope)) return false;
+    }
+    return true;
+}
+
+bool componentTypeIsValid(const string& s, bool allowScope) {
+    if (s.front() != componentMarker) return false;
+    return typeIsValid(s.substr(1), allowScope);
+}
+
+bool parameterTypeIsValid(const string& s, bool allowScope) {
+    if (s.front() != componentMarker) return false;
+    return typeIsValid(s.substr(1), allowScope);
+}
+
+bool genericTypeIsValid(const string& s, bool allowScope) {
+    if (s.front() == componentMarker) return typeIsValid(s.substr(1), allowScope);
+    else if(s.front() == parameterMarker) return typeIsValid(s.substr(1), allowScope);
+    return typeIsValid(s, allowScope);
+}
+
+// ...
+
+string nameFromType(const string& type) {
+    string name = type;
+
+    auto re = regex("\\" + string(1, scopeSeparator)); // remove any paths
+    name = regex_replace(name, re, "_");
+
+    if (name.front() == componentMarker) {
+        name = name.substr(1);
+    }
+    else if (name.front() == parameterMarker) {
+        name = name.substr(1);
+    }
+
+    name = "new_" + name + "_";
+
+    return name;
 }
 
 const vector<PadDescription> c_effectChainInBus = {

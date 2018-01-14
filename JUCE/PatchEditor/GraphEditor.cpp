@@ -203,7 +203,7 @@ bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const 
         poop.addSubMenu("Component", cmpPoop);
     }
 
-    int choice = poop.show();
+    int choice = poop.showMenuAsync();
 
     if (inputPort && !busModule) {
         if (choice == 3) {
@@ -363,7 +363,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     bool userInteraction = false;
     mouseDownPos = XY((float)event.x, (float)event.y);
 
-    // TODO; thread safety
+    // TODO; thread safety - the issue is that popup menus seem to trigger gui redraw -> deadlock if protecting this whole chunk.
     GfxPort* pickedPort = nullptr;
     GfxModule* pickedModule = nullptr;
     GfxWire* pickedWire = nullptr;

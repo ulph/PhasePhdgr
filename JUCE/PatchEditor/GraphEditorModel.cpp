@@ -1,5 +1,5 @@
 #include "GraphEditorModel.hpp"
-
+#include <math.h> 
 #include <map>
 #include <set>
 
@@ -53,12 +53,13 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
 
 
 bool GfxPort::within(XY p) const {
-    return (
-       p.x > (position.x - 0.5f*c_PortSize)
-    && p.x < (position.x + c_PortSize*1.5f)
-    && p.y > (position.y - 0.5f*c_PortSize)
-    && p.y < (position.y + c_PortSize*1.5f)
-    );
+    return distance(p) <= c_PortSize;
+}
+
+float GfxPort::distance(XY p) const {
+    float dx = p.x - (position.x + c_PortSize*0.5f);
+    float dy = p.y - (position.y + c_PortSize*0.5f);
+    return sqrt(dx*dx + dy*dy);
 }
 
 void GfxPort::clearValue(){
@@ -319,14 +320,22 @@ GfxModule::GfxModule(
     designPorts(doc, mpvs);
 }
 
-
-bool GfxWire::within(XY p, bool & nearSource) const {
+float GfxWire::distance(XY p, XY& closestPoint) const {
     Point<float> p_ = Point<float>(p.x, p.y);
     Point<float> pp;
     path.getNearestPoint(p_, pp);
+    closestPoint.x = pp.x;
+    closestPoint.y = pp.y;
     float distanceFromClick = pp.getDistanceFrom(p_);
-    float distanceFromPosition = pp.getDistanceFrom(Point<float>(position.x, position.y));
-    float distanceFromDestination = pp.getDistanceFrom(Point<float>(destination.x, destination.y));
+    return distanceFromClick;
+}
+
+bool GfxWire::within(XY p, bool & nearSource) const {
+    XY pp;   
+    float distanceFromClick = distance(p, pp);
+    Point<float> pp_(pp.x, pp.y);
+    float distanceFromPosition = pp_.getDistanceFrom(Point<float>(position.x, position.y));
+    float distanceFromDestination = pp_.getDistanceFrom(Point<float>(destination.x, destination.y));
     if ( distanceFromClick < c_PortSize
     && ( (distanceFromPosition < 3*c_PortSize) || (distanceFromDestination < 3*c_PortSize)))
     {

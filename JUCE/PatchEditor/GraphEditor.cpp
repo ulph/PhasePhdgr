@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <utility>
 
+#include <limits.h>
+
 #include "PatchEditor.hpp"
 
 using namespace PhasePhckr;
@@ -361,67 +363,58 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     bool userInteraction = false;
     mouseDownPos = XY((float)event.x, (float)event.y);
 
-    for (auto & m : modules) {
-        string port;
-        bool inputPort;
-        XY position;
-        // drag wire between ports
-        if (m.withinPort(mouseDownPos, position, port, inputPort)) {
-            if(event.mods.isRightButtonDown()){
-                PopupMenu poop;
-                modelChanged = makePortPoopUp(poop, m, port, inputPort);
-            }
-            else{
-                auto l = gfxGraphLock.make_scoped_lock();
-                looseWire.isValid = true;
-                looseWire.destination = mouseDownPos;
-                looseWire.attachedAtSource = !inputPort;
-                looseWire.attachedPort = { m.module.name, port };
-                looseWire.position = position;
-            }
-            userInteraction = true;
-            break;
+    // TODO; thread safety
+    GfxPort* pickedPort = nullptr;
+    GfxModule* pickedModule = nullptr;
+    GfxWire* pickedWire = nullptr;
+    bool nearestSource = false;
+    findCloseThings(mouseDownPos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
+    if (pickedPort && pickedModule) {
+        if (event.mods.isRightButtonDown()) {
+            PopupMenu poop;
+            modelChanged = makePortPoopUp(poop, *pickedModule, pickedPort->port, pickedPort->isInput);
         }
-        // interract with a module
-        else if (m.within(mouseDownPos)) {
-            if(event.mods.isRightButtonDown()){
-                PopupMenu poop;
-                if (selectedModules.count(&m)) {
-                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, mouseDownPos);
-                }
-                else {
-                    modelChanged = makeModulePoopUp(poop, m.module.name, m.module.type);
-                }
-            }
-            else if (event.mods.isShiftDown()) {
-                auto l = gfxGraphLock.make_scoped_lock();
-                if (selectedModules.count(&m)) {
-                    selectedModules.erase(&m);
-                }
-                else {
-                    selectedModules.insert(&m);
-                }
-            }
-            else if (event.mods.isCtrlDown()) {
-                auto l = gfxGraphLock.make_scoped_lock();
-                looseWire.isValid = true;
-                looseWire.destination = mouseDownPos;
-                looseWire.attachedAtSource = true;
-                looseWire.attachedPort = { m.module.name, "#@!?" }; // intentionally invalid port
-                looseWire.position = mouseDownPos;
-            }
-            else{
-                draggedModule = &m;
-            }
-            userInteraction = true;
-            break;
+        else {
+            looseWire.isValid = true;
+            looseWire.destination = mouseDownPos;
+            looseWire.attachedAtSource = !pickedPort->isInput;
+            looseWire.attachedPort = { pickedModule->module.name, pickedPort->port };
+            looseWire.position = pickedPort->position;
         }
+        userInteraction = true;
     }
-
-    // disconnect a wire
-    if (!userInteraction) {
-        auto scoped_lock = gfxGraphLock.make_scoped_lock();
-        if (disconnect(mouseDownPos, looseWire)) {
+    else if (pickedModule) {
+        if (event.mods.isRightButtonDown()) {
+            PopupMenu poop;
+            if (selectedModules.count(pickedModule)) {
+                modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, mouseDownPos);
+            }
+            else {
+                modelChanged = makeModulePoopUp(poop, pickedModule->module.name, pickedModule->module.type);
+            }
+        }
+        else if (event.mods.isShiftDown()) {
+            if (selectedModules.count(pickedModule)) {
+                selectedModules.erase(pickedModule);
+            }
+            else {
+                selectedModules.insert(pickedModule);
+            }
+        }
+        else if (event.mods.isCtrlDown()) {
+            looseWire.isValid = true;
+            looseWire.destination = mouseDownPos;
+            looseWire.attachedAtSource = true;
+            looseWire.attachedPort = { pickedModule->module.name, "#@!?" }; // intentionally invalid port
+            looseWire.position = mouseDownPos;
+        }
+        else {
+            draggedModule = pickedModule;
+        }
+        userInteraction = true;
+    }
+    else if (pickedWire) {
+        if (disconnect(pickedWire, mouseDownPos, nearestSource)) {
             modelChanged = true;
             userInteraction = true;
         }
@@ -529,7 +522,14 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     bool modelChanged = false;
     if (looseWire.isValid) {
         auto l = gfxGraphLock.make_scoped_lock();
-        modelChanged = connect(looseWire, mousePos, event.mods.isCtrlDown());
+        GfxPort* pickedPort = nullptr;
+        GfxModule* pickedModule = nullptr;
+        GfxWire* pickedWire = nullptr;
+        bool nearestSource = false;
+        findCloseThings(mousePos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
+        if (pickedModule && pickedPort) {
+            modelChanged = connect(pickedModule, pickedPort);
+        }
     }
     if (selecting) {
         auto l = gfxGraphLock.make_scoped_lock();
@@ -551,40 +551,63 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     draggedModule = nullptr;
 }
 
-void GraphEditor::findHoverDoodat(const XY& mousePos) {
+void GraphEditor::findCloseThings(const XY& pos, GfxPort** closestPort, GfxModule** closestModule, GfxWire** closestWire, bool& nearestSource) {
+    // ports and modules
     for (auto& m : modules) {
-        for (auto& p : m.inputs) {
-            if (p.within(mousePos)) {
-                p.latched_mouseHover = true;
-                repaint();
-                mouseIsHovering = true;
-                return;
+        vector< vector<GfxPort> *> vs = { &m.inputs, &m.outputs };
+        for (auto v : vs) {
+            float distance = FLT_MAX;
+            for (auto& p : *v) {
+                auto d = p.distance(pos);
+                if (p.within(pos) && d < distance) {
+                    distance = d;
+                    *closestPort = &p;
+                    *closestModule = &m;
+                }
             }
         }
-        for (auto& p : m.outputs) {
-            if (p.within(mousePos)) {
-                p.latched_mouseHover = true;
-                repaint();
-                mouseIsHovering = true;
-                return;
-            }
-        }
-        if (m.within(mousePos)) {
-            m.latched_mouseHover = true;
-            repaint();
-            mouseIsHovering = true;
-            return;
+        if ( !(*closestModule) && m.within(pos) ) *closestModule = &m;
+    }
+ 
+    if (*closestPort || *closestModule) return;
+
+    // wires
+    float distance = FLT_MAX;
+    XY p;
+    for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
+        auto d = wit->distance(pos, p);
+        if (wit->within(pos, nearestSource) && d < distance) {
+            distance = d;
+            *closestWire = &(*wit);
         }
     }
+}
 
-    for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
-        bool nearestSource = false;
-        if (wit->within(mousePos, nearestSource)) {
-            wit->latched_mouseHover = true;
-            repaint();
-            mouseIsHovering = true;
-            return;
-        }
+void GraphEditor::findHoverDoodat(const XY& mousePos) {
+    GfxPort* pickedPort = nullptr;
+    GfxModule* pickedModule = nullptr;
+    GfxWire* pickedWire = nullptr;
+    bool nearestSource = false;
+
+    findCloseThings(mousePos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
+
+    if (pickedPort) {
+        pickedPort->latched_mouseHover = true;
+        repaint();
+        mouseIsHovering = true;
+        return;
+    }
+    if (pickedModule) {
+        pickedModule->latched_mouseHover = true;
+        repaint();
+        mouseIsHovering = true;
+        return;
+    }
+    if (pickedWire) {
+        pickedWire->latched_mouseHover = true;
+        repaint();
+        mouseIsHovering = true;
+        return;
     }
 
     if (mouseIsHovering) {
@@ -817,61 +840,41 @@ void GraphEditor::recalculateWires(vector<GfxModule>& modules) {
     }
 }
 
-bool GraphEditor::disconnect(const XY& mousePos, GfxLooseWire &looseWire) {
-    for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
-        bool nearestSource = false;
-        // disconnect a wire
-        if (wit->within(mousePos, nearestSource)) {
-            auto ret = rootComponent()->graph.disconnect(wit->connection);
-            if (ret != 0) return false;
-            looseWire.isValid = true;
-            looseWire.destination = mousePos;
-            looseWire.attachedAtSource = !nearestSource;
-            if (looseWire.attachedAtSource) {
-                looseWire.attachedPort = wit->connection.source;
-                looseWire.position = wit->position;
-            }
-            else {
-                looseWire.attachedPort = wit->connection.target;
-                looseWire.position = wit->destination;
-            }
-            return true;
-        }
+bool GraphEditor::disconnect(GfxWire* wire, const XY& mousePos, bool nearestSource) {
+    auto ret = rootComponent()->graph.disconnect(wire->connection);
+    if (ret != 0) return false;
+    looseWire.isValid = true;
+    looseWire.destination = mousePos;
+    looseWire.attachedAtSource = !nearestSource;
+    if (looseWire.attachedAtSource) {
+        looseWire.attachedPort = wire->connection.source;
+        looseWire.position = wire->position;
     }
-    return false;
+    else {
+        looseWire.attachedPort = wire->connection.target;
+        looseWire.position = wire->destination;
+    }
+    return true;
 }
 
-bool GraphEditor::connect(const GfxLooseWire &looseWire, const XY &mousePos, bool doAutoConnect) {
-    for (const auto& m : modules) {
-        if (looseWire.attachedAtSource) {
-            if (doAutoConnect && m.within(mousePos)) {
-                return autoConnect(looseWire.attachedPort.module, m.module.name);
-            }
-            else {
-                for (const auto& ip : m.inputs) {
-                    if (ip.within(mousePos)) {
-                        return 0 == rootComponent()->graph.connect(
-                            ModulePortConnection(
-                                looseWire.attachedPort,
-                                ModulePort(m.module.name, ip.port)
-                            )
-                        );
-                    }
-                }
-            }
-        }
-        else {
-            for (const auto& op : m.outputs) {
-                if (op.within(mousePos)) {
-                    return 0 == rootComponent()->graph.connect(
-                        ModulePortConnection(
-                            ModulePort(m.module.name, op.port),
-                            looseWire.attachedPort
-                        )
-                    );
-                }
-            }
-        }
+bool GraphEditor::connect(GfxModule* module, GfxPort* port) {
+    if ( !module || !port ) return false;
+
+    if (looseWire.attachedAtSource && port->isInput) {
+        return 0 == rootComponent()->graph.connect(
+            ModulePortConnection(
+                looseWire.attachedPort,
+                ModulePort(module->module.name, port->port)
+            )
+        );
+    }
+    else if(!looseWire.attachedAtSource && !port->isInput) {
+        return 0 == rootComponent()->graph.connect(
+            ModulePortConnection(
+                ModulePort(module->module.name, port->port),
+                looseWire.attachedPort
+            )
+        );
     }
     return false;
 }

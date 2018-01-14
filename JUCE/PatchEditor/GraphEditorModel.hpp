@@ -66,6 +66,7 @@ struct GfxPort {
     bool latched_mouseHover = false;
 
     bool within(XY p) const;
+    float distance(XY p) const;
     void clearValue();
     void setValue(float v);
     float getValue();
@@ -135,6 +136,7 @@ public:
 
     bool latched_mouseHover = false;
 
+    float distance(XY p, XY& closestPoint) const;
     bool within(XY p, bool & nearSource) const;
     void draw(Graphics & g);
     void calculatePath(const vector<GfxModule> & modules);

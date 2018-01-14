@@ -76,9 +76,9 @@ private:
     list<GfxWire> wires;
 
     pair<XY, XY> getVirtualBounds();
-    bool connect(const GfxLooseWire &looseWire, const XY &mousePos, bool doAutoConnect);
+    bool connect(GfxModule* module, GfxPort* port);
     bool autoConnect(const string &source, const string &target);
-    bool disconnect(const XY& mousePos, GfxLooseWire &looseWire);
+    bool disconnect(GfxWire* wire, const XY& mousePos, bool nearestSource);
     void moveDelta(XY delta);
     void moveIntoView();
     void designPorts(const Doc &doc);
@@ -125,6 +125,7 @@ private:
     void decreaseZoom();
     void applyZoom();
 
+    void findCloseThings(const XY& pos, GfxPort** closestPort, GfxModule** closestModule, GfxWire** closestWire, bool& nearestSource);
     void findHoverDoodat(const XY& pos);
 
     LayoutUpdateCallback layoutUpdateCallback;

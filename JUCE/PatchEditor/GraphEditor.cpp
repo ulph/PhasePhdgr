@@ -129,6 +129,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     bool modelChanged = false;
     bool userInteraction = false;
 
+    // TODO, this is a mess
+
     {
         mouseDownPos = XY((float)event.x, (float)event.y);
         auto l = gfxGraphLock.make_scoped_lock();
@@ -139,7 +141,6 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         findCloseThings(mouseDownPos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
         if (pickedPort && pickedModule) {
             if (event.mods.isRightButtonDown()) {
-
                 // port popup menu
                 PopupMenu portPopupMenu;
                 if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, *pickedModule, pickedPort->port, pickedPort->isInput)) {
@@ -165,6 +166,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 
             }
             else {
+                // begin dragin a wire
                 looseWire.isValid = true;
                 looseWire.destination = mouseDownPos;
                 looseWire.attachedAtSource = !pickedPort->isInput;
@@ -175,7 +177,6 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         }
         else if (pickedModule) {
             if (event.mods.isRightButtonDown()) {
-
                 // selection popup menu
                 if (selectedModules.count(pickedModule)) {
                     PopupMenu poop;
@@ -219,7 +220,6 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 }
 
                 else {
-
                     // module popup menu
                     PopupMenu modulePopupMenu;
                     if (modulePopupMenuData.build(modulePopupMenu, patch, globalComponents, rootComponent()->graph.modules.count(pickedModule->module.name), pickedModule->module.name, pickedModule->module.type, rootComponentName)) {
@@ -246,6 +246,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 
             }
             else if (event.mods.isShiftDown()) {
+                // add/remove modules to/from selection
                 if (selectedModules.count(pickedModule)) {
                     selectedModules.erase(pickedModule);
                 }
@@ -254,6 +255,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 }
             }
             else if (event.mods.isCtrlDown()) {
+                // autoConnect wire
                 looseWire.isValid = true;
                 looseWire.destination = mouseDownPos;
                 looseWire.attachedAtSource = true;
@@ -261,11 +263,13 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 looseWire.position = mouseDownPos;
             }
             else {
+                // drag a module
                 draggedModule = pickedModule;
             }
             userInteraction = true;
         }
         else if (pickedWire) {
+            // disconnect something
             if (disconnect(pickedWire, mouseDownPos, nearestSource)) {
                 modelChanged = true;
                 userInteraction = true;
@@ -273,8 +277,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         }
     }
 
-    // select region start/stop
     if (!userInteraction) {
+        // (un)select region
         if (event.mods.isShiftDown()) {
             selecting = true;
             selectionStart = event.position;
@@ -288,8 +292,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         }
     }
 
-    // disable drag to scroll (until button released) in case of drag action
     if (userInteraction) {
+        // disable drag to scroll (until button released) in case of drag action
         viewPort.setScrollOnDragEnabled(false);
         repaint();
     }

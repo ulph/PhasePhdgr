@@ -72,7 +72,12 @@ private:
     void updateRenderComponents();
 
     PortPopupMenuData portPopupMenuData;
+    void portPopUpMenu(GfxModule & module, const string & port, bool inputPort);
+
     ModulePopupMenuData modulePopupMenuData;
+    void modulePopUpMenu(bool validModule, const string& moduleName, const string& moduleType);
+
+    void selectionPopUpMenu();
 
     vector<GfxModule> modules;
     list<GfxWire> wires;

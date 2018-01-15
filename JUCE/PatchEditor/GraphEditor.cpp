@@ -142,28 +142,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         if (pickedPort && pickedModule) {
             if (event.mods.isRightButtonDown()) {
                 // port popup menu
-                PopupMenu portPopupMenu;
-                if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, *pickedModule, pickedPort->port, pickedPort->isInput)) {
-                    auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
-                        [](int choice, GraphEditor* editor) {
-                            if (editor == nullptr) return;
-
-                            bool modelChanged = false;
-
-                            {
-                                auto l = editor->gfxGraphLock.make_scoped_lock();
-                                modelChanged = editor->portPopupMenuData.handleChoice(editor->patch, editor->rootComponent(), choice);
-                            }
-
-                            if (modelChanged) {
-                                editor->propagatePatch();
-                            }
-                        }
-                        , this
-                    );
-                    portPopupMenu.showMenuAsync(PopupMenu::Options(), cb);
-                }
-
+                portPopUpMenu(*pickedModule, pickedPort->port, pickedPort->isInput);
             }
             else {
                 // begin dragin a wire
@@ -177,71 +156,14 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         }
         else if (pickedModule) {
             if (event.mods.isRightButtonDown()) {
-                // selection popup menu
                 if (selectedModules.count(pickedModule)) {
-                    PopupMenu poop;
-                    poop.addItem(1, "make component");
-                    poop.addItem(2, "delete");
-                    auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
-                        [](int choice, GraphEditor* editor) {
-                            bool modelChanged = false;
-                            if (editor == nullptr) return;
-                            {
-                                auto l = editor->gfxGraphLock.make_scoped_lock();
-                                switch (choice) {
-                                case 1:
-                                    {
-                                        set<string> selectedModules;
-                                        for (const auto s : editor->selectedModules) {
-                                            selectedModules.insert(s->module.name);
-                                        }
-                                        editor->selectedModules.clear();
-                                        string newType = "";
-                                        modelChanged = 0 == editor->patch.createNewComponentType(editor->rootComponent(), selectedModules, newType);
-                                    }
-                                    break;
-                                case 2:
-                                    for (const auto* m : editor->selectedModules) {
-                                        editor->rootComponent()->graph.remove(m->module.name);
-                                    }
-                                    modelChanged = true;
-                                    break;
-                                default:
-                                    break;
-                                }
-                            }
-                            if (modelChanged) {
-                                editor->propagatePatch();
-                            }
-                        }
-                        , this
-                    );
-                    poop.showMenuAsync(PopupMenu::Options(), cb);
+                    // selection popup menu
+                    selectionPopUpMenu();
                 }
-
                 else {
                     // module popup menu
-                    PopupMenu modulePopupMenu;
-                    if (modulePopupMenuData.build(modulePopupMenu, patch, globalComponents, rootComponent()->graph.modules.count(pickedModule->module.name), pickedModule->module.name, pickedModule->module.type, rootComponentName)) {
-                        auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
-                            [](int choice, GraphEditor* editor) {
-                                if (editor == nullptr) return;
-
-                                bool modelChanged = false;
-                                {
-                                    auto l = editor->gfxGraphLock.make_scoped_lock();
-                                    modelChanged = editor->modulePopupMenuData.handleChoice(editor->patch, editor->rootComponent(), editor->globalComponents, choice);
-                                }
-
-                                if (modelChanged) {
-                                    editor->propagatePatch();
-                                }
-
-                            }
-                            , this
-                        );
-                        modulePopupMenu.showMenuAsync(PopupMenu::Options(), cb);
-                    }
+                    auto validModule = rootComponent()->graph.modules.count(pickedModule->module.name);
+                    modulePopUpMenu(validModule, pickedModule->module.name, pickedModule->module.type);
                 }
 
             }
@@ -797,6 +719,95 @@ void GraphEditor::designPorts(const Doc &doc) {
         }
         m.designPorts(doc, mpvs);
     }
+}
+
+void GraphEditor::portPopUpMenu(GfxModule & module, const string & port, bool inputPort) {
+    PopupMenu portPopupMenu;
+    if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, module, port, inputPort)) {
+        auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
+            [](int choice, GraphEditor* editor) {
+                if (editor == nullptr) return;
+
+                bool modelChanged = false;
+
+                {
+                    auto l = editor->gfxGraphLock.make_scoped_lock();
+                    modelChanged = editor->portPopupMenuData.handleChoice(editor->patch, editor->rootComponent(), choice);
+                }
+
+                if (modelChanged) {
+                    editor->propagatePatch();
+                }
+            }
+            , this
+        );
+        portPopupMenu.showMenuAsync(PopupMenu::Options(), cb);
+    }
+}
+
+void GraphEditor::modulePopUpMenu(bool validModule, const string& moduleName, const string& moduleType) {
+    PopupMenu modulePopupMenu;
+    if (modulePopupMenuData.build(modulePopupMenu, patch, globalComponents, validModule, moduleName, moduleType, rootComponentName)) {
+        auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
+            [](int choice, GraphEditor* editor) {
+                if (editor == nullptr) return;
+
+                bool modelChanged = false;
+                {
+                    auto l = editor->gfxGraphLock.make_scoped_lock();
+                    modelChanged = editor->modulePopupMenuData.handleChoice(editor->patch, editor->rootComponent(), editor->globalComponents, choice);
+                }
+
+                if (modelChanged) {
+                    editor->propagatePatch();
+                }
+
+            }
+            , this
+        );
+        modulePopupMenu.showMenuAsync(PopupMenu::Options(), cb);
+    }
+}
+
+void GraphEditor::selectionPopUpMenu() {
+    PopupMenu poop;
+    poop.addItem(1, "make component");
+    poop.addItem(2, "delete");
+    auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
+        [](int choice, GraphEditor* editor) {
+            bool modelChanged = false;
+            if (editor == nullptr) return;
+            {
+                auto l = editor->gfxGraphLock.make_scoped_lock();
+                switch (choice) {
+                case 1:
+                {
+                    set<string> selectedModules;
+                    for (const auto s : editor->selectedModules) {
+                        selectedModules.insert(s->module.name);
+                    }
+                    editor->selectedModules.clear();
+                    string newType = "";
+                    modelChanged = 0 == editor->patch.createNewComponentType(editor->rootComponent(), selectedModules, newType);
+                }
+                break;
+                case 2:
+                    for (const auto* m : editor->selectedModules) {
+                        editor->rootComponent()->graph.remove(m->module.name);
+                    }
+                    modelChanged = true;
+                    break;
+                default:
+                    break;
+                }
+            }
+            if (modelChanged) {
+                editor->propagatePatch();
+            }
+        }
+        , this
+    );
+    poop.showMenuAsync(PopupMenu::Options(), cb);
 }
 
 

@@ -1,4 +1,5 @@
 #include "div.hpp"
+#include <math.h>
 
 Div::Div()
 {

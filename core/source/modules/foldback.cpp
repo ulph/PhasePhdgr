@@ -1,5 +1,6 @@
 #include "foldback.hpp"
 #include "inlines.hpp"
+#include <math.h>
 
 FoldBack::FoldBack()
 {

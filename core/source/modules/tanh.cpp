@@ -1,4 +1,5 @@
 #include "tanh.hpp"
+#include <math.h>
 
 TanH::TanH() {
     inputs.push_back(Pad("in"));

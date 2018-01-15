@@ -1,4 +1,5 @@
 #include "sympow.hpp"
+#include <math.h>
 
 SymPow::SymPow() {
     inputs.push_back(Pad("base", 1.0));

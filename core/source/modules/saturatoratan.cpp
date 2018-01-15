@@ -1,4 +1,5 @@
 #include "saturatoratan.hpp"
+#include <math.h>
 
 Atan::Atan()
 {

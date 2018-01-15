@@ -1,4 +1,5 @@
 #include "conversion.hpp"
+#include <math.h>
 
 TempoToTime::TempoToTime() {
     inputs.push_back(Pad("beats"));

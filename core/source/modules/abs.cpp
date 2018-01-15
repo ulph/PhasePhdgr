@@ -1,4 +1,5 @@
 #include "abs.hpp"
+#include <math.h>
 
 Abs::Abs()
 {

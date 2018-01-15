@@ -680,8 +680,8 @@ bool GraphEditor::autoConnect(const string &source, const string &target) {
         for (const auto& tp : d.at(targetType).inputs) {
             if (usedTargetPorts.count(tp.name)) continue;
 
-            if(sp.name == tp.name
-            || (sp.name == "out" || sp.name == "output") && (tp.name == "in" || tp.name == "input")
+            if( sp.name == tp.name
+            ||  ((sp.name == "out" || sp.name == "output") && (tp.name == "in" || tp.name == "input"))
             ) {
                 rootComponent()->graph.connect(
                     ModulePortConnection(

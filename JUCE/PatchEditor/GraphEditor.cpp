@@ -267,17 +267,19 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         if (pickedPort && pickedModule) {
             if (event.mods.isRightButtonDown()) {
                 if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, *pickedModule, pickedPort->port, pickedPort->isInput)) {
-                    auto portPopupCallback = new PopupMenuCallback(
-                        [this](int choice) {
-                            bool modelChanged = false;
+                    auto portPopupCallback = ModalCallbackFunction::forComponent<GraphEditor>(
+                        [](int choice, GraphEditor* editor) {
+                        bool modelChanged = false;
+                            if (editor == nullptr) return;
                             {
-                                auto l = gfxGraphLock.make_scoped_lock();
-                                modelChanged = portPopupMenuData.handleChoice(patch, rootComponent(), choice);
+                                auto l = editor->gfxGraphLock.make_scoped_lock();
+                                modelChanged = editor->portPopupMenuData.handleChoice(editor->patch, editor->rootComponent(), choice);
                             }
                             if (modelChanged) {
-                                propagatePatch();
+                                editor->propagatePatch();
                             }
                         }
+                        , this
                     );
                     portPopupMenu.showMenuAsync(PopupMenu::Options(), portPopupCallback);
                 }

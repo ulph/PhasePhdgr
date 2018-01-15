@@ -282,7 +282,6 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
     }
     else {
         auto& n = notes.at(idx);
-        n.velocity = 0.0f;
         n.state = NoteState::SUSTAINED;
     }
 }
@@ -348,7 +347,7 @@ void VoiceBus::handleSustain(int channel, float position, std::vector<SynthVoice
         for (auto it = notes.begin(); it != notes.end();) {
             if (it->channel == channel && it->state == NoteState::SUSTAINED) {
                 if (it->voiceIndex != -1) {
-                    voices[it->voiceIndex]->mpe.off(it->note, it->velocity);
+                    voices[it->voiceIndex]->mpe.off(it->note, 0.0f);
                 }
                 it = notes.erase(it);
             }

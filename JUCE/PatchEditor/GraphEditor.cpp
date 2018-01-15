@@ -128,9 +128,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 
     bool modelChanged = false;
     bool userInteraction = false;
-
-    // TODO, this is a mess
-
+    
     {
         mouseDownPos = XY((float)event.x, (float)event.y);
         auto l = gfxGraphLock.make_scoped_lock();
@@ -165,7 +163,6 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     auto validModule = rootComponent()->graph.modules.count(pickedModule->module.name);
                     modulePopUpMenu(validModule, pickedModule->module.name, pickedModule->module.type);
                 }
-
             }
             else if (event.mods.isShiftDown()) {
                 // add/remove modules to/from selection
@@ -308,6 +305,10 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
         findCloseThings(mousePos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
         if (pickedModule && pickedPort) {
             modelChanged = connect(pickedModule, pickedPort);
+        }
+        else if (pickedModule) {
+            if (looseWire.attachedAtSource) modelChanged = autoConnect(looseWire.attachedPort.module, pickedModule->module.name);
+            else modelChanged = autoConnect(pickedModule->module.name, looseWire.attachedPort.module);
         }
     }
     if (selecting) {

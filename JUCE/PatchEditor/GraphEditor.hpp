@@ -71,10 +71,8 @@ private:
 
     void updateRenderComponents();
 
-    bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType);
-
-    PopupMenu portPopupMenu;
-    PortPopupMenu portPopupMenuData;
+    PortPopupMenuData portPopupMenuData;
+    ModulePopupMenuData modulePopupMenuData;
 
     vector<GfxModule> modules;
     list<GfxWire> wires;

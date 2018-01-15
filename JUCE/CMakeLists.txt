@@ -35,6 +35,8 @@ set(PH_COMMON_SRC
     PatchEditor/PatchEditor.hpp
     PatchEditor/PatchEditor.cpp
     PatchEditor/PopupMenus.hpp
+    PatchEditor/CommonEditor.hpp
+    PatchEditor/CommonEditor.cpp
 
     FileBrowser/DirectoryWatcher.cpp
     FileBrowser/DirectoryWatcher.hpp

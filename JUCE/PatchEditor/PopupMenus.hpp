@@ -3,6 +3,8 @@
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
+#include "CommonEditor.hpp"
+
 using namespace std;
 using namespace PhasePhckr;
 
@@ -32,7 +34,7 @@ public:
     }
 };
 
-class PortPopupMenu {
+class PortPopupMenuData {
 private:
     TextLabelMenuEntry valueLbl;
     TextLabelMenuEntry defaultValueLbl;
@@ -117,14 +119,7 @@ public:
     }
 
     bool handleChoice(PatchDescriptor & patch, ComponentDescriptor* rootComponent, int choice) {
-        if (!rootComponent) return false;
-        bool validRootComponent = rootComponent == &patch.root;
-        if (!validRootComponent) {
-            for (const auto& kv : patch.components) {
-                if (&(kv.second) == rootComponent) validRootComponent = true;
-            }
-        }
-        if (!validRootComponent) return false;
+        if (!validRootComponent(&patch, rootComponent)) return false;
 
         const ModulePort mp(moduleName, port);
 
@@ -176,3 +171,157 @@ public:
 
 //
 
+const struct ComponentMenuStrings {
+    const string createInput = "create input";
+    const string createOutput = "create output";
+    const string removeConflict = "remove conflicting Component definition";
+    const string removeLocal = "(!) remove local Component definition";
+    const string createLocal = "create local Component definition";
+    const string clone = "change into new Component";
+    const string docString = "change docstring";
+} c_componentMenuStrings;
+
+struct ComponentPopupMenuState {
+    int typeMenuId = 999;
+    TextLabelMenuEntry name;
+    int createInputMenuId = 999;
+    int createOutputMenuId = 999;
+    int removeConflictingComponentMenuId = 999;
+    int removeLocalComponentMenuId = 999;
+    int addLocalComponentMenuId = 999;
+    int docStringMenuId = 999;
+    TextEditor docStringEditor;
+};
+
+void makeComponentPopupMenu(
+    PopupMenu & poop,
+    int& ctr,
+    ComponentPopupMenuState& ids,
+    const string& type,
+    const PatchDescriptor& patch,
+    const map<string, ComponentDescriptor>& global,
+    const map<string, ComponentDescriptor>& local
+);
+
+bool applyComponentPopuMenuChoice(
+    int choice,
+    const ComponentPopupMenuState& ids,
+    const string& type,
+    PatchDescriptor& patch,
+    const map<string, ComponentDescriptor>& global
+);
+
+
+class ModulePopupMenuData {
+private:
+    int cloneComponentMenuId = 0;
+    int addComponentInputMenuId = 0;
+    int addComponentOutputMenuId = 0;
+    int nameMenuId = 0;
+    int delMenuId = 0;
+
+    TextLabelMenuEntry nameLbl;
+    ComponentPopupMenuState cmpState;
+
+    string moduleName;
+    string moduleType;
+
+public:
+    bool build(PopupMenu& popupMenu, const PatchDescriptor & patch, const map<string, ComponentDescriptor>& globalComponents, bool validModule, const string& moduleName_, const string& moduleType_, const string& rootComponentName) {
+
+        moduleName = moduleName_;
+        moduleType = moduleType_;
+
+        bool isBusModule = (moduleName == c_inBus.name || moduleName == c_outBus.name);
+        if (rootComponentName == rootMarker && isBusModule) return false;
+
+        bool isComponentBus = rootComponentName != rootMarker && isBusModule;
+        bool isComponent = moduleType.front() == componentMarker || isComponentBus;
+
+        if (!isComponentBus) {
+            if (!validModule) return false;
+        }
+        else {
+            if (!validModule && !(isBusModule)) return false;
+        }
+
+        nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
+        nameLbl.edit.setText(moduleName, NotificationType::dontSendNotification);
+        nameLbl.edit.setEditable(true, true, false);
+
+        int ctr = 1;
+
+        nameMenuId = ctr++;
+        delMenuId = ctr++;
+        if (moduleName != c_inBus.name && moduleName != c_outBus.name) {
+            popupMenu.addCustomItem(nameMenuId, &nameLbl, 200, 20, false);
+            popupMenu.addItem(delMenuId, "remove module");
+        }
+
+        PopupMenu cmpPoop;
+
+        if (isComponent && !isComponentBus) {
+            cloneComponentMenuId = ctr++;
+            cmpPoop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
+
+            makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
+
+        }
+        else if (isComponentBus) {
+            if (moduleName == c_inBus.name) {
+                addComponentInputMenuId = ctr++;
+                cmpPoop.addItem(addComponentInputMenuId, c_componentMenuStrings.createInput);
+            }
+            else if (moduleName == c_outBus.name) {
+                addComponentOutputMenuId = ctr++;
+                cmpPoop.addItem(addComponentOutputMenuId, c_componentMenuStrings.createOutput);
+            }
+        }
+
+        if (isComponent) popupMenu.addSubMenu("Component", cmpPoop);
+
+        return true;
+    }
+
+    bool handleChoice(PatchDescriptor & patch, ComponentDescriptor* rootComponent, const map<string, ComponentDescriptor>& globalComponents, int choice) {
+        if (!validRootComponent(&patch, rootComponent)) return false;
+
+        if (applyComponentPopuMenuChoice(choice, cmpState, moduleType, patch, globalComponents)) return true;
+
+        if (choice == delMenuId) {
+            return 0 == rootComponent->graph.remove(moduleName);
+        }
+        else if (choice == cloneComponentMenuId) {
+            ComponentDescriptor cd;
+            if (patch.components.count(moduleType)) cd = patch.components.at(moduleType);
+            else if (globalComponents.count(moduleType)) cd = globalComponents.at(moduleType);
+            else return false;
+            string newType = moduleType + "_Clone";
+            if (0 != patch.addComponentType(newType, cd, true)) return false;
+            if (!rootComponent->graph.modules.count(moduleName)) return true;
+            rootComponent->graph.modules[moduleName] = newType;
+            return true;
+        }
+        else if (choice == addComponentInputMenuId || choice == addComponentOutputMenuId) {
+            auto * comp = rootComponent;
+            if (comp == nullptr) return false;
+            return 0 == comp->addPort("newPort", choice == addComponentInputMenuId, "", 0.0f);
+        }
+
+        auto newModuleName = nameLbl.edit.getText().toStdString();
+        if (moduleName != newModuleName) {
+            if (0 == rootComponent->graph.rename(moduleName, newModuleName)) {
+                if (rootComponent->layout.count(moduleName)) {
+                    auto v = rootComponent->layout.at(moduleName);
+                    rootComponent->layout.erase(moduleName);
+                    rootComponent->layout[newModuleName] = v;
+                }
+                return true;
+            }
+            else return false;
+        }
+
+        return false;
+    }
+
+};

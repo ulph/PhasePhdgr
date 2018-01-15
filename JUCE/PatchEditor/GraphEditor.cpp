@@ -8,105 +8,6 @@
 
 using namespace PhasePhckr;
 
-
-bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType) {
-    bool isBusModule = (moduleName == c_inBus.name || moduleName == c_outBus.name);
-    if (rootComponentName == rootMarker && isBusModule) return false;
-    if (!rootComponent()) return false;
-
-    bool isComponentBus = rootComponentName != rootMarker && isBusModule;
-    bool isComponent = moduleType.front() == componentMarker || isComponentBus;
-
-    auto validModule = rootComponent()->graph.modules.count(moduleName);
-
-    if (!isComponentBus) {
-        if (!validModule) return false;
-    }
-    else {
-        if(!validModule && !(isBusModule)) return false;
-    }
-
-    TextLabelMenuEntry nameLbl;
-    nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
-    nameLbl.edit.setText(moduleName, NotificationType::dontSendNotification);
-    nameLbl.edit.setEditable(true, true, false);
-
-    int ctr = 1;
-
-    const int nameMenuId = ctr++;
-    const int delMenuId = ctr++;
-    if (moduleName != c_inBus.name && moduleName != c_outBus.name) {
-        poop.addCustomItem(nameMenuId, &nameLbl, 200, 20, false);
-        poop.addItem(delMenuId, "remove module");
-    }
-    int cloneComponentMenuId = 999;
-    int addComponentInputMenuId = 999;
-    int addComponentOutputMenuId = 999;
-
-    ComponentPopupMenuState cmpState;
-
-    PopupMenu cmpPoop;
-
-    if (isComponent && !isComponentBus) {
-        cloneComponentMenuId = ctr++;
-        cmpPoop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
-
-        makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
-
-    }
-    else if (isComponentBus){
-        if (moduleName == c_inBus.name) {
-            addComponentInputMenuId = ctr++;
-            cmpPoop.addItem(addComponentInputMenuId, c_componentMenuStrings.createInput);
-        }
-        else if (moduleName == c_outBus.name) {
-            addComponentOutputMenuId = ctr++;
-            cmpPoop.addItem(addComponentOutputMenuId, c_componentMenuStrings.createOutput);
-        }
-    }
-
-    if(isComponent) poop.addSubMenu("Component", cmpPoop);
-
-    int choice = poop.show();
-
-    if (applyComponentPopuMenuChoice(choice, cmpState, moduleType, patch, globalComponents)) return true;
-
-    if (choice == delMenuId) {
-        return 0 == rootComponent()->graph.remove(moduleName);
-    }
-    else if (choice == cloneComponentMenuId) {
-        ComponentDescriptor cd;
-        if (patch.components.count(moduleType)) cd = patch.components.at(moduleType);
-        else if (globalComponents.count(moduleType)) cd = globalComponents.at(moduleType);
-        else return false;
-        string newType = moduleType + "_Clone";
-        if (0 != patch.addComponentType(newType, cd, true)) return false;
-        if (!rootComponent()->graph.modules.count(moduleName)) return true;
-        rootComponent()->graph.modules[moduleName] = newType;
-        return true;
-    }
-    else if (choice == addComponentInputMenuId || choice == addComponentOutputMenuId) {
-        auto * comp = rootComponent();
-        if (comp == nullptr) return false;
-        return 0 == comp->addPort("newPort", choice == addComponentInputMenuId, "", 0.0f);
-    }
-
-    auto newModuleName = nameLbl.edit.getText().toStdString();
-    if (moduleName != newModuleName) {
-        if (0 == rootComponent()->graph.rename(moduleName, newModuleName)) {
-            if (rootComponent()->layout.count(moduleName)) {
-                auto v = rootComponent()->layout.at(moduleName);
-                rootComponent()->layout.erase(moduleName);
-                rootComponent()->layout[newModuleName] = v;
-            }
-            return true;
-        }
-        else return false;
-    }
-
-    return false;
-}
-
 ComponentDescriptor* GraphEditor::rootComponent() {
     // lock before call
     if (rootComponentName == rootMarker) return &patch.root;
@@ -240,22 +141,26 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             if (event.mods.isRightButtonDown()) {
 
                 // port popup menu
+                PopupMenu portPopupMenu;
                 if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, *pickedModule, pickedPort->port, pickedPort->isInput)) {
-                    auto portPopupCallback = ModalCallbackFunction::forComponent<GraphEditor>(
+                    auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
                         [](int choice, GraphEditor* editor) {
-                        bool modelChanged = false;
                             if (editor == nullptr) return;
+
+                            bool modelChanged = false;
+
                             {
                                 auto l = editor->gfxGraphLock.make_scoped_lock();
                                 modelChanged = editor->portPopupMenuData.handleChoice(editor->patch, editor->rootComponent(), choice);
                             }
+
                             if (modelChanged) {
                                 editor->propagatePatch();
                             }
                         }
                         , this
                     );
-                    portPopupMenu.showMenuAsync(PopupMenu::Options(), portPopupCallback);
+                    portPopupMenu.showMenuAsync(PopupMenu::Options(), cb);
                 }
 
             }
@@ -276,7 +181,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     PopupMenu poop;
                     poop.addItem(1, "make component");
                     poop.addItem(2, "delete");
-                    auto selectionPopupCallback = ModalCallbackFunction::forComponent<GraphEditor>(
+                    auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
                         [](int choice, GraphEditor* editor) {
                             bool modelChanged = false;
                             if (editor == nullptr) return;
@@ -310,12 +215,35 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                         }
                         , this
                     );
-                    poop.showMenuAsync(PopupMenu::Options(), selectionPopupCallback);
+                    poop.showMenuAsync(PopupMenu::Options(), cb);
                 }
 
                 else {
-//                    modelChanged = makeModulePoopUp(poop, pickedModule->module.name, pickedModule->module.type);
+
+                    // module popup menu
+                    PopupMenu modulePopupMenu;
+                    if (modulePopupMenuData.build(modulePopupMenu, patch, globalComponents, rootComponent()->graph.modules.count(pickedModule->module.name), pickedModule->module.name, pickedModule->module.type, rootComponentName)) {
+                        auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
+                            [](int choice, GraphEditor* editor) {
+                                if (editor == nullptr) return;
+
+                                bool modelChanged = false;
+                                {
+                                    auto l = editor->gfxGraphLock.make_scoped_lock();
+                                    modelChanged = editor->modulePopupMenuData.handleChoice(editor->patch, editor->rootComponent(), editor->globalComponents, choice);
+                                }
+
+                                if (modelChanged) {
+                                    editor->propagatePatch();
+                                }
+
+                            }
+                            , this
+                        );
+                        modulePopupMenu.showMenuAsync(PopupMenu::Options(), cb);
+                    }
                 }
+
             }
             else if (event.mods.isShiftDown()) {
                 if (selectedModules.count(pickedModule)) {

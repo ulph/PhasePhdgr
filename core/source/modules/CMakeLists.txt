@@ -49,6 +49,8 @@ set(SRC
     tanh.cpp
     tanh.hpp
     inlines.hpp
+    zdf.cpp
+    zdf.hpp
 )
 
 add_library(modules_obj OBJECT ${SRC})

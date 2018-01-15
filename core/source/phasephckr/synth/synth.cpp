@@ -20,7 +20,8 @@ Effect::~Effect() {
 Synth::Synth()
     : voiceBus(new VoiceBus())
     , scopeVoiceIndex(-1)
-    , pool(std::thread::hardware_concurrency()) 
+    , concurrency(std::thread::hardware_concurrency())
+    , pool(concurrency)
 {
 }
 
@@ -103,7 +104,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
 
         for (auto & v : voices) v->processingStart(chunkSize, sampleRate, *globalData);
 
-        if (settings.multicore) {
+        if (concurrency > 1 && settings.multicore && voices.size() > 1) {
             std::vector< std::future<void> > results;
             for (auto & v : voices) {
                 results.emplace_back(

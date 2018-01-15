@@ -135,120 +135,6 @@ bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule
     return false;
 }
 
-bool GraphEditor::makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, bool inputPort) {
-    auto moduleName = gfxModule.module.name;
-    auto moduleType = gfxModule.module.type;
-    float value = 0.f;
-    bool busModule = false;
-    if (inputPort && !gfxModule.getValue(port, value)) return false; // error
-
-    if (moduleName == c_inBus.name || moduleName == c_outBus.name) {
-        if (patch.components.count(rootComponentName)) {
-            moduleType = rootComponentName; // hijack
-            inputPort = moduleName == c_inBus.name; // flip
-            busModule = true;
-        }
-        else return false;
-    }
- 
-    const ModulePort mp(moduleName, port);
-    
-    TextLabelMenuEntry valueLbl;
-    valueLbl.title.setText("Value:", NotificationType::dontSendNotification);
-    valueLbl.edit.setText(to_string(value), NotificationType::dontSendNotification);
-
-    TextLabelMenuEntry defaultValueLbl;
-    TextLabelMenuEntry unitLbl;
-    PadDescription pd;
-    unitLbl.edit.setText(pd.unit, NotificationType::dontSendNotification);
-    defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
-
-    TextLabelMenuEntry nameLbl;
-    nameLbl.title.setText("Name:", NotificationType::dontSendNotification);
-    nameLbl.edit.setText(port, NotificationType::dontSendNotification);
-
-    if (!busModule) {
-        poop.addItem(1, gfxModule.module.name + ":" + port);
-    }
-    else {
-        poop.addItem(1, moduleType + ":" + port);
-    }
-
-    if (inputPort && !busModule) {
-        poop.addCustomItem(2, &valueLbl, 200, 20, false);
-        poop.addItem(3, "clear value");
-    }
-
-    poop.addItem(4, "disconnect all");
-
-    if (patch.components.count(moduleType)) {
-        PopupMenu cmpPoop;
-
-        auto& cmp = patch.components[moduleType];
-
-        cmpPoop.addCustomItem(5, &nameLbl, 200, 20, false);
-
-        if (inputPort && 0 == cmp.getPort(port, pd, true)){
-            unitLbl.title.setText("Unit:", NotificationType::dontSendNotification);
-            unitLbl.edit.setText(pd.unit, NotificationType::dontSendNotification);
-
-            defaultValueLbl.title.setText("Default:", NotificationType::dontSendNotification);
-            defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
-
-            cmpPoop.addCustomItem(7, &defaultValueLbl, 200, 20, false);
-            cmpPoop.addCustomItem(8, &unitLbl, 200, 20, false);
-        }
-        cmpPoop.addItem(6, "remove port");
-
-        poop.addSubMenu("Component", cmpPoop);
-    }
-
-    int choice = poop.show();
-
-    if (inputPort && !busModule) {
-        if (choice == 3) {
-            return 0 == rootComponent()->graph.clearValue(mp);
-        }
-
-        auto newValue = valueLbl.edit.getText().getFloatValue();
-        if (value != newValue) {
-            return 0 == rootComponent()->graph.setValue(mp, newValue);
-        }
-    }
-
-    if (choice == 4) {
-        return 0 == rootComponent()->graph.disconnect(ModulePort(moduleName, port), inputPort);
-    }
-
-    auto newPort = nameLbl.edit.getText().toStdString();
-    if (port != newPort) {
-        if (!patch.components.count(moduleType)) return false;
-        return 0 == patch.renameComponentTypePort(moduleType, port, newPort, inputPort);
-    }
-
-    if (choice == 6) {
-        if (!patch.components.count(moduleType)) return false;
-        auto& comp = patch.components.at(moduleType);
-        return 0 == comp.removePort(port, inputPort);
-    }
-
-    auto newUnit = unitLbl.edit.getText().toStdString();
-    if (pd.unit != newUnit) {
-        if (!patch.components.count(moduleType)) return false;
-        auto& comp = patch.components.at(moduleType);
-        return 0 == comp.changePortUnit(port, newUnit);
-    }
-
-    auto newDefault = defaultValueLbl.edit.getText().getFloatValue();
-    if (pd.defaultValue != newDefault) {
-        if (!patch.components.count(moduleType)) return false;
-        auto& comp = patch.components.at(moduleType);
-        return 0 == comp.changePortValue(port, newDefault);
-    }
-
-    return false;
-}
-
 ComponentDescriptor* GraphEditor::rootComponent() {
     // lock before call
     if (rootComponentName == rootMarker) return &patch.root;
@@ -258,7 +144,7 @@ ComponentDescriptor* GraphEditor::rootComponent() {
 
 GraphEditor::GraphEditor(
     PatchEditor &patchEditor,
-    const string& rootComponent,
+    const string& rootComponent_,
     const PatchDescriptor& initialPatch,
     Viewport &viewPort,
     const Doc &initialDoc,
@@ -276,7 +162,7 @@ GraphEditor::GraphEditor(
     , selecting(false)
     , patchIsDirty(false)
     , docIsDirty(false)
-    , rootComponentName(rootComponent)
+    , rootComponentName(rootComponent_)
     , layoutUpdateCallback(layoutUpdateCb)
 {
     setDoc(initialDoc);
@@ -334,16 +220,24 @@ void GraphEditor::updateLayout() {
 }
 
 void GraphEditor::propagatePatch() {
-    // TODO, really threadsafe??
     updateLayout();
-    subPatch.set(-1, patch); // we want it back (lazily forces refresh/sync)
+    PatchDescriptor patchCopy;
+    {
+        auto l = gfxGraphLock.make_scoped_lock();
+        patchCopy = patch;
+    }
+    subPatch.set(-1, patchCopy); // we want it back (lazily forces refresh/sync)
     repaint();
 }
 
 void GraphEditor::propagateLayout() {
-    // TODO, really threadsafe??
     updateLayout();
-    layoutUpdateCallback(rootComponentName, rootComponent()->layout);
+    map<string, ModulePosition> layoutCopy;
+    {
+        auto l = gfxGraphLock.make_scoped_lock();
+        layoutCopy = rootComponent()->layout;
+    }
+    layoutUpdateCallback(rootComponentName, layoutCopy);
 }
 
 void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
@@ -361,62 +255,77 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
 
     bool modelChanged = false;
     bool userInteraction = false;
-    mouseDownPos = XY((float)event.x, (float)event.y);
 
-    // TODO; thread safety - the issue is that popup menus seem to trigger gui redraw -> deadlock if protecting this whole chunk.
-    GfxPort* pickedPort = nullptr;
-    GfxModule* pickedModule = nullptr;
-    GfxWire* pickedWire = nullptr;
-    bool nearestSource = false;
-    findCloseThings(mouseDownPos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
-    if (pickedPort && pickedModule) {
-        if (event.mods.isRightButtonDown()) {
-            PopupMenu poop;
-            modelChanged = makePortPoopUp(poop, *pickedModule, pickedPort->port, pickedPort->isInput);
-        }
-        else {
-            looseWire.isValid = true;
-            looseWire.destination = mouseDownPos;
-            looseWire.attachedAtSource = !pickedPort->isInput;
-            looseWire.attachedPort = { pickedModule->module.name, pickedPort->port };
-            looseWire.position = pickedPort->position;
-        }
-        userInteraction = true;
-    }
-    else if (pickedModule) {
-        if (event.mods.isRightButtonDown()) {
-            PopupMenu poop;
-            if (selectedModules.count(pickedModule)) {
-                modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, mouseDownPos);
+    {
+        mouseDownPos = XY((float)event.x, (float)event.y);
+        auto l = gfxGraphLock.make_scoped_lock();
+        GfxPort* pickedPort = nullptr;
+        GfxModule* pickedModule = nullptr;
+        GfxWire* pickedWire = nullptr;
+        bool nearestSource = false;
+        findCloseThings(mouseDownPos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
+        if (pickedPort && pickedModule) {
+            if (event.mods.isRightButtonDown()) {
+                if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, *pickedModule, pickedPort->port, pickedPort->isInput)) {
+                    auto portPopupCallback = new PopupMenuCallback(
+                        [this](int choice) {
+                            bool modelChanged = false;
+                            {
+                                auto l = gfxGraphLock.make_scoped_lock();
+                                modelChanged = portPopupMenuData.handleChoice(patch, rootComponent(), choice);
+                            }
+                            if (modelChanged) {
+                                propagatePatch();
+                            }
+                        }
+                    );
+                    portPopupMenu.showMenuAsync(PopupMenu::Options(), portPopupCallback);
+                }
             }
             else {
-                modelChanged = makeModulePoopUp(poop, pickedModule->module.name, pickedModule->module.type);
+                looseWire.isValid = true;
+                looseWire.destination = mouseDownPos;
+                looseWire.attachedAtSource = !pickedPort->isInput;
+                looseWire.attachedPort = { pickedModule->module.name, pickedPort->port };
+                looseWire.position = pickedPort->position;
             }
-        }
-        else if (event.mods.isShiftDown()) {
-            if (selectedModules.count(pickedModule)) {
-                selectedModules.erase(pickedModule);
-            }
-            else {
-                selectedModules.insert(pickedModule);
-            }
-        }
-        else if (event.mods.isCtrlDown()) {
-            looseWire.isValid = true;
-            looseWire.destination = mouseDownPos;
-            looseWire.attachedAtSource = true;
-            looseWire.attachedPort = { pickedModule->module.name, "#@!?" }; // intentionally invalid port
-            looseWire.position = mouseDownPos;
-        }
-        else {
-            draggedModule = pickedModule;
-        }
-        userInteraction = true;
-    }
-    else if (pickedWire) {
-        if (disconnect(pickedWire, mouseDownPos, nearestSource)) {
-            modelChanged = true;
             userInteraction = true;
+        }
+        else if (pickedModule) {
+            if (event.mods.isRightButtonDown()) {
+                PopupMenu poop;
+                if (selectedModules.count(pickedModule)) {
+                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, mouseDownPos);
+                }
+                else {
+                    modelChanged = makeModulePoopUp(poop, pickedModule->module.name, pickedModule->module.type);
+                }
+            }
+            else if (event.mods.isShiftDown()) {
+                if (selectedModules.count(pickedModule)) {
+                    selectedModules.erase(pickedModule);
+                }
+                else {
+                    selectedModules.insert(pickedModule);
+                }
+            }
+            else if (event.mods.isCtrlDown()) {
+                looseWire.isValid = true;
+                looseWire.destination = mouseDownPos;
+                looseWire.attachedAtSource = true;
+                looseWire.attachedPort = { pickedModule->module.name, "#@!?" }; // intentionally invalid port
+                looseWire.position = mouseDownPos;
+            }
+            else {
+                draggedModule = pickedModule;
+            }
+            userInteraction = true;
+        }
+        else if (pickedWire) {
+            if (disconnect(pickedWire, mouseDownPos, nearestSource)) {
+                modelChanged = true;
+                userInteraction = true;
+            }
         }
     }
 

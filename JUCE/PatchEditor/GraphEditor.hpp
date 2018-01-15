@@ -9,6 +9,7 @@
 #include <vector>
 #include <assert.h>
 #include <climits>
+#include <functional>
 
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
@@ -17,6 +18,8 @@
 #include "GraphEditorPositions.hpp"
 
 #include "Utils.hpp"
+
+#include "PopupMenus.hpp"
 
 using namespace std;
 
@@ -70,7 +73,9 @@ private:
 
     bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType);
     bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, XY &position);
-    bool makePortPoopUp(PopupMenu & poop, GfxModule & gfxModule, const string & port, bool inputPort);
+
+    PopupMenu portPopupMenu;
+    PortPopupMenu portPopupMenuData;
 
     vector<GfxModule> modules;
     list<GfxWire> wires;

@@ -27,21 +27,6 @@ const struct ComponentMenuStrings {
     const string docString = "change docstring";
 } c_componentMenuStrings;
 
-class TextLabelMenuEntry : public Component {
-public:
-    Label title;
-    Label edit;
-    TextLabelMenuEntry() {
-        addAndMakeVisible(title);
-        addAndMakeVisible(edit);
-        edit.setEditable(true, true, false);
-    }
-    void resized() override {
-        title.setBoundsRelative(0, 0, 0.25, 1);
-        edit.setBoundsRelative(0.25, 0, 0.75, 1);
-    }
-};
-
 struct ComponentPopupMenuState {
     int typeMenuId = 999;
     TextLabelMenuEntry name;

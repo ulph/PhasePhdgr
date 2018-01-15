@@ -288,6 +288,21 @@ public:
 
         if (applyComponentPopuMenuChoice(choice, cmpState, moduleType, patch, globalComponents)) return true;
 
+        if (choice == 0) {
+            auto newModuleName = nameLbl.edit.getText().toStdString();
+            if (moduleName != newModuleName) {
+                if (0 == rootComponent->graph.rename(moduleName, newModuleName)) {
+                    if (rootComponent->layout.count(moduleName)) {
+                        auto v = rootComponent->layout.at(moduleName);
+                        rootComponent->layout.erase(moduleName);
+                        rootComponent->layout[newModuleName] = v;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
         if (choice == delMenuId) {
             return 0 == rootComponent->graph.remove(moduleName);
         }
@@ -306,19 +321,6 @@ public:
             auto * comp = rootComponent;
             if (comp == nullptr) return false;
             return 0 == comp->addPort("newPort", choice == addComponentInputMenuId, "", 0.0f);
-        }
-
-        auto newModuleName = nameLbl.edit.getText().toStdString();
-        if (moduleName != newModuleName) {
-            if (0 == rootComponent->graph.rename(moduleName, newModuleName)) {
-                if (rootComponent->layout.count(moduleName)) {
-                    auto v = rootComponent->layout.at(moduleName);
-                    rootComponent->layout.erase(moduleName);
-                    rootComponent->layout[newModuleName] = v;
-                }
-                return true;
-            }
-            else return false;
         }
 
         return false;

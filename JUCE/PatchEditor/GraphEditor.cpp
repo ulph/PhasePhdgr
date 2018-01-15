@@ -107,34 +107,6 @@ bool GraphEditor::makeModulePoopUp(PopupMenu & poop, const string & moduleName, 
     return false;
 }
 
-bool GraphEditor::makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, XY &position) {
-    poop.addItem(1, "make component");
-    poop.addItem(2, "delete");
-
-    int choice = poop.show();
-    switch (choice) {
-    case 1:
-    {
-        set<string> selectedModules;
-        for (const auto s : selection) {
-            selectedModules.insert(s->module.name);
-        }
-        selection.clear();
-        string newType = "";
-        return 0 == patch.createNewComponentType(rootComponent(), selectedModules, newType);
-    }
-    return true;
-    case 2:
-        for (const auto* m : selection) {
-            rootComponent()->graph.remove(m->module.name);
-        }
-        return true;
-    default:
-        break;
-    }
-    return false;
-}
-
 ComponentDescriptor* GraphEditor::rootComponent() {
     // lock before call
     if (rootComponentName == rootMarker) return &patch.root;
@@ -266,6 +238,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         findCloseThings(mouseDownPos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
         if (pickedPort && pickedModule) {
             if (event.mods.isRightButtonDown()) {
+
+                // port popup menu
                 if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, *pickedModule, pickedPort->port, pickedPort->isInput)) {
                     auto portPopupCallback = ModalCallbackFunction::forComponent<GraphEditor>(
                         [](int choice, GraphEditor* editor) {
@@ -283,6 +257,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     );
                     portPopupMenu.showMenuAsync(PopupMenu::Options(), portPopupCallback);
                 }
+
             }
             else {
                 looseWire.isValid = true;
@@ -295,12 +270,51 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         }
         else if (pickedModule) {
             if (event.mods.isRightButtonDown()) {
-                PopupMenu poop;
+
+                // selection popup menu
                 if (selectedModules.count(pickedModule)) {
-                    modelChanged = makeModuleSelectionPoopUp(poop, selectedModules, mouseDownPos);
+                    PopupMenu poop;
+                    poop.addItem(1, "make component");
+                    poop.addItem(2, "delete");
+                    auto selectionPopupCallback = ModalCallbackFunction::forComponent<GraphEditor>(
+                        [](int choice, GraphEditor* editor) {
+                            bool modelChanged = false;
+                            if (editor == nullptr) return;
+                            {
+                                auto l = editor->gfxGraphLock.make_scoped_lock();
+                                switch (choice) {
+                                case 1:
+                                    {
+                                        set<string> selectedModules;
+                                        for (const auto s : editor->selectedModules) {
+                                            selectedModules.insert(s->module.name);
+                                        }
+                                        editor->selectedModules.clear();
+                                        string newType = "";
+                                        modelChanged = 0 == editor->patch.createNewComponentType(editor->rootComponent(), selectedModules, newType);
+                                    }
+                                    break;
+                                case 2:
+                                    for (const auto* m : editor->selectedModules) {
+                                        editor->rootComponent()->graph.remove(m->module.name);
+                                    }
+                                    modelChanged = true;
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
+                            if (modelChanged) {
+                                editor->propagatePatch();
+                            }
+                        }
+                        , this
+                    );
+                    poop.showMenuAsync(PopupMenu::Options(), selectionPopupCallback);
                 }
+
                 else {
-                    modelChanged = makeModulePoopUp(poop, pickedModule->module.name, pickedModule->module.type);
+//                    modelChanged = makeModulePoopUp(poop, pickedModule->module.name, pickedModule->module.type);
                 }
             }
             else if (event.mods.isShiftDown()) {

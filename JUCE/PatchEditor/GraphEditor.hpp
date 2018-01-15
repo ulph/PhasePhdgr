@@ -72,7 +72,6 @@ private:
     void updateRenderComponents();
 
     bool makeModulePoopUp(PopupMenu & poop, const string & moduleName, const string & moduleType);
-    bool makeModuleSelectionPoopUp(PopupMenu &poop, set<const GfxModule *> &selection, XY &position);
 
     PopupMenu portPopupMenu;
     PortPopupMenu portPopupMenuData;

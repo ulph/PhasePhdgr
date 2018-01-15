@@ -7,10 +7,11 @@
 
 namespace PhasePhckr {
 
-enum class NoteState {
-    ON,
-    SUSTAINED,
-    STOLEN
+enum NoteState {
+    ON = 0b00,
+    SUSTAINED = 0b01,
+    STOLEN = 0b10,
+    SUSTAINED_AND_STOLEN = 0b11
 };
 
 struct NoteData {

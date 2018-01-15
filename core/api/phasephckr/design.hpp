@@ -223,6 +223,11 @@ enum NoteActivationPolicy {
     NoteActivationPolicyOldest, // any silent voice, fall back to oldest not silent (longest in gate off)
 };
 
+// TODO sustainPolicy 
+// - Auto
+// - trigger same
+// - trigger new
+
 const auto c_NoteActivationPolicyDefault = NoteActivationPolicyOldest;
 const auto c_NoteStealPolicyDefault = NoteStealPolicyAuto;
 const auto c_NoteReactivationPolicyDefault = NoteReactivationPolicyAuto;

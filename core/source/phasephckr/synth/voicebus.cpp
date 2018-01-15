@@ -137,7 +137,7 @@ namespace PhasePhckr {
             auto nIdxToSteal = getNoteDataIndexForStealingVoice(selectedActiveIdx);
             if (nIdxToSteal != -1) {
                 auto& nts = notes[nIdxToSteal];
-                nts.state = NoteState::STOLEN;
+                nts.state = (NoteState) (nts.state | NoteState::STOLEN);
                 noteData->voiceIndex = selectedActiveIdx;
                 noteData->velocity = nts.velocity; // in case of legato
                 res = fvr::StolenVoice;
@@ -145,7 +145,7 @@ namespace PhasePhckr {
             else assert(0);
         }
         else if (stealPolicy != NoteStealPolicyNone) { // TODO refactor
-            noteData->state = NoteState::STOLEN;
+            noteData->state = (NoteState)(noteData->state | NoteState::STOLEN);
             res = fvr::WaitingForVoice;
         }
     }
@@ -155,6 +155,17 @@ namespace PhasePhckr {
 
 void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
+
+    // special handling for retriggering sustained notes
+    if (idx != -1) {
+        auto n = &notes[idx];
+        if ( (n->state == NoteState::SUSTAINED) && legato == LegatoModeRetrigger && n->voiceIndex >= 0 && n->voiceIndex < voices.size()) {
+            voices[n->voiceIndex]->mpe.off(note, 0.0f);
+            notes.erase(notes.begin() + idx);
+            assert(getNoteDataIndex(channel, note) == -1);
+            idx = -1;
+        }
+    }
 
     // find matching note data (or create new)
     NoteData* n = nullptr;
@@ -170,8 +181,12 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
     // find a free voice
     fvr r;
-    if(n->voiceIndex == -1) r = findVoice(note, n, voices);
-    else r = fvr::StolenVoice;
+    if (n->voiceIndex == -1) {
+        r = findVoice(note, n, voices);
+    }
+    else { 
+        r = fvr::StolenVoice;
+    }
 
     // not possible to assign a voice nor wait for one, throw the note state away and bail out
     if (r == fvr::NoVoice) {
@@ -223,7 +238,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                     if (reactivationPolicy != NoteReactivationPolicyNone) {
                         // sift through the stolen notes and revive the one matching the policy
                         for (auto sIdx = 0; sIdx < notes.size(); sIdx++) {
-                            if (notes.at(sIdx).state == NoteState::STOLEN) {
+                            if (notes.at(sIdx).state & NoteState::STOLEN) {
                                 if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
                                     continue;
                                 }
@@ -282,7 +297,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
     }
     else {
         auto& n = notes.at(idx);
-        n.state = NoteState::SUSTAINED;
+        n.state = (NoteState)(n.state | NoteState::SUSTAINED);
     }
 }
 
@@ -296,7 +311,7 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
 }
 
 bool inline voiceAcceptsChannelData(const NoteData& n) {
-    return (n.state == NoteState::ON || n.state == NoteState::SUSTAINED);
+    return !(n.state & NoteState::STOLEN);
 }
 
 void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &voices) {
@@ -345,8 +360,8 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
 void VoiceBus::handleSustain(int channel, float position, std::vector<SynthVoice*> &voices) {
     if (channelData[channel].sustain >= 0.5f && position < 0.5f) {
         for (auto it = notes.begin(); it != notes.end();) {
-            if (it->channel == channel && it->state == NoteState::SUSTAINED) {
-                if (it->voiceIndex != -1) {
+            if (it->channel == channel && (it->state & NoteState::SUSTAINED)) {
+                if (it->voiceIndex != -1 && it->state == NoteState::SUSTAINED) {
                     voices[it->voiceIndex]->mpe.off(it->note, 0.0f);
                 }
                 it = notes.erase(it);

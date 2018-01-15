@@ -364,6 +364,7 @@ void GraphEditor::findCloseThings(const XY& pos, GfxPort** closestPort, GfxModul
 }
 
 void GraphEditor::findHoverDoodat(const XY& mousePos) {
+ 
     GfxPort* pickedPort = nullptr;
     GfxModule* pickedModule = nullptr;
     GfxWire* pickedWire = nullptr;
@@ -371,30 +372,16 @@ void GraphEditor::findHoverDoodat(const XY& mousePos) {
 
     findCloseThings(mousePos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
 
-    if (pickedPort) {
-        pickedPort->latched_mouseHover = true;
-        repaint();
-        mouseIsHovering = true;
-        return;
-    }
-    if (pickedModule) {
-        pickedModule->latched_mouseHover = true;
-        repaint();
-        mouseIsHovering = true;
-        return;
-    }
-    if (pickedWire) {
-        pickedWire->latched_mouseHover = true;
-        repaint();
-        mouseIsHovering = true;
-        return;
-    }
+    bool mouseIsHoveringNow = pickedPort || pickedModule || pickedWire;
 
-    if (mouseIsHovering) {
-        repaint();
-    }
+    if (pickedPort) pickedPort->latched_mouseHover = true;
+    if (pickedModule) pickedModule->latched_mouseHover = true;
+    if (pickedWire) pickedWire->latched_mouseHover = true;
 
-    mouseIsHovering = false;
+    auto doRepaint = mouseIsHovering || mouseIsHovering != mouseIsHoveringNow;
+    mouseIsHovering = mouseIsHoveringNow;
+
+    if (doRepaint) repaint();
 }
 
 void GraphEditor::mouseMove(const MouseEvent & event) {

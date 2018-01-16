@@ -15,10 +15,10 @@ inline float prewarp(float wc) {
     return 2.0f * tanf(wc * 0.5f);
 }
 
-class ZdfLp : public ModuleCRTP<ZdfLp> {
+class Zdf1p : public ModuleCRTP<Zdf1p> {
     float z1 = 0.0f;
 public:
-    ZdfLp();
+    Zdf1p();
     virtual void process() override;
-    static Module* factory() { return new ZdfLp(); }
+    static Module* factory() { return new Zdf1p(); }
 };

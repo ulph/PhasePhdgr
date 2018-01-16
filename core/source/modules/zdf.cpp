@@ -1,14 +1,15 @@
 #include "zdf.hpp"
 #include "inlines.hpp"
 
-ZdfLp::ZdfLp() {
-    inputs.push_back(Pad("x"));
-    inputs.push_back(Pad("wc", 16000.f, "hz"));
-    outputs.push_back(Pad("y"));
-    outputs.push_back(Pad("v"));
+Zdf1p::Zdf1p() {
+    inputs.push_back(Pad("in"));
+    inputs.push_back(Pad("fc", 16000.f, "hz"));
+    outputs.push_back(Pad("lp"));
+    outputs.push_back(Pad("hp"));
+    outputs.push_back(Pad("ap"));
 }
 
-void ZdfLp::process() {
+void Zdf1p::process() {
     float x = inputs[0].value;
     float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
     float wc = fc*fsInv*2.0f*M_PI;
@@ -18,5 +19,6 @@ void ZdfLp::process() {
     float y = v + z1;
     z1 = y + v;
     outputs[0].value = y;
-    outputs[1].value = v_;
+    outputs[1].value = x - y;
+    outputs[2].value = y - (x - y);
 }

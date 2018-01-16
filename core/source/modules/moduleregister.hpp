@@ -112,7 +112,7 @@ public:
 
         cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
         cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory)); // deprecate?
-        cg.registerModule("ZDFLP", &(ZdfLp::factory));
+        cg.registerModule("ZDF1P", &(Zdf1p::factory));
 
         cg.registerModule("RCHP", &(RcHp::factory)); // TODO, rename?
         cg.registerModule("RCLP", &(RcLp::factory)); // TODO, rename?

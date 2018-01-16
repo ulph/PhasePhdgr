@@ -26,6 +26,7 @@
 #include "tanh.hpp"
 #include "div.hpp"
 #include "logic.hpp"
+#include "zdf.hpp"
 
 class Constant : public ModuleCRTP<Constant>
 {
@@ -62,24 +63,34 @@ class ModuleRegister {
 public:
     static void registerAllModules(ConnectionGraph &cg)
     {
-        /* logic */
+        /* mul/div */
         cg.registerModule("MUL", &(Mul::factory));
         cg.registerModule("MULTRI", &(MulTri::factory));
         cg.registerModule("MULQUAD", &(MulQuad::factory));
         cg.registerModule("DIV", &(Div::factory));
         cg.registerModule("MOD", &(Mod::factory));
         cg.registerModule("ABS", &(Abs::factory));
+
+        /* map */
         cg.registerModule("CINV", &(ClampInv::factory));
         cg.registerModule("SCLSHFT", &(ScaleShift::factory)); // hmm
         cg.registerModule("SHFTSCL", &(ShiftScale::factory)); // uhh
         cg.registerModule("SCLSHFTMUL", &(ScaleShiftMul::factory)); // ugh
+        // TODO; a LinMap instead of SCLSHFT etc
+
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("CONST", &(Constant::factory));
+        
+        /* mixing */
         cg.registerModule("XFADE", &(CrossFade::factory));
         cg.registerModule("FADEX", &(FadeCross::factory));
+        // TODO, XFADE / FADEX variants with more io, aka (DE)MUX
+
+        /* logic */
         cg.registerModule("SAMPHOLD", &(SampleAndHold::factory));
         cg.registerModule("TRESH", &(Threshold::factory));
         cg.registerModule("COUNTER", &(Counter::factory));
+        // TODO; AND/OR/XOR ... NEG etc
 
         /* conversions */
         cg.registerModule("TEMPO2TIME", &(TempoToTime::factory));
@@ -98,17 +109,20 @@ public:
 
         cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory)); // deprecate?
         cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // deprecate?
-        cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
-        cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory));
 
-        cg.registerModule("RCHP", &(RcHp::factory));
-        cg.registerModule("RCLP", &(RcLp::factory));
-        cg.registerModule("ORCHP", &(OpenRcHp::factory));
-        cg.registerModule("ORCLP", &(OpenRcLp::factory));
-        // TODO, lin-phase and/or ZDF variants
+        cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
+        cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory)); // deprecate?
+        cg.registerModule("ZDFLP", &(ZdfLp::factory));
+
+        cg.registerModule("RCHP", &(RcHp::factory)); // TODO, rename?
+        cg.registerModule("RCLP", &(RcLp::factory)); // TODO, rename?
+        cg.registerModule("ORCHP", &(OpenRcHp::factory)); // DEPRECATED
+        cg.registerModule("ORCLP", &(OpenRcLp::factory)); // DEPRECATED
+
+        /* special filters */
         cg.registerModule("LAG", &(Lag::factory));
         cg.registerModule("RATELIMITER", &(RateLimiter::factory)); // TODO, not a filter
-        cg.registerModule("INTEGRATOR", &(LeakyIntegrator::factory));
+        cg.registerModule("INTEGRATOR", &(LeakyIntegrator::factory)); // numerical leaky integrator
 
         /* envelopes */
         cg.registerModule("ENV", &(CamelEnvelope::factory));

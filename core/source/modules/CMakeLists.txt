@@ -3,8 +3,8 @@ set(SRC
     biquad.hpp
     blitosc.cpp
     blitosc.hpp
-    camelenvelope.cpp
-    camelenvelope.hpp
+    env.cpp
+    env.hpp
     svf.cpp
     svf.hpp
     map.cpp

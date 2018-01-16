@@ -111,8 +111,10 @@ public:
         cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // deprecate?
 
         cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
-        cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory)); // deprecate?
+        cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory));
         cg.registerModule("ZDF1P", &(Zdf1p::factory));
+        cg.registerModule("ZDF1PLOWSHELF", &(Zdf1pLowShelf::factory));  // TODO, rename
+        cg.registerModule("ZDF1PHIGHSHELF", &(Zdf1pHighShelf::factory)); // TODO, rename
 
         cg.registerModule("RCHP", &(RcHp::factory)); // TODO, rename?
         cg.registerModule("RCLP", &(RcLp::factory)); // TODO, rename?

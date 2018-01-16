@@ -34,8 +34,6 @@ set(SRC
     phase.hpp
     quantize.cpp
     quantize.hpp
-    saturatoratan.cpp
-    saturatoratan.hpp
     scaleshift.cpp
     scaleshift.hpp
     sine.cpp
@@ -46,8 +44,6 @@ set(SRC
     samphold.hpp
     logic.cpp
     logic.hpp
-    tanh.cpp
-    tanh.hpp
     inlines.hpp
     zdf.cpp
     zdf.hpp

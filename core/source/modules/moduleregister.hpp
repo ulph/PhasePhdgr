@@ -8,7 +8,6 @@
 #include "quantize.hpp"
 #include "noise.hpp"
 #include "sine.hpp"
-#include "saturatoratan.hpp"
 #include "camelenvelope.hpp"
 #include "rlc.hpp"
 #include "abs.hpp"
@@ -23,10 +22,10 @@
 #include "svf.hpp"
 #include "conversion.hpp"
 #include "samphold.hpp"
-#include "tanh.hpp"
 #include "div.hpp"
 #include "logic.hpp"
 #include "zdf.hpp"
+#include "unarymath.hpp"
 
 class Constant : public ModuleCRTP<Constant>
 {
@@ -141,16 +140,26 @@ public:
         cg.registerModule("SPOW", &(SymPow::factory));
         cg.registerModule("SLOG2", &(SymLog2::factory));
         cg.registerModule("QUANT", &(Quantize::factory));
-        cg.registerModule("ATAN", &(Atan::factory));
-        cg.registerModule("SATAN", &(SaturatorAtan::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("WRAP", &(Wrap::factory));
+
+        // ... unary math operators ...
+        cg.registerModule("ATAN", &(Atan::factory));
+        cg.registerModule("SATAN", &(NormalizedAtan::factory));
+        cg.registerModule("SSATAN", &(StereoNormalizedAtan::factory));
+
         cg.registerModule("TANH", &(TanH::factory));
         cg.registerModule("NTANH", &(NormalizedTanH::factory));
+        cg.registerModule("SNTANH", &(StereoNormalizedTanH::factory));
+
+        cg.registerModule("ASINH", &(ArcSinH::factory));
+        cg.registerModule("NASINH", &(NormalizedArcSinH::factory));
+        cg.registerModule("SNASINH", &(StereoNormalizedArcSinH::factory));
+
+        auto a = asinhf(2);
         
         /* stereo */
         cg.registerModule("GAIN", &(Gain::factory));
-        cg.registerModule("SSATAN", &(StereoSaturatorAtan::factory));
 
         /* special */
         cg.registerModule("=KNOB", &(Knob::factory));

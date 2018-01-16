@@ -11,4 +11,12 @@ public:
     static Module* factory() { return new Clamp(); }
 };
 
+class RangeMap : public ModuleCRTP<RangeMap>
+{
+public:
+    RangeMap();
+    void process();
+    static Module* factory() { return new RangeMap(); }
+};
+
 #endif

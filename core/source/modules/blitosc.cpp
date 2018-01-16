@@ -17,7 +17,7 @@ BlitOsc::BlitOsc()
     inputs.push_back(Pad("softReset"));
     inputs.push_back(Pad("dcRemoval", 0.125f));
     outputs.push_back(Pad("derivative"));
-    outputs.push_back(Pad("output"));
+    outputs.push_back(Pad("out"));
     outputs.push_back(Pad("integral"));
 }
 

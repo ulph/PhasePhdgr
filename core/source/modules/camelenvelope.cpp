@@ -3,7 +3,7 @@
 
 CamelEnvelope::CamelEnvelope()
 {
-    outputs.push_back(Pad("value"));
+    outputs.push_back(Pad("out"));
 
     inputs.push_back(Pad("gate"));
 

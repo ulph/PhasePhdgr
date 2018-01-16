@@ -4,11 +4,11 @@
 
 FoldBack::FoldBack()
 {
-    inputs.push_back(Pad("input"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("amount", 1.0f));
     inputs.push_back(Pad("prescalar", 1.0f));
     inputs.push_back(Pad("threshhold", 1.0f));
-    outputs.push_back(Pad("output"));
+    outputs.push_back(Pad("out"));
 }
 
 bool FoldBack::iterate(float *v, float scale, float th) {
@@ -40,10 +40,10 @@ void FoldBack::process() {
 
 Wrap::Wrap()
 {
-    inputs.push_back(Pad("input"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("prescalar", 1.0f));
     inputs.push_back(Pad("threshhold", 1.0f));
-    outputs.push_back(Pad("output"));
+    outputs.push_back(Pad("out"));
 }
 
 bool Wrap::iterate(float *v, float th) {

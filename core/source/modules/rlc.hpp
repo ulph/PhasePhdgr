@@ -49,22 +49,6 @@ public:
     static Module* factory() { return new RcHp(); }
 };
 
-class OpenRcLp : public ModuleCRTP<OpenRcLp>
-{
-public:
-    OpenRcLp();
-    void process();
-    static Module* factory() { return new OpenRcLp(); }
-};
-
-class OpenRcHp : public ModuleCRTP<OpenRcHp>
-{
-public:
-    OpenRcHp();
-    void process();
-    static Module* factory() { return new OpenRcHp(); }
-};
-
 class Lag : public ModuleCRTP<Lag>
 {
 public:

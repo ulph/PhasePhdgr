@@ -4,7 +4,7 @@
 SymPow::SymPow() {
     inputs.push_back(Pad("base", 1.0));
     inputs.push_back(Pad("exp", 1.0));
-    outputs.push_back(Pad("pow"));
+    outputs.push_back(Pad("out"));
 }
 
 void SymPow::process() {
@@ -14,8 +14,8 @@ void SymPow::process() {
 }
 
 SymLog2::SymLog2() {
-    inputs.push_back(Pad("value", 1.0));
-    outputs.push_back(Pad("log"));
+    inputs.push_back(Pad("in", 1.0));
+    outputs.push_back(Pad("out"));
 }
 
 void SymLog2::process() {

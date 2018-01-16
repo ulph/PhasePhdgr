@@ -2,9 +2,9 @@
 #include "inlines.hpp"
 
 Threshold::Threshold() {
-    inputs.push_back(Pad("input"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("threshold", 0.5f));
-    outputs.push_back(Pad("binary"));
+    outputs.push_back(Pad("out"));
 }
 
 void Threshold::process() {
@@ -12,9 +12,9 @@ void Threshold::process() {
 }
 
 Counter::Counter() {
-    inputs.push_back(Pad("trigger"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("reset"));
-    outputs.push_back(Pad("counter"));
+    outputs.push_back(Pad("out"));
 }
 
 void Counter::process() {

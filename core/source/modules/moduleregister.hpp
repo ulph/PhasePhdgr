@@ -4,18 +4,15 @@
 #include "connectiongraph.hpp"
 #include "phase.hpp"
 #include "mul.hpp"
-#include "clamp.hpp"
 #include "quantize.hpp"
 #include "noise.hpp"
 #include "sine.hpp"
 #include "camelenvelope.hpp"
 #include "rlc.hpp"
-#include "abs.hpp"
 #include "foldback.hpp"
 #include "crossfade.hpp"
 #include "sympow.hpp"
-#include "clampinv.hpp"
-#include "scaleshift.hpp"
+#include "map.hpp"
 #include "delay.hpp"
 #include "biquad.hpp"
 #include "blitosc.hpp"
@@ -71,13 +68,9 @@ public:
         cg.registerModule("ABS", &(Abs::factory));
 
         /* map */
-        cg.registerModule("CINV", &(ClampInv::factory));
-        cg.registerModule("SCLSHFT", &(ScaleShift::factory)); // hmm
-        cg.registerModule("SHFTSCL", &(ShiftScale::factory)); // uhh
-        cg.registerModule("SCLSHFTMUL", &(ScaleShiftMul::factory)); // ugh
-        // TODO; a LinMap instead of SCLSHFT etc
-
+        cg.registerModule("MAP", &(RangeMap::factory)); // hmm
         cg.registerModule("CLAMP", &(Clamp::factory));
+
         cg.registerModule("CONST", &(Constant::factory));
         
         /* mixing */
@@ -98,7 +91,6 @@ public:
         /* generators */
         cg.registerModule("PHASE", &(Phase::factory));
         cg.registerModule("NOISE", &(Noise::factory));
-        cg.registerModule("PBLOSC", &(BlitOsc::factory)); // DEPRECATED
         cg.registerModule("OSC_BLIT", &(BlitOsc::factory));
 
         /* filters */
@@ -106,19 +98,14 @@ public:
         cg.registerModule("BQLPF", &(LowPass::factory));
         cg.registerModule("BQPEAK", &(PeakingEQ::factory));
 
-        cg.registerModule("CHAMBFLT", &(ChamberlinFilter::factory)); // deprecate?
-        cg.registerModule("OCHAMBFLT", &(OpenChamberlinFilter::factory)); // deprecate?
-
         cg.registerModule("SVF", &(TrapezoidalTanSVF::factory));
         cg.registerModule("OSVF", &(OpenTrapezoidalTanSVF::factory));
-        cg.registerModule("ZDF1P", &(Zdf1p::factory));
-        cg.registerModule("ZDF1PLSHELF", &(Zdf1pLowShelf::factory));  // TODO, rename
-        cg.registerModule("ZDF1PHSHELF", &(Zdf1pHighShelf::factory)); // TODO, rename
+        cg.registerModule("ZDF_1P", &(Zdf1p::factory));
+        cg.registerModule("ZDF_1PLSHELF", &(Zdf1pLowShelf::factory));  // TODO, rename
+        cg.registerModule("ZDF_1PHSHELF", &(Zdf1pHighShelf::factory)); // TODO, rename
 
         cg.registerModule("RCHP", &(RcHp::factory)); // TODO, rename?
         cg.registerModule("RCLP", &(RcLp::factory)); // TODO, rename?
-        cg.registerModule("ORCHP", &(OpenRcHp::factory)); // DEPRECATED
-        cg.registerModule("ORCLP", &(OpenRcLp::factory)); // DEPRECATED
 
         /* special filters */
         cg.registerModule("LAG", &(Lag::factory));

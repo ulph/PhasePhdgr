@@ -1,6 +1,4 @@
 set(SRC
-    abs.cpp
-    abs.hpp
     biquad.cpp
     biquad.hpp
     blitosc.cpp
@@ -9,10 +7,8 @@ set(SRC
     camelenvelope.hpp
     svf.cpp
     svf.hpp
-    clamp.cpp
-    clamp.hpp
-    clampinv.cpp
-    clampinv.hpp
+    map.cpp
+    map.hpp
     conversion.cpp
     conversion.hpp
     crossfade.cpp
@@ -34,8 +30,6 @@ set(SRC
     phase.hpp
     quantize.cpp
     quantize.hpp
-    scaleshift.cpp
-    scaleshift.hpp
     sine.cpp
     sine.hpp
     sympow.cpp
@@ -47,6 +41,7 @@ set(SRC
     inlines.hpp
     zdf.cpp
     zdf.hpp
+    unarymath.hpp
 )
 
 add_library(modules_obj OBJECT ${SRC})

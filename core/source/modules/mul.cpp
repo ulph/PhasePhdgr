@@ -2,9 +2,9 @@
 
 Mul::Mul()
 {
-    inputs.push_back(Pad("in1", 1.f));
+    inputs.push_back(Pad("in", 1.f));
     inputs.push_back(Pad("in2", 1.f));
-    outputs.push_back(Pad("prod"));
+    outputs.push_back(Pad("out"));
 }
 
 void Mul::process() {
@@ -19,10 +19,10 @@ void Mul::block_process() {
 
 MulTri::MulTri()
 {
-    inputs.push_back(Pad("in1", 1.f));
+    inputs.push_back(Pad("in", 1.f));
     inputs.push_back(Pad("in2", 1.f));
     inputs.push_back(Pad("in3", 1.f));
-    outputs.push_back(Pad("prod"));
+    outputs.push_back(Pad("out"));
 }
 
 void MulTri::process() {
@@ -37,11 +37,11 @@ void MulTri::block_process() {
 
 MulQuad::MulQuad()
 {
-    inputs.push_back(Pad("in1", 1.f));
+    inputs.push_back(Pad("in", 1.f));
     inputs.push_back(Pad("in2", 1.f));
     inputs.push_back(Pad("in3", 1.f));
     inputs.push_back(Pad("in4", 1.f));
-    outputs.push_back(Pad("prod"));
+    outputs.push_back(Pad("out"));
 }
 
 void MulQuad::process() {

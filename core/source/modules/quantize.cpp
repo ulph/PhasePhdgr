@@ -5,7 +5,7 @@ Quantize::Quantize()
 {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("factor", 1.f));
-    outputs.push_back(Pad("quant"));
+    outputs.push_back(Pad("out"));
 }
 
 void Quantize::process()

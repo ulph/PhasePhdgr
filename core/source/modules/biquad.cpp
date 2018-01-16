@@ -6,13 +6,13 @@
 // TODO, make open variant
 Biquad::Biquad()
 {
-    inputs.push_back(Pad("input"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("a1"));
     inputs.push_back(Pad("a2"));
     inputs.push_back(Pad("b0", 1.f));
     inputs.push_back(Pad("b1"));
     inputs.push_back(Pad("b2"));
-    outputs.push_back(Pad("output"));
+    outputs.push_back(Pad("out"));
     init_state();
 }
 
@@ -45,7 +45,7 @@ void Biquad::process() {
 
 LowPass::LowPass()
 {
-  inputs.push_back(Pad("f0", "Hz"));
+  inputs.push_back(Pad("fc", "Hz"));
   inputs.push_back(Pad("Q", 1.0));
 
   outputs.push_back(Pad("a1"));
@@ -88,7 +88,7 @@ void LowPass::process()
 
 PeakingEQ::PeakingEQ()
 {
-    inputs.push_back(Pad("f0", "Hz"));
+    inputs.push_back(Pad("fc", "Hz"));
     inputs.push_back(Pad("A", 0.0, "dB"));
     inputs.push_back(Pad("Q", 1.0));
 

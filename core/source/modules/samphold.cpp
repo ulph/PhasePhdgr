@@ -4,9 +4,9 @@ SampleAndHold::SampleAndHold() :
     lastTrigger(0.f),
     heldValue(0.f)
 {
-    inputs.push_back(Pad("sample"));
+    inputs.push_back(Pad("in"));
     inputs.push_back(Pad("trigger"));
-    outputs.push_back(Pad("value"));
+    outputs.push_back(Pad("out"));
 }
 
 void SampleAndHold::process()

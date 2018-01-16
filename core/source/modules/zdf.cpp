@@ -6,7 +6,7 @@
 #include <assert.h>
 
 inline float normalizeFrequency(float f, float fsInv) {
-    return f*fsInv*2.0f*M_PI;
+    return f*fsInv*2.0f*(double)M_PI;
 }
 
 inline float prewarp(float wc) {
@@ -44,7 +44,7 @@ inline float highShelfCutoff(float wmid, float k) {
 
 Zdf1p::Zdf1p() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "hz"));
+    inputs.push_back(Pad("fc", 16000.f, "Hz"));
     outputs.push_back(Pad("lp"));
     outputs.push_back(Pad("hp"));
     outputs.push_back(Pad("ap"));
@@ -69,7 +69,7 @@ void Zdf1p::process() {
 
 Zdf1pLowShelf::Zdf1pLowShelf() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "hz"));
+    inputs.push_back(Pad("fc", 16000.f, "Hz"));
     inputs.push_back(Pad("drop", 0.5f));
     outputs.push_back(Pad("out"));
 }
@@ -95,7 +95,7 @@ void Zdf1pLowShelf::process() {
 
 Zdf1pHighShelf::Zdf1pHighShelf() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "hz"));
+    inputs.push_back(Pad("fc", 16000.f, "Hz"));
     inputs.push_back(Pad("drop", 0.5f));
     outputs.push_back(Pad("out"));
 }

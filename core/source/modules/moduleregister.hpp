@@ -132,8 +132,8 @@ public:
         cg.registerModule("WRAP", &(Wrap::factory));
         // ... unary math operators
         cg.registerModule("ATAN", &(Atan::factory));
-        cg.registerModule("SATAN", &(NormalizedAtan::factory));
-        cg.registerModule("SSATAN", &(StereoNormalizedAtan::factory));
+        cg.registerModule("NATAN", &(NormalizedAtan::factory));
+        cg.registerModule("SNATAN", &(StereoNormalizedAtan::factory));
         cg.registerModule("TANH", &(TanH::factory));
         cg.registerModule("NTANH", &(NormalizedTanH::factory));
         cg.registerModule("SNTANH", &(StereoNormalizedTanH::factory));

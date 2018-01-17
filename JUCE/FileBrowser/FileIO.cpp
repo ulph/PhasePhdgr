@@ -72,7 +72,7 @@ namespace PhasePhckrFileStuff {
     }
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
-        return;
+        // TODO, control this
 
         createLibraryDirectoriesIfNeeded();
 

@@ -33,22 +33,22 @@ const ComponentDescriptor stereoTape = {
             {"lfoPhase", "PHASE"},
             {"lfo", "SINE"},
             {"feedbackGain", "GAIN"},
-            {"delayLeftTime", "SCLSHFT"},
-            {"delayRightTime", "SCLSHFT"},
-            {"leftDelayLP", "RCLP"},
-            {"rightDelayLP", "RCLP"},
-            {"leftDelayHP", "RCHP"},
-            {"rightDelayHP", "RCHP"},
-            {"saturation", "SSATAN"},
+            {"delayLeftTime", "MULADD"},
+            {"delayRightTime", "MULADD"},
+            {"leftDelayLP", "D_LP"},
+            {"rightDelayLP", "D_LP"},
+            {"leftDelayHP", "D_HP"},
+            {"rightDelayHP", "D_HP"},
+            {"saturation", "SNATAN"},
         },
         vector<ModulePortConnection>{
             {{"inBus", "left"}, {"leftDelay", "in"}},
             {{"inBus", "right"}, {"rightDelay", "in"}},
 
-            {{"inBus", "leftTime"}, {"delayLeftTime", "shift"}},
-            {{"inBus", "rightTime"}, {"delayRightTime", "shift"}},
-            {{"inBus", "leftModDepth"}, {"delayLeftTime", "scale"}},
-            {{"inBus", "rightModDepth"}, {"delayRightTime", "scale"}},
+            {{"inBus", "leftTime"}, {"delayLeftTime", "add"}},
+            {{"inBus", "rightTime"}, {"delayRightTime", "add"}},
+            {{"inBus", "leftModDepth"}, {"delayLeftTime", "mul"}},
+            {{"inBus", "rightModDepth"}, {"delayRightTime", "mul"}},
 
             {{"inBus", "leftHpHz"}, {"leftDelayHP", "wc"}},
             {{"inBus", "rightHpHz"}, {"rightDelayHP", "wc"}},
@@ -61,24 +61,24 @@ const ComponentDescriptor stereoTape = {
 
             {{"leftDelay", "out"}, {"saturation", "left"}},
             {{"rightDelay", "out"}, {"saturation", "right"}},
-            {{"saturation", "left"}, {"leftDelayHP", "x1"}},
-            {{"saturation", "right"}, {"rightDelayHP", "x1"}},
-            {{"leftDelayHP", "y1"}, {"leftDelayLP", "x1"}},
-            {{"rightDelayHP", "y1"}, {"rightDelayLP", "x1"}},
+            {{"saturation", "left"}, {"leftDelayHP", "in"}},
+            {{"saturation", "right"}, {"rightDelayHP", "in"}},
+            {{"leftDelayHP", "out"}, {"leftDelayLP", "in"}},
+            {{"rightDelayHP", "out"}, {"rightDelayLP", "in"}},
 
-            {{"leftDelayLP", "y1"}, {"feedbackGain", "left"}},
-            {{"rightDelayLP", "y1"}, {"feedbackGain", "right"}},
+            {{"leftDelayLP", "out"}, {"feedbackGain", "left"}},
+            {{"rightDelayLP", "out"}, {"feedbackGain", "right"}},
             {{"feedbackGain", "left"}, {"rightDelay", "in"}},
             {{"feedbackGain", "right"}, {"leftDelay", "in"}},
 
             {{"lfoPhase", "phase"}, {"lfo", "phase"}},
-            {{"lfo", "sine"}, {"delayLeftTime", "input"}},
-            {{"lfo", "sine"}, {"delayRightTime", "input"}},
-            {{"delayLeftTime", "output"}, {"leftDelay", "time"}},
-            {{"delayRightTime", "output"}, {"rightDelay", "time"}},
+            {{"lfo", "sine"}, {"delayLeftTime", "in"}},
+            {{"lfo", "sine"}, {"delayRightTime", "in"}},
+            {{"delayLeftTime", "out"}, {"leftDelay", "time"}},
+            {{"delayRightTime", "out"}, {"rightDelay", "time"}},
 
-            {{"leftDelayLP", "y1"}, {"outBus", "left"}},
-            {{"rightDelayLP", "y1"}, {"outBus", "right"}},
+            {{"leftDelayLP", "out"}, {"outBus", "left"}},
+            {{"rightDelayLP", "out"}, {"outBus", "right"}},
         },
         std::map<ModulePort, float>{
             // any "api"-facing values are better set on inBus
@@ -103,7 +103,7 @@ const ComponentDescriptor adsr = {
     },
     ConnectionGraphDescriptor{
         map<string, string>{
-            {"env", "ENV"}
+            {"env", "CAMELENV"}
         },
         vector<ModulePortConnection>{
             {{"inBus", "gate"}, {"env", "gate"}},

@@ -90,7 +90,7 @@ public:
 
         /* filters */
         cg.registerModule("BQ_FILTER", &(Biquad::factory));
-        cg.registerModule("BQ_LPF", &(LowPass::factory));
+        cg.registerModule("BQ_LP", &(LowPass::factory));
         cg.registerModule("BQ_PEAK", &(PeakingEQ::factory));
 
         cg.registerModule("ZDF_SVF", &(TrapezoidalTanSVF::factory));

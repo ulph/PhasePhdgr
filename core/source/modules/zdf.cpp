@@ -45,9 +45,9 @@ inline float highShelfCutoff(float wmid, float k) {
 Zdf1p::Zdf1p() {
     inputs.push_back(Pad("in"));
     inputs.push_back(Pad("fc", 16000.f, "Hz"));
-    outputs.push_back(Pad("lp"));
-    outputs.push_back(Pad("hp"));
-    outputs.push_back(Pad("ap"));
+    outputs.push_back(Pad("low"));
+    outputs.push_back(Pad("high"));
+    outputs.push_back(Pad("all"));
 }
 
 void Zdf1p::process() {

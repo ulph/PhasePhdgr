@@ -7,6 +7,7 @@ module_renames = { # straight forward rename / replace
     "BIQUAD" : "BQ_FILTER",
     "BQLPF" : "BQ_LP",
     "BQPEAK" : "BQ_PEAK",
+    "ZDF1P" : "ZDF_1P",
     "SVF" : "ZDF_SVF",
     "OSVF" : "ZDF_OSVF",
     "CHAMBFLT" : "ZDF_SVF", # not exactly correct on res/q ... but hey
@@ -236,7 +237,7 @@ port_renames = {
         "outputs" : {
             "lp" : "low",
             "hp" : "high",
-            "all" : "all"
+            "ap" : "all"
         }
     },
 

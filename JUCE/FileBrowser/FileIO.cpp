@@ -3,6 +3,8 @@
 
 #include <algorithm>
 #include <iostream>
+#include <regex>
+#include <string>
 
 using namespace std;
 
@@ -58,7 +60,6 @@ namespace PhasePhckrFileStuff {
         createDirIfNeeded(voicesDir);
         createDirIfNeeded(voicesDir.getFullPathName() + factorySubDir);
         createDirIfNeeded(componentsDir);
-        createDirIfNeeded(componentsDir.getFullPathName() + factorySubDir);
         createDirIfNeeded(presetsDir);
         createDirIfNeeded(presetsDir.getFullPathName() + factorySubDir);
     }
@@ -69,6 +70,37 @@ namespace PhasePhckrFileStuff {
 
     File getInitialEffectFile() {
         return effectsDir.getFullPathName() + factorySubDir + sep + "_init.json";
+    }
+
+    File storeScoped(const File& path, const string& bare_type, const json& body, bool dry_run) {
+        // split prefix and name apart
+        size_t found = bare_type.find_last_of(PhasePhckr::scopeSeparator);
+        string prefix = bare_type.substr(0, found);
+        string name = bare_type.substr(found + 1);
+
+        // create folders if needed
+        size_t start = 0;
+        File exandedPath = path;
+        while (start < prefix.size() && start != std::string::npos) {
+            size_t stop = prefix.substr(start).find_first_of(PhasePhckr::scopeSeparator);
+
+            if (stop == std::string::npos) {
+                exandedPath = exandedPath.getFullPathName() + sep + prefix.substr(start);
+                if(!dry_run) createDirIfNeeded(exandedPath);
+                break;
+            }
+            exandedPath = exandedPath.getFullPathName() + sep + prefix.substr(start, stop);
+            if (!dry_run) createDirIfNeeded(exandedPath);
+
+            start = start + stop + 1;
+        }
+
+        // store file
+        File full_filename = exandedPath.getFullPathName() + sep + name + ".json";
+
+        if (!dry_run) storeJson(full_filename, body);
+        
+        return full_filename;
     }
 
     void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
@@ -88,8 +120,8 @@ namespace PhasePhckrFileStuff {
         for (const auto &kv : cr.all()) {
             const auto &type = kv.first;
             const auto &body = kv.second;
-            File cmp = componentsDir.getFullPathName() + factorySubDir + sep + type.substr(1) + ".json";
-            storeJson(cmp, body);
+            if (!PhasePhckr::componentTypeIsValid(type, true)) continue;
+            storeScoped(componentsDir.getFullPathName(), type.substr(1), body, false);
         }
     }
 

@@ -5,7 +5,7 @@
 
 using namespace PhasePhckrFileStuff;
 
-const String bannedCharacters = " @!?.=-"; // TODO, reuse stuff from core/design
+const String bannedCharacters = " @!?=-"; // TODO, reuse stuff from core/design
 
 File FileEditorBundle::makeFullFileFromFilenameLabel() {
     return watcher.getDirectory().getFullPathName() + File::getSeparatorString() + File(filenameLabel.getText() + string(".json")).getFileName();
@@ -59,7 +59,9 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
     if (btn == &saveButton) {
         if (!isValidFilename()) return;
 
-        File targetFile = makeFullFileFromFilenameLabel();
+        auto j = fetchJsonCallback();
+
+        File targetFile = storeScoped(watcher.getDirectory(), filenameLabel.getText().toStdString(), j, true);
 
         bool shouldWriteFile = true;
         if (targetFile.exists()){
@@ -81,8 +83,7 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
         }
         if (!shouldWriteFile) return;
 
-        auto j = fetchJsonCallback();
-        storeJson(targetFile, j);
+        storeScoped(watcher.getDirectory(), filenameLabel.getText().toStdString(), j, false);
         watcher.refresh();
     }
     else if (btn == &goToRootButton) {
@@ -96,7 +97,7 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
     }
 }
 
-void FileEditorBundle::selectionChanged()  {}
+void FileEditorBundle::selectionChanged() {}
 
 void FileEditorBundle::fileClicked(const File &file, const MouseEvent &e)  {
     // switch directory

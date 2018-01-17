@@ -78,4 +78,7 @@ namespace PhasePhckrFileStuff {
             subComponentRegister.set(-1, componentRegister);
         }
     };
+
+    File storeScoped(const File& path, const string& type, const json& body, bool dry_run);
+
 }

@@ -126,8 +126,8 @@ const ComponentDescriptor adsr = {
 };
 
 void ComponentRegister::registerFactoryComponents() {
-    registerComponent("@STEREOTAPE", stereoTape);
-    registerComponent("@ADSR", adsr);
+    registerComponent("@FACTORY.STEREOTAPE", stereoTape);
+    registerComponent("@FACTORY.ADSR", adsr);
     // etc
 }
 

@@ -363,7 +363,7 @@ int PatchDescriptor::renameComponentTypePort(const string& type, const string& p
 
 int PatchDescriptor::renameComponentType(const string& type, const string& newType) {
     if (!components.count(type)) return -1;
-    if (!componentTypeIsValid(newType, false)) return -2;
+    if (!componentTypeIsValid(newType, true)) return -2;
     if (components.count(newType)) return -3;
     auto v = components[type];
     components.erase(type);
@@ -831,6 +831,7 @@ bool characterIsValid(char c, bool allowLower, bool allowScope) {
 // ...
 
 bool portIsValid(const string& s) {
+    if (s.size() < 1) return false;
     for (auto c : s) {
         if (!characterIsValid(c, true, false)) return false;
     }
@@ -838,6 +839,7 @@ bool portIsValid(const string& s) {
 }
 
 bool nameIsValid(const string& s, bool allowScope){
+    if (s.size() < 1) return false;
     if (s == c_inBus.name || s == c_outBus.name) return false;
     for (auto c : s) {
         if (!characterIsValid(c, true, allowScope)) return false;
@@ -846,6 +848,7 @@ bool nameIsValid(const string& s, bool allowScope){
 }
 
 bool typeIsValid(const string& s, bool allowScope) {
+    if (s.size() < 1) return false;
     if (s == c_inBus.type || s == c_outBus.type) return false;
     for (auto c : s) {
         if (!characterIsValid(c, true, allowScope)) return false;
@@ -854,11 +857,13 @@ bool typeIsValid(const string& s, bool allowScope) {
 }
 
 bool componentTypeIsValid(const string& s, bool allowScope) {
+    if (s.size() < 2) return false;
     if (s.front() != componentMarker) return false;
     return typeIsValid(s.substr(1), allowScope);
 }
 
 bool parameterTypeIsValid(const string& s, bool allowScope) {
+    if (s.size() < 2) return false;
     if (s.front() != componentMarker) return false;
     return typeIsValid(s.substr(1), allowScope);
 }

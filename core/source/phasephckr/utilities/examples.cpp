@@ -9,7 +9,7 @@ namespace PhasePhckr {
             { "outPostGain", "GAIN" },
             { "delayAmount", "CLAMPINV"},
             { "delayGain", "GAIN"},
-            { "stereoTape", "@STEREOTAPE"}
+            { "stereoTape", "@FACTORY.STEREOTAPE"}
         },
         std::vector<ModulePortConnection>{
             { { "inBus", "left" },{ "outPreGain", "left" } },

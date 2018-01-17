@@ -242,13 +242,35 @@ port_renames = {
 
     "ZDF_SVF" : {
         "inputs" : {
-            "input" : "in"
-        }       
+            "input" : "in",
+            "q" : "res",
+            "wc" : "fc"
+        }
+    },
+
+    "ZDF_OSVF" : {
+        "inputs" : {
+            "input" : "in",
+            "q" : "res",
+            "wc" : "fc"
+        }
     },
 
     "TANH" : {
         "outputs" : {
             "tanh" : "out"
+        }
+    },
+
+    "NTANH" : {
+        "outputs" : {
+            "tanh" : "out"
+        }
+    },
+
+    "CLAMP" : {
+        "outputs" : {
+            "clamp" : "out"
         }
     }
 }
@@ -260,11 +282,17 @@ SEP = "/"
 
 def fix_stuff(data):
     instances_to_potentially_fix = []
+    fixed_module_names = {}
 
     if "modules" in data:
         for i, module in enumerate(data["modules"]):
+            if "@" in module[0]:
+                new_name = module[0].replace("@", "_at_")
+                fixed_module_names[module[0]] = new_name
+                module[0] = new_name
+
             if module[1] in module_renames:
-                print(module[0] + " -> " + module_renames[module[1]])
+                print(module[1] + " -> " + module_renames[module[1]])
                 data["modules"][i][1] = module_renames[module[1]]
 
             if module[1] in port_renames:
@@ -272,6 +300,11 @@ def fix_stuff(data):
 
     if "connections" in data:
         for i, connection in enumerate(data["connections"]):
+            if connection[0] in fixed_module_names:
+                connection[0] = fixed_module_names[connection[0]]
+            if connection[2] in fixed_module_names:
+                connection[2] = fixed_module_names[connection[2]]
+
             from_name = connection[0]
             from_port = connection[1]
             to_name = connection[2]
@@ -300,6 +333,9 @@ def fix_stuff(data):
 
     if "values" in data:
         for i, value in enumerate(data["values"]):
+            if value[0] in fixed_module_names:
+                value[0] = fixed_module_names[value[0]]
+
             value_name = value[0]
             value_port = value[1]
             for instance in instances_to_potentially_fix:

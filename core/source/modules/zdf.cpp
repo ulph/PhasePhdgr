@@ -6,7 +6,7 @@
 #include <assert.h>
 
 inline float normalizeFrequency(float f, float fsInv) {
-    return f*fsInv*2.0f*(double)M_PI;
+    return f*fsInv*2.0f*(float)M_PI;
 }
 
 inline float prewarp(float wc) {

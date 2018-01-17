@@ -122,7 +122,9 @@ public:
         // TODO, an actual record/playback buffer thingy with controllable play/record speed and/or position
 
         /* shaping */
-        cg.registerModule("MAP", &(RangeMap::factory)); // hmm
+        cg.registerModule("MAP", &(RangeMap::factory));
+        cg.registerModule("MULADD", &(ScaleShift::factory));
+        cg.registerModule("CLAMPINV", &(ClampInv::factory));
         cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SPOW", &(SymPow::factory));

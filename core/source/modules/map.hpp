@@ -19,4 +19,20 @@ public:
     static Module* factory() { return new RangeMap(); }
 };
 
+class ScaleShift : public ModuleCRTP<ScaleShift>
+{
+public:
+    ScaleShift();
+    void process();
+    static Module* factory() { return new ScaleShift(); }
+};
+
+class ClampInv : public ModuleCRTP<ClampInv>
+{
+public:
+    ClampInv();
+    void process();
+    static Module* factory() { return new ClampInv(); }
+};
+
 #endif

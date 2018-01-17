@@ -99,7 +99,7 @@ const ComponentDescriptor adsr = {
         {"RPow", "", 4.f},
     },
     vector<PadDescription>{
-        {"value", "", 0.f}
+        {"out", "", 0.f}
     },
     ConnectionGraphDescriptor{
         map<string, string>{
@@ -114,7 +114,7 @@ const ComponentDescriptor adsr = {
             {{"inBus", "APow"}, {"env", "onAttackPow"}},
             {{"inBus", "DPow"}, {"env", "onDecayPow"}},
             {{"inBus", "RPow"}, {"env", "offDecayPow"}},
-            {{"env", "value"}, {"outBus", "value"}},
+            {{"env", "out"}, {"outBus", "out"}},
         },
         std::map<ModulePort, float>{
             {{"env", "onBumpHeight"}, 1.0f},

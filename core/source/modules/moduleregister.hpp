@@ -61,18 +61,13 @@ public:
     {
         /* mul/div */
         cg.registerModule("MUL", &(Mul::factory));
-        cg.registerModule("MULTRI", &(MulTri::factory));
-        cg.registerModule("MULQUAD", &(MulQuad::factory));
+        cg.registerModule("MUL_TRI", &(MulTri::factory));
+        cg.registerModule("MUL_QUAD", &(MulQuad::factory));
         cg.registerModule("DIV", &(Div::factory));
         cg.registerModule("MOD", &(Mod::factory));
         cg.registerModule("ABS", &(Abs::factory));
+        cg.registerModule("GAIN", &(Gain::factory));
 
-        /* map */
-        cg.registerModule("MAP", &(RangeMap::factory)); // hmm
-        cg.registerModule("CLAMP", &(Clamp::factory));
-
-        cg.registerModule("CONST", &(Constant::factory));
-        
         /* mixing */
         cg.registerModule("XFADE", &(CrossFade::factory));
         cg.registerModule("FADEX", &(FadeCross::factory));
@@ -105,13 +100,14 @@ public:
         cg.registerModule("ZDF_1PLSHELF", &(Zdf1pLowShelf::factory));
         cg.registerModule("ZDF_1PHSHELF", &(Zdf1pHighShelf::factory));
 
-        cg.registerModule("1PHP", &(RcHp::factory)); // TODO, rename?
-        cg.registerModule("1PLP", &(RcLp::factory)); // TODO, rename?
+        cg.registerModule("D_HP", &(RcHp::factory)); // TODO, rename?
+        cg.registerModule("D_LP", &(RcLp::factory)); // TODO, rename?
 
         /* special filters */
         cg.registerModule("LAG", &(Lag::factory));
         cg.registerModule("RATELIMITER", &(RateLimiter::factory)); // TODO, not a filter
         cg.registerModule("INTEGRATOR", &(LeakyIntegrator::factory)); // numerical leaky integrator
+        // TODO, "DIFFERENTIATOR"
 
         /* envelopes */
         cg.registerModule("CAMELENV", &(CamelEnvelope::factory));
@@ -126,13 +122,15 @@ public:
         // TODO, an actual record/playback buffer thingy with controllable play/record speed and/or position
 
         /* shaping */
+        cg.registerModule("MAP", &(RangeMap::factory)); // hmm
+        cg.registerModule("CLAMP", &(Clamp::factory));
         cg.registerModule("SINE", &(Sine::factory));
         cg.registerModule("SPOW", &(SymPow::factory));
         cg.registerModule("SLOG2", &(SymLog2::factory));
         cg.registerModule("QUANT", &(Quantize::factory));
         cg.registerModule("FOLD", &(FoldBack::factory));
         cg.registerModule("WRAP", &(Wrap::factory));
-        // ... unary math operators ...
+        // ... unary math operators
         cg.registerModule("ATAN", &(Atan::factory));
         cg.registerModule("SATAN", &(NormalizedAtan::factory));
         cg.registerModule("SSATAN", &(StereoNormalizedAtan::factory));
@@ -143,12 +141,8 @@ public:
         cg.registerModule("NASINH", &(NormalizedArcSinH::factory));
         cg.registerModule("SNASINH", &(StereoNormalizedArcSinH::factory));
 
-        auto a = asinhf(2);
-        
-        /* stereo */
-        cg.registerModule("GAIN", &(Gain::factory));
-
         /* special */
+        cg.registerModule("CONST", &(Constant::factory));
         cg.registerModule("=KNOB", &(Knob::factory));
 
     }

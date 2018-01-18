@@ -45,8 +45,6 @@ const ParameterHandleMap& Effect::setEffectChain(const PatchDescriptor& fxChain,
 void Synth::resetVoiceBus(const SynthVoice* voice) {
     assert(settings.polyphony > 0);
 
-    delete voiceBus;
-    voiceBus = new VoiceBus();
     voiceBus->setLegato(settings.legatoMode);
     voiceBus->setStealPolicy(settings.getNoteStealPolicy());
     voiceBus->setReactivationPolicy(settings.getNoteReactivationPolicy());

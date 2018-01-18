@@ -711,7 +711,7 @@ void GraphEditor::designPorts(const Doc &doc) {
 
 void GraphEditor::portPopUpMenu(GfxModule & module, const string & port, bool inputPort) {
     PopupMenu portPopupMenu;
-    if (portPopupMenuData.build(portPopupMenu, patch, rootComponentName, module, port, inputPort)) {
+    if (portPopupMenuData.build(portPopupMenu, patch, rootComponent(), rootComponentName, module, port, inputPort)) {
         auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
             [](int choice, GraphEditor* editor) {
                 if (editor == nullptr) return;

@@ -50,7 +50,7 @@ private:
 
 public:
 
-    bool build(PopupMenu& popupMenu, PatchDescriptor & patch, const string& rootComponentName, GfxModule & gfxModule, const string & port_, bool inputPort_)
+    bool build(PopupMenu& popupMenu, PatchDescriptor & patch, ComponentDescriptor* rootComponent, const string& rootComponentName, GfxModule & gfxModule, const string & port_, bool inputPort_)
     {
         popupMenu.clear();
 
@@ -115,6 +115,23 @@ public:
             popupMenu.addSubMenu("Component", cmpPoop);
         }
 
+        // dynamic choices ... take care
+        {
+            int ctr = 9;
+            PopupMenu disconnectSubmenu;
+            for (int i = 0; i < rootComponent->graph.connections.size(); i++) {
+                const auto& c = rootComponent->graph.connections.at(i);
+                if (inputPort_ && c.target.module == gfxModule.module.name && c.target.port == port) {
+                    disconnectSubmenu.addItem(ctr, c.source.module + " : " + c.source.port);
+                }
+                else if (!inputPort_ && c.source.module == gfxModule.module.name && c.source.port == port) {
+                    disconnectSubmenu.addItem(ctr, c.target.module + " : " + c.target.port);
+                }
+                ctr++;
+            }
+            popupMenu.addSubMenu("disconnect", disconnectSubmenu);
+        }
+
         return true;
     }
 
@@ -148,6 +165,13 @@ public:
             if (!patch.components.count(moduleType)) return false;
             auto& comp = patch.components.at(moduleType);
             return 0 == comp.removePort(port, inputPort);
+        }
+
+        if (choice >= 9) {
+            int i = choice - 9;
+            if (i < rootComponent->graph.connections.size()) {
+                return 0 == rootComponent->graph.disconnect(rootComponent->graph.connections.at(i));
+            }
         }
 
         auto newUnit = unitLbl.edit.getText().toStdString();

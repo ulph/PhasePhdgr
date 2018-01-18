@@ -104,7 +104,7 @@ namespace PhasePhckr {
         // a bit special, as mpe state has lost knowledge of when a key was originally pressed down
         for(int i=0; i<notes.size(); i++){
             const auto& n = notes.at(i);
-            if(n.voiceIndex >= 0 && n.state == NoteState::ON && n.voiceIndex < voices.size()){
+            if(n.voiceIndex >= 0 && !(n.state & NoteState::STOLEN) && n.voiceIndex < voices.size()){
                 selectedActiveIdx = n.voiceIndex;
                 break;
             }
@@ -159,11 +159,14 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
     // special handling for retriggering sustained notes
     if (idx != -1) {
         auto n = &notes[idx];
-        if ( (n->state == NoteState::SUSTAINED) && legato == LegatoModeRetrigger && n->voiceIndex >= 0 && n->voiceIndex < voices.size()) {
-            voices[n->voiceIndex]->mpe.off(note, 0.0f);
-            notes.erase(notes.begin() + idx);
-            assert(getNoteDataIndex(channel, note) == -1);
-            idx = -1;
+        if (n->voiceIndex >= 0 && n->voiceIndex < voices.size()) {
+            if ((n->state == NoteState::SUSTAINED) && legato == LegatoModeRetrigger) {
+                voices[n->voiceIndex]->mpe.off(note, 0.0f);
+                // TODO, should not be needed to delete it
+                notes.erase(notes.begin() + idx);
+                assert(getNoteDataIndex(channel, note) == -1);
+                idx = -1;
+            }
         }
     }
 
@@ -182,6 +185,9 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
     // find a free voice
     fvr r;
     if (n->voiceIndex == -1) {
+        r = findVoice(note, n, voices);
+    }
+    else if (n->state == NoteState::SUSTAINED_AND_STOLEN) {
         r = findVoice(note, n, voices);
     }
     else { 
@@ -376,25 +382,29 @@ void VoiceBus::handleSustain(int channel, float position, std::vector<SynthVoice
 }
 
 int VoiceBus::getNoteDataIndex(int channel, int note) {
-    int idx = 0;
+    int i = 0;
+    int idx = -1;
     for (const auto &n : notes) {
         if (n.note == note && n.channel == channel) {
-            return idx;
+            if (idx == -1) idx = i;
+            else assert(0);
         }
-        idx++;
+        i++;
     }
-    return -1;
+    return idx;
 }
 
 int VoiceBus::getNoteDataIndexForStealingVoice(int voiceIdx) {
-    int idx = 0;
+    int i = 0;
+    int idx = -1;
     for (const auto &n : notes) {
-        if (n.voiceIndex == voiceIdx && n.state != NoteState::STOLEN) {
-            return idx;
+        if (n.voiceIndex == voiceIdx && !(n.state & NoteState::STOLEN)) {
+            if (idx == -1) idx = i;
+            else assert(0);
         }
-        idx++;
+        i++;
     }
-    return -1;
+    return idx;
 }
 
 int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
@@ -412,13 +422,21 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
 }
 
 bool VoiceBus::sanitize(const std::vector<SynthVoice*> &voices) {
-    int numActive = 0;
-    for (int i = 0; i < notes.size(); i++) {
-        const auto& n = notes.at(i);
-        numActive += n.state == NoteState::ON;
-        assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
+    if (notes.size()) {
+        int numActive = 0;
+        for (int i = 0; i < (notes.size() - 1); i++) {
+            const auto& n = notes.at(i);
+            numActive += !(n.state & NoteState::STOLEN);
+            assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
+            for (int j = i + 1; j < notes.size(); j++) {
+                const auto& nn = notes.at(j);
+                assert( !(n.channel == nn.channel && n.note == nn.note) );
+                assert( n.voiceIndex == -1 || !( !(n.state & NoteState::STOLEN) && !(nn.state & NoteState::STOLEN) && n.voiceIndex == nn.voiceIndex) );
+                // TODO; further pair-wise checks
+            }
+        }
+        assert(numActive <= voices.size());
     }
-    assert(numActive <= voices.size());
 
     return true;
 }

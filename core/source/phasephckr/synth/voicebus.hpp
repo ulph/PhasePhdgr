@@ -53,7 +53,7 @@ public:
     void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
     void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices);
-    void update();
+    void update(const std::vector<SynthVoice*> &voices);
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
     void setLegato(LegatoMode status) { legato = status; }
     void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
@@ -77,6 +77,7 @@ private:
     int getNoteDataIndex(int channel, int note);
     int getNoteDataIndexForStealingVoice(int voiceIdx);
     ChannelData channelData[16];
+    bool sanitize(const std::vector<SynthVoice*> &voices);
 };
 
 }

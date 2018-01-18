@@ -113,6 +113,8 @@ public:
         int carryOverSamples = nominalBlockSize - alignedBlockSize;
 
         assert((destinationBufferOffset + alignedBlockSize + carryOverSamples) == blockSize);
+        assert((destinationBufferOffset + alignedBlockSize) <= blockSize);
+        assert(carryOverSamples >= 0);
 
         // samples, if any, that fits a multiple of Synth::internalBlockSize
         if (alignedBlockSize > 0) {

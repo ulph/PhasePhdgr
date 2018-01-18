@@ -147,10 +147,10 @@ namespace PhasePhckr {
         }
         void off(int note, float velocity) {
             age = 1;
-            if (note == rootNote && st.gateTarget) {
-                st.gateTarget = 0;
-                st.liftZ = velocity;
-            }
+            assert(note == rootNote);
+            assert(st.gateTarget > 0);            
+            st.gateTarget = 0;
+            st.liftZ = velocity;
         }
         void glide(float glide) { st.glideXTarget = glide; }
         void slide(float slide) { st.slideYTarget = slide; }

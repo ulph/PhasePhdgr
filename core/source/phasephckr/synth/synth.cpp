@@ -134,7 +134,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
     outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
 
-    voiceBus->update();
+    voiceBus->update(voices);
 }
 
 void Synth::handleNoteOnOff(int a, int b, float c, bool d) { voiceBus->handleNoteOnOff(a, b, c, d, voices); }

@@ -223,6 +223,7 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
+    assert(idx >= 0 && idx <= notes.size());
     if (idx == -1) return;
 
     if (channelData[channel].sustain < 0.5f) {
@@ -410,8 +411,20 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
     return idx;
 }
 
-void VoiceBus::update() {
-    // TODO, sanitize/clean up (at least in debug builds)
+bool VoiceBus::sanitize(const std::vector<SynthVoice*> &voices) {
+    int numActive = 0;
+    for (int i = 0; i < notes.size(); i++) {
+        const auto& n = notes.at(i);
+        numActive += n.state == NoteState::ON;
+        assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
+    }
+    assert(numActive <= voices.size());
+
+    return true;
+}
+
+void VoiceBus::update(const std::vector<SynthVoice*> &voices) {
+    assert(sanitize(voices));
 }
 
 }

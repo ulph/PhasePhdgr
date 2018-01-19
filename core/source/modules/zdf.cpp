@@ -6,17 +6,21 @@
 #include <assert.h>
 
 inline float normalizeFrequency(float f, float fsInv) {
+    float s = f*fsInv;
+    assert(s <= 0.5f);
+    assert(s >= 0.0f);
     return f*fsInv*2.0f*(float)M_PI;
 }
 
 inline float prewarp(float wc) {
-    // nyquist is at M_PI;
     assert(wc >= 0.0f);
-    assert(wc <= M_PI);
+    assert(wc <= (float)M_PI);
     return 2.0f * tanf(wc * 0.5f);
 }
 
 inline float designZdf1pLpGain(float wc) {
+    assert(wc >= 0.0f);
+    assert(wc <= (float)M_PI);
     return prewarp(wc) * 0.5f;
 }
 

@@ -229,7 +229,7 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
-    assert(idx >= 0 && idx <= notes.size());
+//    assert(idx >= 0 && idx <= notes.size());
     if (idx == -1) return;
 
     if (channelData[channel].sustain < 0.5f) {

@@ -17,8 +17,6 @@ inline float prewarp(float wc) {
 }
 
 inline float designZdf1pLpGain(float wc) {
-    assert(wc >= 0.0f);
-    assert(wc <= M_PI);
     return prewarp(wc) * 0.5f;
 }
 

@@ -30,6 +30,7 @@ protected:
     std::vector<Pad> outputs;
     float fs = 48000.f;
     float fsInv = 1.f / fs;
+    // TODO; std::map<int, float> designValues;
 
 public:
     virtual ~Module() {}
@@ -48,6 +49,23 @@ private:
             for (int k = 0; k < outputs.size(); ++k) outputs[k].values[i] = outputs[k].value;
         }
     }
+
+    // TODO;
+    /*
+    virtual void block_design(){
+        use some inputs,
+        calc some stuff
+        store to designValues; key is input index, value is value after block_design
+
+        then, in block_process**, use designValues instead of those previously used inputs
+
+        this scheme allows identical modules with identical inputs* to designValues 
+        to share their design stages. + coupled with blockwise or similar calc of design values -> nice speedup!
+
+        *tbd, but probably by connection alone and not value
+        ** not so much sense in doing this scheme per sample anyway
+    }
+    */
 };
 
 template <class D>

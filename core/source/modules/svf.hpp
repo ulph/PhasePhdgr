@@ -19,7 +19,6 @@ public:
 
 class OpenTrapezoidalTanSVF : public TrapezoidalTanSVF
 {
-    // TODO; expose ic1eq and ic2eq instead ?
 private:
     size_t inPadOffset = 0;
 public:
@@ -29,6 +28,17 @@ public:
     virtual Module *clone() const { return new OpenTrapezoidalTanSVF(*this); }
 };
 
+class OpenTrapezoidalTanSVF2 : public ModuleCRTP<OpenTrapezoidalTanSVF2>
+{
+private:
+    size_t inPadOffset = 0;
+    size_t outPadOffset = 0;
+public:
+    OpenTrapezoidalTanSVF2();
+    virtual void process();
+    static Module* factory() { return new OpenTrapezoidalTanSVF2(); }
+};
+
 /*
 // OnePoleLinearLowPass.pdf
 
@@ -36,8 +46,12 @@ passive:
 y[n] = (g x[n] + ic1eq[n-1] )ê / (1 + g)
 ic1eq[n] = 2 y[n] - ic1eq[n-1]
 
+vs
+
 active:
 y[n] = g (x[n] - y[n-1] ) + ic1eq[n-1]
 ic1eq[n] = 2 y[n] - ic1eq[n-1]
+
+?
 
 */

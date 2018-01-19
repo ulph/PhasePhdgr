@@ -95,6 +95,7 @@ public:
 
         cg.registerModule("ZDF_SVF", &(TrapezoidalTanSVF::factory));
         cg.registerModule("ZDF_OSVF", &(OpenTrapezoidalTanSVF::factory));
+        cg.registerModule("ZDF_OSVF2", &(OpenTrapezoidalTanSVF2::factory));
 
         cg.registerModule("ZDF_1P", &(Zdf1p::factory));
         cg.registerModule("ZDF_1PLSHELF", &(Zdf1pLowShelf::factory));

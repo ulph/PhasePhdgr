@@ -100,3 +100,26 @@ void OpenTrapezoidalTanSVF::process()
     TrapezoidalTanSVFUpdateState(band, low, ic1eq, ic2eq);
     TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low);
 }
+
+OpenTrapezoidalTanSVF2::OpenTrapezoidalTanSVF2()
+{
+    TrapezoidalTanSVFInitPads(inputs, outputs);
+
+    inPadOffset = inputs.size();
+    inputs.push_back(Pad("ic1eq"));
+    inputs.push_back(Pad("ic2eq"));
+
+    outPadOffset = outputs.size();
+    outputs.push_back(Pad("ic1eq"));
+    outputs.push_back(Pad("ic2eq"));
+}
+
+void OpenTrapezoidalTanSVF2::process() {
+    float ic1eq = inputs[inPadOffset + 0].value;
+    float ic2eq = inputs[inPadOffset + 1].value;
+    float band, low;
+    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low);
+    TrapezoidalTanSVFUpdateState(band, low, ic1eq, ic2eq);
+    outputs[outPadOffset + 0].value = ic1eq;
+    outputs[outPadOffset + 1].value = ic2eq;
+}

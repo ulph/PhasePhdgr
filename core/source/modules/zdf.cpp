@@ -139,7 +139,7 @@ Zdf4pLadder::Zdf4pLadder() {
 void Zdf4pLadder::process() {
     float x = inputs[0].value;
     float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
-    float k = inputs[2].value; // TODO; limit and remap
+    float k = limit(inputs[2].value, 0.0f, 2.0f) * 4.0f;
 
     float wc = normalizeFrequency(fc, fsInv);
     float g = designZdf1pLpGain(wc);
@@ -150,6 +150,7 @@ void Zdf4pLadder::process() {
     float S = g*g*g*s1 + g*g*s2 + g*s3 + s4;
 
     float u = (x - k*S) / (1 + k*G);
+    u = tanhf(u);
 
     // LP sections
 

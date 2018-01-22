@@ -101,6 +101,8 @@ public:
         cg.registerModule("ZDF_1PLSHELF", &(Zdf1pLowShelf::factory));
         cg.registerModule("ZDF_1PHSHELF", &(Zdf1pHighShelf::factory));
 
+        cg.registerModule("ZDF_4PLADDER", &(Zdf4pLadder::factory));
+
         cg.registerModule("D_HP", &(RcHp::factory)); // TODO, rename?
         cg.registerModule("D_LP", &(RcLp::factory)); // TODO, rename?
 

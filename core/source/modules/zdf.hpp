@@ -3,7 +3,7 @@
 #include "module.hpp"
 
 class Zdf1p : public ModuleCRTP<Zdf1p> {
-    float z1 = 0.0f;
+    float s = 0.0f;
 public:
     Zdf1p();
     virtual void process() override;
@@ -11,7 +11,7 @@ public:
 };
 
 class Zdf1pLowShelf : public ModuleCRTP<Zdf1pLowShelf> {
-    float z1l = 0.0f;
+    float s = 0.0f;
 public:
     Zdf1pLowShelf();
     virtual void process() override;
@@ -19,9 +19,20 @@ public:
 };
 
 class Zdf1pHighShelf : public ModuleCRTP<Zdf1pHighShelf> {
-    float z1h = 0.0f;
+    float s = 0.0f;
 public:
     Zdf1pHighShelf();
     virtual void process() override;
     static Module* factory() { return new Zdf1pHighShelf(); }
+};
+
+class Zdf4pLadder : public ModuleCRTP<Zdf4pLadder> {
+    float s1 = 0.0f;
+    float s2 = 0.0f;
+    float s3 = 0.0f;
+    float s4 = 0.0f;
+public:
+    Zdf4pLadder();
+    virtual void process() override;
+    static Module* factory() { return new Zdf4pLadder(); }
 };

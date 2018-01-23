@@ -148,9 +148,10 @@ void Zdf4pLadder::process() {
 
     float G = g*g*g*g;
     float S = g*g*g*s1 + g*g*s2 + g*s3 + s4;
+    S = tanhf(S);
 
     float u = (x - k*S) / (1 + k*G);
-    u = tanhf(u); // cheap cheaty way, wc will be slightly off for high signals and cutoffs
+    u = tanhf(u);
 
     // LP sections
 

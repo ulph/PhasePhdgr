@@ -5,16 +5,16 @@
 
 namespace DelayFactory {
     Module* (*makeFactory(int numFractions)) (void) {
-        auto* factory = Delay<32>::factory;
+        auto* factory = Delay<5>::factory;
         switch (numFractions) {
         case 4:
-            factory = Delay<4>::factory; break;
+            factory = Delay<5>::factory; break;
         case 8:
-            factory = Delay<8>::factory; break;
+            factory = Delay<9>::factory; break;
         case 16:
-            factory = Delay<16>::factory; break;
+            factory = Delay<17>::factory; break;
         case 32:
-            factory = Delay<32>::factory; break;
+            factory = Delay<33>::factory; break;
         default:
             assert(0); break;
         }

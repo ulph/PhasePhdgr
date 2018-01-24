@@ -6,7 +6,7 @@ template <> const FractionalSincTable< N > & getFractionalSincTable() { \
     return c_fractionalSincTable_##N; \
 }
 
-MAKE_SINC_TABLE(4);
-MAKE_SINC_TABLE(8);
-MAKE_SINC_TABLE(16);
-MAKE_SINC_TABLE(32);
+MAKE_SINC_TABLE(5);
+MAKE_SINC_TABLE(9);
+MAKE_SINC_TABLE(17);
+MAKE_SINC_TABLE(33);

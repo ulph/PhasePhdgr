@@ -16,6 +16,7 @@ inline float prewarp(float wc) {
     assert(wc >= 0.0f);
     assert(wc <= (float)M_PI);
     wc = 2.0f * tanf(wc * 0.5f);
+    wc = limit(wc, 0, (float)M_PI);
     return wc;
 }
 

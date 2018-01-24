@@ -131,6 +131,7 @@ Zdf4pLadder::Zdf4pLadder() {
     inputs.push_back(Pad("fc", 16000.f, "Hz"));
     inputs.push_back(Pad("res"));
     inputs.push_back(Pad("fbHpFc", 10.f, "Hz"));
+    inputs.push_back(Pad("overdrive", 0.25f));
     outputs.push_back(Pad("out1p"));
     outputs.push_back(Pad("out2p"));
     outputs.push_back(Pad("out3p"));
@@ -138,7 +139,8 @@ Zdf4pLadder::Zdf4pLadder() {
 }
 
 void Zdf4pLadder::process() {
-    float x = inputs[0].value;
+    float gain = limitLow(inputs[4].value, 0.01f);
+    float x = inputs[0].value*gain;
     float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
     float k = limitLow(inputs[2].value, 0.0f) * 4.0f;
     float fbHpFc = limit(inputs[3].value, 1.0f, fs*0.5f);
@@ -167,25 +169,28 @@ void Zdf4pLadder::process() {
     float u = (x - k*S) / (1 + k*G);
     u = tanhf(u);
 
+    // outputs and states
+    float gainInv = 1.0f / tanhf(gain);
+
     // LP sections
     float v1 = 0.0f;
     float y1 = calculateZdf1pLp(u, s1, g, v1);
     s1 = updateZdf1pLpState(y1, v1);
-    outputs[0].value = y1;
+    outputs[0].value = y1*gainInv;
 
     float v2 = 0.0f;
     float y2 = calculateZdf1pLp(y1, s2, g, v2);
     s2 = updateZdf1pLpState(y2, v2);
-    outputs[1].value = y2;
+    outputs[1].value = y2*gainInv;
 
     float v3 = 0.0f;
     float y3 = calculateZdf1pLp(y2, s3, g, v3);
     s3 = updateZdf1pLpState(y3, v3);
-    outputs[2].value = y3;
+    outputs[2].value = y3*gainInv;
 
     float v4 = 0.0f;
     float y4 = calculateZdf1pLp(y3, s4, g, v4);
     s4 = updateZdf1pLpState(y4, v4);
-    outputs[3].value = y4;
+    outputs[3].value = y4*gainInv;
 
 }

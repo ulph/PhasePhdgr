@@ -22,6 +22,49 @@ void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset);
 
 void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition);
 
+struct PPMidiMessage {
+    enum class Type {
+        Uknown,
+        On,
+        Off,
+        X,
+        Y,
+        Z,
+        NoteZ,
+        Expression,
+        Breath,
+        ModWheel,
+        Sustain
+    };
+
+    Type type = Type::Uknown;
+    int ts = 0;
+    int channel = 0;
+    int note = 0;
+    float value = 0.0f;
+
+    PPMidiMessage(Type type_, int ts_, int channel_, int note_, float value_)
+        : type(type_)
+        , ts(ts_)
+        , channel(channel_)
+        , note(note_)
+        , value(value_)
+    {}
+
+    PPMidiMessage(Type type_, int ts_, int channel_, float value_)
+        : type(type_)
+        , ts(ts_)
+        , channel(channel_)
+        , value(value_)
+    {}
+
+    PPMidiMessage(Type type_, int ts_, float value_)
+        : type(type_)
+        , ts(ts_)
+        , value(value_)
+    {}
+};
+
 class BufferingProcessor {
 public:
     enum class Strategy {
@@ -44,7 +87,7 @@ public:
         return strategy == Strategy::BUFFERING ? Effect::internalBlockSize() : 0;
     }
 
-    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) = 0;
+//    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) = 0;
 
     BufferingProcessor(const Strategy& strategy_ = Strategy::BUFFERING)
         : strategy(strategy_)
@@ -70,7 +113,8 @@ public:
     GeneratingBufferingProcessor()
         : BufferingProcessor(Strategy::AHEAD)
     {}
-    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead);
+    void processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth);
+    virtual void process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, AudioPlayHead* playHead);
 };
 
 

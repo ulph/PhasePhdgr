@@ -48,6 +48,8 @@ private:
     size_t voiceHash = 0;
     size_t effectHash = 0;
 
+    vector<PPMidiMessage> midiMessageQueue;
+
     simple_lock synthUpdateLock;
 
 public:

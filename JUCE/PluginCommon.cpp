@@ -44,7 +44,31 @@ void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize
     effect->handleBarPosition(barPosition);
 }
 
-void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, float sampleRate, Effect* synth, AudioPlayHead* playHead) {
+void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth) {
+    auto it = midiMessageQueue.begin();
+    while (it != midiMessageQueue.end()) {
+        if (it->ts < blockSize) {
+            switch (it->type) {
+            case PPMidiMessage::Type::On:
+                synth->handleNoteOnOff(it->channel, it->note, it->value, true);
+                break;
+            case PPMidiMessage::Type::Off:
+                synth->handleNoteOnOff(it->channel, it->note, it->value, false);
+                break;
+            default:
+                assert(0);
+                break;
+            }
+            it = midiMessageQueue.erase(it);
+        }
+        else {
+            it->ts -= blockSize;
+            it++;
+        }
+    }
+}
+
+void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, AudioPlayHead* playHead) {
     const int blockSize = buffer.getNumSamples();
     const int internalBlockSize = Synth::internalBlockSize();
 
@@ -90,7 +114,9 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, float samp
 
     // samples, if any, that fits a multiple of Synth::internalBlockSize
     if (alignedBlockSize > 0) {
+        // TODO; do in chunks of internalBlockSize!
         handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
+        processAndRouteMidi(midiMessageQueue, alignedBlockSize, synth);
         synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), alignedBlockSize, sampleRate);
         destinationBufferOffset += alignedBlockSize;
     }
@@ -98,6 +124,7 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, float samp
     // if not all samples fit, calculate a new frame and store
     if (carryOverSamples > 0) {
         handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
+        processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
         synth->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);
         auto* l = buffer.getWritePointer(0, destinationBufferOffset);
         auto* r = buffer.getWritePointer(1, destinationBufferOffset);

@@ -126,11 +126,12 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
     while (midiIt.getNextEvent(msg, evtPos)){
         int ch = msg.getChannel();
         if(msg.isNoteOnOrOff()){
-            synth->handleNoteOnOff(
-                ch, 
+            midiMessageQueue.emplace_back(
+                msg.isNoteOn(true) ? PPMidiMessage::Type::On : PPMidiMessage::Type::Off,
+                evtPos,
+                ch,
                 msg.getNoteNumber(),
-                msg.getFloatVelocity(), 
-                msg.isNoteOn(true)
+                msg.getFloatVelocity()
             );
         }
         else if(msg.isPitchWheel()){
@@ -179,7 +180,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
     }
 
     parameters.visitHandleParameterValues(synth);
-    bufferingProcessor.process(buffer, (float)getSampleRate(), synth, getPlayHead());
+    bufferingProcessor.process(buffer, midiMessageQueue, (float)getSampleRate(), synth, getPlayHead());
 
     midiMessages.clear();
 

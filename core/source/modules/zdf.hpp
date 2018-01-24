@@ -31,6 +31,7 @@ class Zdf4pLadder : public ModuleCRTP<Zdf4pLadder> {
     float s2 = 0.0f;
     float s3 = 0.0f;
     float s4 = 0.0f;
+    float S5 = 0.0f;
 public:
     Zdf4pLadder();
     virtual void process() override;

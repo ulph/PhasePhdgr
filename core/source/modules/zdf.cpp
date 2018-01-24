@@ -139,19 +139,19 @@ Zdf4pLadder::Zdf4pLadder() {
 
 void Zdf4pLadder::process() {
     float x = inputs[0].value;
-    float k = limit(inputs[2].value, 0.0f, 2.0f) * 4.0f;
-
     float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
+    float k = limitLow(inputs[2].value, 0.0f) * 4.0f;
+    float fbHpFc = limit(inputs[3].value, 1.0f, fs*0.5f);
+
+    // low-pass gain
     float wc = normalizeFrequency(fc, fsInv);
     float g = designZdf1pLpGain(wc);
 
-    // feedback
-
+    // feedback signal
     float G = g*g*g*g;
     float S = g*g*g*s1 + g*g*s2 + g*s3 + s4;
 
-    // high-pass of feedback section
-    float fbHpFc = limit(inputs[3].value, 1.0f, fs*0.5f);
+    // high-pass of feedback signal
     float fbHpWc = normalizeFrequency(fbHpFc, fsInv);
     float h = designZdf1pLpGain(fbHpWc);
 
@@ -160,14 +160,14 @@ void Zdf4pLadder::process() {
     S5 = updateZdf1pLpState(Slp, vS);
     S -= Slp;
     
-    // Saturation
-    S = tanhf(S); // feedback
+    // feedback of feedback signal
+    S = tanhf(S); 
 
+    // input signal + feedback signal
     float u = (x - k*S) / (1 + k*G);
-    u = tanhf(u); // input + feedback
+    u = tanhf(u);
 
     // LP sections
-
     float v1 = 0.0f;
     float y1 = calculateZdf1pLp(u, s1, g, v1);
     s1 = updateZdf1pLpState(y1, v1);

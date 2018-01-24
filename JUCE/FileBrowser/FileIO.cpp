@@ -75,7 +75,10 @@ namespace PhasePhckrFileStuff {
     File storeScoped(const File& path, const string& bare_type, const json& body, bool dry_run) {
         // split prefix and name apart
         size_t found = bare_type.find_last_of(PhasePhckr::scopeSeparator);
-        string prefix = bare_type.substr(0, found);
+        string prefix = "";
+        if (found != string::npos) {
+            prefix = bare_type.substr(0, found);
+        }
         string name = bare_type.substr(found + 1);
 
         // create folders if needed

@@ -160,7 +160,7 @@ void Zdf4pLadder::process() {
     S5 = updateZdf1pLpState(Slp, vS);
     S -= Slp;
     
-    // feedback of feedback signal
+    // saturation of feedback signal
     S = tanhf(S); 
 
     // input signal + feedback signal

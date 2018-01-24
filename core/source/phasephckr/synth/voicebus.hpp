@@ -52,7 +52,7 @@ public:
     void handleY(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
-    void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices);
+    void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices); // TODO; should not use channel
     void update(const std::vector<SynthVoice*> &voices);
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
     void setLegato(LegatoMode status) { legato = status; }

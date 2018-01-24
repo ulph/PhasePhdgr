@@ -109,11 +109,12 @@ public:
 
 
 class GeneratingBufferingProcessor : public BufferingProcessor {
+private:
+    void processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth);
 public:
     GeneratingBufferingProcessor()
         : BufferingProcessor(Strategy::AHEAD)
     {}
-    void processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth);
     virtual void process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, AudioPlayHead* playHead);
 };
 

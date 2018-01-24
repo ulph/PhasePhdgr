@@ -14,6 +14,9 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
     , componentLoader(subComponentRegister)
 {
+
+    midiMessageQueue.reserve(128); // some nice large-ish number
+
     activeSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s){
         setSettings(s);
     });
@@ -135,20 +138,23 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
             );
         }
         else if(msg.isPitchWheel()){
-            synth->handleX(
+            midiMessageQueue.emplace_back(
+                PPMidiMessage::Type::X,
                 ch,
-                2.f*( (float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
+                2.f*((float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
             );
         }
         else if(msg.isAftertouch()){
-            synth->handleNoteZ(
+            midiMessageQueue.emplace_back(
+                PPMidiMessage::Type::NoteZ,
                 ch,
                 msg.getNoteNumber(),
                 (float)msg.getAfterTouchValue() / 127.f
             );
         }
         else if(msg.isChannelPressure()){
-            synth->handleZ(
+            midiMessageQueue.emplace_back(
+                PPMidiMessage::Type::Z,
                 ch,
                 (float)msg.getChannelPressureValue() / 127.f
             );
@@ -159,19 +165,39 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
             // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
             switch (cc) {
                 case 64:
-                    synth->handleSustain(ch, val);
+                    midiMessageQueue.emplace_back(
+                        PPMidiMessage::Type::Sustain,
+                        ch,
+                        val
+                    );
                     break;
                 case 74:
-                    synth->handleY(ch, val);
+                    midiMessageQueue.emplace_back(
+                        PPMidiMessage::Type::Y,
+                        ch,
+                        val
+                    );
                     break;
                 case 1:
-                    synth->handleModWheel(val);
+                    midiMessageQueue.emplace_back(
+                        PPMidiMessage::Type::ModWheel,
+                        ch,
+                        val
+                    );
                     break;
                 case 2:
-                    synth->handleBreath(val);
+                    midiMessageQueue.emplace_back(
+                        PPMidiMessage::Type::Breath,
+                        ch,
+                        val
+                    );
                     break;
                 case 11:
-                    synth->handleExpression(val);
+                    midiMessageQueue.emplace_back(
+                        PPMidiMessage::Type::Expression,
+                        ch,
+                        val
+                    );
                     break;
                 default:
                     break;

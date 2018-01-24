@@ -55,10 +55,37 @@ void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& mi
             case PPMidiMessage::Type::Off:
                 synth->handleNoteOnOff(it->channel, it->note, it->value, false);
                 break;
+            case PPMidiMessage::Type::X:
+                synth->handleX(it->channel, it->value);
+                break;
+            case PPMidiMessage::Type::Y:
+                synth->handleY(it->channel, it->value);
+                break;
+            case PPMidiMessage::Type::Z:
+                synth->handleZ(it->channel, it->value);
+                break;
+            case PPMidiMessage::Type::NoteZ:
+                synth->handleNoteZ(it->channel, it->note, it->value);
+                break;
+
+            case PPMidiMessage::Type::Sustain:
+                synth->handleSustain(it->channel, it->value);
+                break;
+            case PPMidiMessage::Type::ModWheel:
+                synth->handleModWheel(it->value);
+                break;
+            case PPMidiMessage::Type::Breath:
+                synth->handleBreath(it->value);
+                break;
+            case PPMidiMessage::Type::Expression:
+                synth->handleExpression(it->value);
+                break;
+
             default:
                 assert(0);
                 break;
             }
+
             it = midiMessageQueue.erase(it);
         }
         else {
@@ -114,11 +141,15 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
 
     // samples, if any, that fits a multiple of Synth::internalBlockSize
     if (alignedBlockSize > 0) {
-        // TODO; do in chunks of internalBlockSize!
-        handlePlayHead(synth, playHead, alignedBlockSize, sampleRate, barPosition);
-        processAndRouteMidi(midiMessageQueue, alignedBlockSize, synth);
-        synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), alignedBlockSize, sampleRate);
-        destinationBufferOffset += alignedBlockSize;
+        int stuffLeft = alignedBlockSize;
+        while (stuffLeft > 0) {
+            handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
+            processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
+            synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), internalBlockSize, sampleRate);
+            destinationBufferOffset += internalBlockSize;
+            stuffLeft -= internalBlockSize;
+        }
+        assert(stuffLeft == 0);
     }
 
     // if not all samples fit, calculate a new frame and store

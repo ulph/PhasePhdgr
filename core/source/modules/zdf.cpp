@@ -16,8 +16,6 @@ inline float prewarp(float wc) {
     assert(wc >= 0.0f);
     assert(wc <= (float)M_PI);
     wc = 2.0f * tanf(wc * 0.5f);
-//    wc = wc > (float)M_PI ? (float)M_PI : wc;
-//    wc = wc < 0.0f ? 0.0f : wc;
     return wc;
 }
 
@@ -125,6 +123,8 @@ void Zdf1pHighShelf::process() {
 
     outputs[0].value = x + k * yh_lp;
 }
+
+// ...
 
 Zdf4pLadder::Zdf4pLadder() {
     inputs.push_back(Pad("in"));

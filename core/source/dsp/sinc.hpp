@@ -15,6 +15,14 @@ static inline int makeIndex(int N, int n, int i) {
     return i*N + n;
 }
 
+static inline double hamming(double i, double M) {
+    return 0.54 + 0.46*cos((2.0*M_PI*i) / M);
+}
+
+static inline double blackman(double i, double M) {
+    return 0.42 + 0.5*cos((2.0*M_PI*i) / M) + 0.08*cos((4.0*M_PI*i) / M);
+}
+
 template <int N>
 struct FractionalSincTable
 {
@@ -38,8 +46,8 @@ public:
             {
                 int ni = makeIndex(N, n, i);
                 float arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
-                float hamming = 0.54f + 0.46f*cosf((2.f*(float)M_PI*arg) / (float)(N - 1));
-                coeffs[ni] = hamming*sincf(arg * normFreq);
+                float w = blackman(arg, (double)N - 1.0);
+                coeffs[ni] = w*sincf(arg * normFreq);
                 M += coeffs[ni];
             }
             if (normAmp) {

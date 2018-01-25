@@ -54,8 +54,6 @@ set(PH_COMMON_SRC
     Components/ParameterKnob.hpp
 
     Utils/Utils.hpp
-    Utils/Style.cpp
-    Utils/Style.hpp
 
     Parameters.cpp
     Parameters.hpp

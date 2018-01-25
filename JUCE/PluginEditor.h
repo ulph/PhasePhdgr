@@ -33,6 +33,8 @@ public:
     friend Parameters;
 
 private:
+    PPLookAndFeel lookAndFeel;
+
     PhasePhckrProcessor& processor;
 
     ScopeView voiceScopeL;

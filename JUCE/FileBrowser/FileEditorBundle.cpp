@@ -1,7 +1,6 @@
 #include "FileEditorBundle.hpp"
 #include "FileIO.hpp"
 #include "PluginEditor.h"
-#include "Style.hpp"
 
 using namespace PhasePhckrFileStuff;
 
@@ -41,11 +40,6 @@ FileEditorBundle::FileEditorBundle(const string& name, const File& directory, Ti
     addAndMakeVisible(saveButton);
 
     addAndMakeVisible(list);
-
-    _stylize(&titleLabel); titleLabel.setJustificationType(Justification::left);
-    _stylize(&list);
-
-    _stylize(&filenameLabel);
 
     goToRootButton.setButtonText("/");
     goOneUpButton.setButtonText("..");

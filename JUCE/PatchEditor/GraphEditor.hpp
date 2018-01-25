@@ -147,6 +147,9 @@ public:
         setScrollOnDragEnabled(true);
         setScrollBarsShown(true, true, true, true);
     }
+    void paint(Graphics& g){
+        g.fillAll(Colours::black);
+    }
 };
 
 

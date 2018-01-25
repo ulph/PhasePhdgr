@@ -1,5 +1,4 @@
 #include "DocView.hpp"
-#include "Style.hpp"
 
 DocListModel::DocListModel(TextEditor & docTextView, const ComponentClickedCallback& componentClicked)
     : ListBoxModel()
@@ -90,8 +89,8 @@ DocView::DocView(const ComponentClickedCallback& cb)
     docPPGrid.setColoumns({ 1.0f });
     docList.updateContent();
 
-    _stylize(&docTextView);
-    _stylize(&docList);
+    docTextView.setMultiLine(true);
+    docTextView.setReadOnly(true);
 
     resized();
 }

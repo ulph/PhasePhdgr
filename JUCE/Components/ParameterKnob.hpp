@@ -21,11 +21,7 @@ public:
         : parameter(parameter)
         , swapParameterIndicesCallback(swapParameterIndicesCallback)
     {
-        label.setColour(Label::textColourId, Colours::lightgrey);
-        slider.setColour(Slider::thumbColourId, Colours::lightgrey);
-        slider.setColour(Slider::trackColourId, Colours::grey);
-        slider.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
-        slider.setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
+        label.setColour(Label::backgroundColourId, Colours::transparentBlack);
         slider.setSliderStyle(Slider::LinearHorizontal);
         slider.setTextBoxStyle(Slider::NoTextBox, true, 50, 20);
         slider.setPopupDisplayEnabled(true, true, this->getParentComponent());

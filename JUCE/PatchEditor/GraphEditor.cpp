@@ -430,7 +430,7 @@ void GraphEditor::paint(Graphics& g){
 
     updateRenderComponents();
 
-    g.fillAll(Colours::black);
+    g.fillAll(Colour(0xff111111));
 
     for(auto &w : wires){
         w.draw(g);

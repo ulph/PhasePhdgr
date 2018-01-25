@@ -123,6 +123,8 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     float fps = 30.f;
     guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
+    setLookAndFeel(&lookAndFeel);
+
     resized();
 }
 
@@ -140,7 +142,7 @@ PhasePhckrEditor::~PhasePhckrEditor()
 
 void PhasePhckrEditor::paint (Graphics& g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colour(0xff111111));
 }
 
 void PhasePhckrEditor::resized()

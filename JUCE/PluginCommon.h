@@ -164,3 +164,25 @@ public:
     void addKnob(ParameterKnob* knob);
     void resized() override;
 };
+
+
+class PPLookAndFeel : public LookAndFeel_V4 {
+private:
+    const int trackHalfHeight = 5;
+public:
+    PPLookAndFeel();
+
+    virtual void drawLinearSlider(
+        Graphics& g, 
+        int x, 
+        int y, 
+        int width, 
+        int height,
+        float sliderPos, 
+        float minSliderPos, 
+        float maxSliderPos,
+        const Slider::SliderStyle style, 
+        Slider& slider
+    ) override;
+
+};

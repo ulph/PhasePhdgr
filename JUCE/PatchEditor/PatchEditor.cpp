@@ -207,7 +207,7 @@ void PatchEditor::applyComponentRegister() {
 
 void PatchEditor::paint(Graphics& g)
 {
-    g.fillAll(Colours::darkgrey);
+    g.fillAll(Colour(0xff111111));
 }
 
 void PatchEditor::resized()

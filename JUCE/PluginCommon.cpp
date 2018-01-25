@@ -260,8 +260,7 @@ void InputBufferingProcessor::process(AudioSampleBuffer& buffer, float sampleRat
 
 // ...
 
-ParameterEditor::ParameterEditor()
-{
+ParameterEditor::ParameterEditor() {
     addAndMakeVisible(pageTabs);
 }
 
@@ -269,8 +268,7 @@ ParameterEditor::~ParameterEditor() {
     for (auto* p : pages) delete p;
 }
 
-void ParameterEditor::resized()
-{
+void ParameterEditor::resized() {
     pageTabs.setBoundsRelative(0.f, 0.0f, 1.f, 1.0f);
     repaint();
 }
@@ -285,4 +283,81 @@ void ParameterEditor::addKnob(ParameterKnob* knob) {
     }
     pages.back()->addComponent(knob);
     knobCtr++;
+}
+
+PPLookAndFeel::PPLookAndFeel() {
+    setColour(Label::backgroundColourId, Colours::transparentBlack);
+    setColour(Label::backgroundWhenEditingColourId, Colours::darkgrey);
+    setColour(Label::textColourId, Colours::grey);
+    setColour(Label::textWhenEditingColourId, Colours::black);
+    setColour(Label::outlineColourId, Colours::transparentBlack);
+    setColour(Label::outlineWhenEditingColourId, Colours::transparentBlack);
+
+    setColour(TextEditor::backgroundColourId, Colours::black);
+    setColour(TextEditor::textColourId, Colours::green);
+    setColour(TextEditor::highlightColourId, Colours::darkgreen);
+    setColour(TextEditor::highlightedTextColourId, Colours::yellow);
+    setColour(TextEditor::outlineColourId, Colours::transparentBlack);
+    setColour(TextEditor::focusedOutlineColourId, Colours::black);
+    setColour(TextEditor::shadowColourId, Colours::black);
+
+    setColour(ListBox::backgroundColourId, Colours::black);
+    setColour(ListBox::textColourId, Colours::green);
+    setColour(ListBox::outlineColourId, Colours::black);
+
+    setColour(FileListComponent::backgroundColourId, Colours::black);
+    setColour(FileListComponent::outlineColourId, Colours::black);
+    setColour(FileListComponent::highlightColourId, Colours::darkgreen);
+
+    setColour(DirectoryContentsDisplayComponent::textColourId, Colours::green);
+    setColour(DirectoryContentsDisplayComponent::highlightColourId, Colours::darkgreen);
+
+    setColour(Slider::thumbColourId, Colours::lightgrey);
+    setColour(Slider::trackColourId, Colours::black);
+    setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+    setColour(Slider::rotarySliderFillColourId, Colours::lightgrey);
+    setColour(Slider::textBoxTextColourId, Colours::darkgrey);
+    setColour(Slider::textBoxOutlineColourId, Colours::transparentBlack);
+    setColour(Slider::textBoxBackgroundColourId, Colours::transparentBlack);
+    setColour(Slider::textBoxHighlightColourId, Colours::grey);
+    setColour(Slider::backgroundColourId, Colours::transparentBlack);
+
+    setColour(TextButton::buttonColourId, Colours::black);
+    setColour(TextButton::buttonOnColourId, Colours::darkgrey);
+
+    setColour(GroupComponent::outlineColourId, Colour(0xff111111));
+    setColour(GroupComponent::textColourId, Colours::darkgrey);
+
+    setColour(TabbedComponent::outlineColourId, Colours::transparentBlack);
+
+    setColour(TabbedButtonBar::frontOutlineColourId, Colours::darkgrey);
+    setColour(TabbedButtonBar::frontTextColourId, Colours::white);
+    setColour(TabbedButtonBar::tabOutlineColourId, Colours::transparentBlack);
+    setColour(TabbedButtonBar::tabTextColourId, Colours::darkgrey);
+
+    setColour(ScrollBar::backgroundColourId, Colours::transparentBlack);
+    setColour(ScrollBar::thumbColourId, Colours::darkgrey);
+    setColour(ScrollBar::trackColourId, Colours::black);
+
+}
+
+void PPLookAndFeel::drawLinearSlider(
+    Graphics& g,
+    int x,
+    int y,
+    int width,
+    int height,
+    float sliderPos,
+    float minSliderPos,
+    float maxSliderPos,
+    const Slider::SliderStyle style,
+    Slider& slider
+) {
+    assert(style == Slider::LinearHorizontal);
+
+    g.setColour(findColour(Slider::trackColourId));
+    g.fillRoundedRectangle(x, height*0.5f - trackHalfHeight, width, 2.0f * trackHalfHeight, trackHalfHeight);
+
+    g.setColour(findColour(Slider::thumbColourId));
+    g.fillRoundedRectangle(sliderPos - trackHalfHeight, height*0.5f - 2.0f*trackHalfHeight, 2.0f * trackHalfHeight, 4.0f * trackHalfHeight, trackHalfHeight);
 }

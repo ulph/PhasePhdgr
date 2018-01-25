@@ -7,7 +7,7 @@
 #include "DirectoryWatcher.hpp"
 #include "PPGrid.h"
 
-#include "PatchEditor.hpp" // TODO for _stylize
+#include "PatchEditor.hpp"
 
 class PhasePhckrEditor;
 

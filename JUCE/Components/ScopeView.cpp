@@ -3,6 +3,8 @@
 
 void ScopeView::paint (Graphics& g)
 {
+    const float y_clip = 2.f;
+
     float size_y = (float)this->getHeight();
     float size_x = (float)this->getWidth();
     float yScale = size_y / (2.0f*1.0f + 0.75f);
@@ -15,10 +17,24 @@ void ScopeView::paint (Graphics& g)
     g.drawLine(0.0f, (size_y*0.5f + yScale), size_x, (size_y*0.5f + yScale), 0.5f);
     g.drawLine(0.0f, (size_y*0.5f - yScale), size_x, (size_y*0.5f - yScale), 0.5f);
 
+    float clipLevel = 0.0f;
+
     if (sourceSize > 1 && size_x > 1) {
         float xScale = size_x / (float)(sourceSize - 1);
         g.setColour(Colour(0xffffff00));
         for (int i = 0; i < (sourceSize - 1); ++i) {
+            float y0 = sourceBuffer[i];
+            float y1 = sourceBuffer[i + 1];
+
+            if (fabsf(y1) > 1.0f || fabsf(y0) > 1.0f) {
+                clipLevel = fmaxf(clipLevel, fmaxf(fabsf(y1), fabsf(y0)));
+            }
+
+            y0 = y0 > y_clip ? y_clip : y0;
+            y0 = y0 < -y_clip ? -y_clip : y0;
+            y1 = y1 > y_clip ? y_clip : y1;
+            y1 = y1 < -y_clip ? -y_clip : y1;
+
             g.drawLine(
                 i*xScale,
                 size_y*0.5f - yScale*sourceBuffer[i],
@@ -27,6 +43,12 @@ void ScopeView::paint (Graphics& g)
                 1.0f
             );
         }
+    }
+
+    if (clipLevel) {
+        float alpha = clipLevel * 0.03f;
+        g.setColour(Colours::red.withAlpha(alpha));
+        g.fillAll();
     }
 }
 
@@ -48,12 +70,21 @@ void XYScopeView::paint (Graphics& g)
     if(sourceSizeL != sourceSizeR || sourceSizeL < 0){ repaint(); return; }
 
     float blitScale = 0.5f;
+    const float clip = 2.f;
 
     g.setColour(Colour(0xffffff00));
     for (int i = 0; i < sourceSizeL; ++i) {
+        float x = sourceBufferL[i];
+        float y = sourceBufferR[i];
+
+        y = y > clip ? clip : y;
+        y = y < -clip ? -clip : y;
+        x = x > clip ? clip : x;
+        x = x < -clip ? -clip : x;
+
 		g.fillRect(
-			(size_x*(blitScale*sourceBufferL[i] + 0.5f)),
-			(size_y*(-blitScale*sourceBufferR[i] + 0.5f)),
+			size_x*( blitScale*x + 0.5f),
+			size_y*(-blitScale*y + 0.5f),
 			1.f,
 			1.f
         );

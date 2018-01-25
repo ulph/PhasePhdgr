@@ -73,13 +73,19 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     addAndMakeVisible(mainFrame);
     
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
-    scopePPGrid.addComponent(&voiceScopeL);
-    scopePPGrid.addComponent(&voiceScopeXY);
-    scopePPGrid.addComponent(&voiceScopeR);
-    scopePPGrid.addComponent(&outputScopeL);
-    scopePPGrid.addComponent(&outputScopeXY);
-    scopePPGrid.addComponent(&outputScopeR);
-    scopePPGrid.setColoumns({0.33f, 0.33f, 0.33f});
+    voiceScopeGrid.addComponent(&voiceScopeL);
+    voiceScopeGrid.addComponent(&voiceScopeXY);
+    voiceScopeGrid.addComponent(&voiceScopeR);
+    voiceScopeGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
+    voiceScopeGrid.setText("voice output");
+    effectScopeGrid.addComponent(&outputScopeL);
+    effectScopeGrid.addComponent(&outputScopeXY);
+    effectScopeGrid.addComponent(&outputScopeR);
+    effectScopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
+    effectScopeGrid.setText("effect output");
+    scopePPGrid.setColoumns({ 1.0f });
+    scopePPGrid.addComponent(&voiceScopeGrid);
+    scopePPGrid.addComponent(&effectScopeGrid);
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
 

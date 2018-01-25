@@ -2,6 +2,8 @@
 #include "PPGrid.h"
 
 void PPGrid::paint(Graphics& g){
+  return;
+
   float numberOfRows = ceilf(((float)components.size()) / ((float)coloumnSizes.size()));
 
   float size_y = (float)this->getHeight();
@@ -24,6 +26,8 @@ void PPGrid::paint(Graphics& g){
 void PPGrid::resized(){
   float numberOfRows = ceilf(((float)components.size()) / ((float)coloumnSizes.size()));
 
+  int padding = 2;
+
   int i=0;
   float x = 0;
   for(auto &c : components){
@@ -33,12 +37,13 @@ void PPGrid::resized(){
     float y = (float)(i/coloumnSizes.size());
 
     // set positions/size
-    c->setBoundsRelative(
-      x,
-      y/numberOfRows,
-      w,
-      1.f/numberOfRows
+    c->setBounds(
+        x * getWidth() + padding,
+        y / numberOfRows * getHeight() + padding,
+        w * getWidth() - 2 * padding,
+        1.f / numberOfRows * getHeight() - 2 * padding
     );
+
     x += w;
     i++;
   }
@@ -78,6 +83,7 @@ void PPGGrid::setColoumns(const vector<float> &coloumnSizes) {
 }
 
 void PPGGrid::resized() {
-    grid.setBoundsRelative(0.1f, 0.1f, 0.8f, 0.8f);
+    int padding = 30;
+    grid.setBounds(padding, padding, getWidth() - 2*padding, getHeight() - 2*padding);
     grid.resized();
 }

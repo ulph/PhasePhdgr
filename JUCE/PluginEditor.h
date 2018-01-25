@@ -43,6 +43,8 @@ private:
     XYScopeView outputScopeXY;
 
     TabbedComponent mainFrame;
+    PPGGrid voiceScopeGrid;
+    PPGGrid effectScopeGrid;
     PPGrid scopePPGrid;
     ParameterEditor parameterEditor;
 

@@ -40,11 +40,11 @@ void ScopeView::paint (Graphics& g)
                 size_y*0.5f - yScale*sourceBuffer[i],
                 (i + 1)*xScale,
                 size_y*0.5f - yScale*sourceBuffer[i + 1],
-                1.0f
+                0.5f
             );
         }
     }
-
+    
     if (clipLevel) {
         float alpha = clipLevel * 0.03f;
         g.setColour(Colours::red.withAlpha(alpha));
@@ -87,8 +87,8 @@ void XYScopeView::paint (Graphics& g)
 		g.fillRect(
 			size_x*( blitScale*x + 0.5f),
 			size_y*(-blitScale*y + 0.5f),
-			2.f,
-			2.f
+			1.f,
+			1.f
         );
     }
 }

@@ -229,75 +229,72 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
     int idx = getNoteDataIndex(channel, note);
-//    assert(idx >= 0 && idx <= notes.size());
     if (idx == -1) return;
 
     if (channelData[channel].sustain < 0.5f) {
         if(notes.at(idx).state == NoteState::ON) {
             int voiceIdx = notes.at(idx).voiceIndex;
             if (voiceIdx != -1 && voiceIdx < voices.size()) {
-                if(voices.at(voiceIdx)->mpe.getState().gateTarget > 0) {
-                    auto closestDistance = INT_MAX;
-                    auto toReviveIdx = -1;
-                    auto lowestWaiting = INT_MAX;
-                    auto highestWaiting = INT_MIN;
+                voices[voiceIdx]->mpe.off(note, velocity);
 
-                    if (reactivationPolicy != NoteReactivationPolicyNone) {
-                        // sift through the stolen notes and revive the one matching the policy
-                        for (auto sIdx = 0; sIdx < notes.size(); sIdx++) {
-                            if (notes.at(sIdx).state & NoteState::STOLEN) {
-                                if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
-                                    continue;
+                auto closestDistance = INT_MAX;
+                auto toReviveIdx = -1;
+                auto lowestWaiting = INT_MAX;
+                auto highestWaiting = INT_MIN;
+
+                if (reactivationPolicy != NoteReactivationPolicyNone) {
+                    // sift through the stolen notes and revive the one matching the policy
+                    for (auto sIdx = 0; sIdx < notes.size(); sIdx++) {
+                        if (notes.at(sIdx).state & NoteState::STOLEN) {
+                            if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
+                                continue;
+                            }
+                            else {
+                                auto sNote = notes.at(sIdx).note;
+                                auto distance = abs(note - sNote);
+                                if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
+                                    highestWaiting = sNote;
+                                    toReviveIdx = sIdx;
                                 }
-                                else {
-                                    auto sNote = notes.at(sIdx).note;
-                                    auto distance = abs(note - sNote);
-                                    if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
-                                        highestWaiting = sNote;
-                                        toReviveIdx = sIdx;
-                                    }
-                                    else if (reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
-                                        lowestWaiting = sNote;
-                                        toReviveIdx = sIdx;
-                                    }
-                                    else if (reactivationPolicy == NoteReactivationPolicyLast) {
-                                        toReviveIdx = sIdx;
-                                    }
-                                    else if (reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
-                                        toReviveIdx = sIdx;
-                                    }
-                                    else if (reactivationPolicy == NoteReactivationPolicyClosest && distance < closestDistance) {
-                                        closestDistance = distance;
-                                        toReviveIdx = sIdx;
-                                    }
-                                    // ...
+                                else if (reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
+                                    lowestWaiting = sNote;
+                                    toReviveIdx = sIdx;
                                 }
+                                else if (reactivationPolicy == NoteReactivationPolicyLast) {
+                                    toReviveIdx = sIdx;
+                                }
+                                else if (reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
+                                    toReviveIdx = sIdx;
+                                }
+                                else if (reactivationPolicy == NoteReactivationPolicyClosest && distance < closestDistance) {
+                                    closestDistance = distance;
+                                    toReviveIdx = sIdx;
+                                }
+                                // ...
                             }
                         }
                     }
-
-                    if (toReviveIdx != -1) {
-                        float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
-                        auto& toRevive = notes.at(toReviveIdx);
-                        toRevive.voiceIndex = voiceIdx;
-                        bool doLegato = legato != LegatoModeRetrigger && legato != LegatoModeRetriggerReleaseVelocity;
-                        if(legato == LegatoModeFreezeVelocity)
-                            toRevive.velocity = legatoVelocity;
-                        else if(legato == LegatoModeReleaseVelocity)
-                            toRevive.velocity = velocity;
-                        else if (legato == LegatoModeRetriggerReleaseVelocity)
-                            toRevive.velocity = velocity;
-                        // ...
-                        toRevive.state = NoteState::ON;
-                        voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, doLegato);
-                        voices[voiceIdx]->mpe.glide(channelData[toRevive.channel].x);
-                        voices[voiceIdx]->mpe.slide(channelData[toRevive.channel].y);
-                        voices[voiceIdx]->mpe.press(channelData[toRevive.channel].z);
-                    }
-                    else {
-                        voices[voiceIdx]->mpe.off(note, velocity);
-                    }
                 }
+
+                if (toReviveIdx != -1) {
+                    float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
+                    auto& toRevive = notes.at(toReviveIdx);
+                    toRevive.voiceIndex = voiceIdx;
+                    bool doLegato = legato != LegatoModeRetrigger && legato != LegatoModeRetriggerReleaseVelocity;
+                    if(legato == LegatoModeFreezeVelocity)
+                        toRevive.velocity = legatoVelocity;
+                    else if(legato == LegatoModeReleaseVelocity)
+                        toRevive.velocity = velocity;
+                    else if (legato == LegatoModeRetriggerReleaseVelocity)
+                        toRevive.velocity = velocity;
+                    // ...
+                    toRevive.state = NoteState::ON;
+                    voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, doLegato);
+                    voices[voiceIdx]->mpe.glide(channelData[toRevive.channel].x);
+                    voices[voiceIdx]->mpe.slide(channelData[toRevive.channel].y);
+                    voices[voiceIdx]->mpe.press(channelData[toRevive.channel].z);
+                }
+
             }
         }
         notes.erase(notes.begin() + idx);
@@ -422,21 +419,24 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
 }
 
 bool VoiceBus::sanitize(const std::vector<SynthVoice*> &voices) {
-    if (notes.size()) {
-        int numActive = 0;
-        for (int i = 0; i < (notes.size() - 1); i++) {
-            const auto& n = notes.at(i);
-            numActive += noteIsNotStolen(n);
-            assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
-            for (int j = i + 1; j < notes.size(); j++) {
-                const auto& nn = notes.at(j);
-                assert( !(n.channel == nn.channel && n.note == nn.note) );
-                assert( n.voiceIndex == -1 || !( noteIsNotStolen(n) && noteIsNotStolen(nn) && n.voiceIndex == nn.voiceIndex) );
-                // TODO; further pair-wise checks
-            }
+    int numActiveNotes = 0;
+    for (int i = 0; i < notes.size(); i++) {
+        const auto& n = notes.at(i);
+        assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
+        numActiveNotes += noteIsNotStolen(n);
+        for (int j = i + 1; j < notes.size(); j++) {
+            const auto& nn = notes.at(j);
+            assert( !(n.channel == nn.channel && n.note == nn.note) );
+            assert( n.voiceIndex == -1 || !( noteIsNotStolen(n) && noteIsNotStolen(nn) && n.voiceIndex == nn.voiceIndex) );
         }
-        assert(numActive <= voices.size());
     }
+    assert( numActiveNotes <= voices.size() );
+    
+    int numActiveVoices = 0;
+    for (int i = 0; i < voices.size(); i++) {
+        numActiveVoices += voices.at(i)->mpe.getState().gateTarget > 0;
+    }
+    assert( numActiveNotes == numActiveVoices );
 
     return true;
 }

@@ -20,7 +20,6 @@ bool FileEditorBundle::isValidFilename() {
 FileEditorBundle::FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback)
     : watcher(PhasePhckrFileStuff::getFilter(), watchThread)
     , list(watcher)
-    , titleLabel(String(), name)
     , fileLoadedCallback(fileLoadedCallback)
     , fetchJsonCallback(fetchJsonCallback)
 {
@@ -33,7 +32,7 @@ FileEditorBundle::FileEditorBundle(const string& name, const File& directory, Ti
 
     watcher.setDirectory(directory, true, true);
 
-    addAndMakeVisible(titleLabel);
+    setText(name);
     addAndMakeVisible(goToRootButton);
     addAndMakeVisible(goOneUpButton);
     addAndMakeVisible(filenameLabel);
@@ -115,6 +114,8 @@ void FileEditorBundle::invalidateSelection() {
 }
 
 void FileEditorBundle::resized() {
+    const int paddingPx = 20;
+
     const int rowHeightPx = 30;
     const int titleWidthPx = 100;
     const int saveButtonWidthPx = 100;
@@ -125,29 +126,31 @@ void FileEditorBundle::resized() {
     auto boundsWidth = bounds.getWidth();
 
     float rowHeight = 0.01f;
-    float titleWidth = 0.01f;
     float saveButtonWidth = 0.01f;
     float dirButtonWidth = 0.01f;
 
+    float paddingX = 0.01f;
+    float paddingY = 0.01f;
+
     if (boundsHeight > 0) {
         rowHeight = (float)rowHeightPx / (float)boundsHeight;
+        paddingY = (float)paddingPx / (float)boundsHeight;
     }
 
     if (boundsWidth > 0) {
-        titleWidth = (float)titleWidthPx / (float)boundsWidth;
         saveButtonWidth = (float)saveButtonWidthPx / (float)boundsWidth;
         dirButtonWidth = (float)dirButtonWidthPx / (float)boundsWidth;
+        paddingX = (float)paddingPx / (float)boundsWidth;
     }
 
-    float filenameLabelWidth = 1.f - titleWidth - 2 * dirButtonWidth - saveButtonWidth;
+    float filenameLabelWidth = 1.f - 2 * dirButtonWidth - saveButtonWidth;
 
-    titleLabel.setBoundsRelative(0.f, 0.f, titleWidth, rowHeight);
-    goToRootButton.setBoundsRelative(titleWidth, 0.f, dirButtonWidth, rowHeight);
-    goOneUpButton.setBoundsRelative(titleWidth + dirButtonWidth, 0.f, dirButtonWidth, rowHeight);
-    filenameLabel.setBoundsRelative(titleWidth + 2*dirButtonWidth, 0.f, filenameLabelWidth, rowHeight);
-    saveButton.setBoundsRelative(1.f - saveButtonWidth, 0.f, saveButtonWidth, rowHeight);
+    goToRootButton.setBoundsRelative(paddingX, paddingY, dirButtonWidth, rowHeight);
+    goOneUpButton.setBoundsRelative(paddingX + dirButtonWidth, paddingY, dirButtonWidth, rowHeight);
+    filenameLabel.setBoundsRelative(paddingX + 2*dirButtonWidth, paddingY, filenameLabelWidth, rowHeight);
+    saveButton.setBoundsRelative(1.f - saveButtonWidth - paddingX, paddingY, saveButtonWidth, rowHeight);
 
-    list.setBoundsRelative(0.f, rowHeight, 1.f, 1.f - rowHeight);
+    list.setBoundsRelative(paddingX, paddingY + rowHeight, 1.f - 2*paddingX, 1.f - rowHeight - 2*paddingY);
 }
 
 void FileEditorBundle::setFileName(const string& newName){

@@ -16,14 +16,13 @@ typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
 using namespace PhasePhckrFileStuff;
 
-class FileEditorBundle : public Component, public ButtonListener, public FileBrowserListener
+class FileEditorBundle : public GroupComponent, public ButtonListener, public FileBrowserListener
 {
 
     // TODO, thread safety between checks and usages of checks ... maybe
 
 private:
 
-    Label titleLabel;
     TextButton goToRootButton;
     TextButton goOneUpButton;
     Label filenameLabel;

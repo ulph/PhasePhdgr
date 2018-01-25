@@ -87,8 +87,8 @@ void XYScopeView::paint (Graphics& g)
 		g.fillRect(
 			size_x*( blitScale*x + 0.5f),
 			size_y*(-blitScale*y + 0.5f),
-			2.f,
-			2.f
+			1.f,
+			1.f
         );
     }
 }

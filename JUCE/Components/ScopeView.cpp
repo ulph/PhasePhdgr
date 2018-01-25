@@ -12,10 +12,10 @@ void ScopeView::paint (Graphics& g)
     int sourceSize = 0;
     const float * sourceBuffer = source.getBuffer(&sourceSize);
 
-    g.setColour(Colour(0xffff0000));
-    g.drawLine(0.0f, (size_y*0.5f), size_x, (size_y*0.5f), 0.5f);
-    g.drawLine(0.0f, (size_y*0.5f + yScale), size_x, (size_y*0.5f + yScale), 0.5f);
-    g.drawLine(0.0f, (size_y*0.5f - yScale), size_x, (size_y*0.5f - yScale), 0.5f);
+    g.setColour(Colour(0xff880000));
+    g.fillRect(0.0f, (size_y*0.5f         ), size_x, 1.0f);
+    g.fillRect(0.0f, (size_y*0.5f + yScale), size_x, 1.0f);
+    g.fillRect(0.0f, (size_y*0.5f - yScale), size_x, 1.0f);
 
     float clipLevel = 0.0f;
 
@@ -72,10 +72,12 @@ void XYScopeView::paint (Graphics& g)
     float blitScale = 0.5f;
     const float clip = 2.f;
 
-    g.setColour(Colour(0xffffff00));
+    float gridScale = 1.0f / (float)sourceSizeL;
+
+    g.setColour(Colour(0x88ffff00));
     for (int i = 0; i < sourceSizeL; ++i) {
-        float x = sourceBufferL[i];
-        float y = sourceBufferR[i];
+        float x = (sourceBufferR[i] - sourceBufferL[i]) / sqrtf(2.0f);
+        float y = (sourceBufferL[i] + sourceBufferR[i]) / sqrtf(2.0f);
 
         y = y > clip ? clip : y;
         y = y < -clip ? -clip : y;
@@ -85,8 +87,8 @@ void XYScopeView::paint (Graphics& g)
 		g.fillRect(
 			size_x*( blitScale*x + 0.5f),
 			size_y*(-blitScale*y + 0.5f),
-			1.f,
-			1.f
+			2.f,
+			2.f
         );
     }
 }

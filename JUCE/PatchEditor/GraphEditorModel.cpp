@@ -138,8 +138,8 @@ void GfxPort::updateValue(const string& module, const map<ModulePort, float> &mp
 
 void GfxModule::repositionPorts() {
     size_t max_p = (inputs.size() > outputs.size()) ? inputs.size() : outputs.size();
-    if (max_p > 3.0f) {
-        size.x = c_NodeSize + c_NodeSize*max_p / 3.0f;
+    if (max_p > 2.0f) {
+        size.x = c_NodeSize*max_p*0.5f;
     }
 
     for (auto it = inputs.begin(); it != inputs.end(); ++it)

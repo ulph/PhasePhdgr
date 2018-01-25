@@ -300,6 +300,7 @@ void ConnectionGraph::finalizeProgram() {
     assert(program.size() == 0);
 
     for (int i = 0; i < protoProgram.size(); ++i) {
+
         auto instr = protoProgram.at(i);
         auto fromType = getProcessingType(instr.param0);
 
@@ -335,6 +336,7 @@ void ConnectionGraph::finalizeProgram() {
 
         instr = protoProgram.at(i);
         fromType = getProcessingType(instr.param0);
+
         if (fromType == BlockWise) 
         {
             auto toType = getProcessingType(instr.param2);

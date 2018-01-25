@@ -317,14 +317,14 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
     }
 }
 
-bool inline voiceAcceptsChannelData(const NoteData& n) {
-    return !(n.state & NoteState::STOLEN);
+bool inline noteIsNotStolen(const NoteData& n) {
+    return (n.state & NoteState::STOLEN) == 0;
 }
 
 void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].x = position;
     for (const auto &n : notes) {
-        if (n.channel == channel && voiceAcceptsChannelData(n)) {
+        if (n.channel == channel && noteIsNotStolen(n)) {
             if (n.voiceIndex != -1) {
                 voices[n.voiceIndex]->mpe.glide(position);
             }
@@ -335,7 +335,7 @@ void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].y = position;
     for (const auto &n : notes) {
-        if (n.channel == channel && voiceAcceptsChannelData(n)) {
+        if (n.channel == channel && noteIsNotStolen(n)) {
             if (n.voiceIndex != -1) {
                 voices[n.voiceIndex]->mpe.slide(position);
             }
@@ -346,7 +346,7 @@ void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleZ(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].z = position;
     for (const auto &n : notes) {
-        if (n.channel == channel && voiceAcceptsChannelData(n)) {
+        if (n.channel == channel && noteIsNotStolen(n)) {
             if (n.voiceIndex != -1) {
                 voices[n.voiceIndex]->mpe.press(position);
             }
@@ -358,7 +358,7 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
     int idx = getNoteDataIndex(channel, note);
     if (idx != -1) {
         notes[idx].notePressure = position;
-        if (notes[idx].voiceIndex != -1 && voiceAcceptsChannelData(notes[idx])) {
+        if (notes[idx].voiceIndex != -1 && noteIsNotStolen(notes[idx])) {
             voices[notes[idx].voiceIndex]->mpe.press(position);
         }
     }
@@ -398,7 +398,7 @@ int VoiceBus::getNoteDataIndexForStealingVoice(int voiceIdx) {
     int i = 0;
     int idx = -1;
     for (const auto &n : notes) {
-        if (n.voiceIndex == voiceIdx && !(n.state & NoteState::STOLEN)) {
+        if (n.voiceIndex == voiceIdx && noteIsNotStolen(n)) {
             if (idx == -1) idx = i;
             else assert(0);
         }
@@ -426,12 +426,12 @@ bool VoiceBus::sanitize(const std::vector<SynthVoice*> &voices) {
         int numActive = 0;
         for (int i = 0; i < (notes.size() - 1); i++) {
             const auto& n = notes.at(i);
-            numActive += !(n.state & NoteState::STOLEN);
+            numActive += noteIsNotStolen(n);
             assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
             for (int j = i + 1; j < notes.size(); j++) {
                 const auto& nn = notes.at(j);
                 assert( !(n.channel == nn.channel && n.note == nn.note) );
-                assert( n.voiceIndex == -1 || !( !(n.state & NoteState::STOLEN) && !(nn.state & NoteState::STOLEN) && n.voiceIndex == nn.voiceIndex) );
+                assert( n.voiceIndex == -1 || !( noteIsNotStolen(n) && noteIsNotStolen(nn) && n.voiceIndex == nn.voiceIndex) );
                 // TODO; further pair-wise checks
             }
         }

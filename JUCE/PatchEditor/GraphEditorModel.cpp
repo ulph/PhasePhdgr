@@ -205,10 +205,10 @@ void GfxModule::draw(Graphics & g, bool selected) {
         g.setColour(c.withAlpha(0.25f));
     }
     else if (selected) {
-        g.setColour(Colour(0x66888888));
+        g.setColour(Colour(0xBB888888));
     }
     else {
-        g.setColour(Colour(0xAA000000));
+        g.setColour(Colour(0xBB000000));
     }
     float cornerSize = 5.f;
     if(isParameter) cornerSize = c_NodeSize*0.5f;

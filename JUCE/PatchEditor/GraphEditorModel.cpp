@@ -13,7 +13,6 @@ static float calcCableOffset(unsigned int index) {
 }
 
 static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize, unsigned int index = 0) {
-
     float o = calcCableOffset(index);
 
     x0 += 0.5f*r;
@@ -26,19 +25,30 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
 
     path.startNewSubPath(x0, y0);
 
-    if (y1 <= y0) {
-        float dx = 0.25f*nodeSize * (x1 >= x0 ? 1.f : -1.f);
-        float dy = 0.25f*sqrtf(sqrtf(sqrtf((y0-y1))))*nodeSize;
-        float d = 0.25f*nodeSize;
-        path.cubicTo(x0+o+dx, y0+d+dy, x1+o-dx, y1-d-dy, x1, y1);
-    }
-    else {
-        float d = 0.5f*nodeSize;
-        path.cubicTo(x0+o, y0+d, x1+o, y1-d, x1, y1);
-    }
+    float deltaY = fabsf(y0 - y1);
+
+    float deltaYNorm = sqrtf(sqrtf(deltaY));
+
+    float dxA = 0.25f * nodeSize * (x1 >= x0 ? 1.0f : -1.0f);
+    float dyA = (0.25f + 0.25f*deltaYNorm)*nodeSize;
+
+    float dxB = 0.0f;
+    float dyB = (0.125f + 0.125f*deltaYNorm)*nodeSize;
+
+    float dx = 0.0f;
+    float dy = 0.0f;
+
+    float mix = 0.5f*(tanhf((y0-y1)/(nodeSize*0.5f))+1.0f);
+
+    dx = mix*dxA + (1.0f - mix)*dxB;
+    dy = mix*dyA + (1.0f - mix)*dyB;
+
+    float minDy = 0.5f*nodeSize;
+    dy = dy < minDy ? minDy : dy;
+
+    path.cubicTo(x0 + o + dx, y0 + dy, x1 + o - dx, y1 - dy, x1, y1);
     strokeType.createStrokedPath(path, path);
 }
-
 
 bool GfxPort::within(XY p) const {
     return distance(p) <= c_PortSize;

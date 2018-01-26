@@ -22,33 +22,33 @@ const float c_PortSize = 10;
 struct XY {
     XY() : x(0), y(0) {}
     XY(float x, float y) : x(x), y(y) {}
+    
     float x;
     float y;
-    XY& operator+=(const XY& rhs)
-    {
+    
+    XY& operator+=(const XY& rhs) {
         x += rhs.x;
         y += rhs.y;
         return *this;
     }
-    XY& operator-=(const XY& rhs)
-    {
+    
+    XY& operator-=(const XY& rhs) {
         x -= rhs.x;
         y -= rhs.y;
         return *this;
     }
+    
     operator Rectangle<float>() const {
         return Rectangle<float>(0, 0, x, y);
     }
 };
 
-inline XY operator+(XY lhs, const XY& rhs)
-{
+inline XY operator+(XY lhs, const XY& rhs) {
     lhs += rhs;
     return lhs;
 }
 
-inline XY operator-(XY lhs, const XY& rhs)
-{
+inline XY operator-(XY lhs, const XY& rhs) {
     lhs -= rhs;
     return lhs;
 }
@@ -75,7 +75,6 @@ struct GfxPort {
 
     GfxPort();
     GfxPort(string port, const string unit, float value, bool isInput);
-
 };
 
 

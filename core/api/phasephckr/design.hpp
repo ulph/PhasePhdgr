@@ -52,6 +52,10 @@ struct ModulePortConnection {
     bool operator ==(ModulePortConnection const& other) const {
         return source == other.source && target == other.target;
     }
+    bool operator <(ModulePortConnection const& other) const {
+        return pair<ModulePort, ModulePort>(other) < pair<ModulePort, ModulePort>(*this);
+    }
+    explicit operator pair<ModulePort, ModulePort>() const { return make_pair(source, target); }
 };
 
 struct ModulePortValue {

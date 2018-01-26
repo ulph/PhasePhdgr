@@ -139,8 +139,8 @@ public:
     float distance(XY p, XY& closestPoint) const;
     bool within(XY p, bool & nearSource) const;
     void draw(Graphics & g);
-    void calculatePath(const vector<GfxModule> & modules);
-    GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules);
+    void calculatePath(const vector<GfxModule> & modules, unsigned int index);
+    GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules, unsigned int index);
 };
 
 struct GfxLooseWire {

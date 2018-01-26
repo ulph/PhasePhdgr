@@ -546,8 +546,11 @@ void GraphEditor::updateRenderComponents()
             bounds = getVirtualBounds();
         }
 
+        map<ModulePortConnection, unsigned int> wireIndices;
         for (const auto &c : rootComponent()->graph.connections) {
-            wires.emplace_back(GfxWire(c, modules));
+            if (!wireIndices.count(c)) wireIndices[c] = 0;
+            else wireIndices[c]++;
+            wires.emplace_back(GfxWire(c, modules, wireIndices[c]));
         }
 
         updateBounds(bounds);
@@ -580,10 +583,13 @@ void GraphEditor::moveDelta(XY delta) {
         mb.position += delta;
         mb.repositionPorts();
     }
+    map<ModulePortConnection, unsigned int> wireIndices;
     for (auto &w : wires) {
         w.position += delta;
         w.destination += delta;
-        w.calculatePath(modules);
+        if (!wireIndices.count(w.connection)) wireIndices[w.connection] = 0;
+        else wireIndices[w.connection]++;
+        w.calculatePath(modules, wireIndices[w.connection]);
     }
 }
 
@@ -602,8 +608,11 @@ void GraphEditor::moveIntoView() {
 }
 
 void GraphEditor::recalculateWires(vector<GfxModule>& modules) {
+    map<ModulePortConnection, unsigned int> wireIndices;
     for (auto &w : wires) {
-        w.calculatePath(modules);
+        if (!wireIndices.count(w.connection)) wireIndices[w.connection] = 0;
+        else wireIndices[w.connection]++;
+        w.calculatePath(modules, wireIndices[w.connection]);
     }
 }
 

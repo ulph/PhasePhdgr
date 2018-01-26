@@ -3,7 +3,19 @@
 #include <map>
 #include <set>
 
-static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize) {
+#include <random>
+
+static float calcCableOffset(unsigned int index) {
+    auto sign = ((index % 2) == 0) ? -1.0f : 1.0f;
+    auto normIndex = (float)((index + 1) >> 1);
+    auto scale = 5.0f;
+    return sign * normIndex * scale;
+}
+
+static void calcCable(Path & path, float x0, float y0, float x1, float y1, float r, float nodeSize, unsigned int index = 0) {
+
+    float o = calcCableOffset(index);
+
     x0 += 0.5f*r;
     y0 += 0.5f*r;
     x1 += 0.5f*r;
@@ -15,38 +27,14 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
     path.startNewSubPath(x0, y0);
 
     if (y1 <= y0) {
-        float dy = 0.25f*nodeSize;
         float dx = 0.25f*nodeSize * (x1 >= x0 ? 1.f : -1.f);
-        float s = x1 != x0 ? 1.f : -1.f;
-        float x[7]{
-            x0 + dx,
-            x0 + 2.f * dx,
-
-            x0 + 3.f * dx,
-            x1 - 3.f * dx*s,
-
-            x1 - 2.f * dx*s,
-            x1 - dx*s,
-            x1
-        };
-        float y[7]{
-            y0 + 2.f * dy,
-            y0 + dy,
-
-            y0,
-            y1,
-
-            y1 - dy,
-            y1 - 2 * dy,
-            y1
-        };
-        path.quadraticTo(x[0], y[0], x[1], y[1]);
-        path.cubicTo(x[2], y[2], x[3], y[3], x[4], y[4]);
-        path.quadraticTo(x[5], y[5], x[6], y[6]);
+        float dy = 0.25f*sqrtf(sqrtf(sqrtf((y0-y1))))*nodeSize;
+        float d = 0.25f*nodeSize;
+        path.cubicTo(x0+o+dx, y0+d+dy, x1+o-dx, y1-d-dy, x1, y1);
     }
     else {
         float d = 0.5f*nodeSize;
-        path.cubicTo(x0, y0 + d, x1, y1 - d, x1, y1);
+        path.cubicTo(x0+o, y0+d, x1+o, y1-d, x1, y1);
     }
     strokeType.createStrokedPath(path, path);
 }
@@ -357,7 +345,7 @@ void GfxWire::draw(Graphics & g) {
     latched_mouseHover = false;
 }
 
-void GfxWire::calculatePath(const vector<GfxModule> & modules) {
+void GfxWire::calculatePath(const vector<GfxModule> & modules, unsigned int index) {
     bool foundSource = false;
     bool foundTarget = false;
 
@@ -400,7 +388,8 @@ void GfxWire::calculatePath(const vector<GfxModule> & modules) {
             destination.x,
             destination.y,
             c_PortSize,
-            c_NodeSize
+            c_NodeSize,
+            index
         );
 
         grad = ColourGradient(
@@ -415,10 +404,10 @@ void GfxWire::calculatePath(const vector<GfxModule> & modules) {
     }
 }
 
-GfxWire::GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules)
+GfxWire::GfxWire(const ModulePortConnection &connection, const vector<GfxModule> & modules, unsigned int index)
     : connection(connection)
 {
-    calculatePath(modules);
+    calculatePath(modules, index);
 }
 
 void GfxLooseWire::draw(Graphics & g) const {

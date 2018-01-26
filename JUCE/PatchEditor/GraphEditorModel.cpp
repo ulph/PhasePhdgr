@@ -8,7 +8,7 @@
 static float calcCableOffset(unsigned int index) {
     auto sign = ((index % 2) == 0) ? -1.0f : 1.0f;
     auto normIndex = (float)((index + 1) >> 1);
-    auto scale = 5.0f;
+    auto scale = 10.0f;
     return sign * normIndex * scale;
 }
 
@@ -25,26 +25,35 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
 
     path.startNewSubPath(x0, y0);
 
+    float delta = sqrtf((x0 - x1)*(x0 - x1) + (y0 - y1)*(y0 - y1));
     float deltaY = fabsf(y0 - y1);
+    float deltaYNorm = sqrtf(sqrtf(deltaY)); // (over)compensate for cubicness, which makes it behave a bit stretchy
 
-    float deltaYNorm = sqrtf(sqrtf(deltaY));
-
+    // eq for y1 < y0
     float dxA = 0.25f * nodeSize * (x1 >= x0 ? 1.0f : -1.0f);
     float dyA = (0.25f + 0.25f*deltaYNorm)*nodeSize;
 
+    // eq for y1 >= y0
     float dxB = 0.0f;
-    float dyB = (0.125f + 0.125f*deltaYNorm)*nodeSize;
+    float dyB = 0.125f*deltaYNorm*nodeSize;
 
+    float minDy = 0.75f*nodeSize;
+
+    // fade between both equations
     float dx = 0.0f;
     float dy = 0.0f;
+    float ymix = fminf(1.0f, fmaxf(0.0f, ((y0-y1)/(2*minDy) + 1.0f)));
+    float xmix = fminf(1.0f, fmaxf(0.0f, ((y0-y1)/(2*minDy) + 0.0f)));
+    dx = xmix*dxA + (1.0f - xmix)*dxB;
+    dy = ymix*dyA + (1.0f - ymix)*dyB;
 
-    float mix = 0.5f*(tanhf((y0-y1)/(nodeSize*0.5f))+1.0f);
-
-    dx = mix*dxA + (1.0f - mix)*dxB;
-    dy = mix*dyA + (1.0f - mix)*dyB;
-
-    float minDy = 0.5f*nodeSize;
+    // constrain dy so cable doesn't "collapse" when y0 and y1 are very close
     dy = dy < minDy ? minDy : dy;
+
+    // when (x0, y0) and (x1, y1) are close: dy->0, dx->0, o->0
+    float s = fminf(1.0f, delta / (1.25f*minDy));
+    dy *= s;
+    dy *= s;
 
     path.cubicTo(x0 + o + dx, y0 + dy, x1 + o - dx, y1 - dy, x1, y1);
     strokeType.createStrokedPath(path, path);

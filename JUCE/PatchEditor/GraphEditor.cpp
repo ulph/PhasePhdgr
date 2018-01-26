@@ -333,8 +333,8 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
 
 void GraphEditor::findCloseThings(const XY& pos, GfxPort** closestPort, GfxModule** closestModule, GfxWire** closestWire, bool& nearestSource) {
     // ports and modules
-    for (auto& m : modules) {
-        vector< vector<GfxPort> *> vs = { &m.inputs, &m.outputs };
+    for (auto mit = modules.rbegin(); mit != modules.rend(); ++mit ) {
+        vector< vector<GfxPort> *> vs = { &mit->inputs, &mit->outputs };
         for (auto v : vs) {
             float distance = FLT_MAX;
             for (auto& p : *v) {
@@ -342,19 +342,18 @@ void GraphEditor::findCloseThings(const XY& pos, GfxPort** closestPort, GfxModul
                 if (p.within(pos) && d < distance) {
                     distance = d;
                     *closestPort = &p;
-                    *closestModule = &m;
+                    *closestModule = &(*mit);
                 }
             }
         }
-        if ( !(*closestModule) && m.within(pos) ) *closestModule = &m;
+        if ( !(*closestModule) && mit->within(pos) ) *closestModule = &(*mit);
+        if ( *closestPort || *closestModule ) return;
     }
  
-    if (*closestPort || *closestModule) return;
-
     // wires
     float distance = FLT_MAX;
     XY p;
-    for (auto wit = wires.begin(); wit != wires.end(); ++wit) {
+    for (auto wit = wires.rbegin(); wit != wires.rend(); ++wit) {
         auto d = wit->distance(pos, p);
         if (wit->within(pos, nearestSource) && d < distance) {
             distance = d;

@@ -210,7 +210,7 @@ void GfxModule::draw(Graphics & g, bool selected) {
     else {
         g.setColour(Colour(0xCC000000));
     }
-    float cornerSize = 5.f;
+    float cornerSize = 10.f;
     if(isParameter) cornerSize = c_NodeSize*0.5f;
 
     g.fillRoundedRectangle(

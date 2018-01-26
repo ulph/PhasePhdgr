@@ -63,6 +63,9 @@ struct GfxPort {
     bool assignedValue = false;
     XY position;
 
+    int edge = 0;
+    int row = -1;
+
     bool latched_mouseHover = false;
 
     bool within(XY p) const;
@@ -70,7 +73,7 @@ struct GfxPort {
     void clearValue();
     void setValue(float v);
     float getValue();
-    void draw(Graphics & g, int rowIndex=-1);
+    void draw(Graphics & g);
     void updateValue(const string& module, const map<ModulePort, float> &mpvs);
 
     GfxPort();

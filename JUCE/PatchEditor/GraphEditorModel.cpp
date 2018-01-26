@@ -5,6 +5,8 @@
 
 #include <random>
 
+const float c_fontSize = 1.4f*c_PortSize;
+
 static float calcCableOffset(unsigned int index) {
     auto sign = ((index % 2) == 0) ? -1.0f : 1.0f;
     auto normIndex = (float)((index + 1) >> 1);
@@ -87,7 +89,7 @@ float GfxPort::getValue(){
     return defaultValue;
 }
 
-void GfxPort::draw(Graphics & g, int rowIndex) {
+void GfxPort::draw(Graphics & g) {
     g.setColour(Colours::black);
     if (latched_mouseHover) {
         g.setColour(Colours::cyan);
@@ -99,17 +101,19 @@ void GfxPort::draw(Graphics & g, int rowIndex) {
     g.setColour(Colours::grey);
     g.drawEllipse(position.x, position.y, c_PortSize, c_PortSize, 1.0f);
 
-    int textX = (int)(position.x - c_PortSize);
+    int textW = (int)(0.475f * c_NodeSize);
     int textY = (int)(position.y + (isInput ? 1.f : -1.f)*1.5f*c_PortSize + (isInput ? 0 : -0.5*c_PortSize));
-    int textW = (int)(3.f * c_PortSize);
     int textH = (int)c_PortSize;
-    if (rowIndex >= 0) {
-        textX -= (int)(3*c_PortSize);
-        textW *= 3;
-        textY += rowIndex*(int)((isInput ? 1.75 : -1.75)*c_PortSize);
+    if (row >= 0) {
+        textW = (int)(0.9f*c_NodeSize);
+        textY += row*(int)((isInput ? 1.75 : -1.75)*c_PortSize);
     }
+    if(edge != 0) textW = (int)(0.475f * c_NodeSize);
+    int textX = (int)(position.x - 0.5f*textW + 0.5f*c_PortSize);
 
     g.setColour(Colours::darkgrey);
+
+    g.setFont(c_fontSize);
     g.drawFittedText(
         port,
         textX,
@@ -148,19 +152,34 @@ void GfxModule::repositionPorts() {
         size.x = c_NodeSize*max_p*0.5f;
     }
 
+    int ctr = 0;
+    int numRows = (inputs.size() > 2) ? 2 : 1;
     for (auto it = inputs.begin(); it != inputs.end(); ++it)
     {
         float n = (float)distance(inputs.begin(), it);
+        it->edge = 0;
         it->position.x = position.x + (n + 0.5f) / inputs.size() * size.x - 0.5f*c_PortSize;
         it->position.y = position.y - 0.5f*c_PortSize;
     }
+    if (inputs.size() > 1) {
+        inputs[0].edge = -1;
+        inputs[inputs.size() - 1].edge = 1;
+    }
 
+    ctr = 0;
+    numRows = (outputs.size() > 4) ? 2 : 1;
     for (auto it = outputs.begin(); it != outputs.end(); ++it)
     {
         float n = (float)distance(outputs.begin(), it);
+        it->edge = 0;
         it->position.x = position.x + (n + 0.5f) / outputs.size() * size.x - 0.5f*c_PortSize;
         it->position.y = position.y + size.y - 0.5f*c_PortSize;
     }
+    if (outputs.size() > 1) {
+        outputs[0].edge = -1;
+        outputs[outputs.size() - 1].edge = 1;
+    }
+
 }
 
 XY GfxModule::midTop() const {
@@ -254,6 +273,7 @@ void GfxModule::draw(Graphics & g, bool selected) {
     else if (state == LOCALCOMPONENT) g.setColour(Colours::yellow);
     else if (state == UNKONWN) g.setColour(Colours::cyan);
 
+    g.setFont(c_fontSize);
     g.drawFittedText(
         module.name + "\n" + module.type,
         (int)position.x,
@@ -264,18 +284,14 @@ void GfxModule::draw(Graphics & g, bool selected) {
         1
     );
 
-    int row = 0;
-    int numRows = (inputs.size() > 4) ? 2 : 1;
     if (!isParameter) {
         for (auto &i : inputs) {
-            i.draw(g, (row++ % numRows));
+            i.draw(g);
         }
     }
 
-    row = 0;
-    numRows = (outputs.size() > 4) ? 2 : 1;
     for (auto &o : outputs) {
-        o.draw(g, (row++ % numRows));
+        o.draw(g);
     }
 
     latched_mouseHover = false;

@@ -28,9 +28,13 @@ RangeMap::RangeMap() {
 }
 
 void RangeMap::process() {
-    float v = inputs[0].value;
-    // TODO; implement
-    assert(0);
+    float x = inputs[0].value;
+    float inA = inputs[1].value;
+    float inB = inputs[2].value;
+    float outA = inputs[3].value;
+    float outB = inputs[4].value;
+    float y = outA + ((outB - outA) / (inB - inA)) * (x - inA);
+    outputs[0].value = y;
 }
 
 ScaleShift::ScaleShift() {

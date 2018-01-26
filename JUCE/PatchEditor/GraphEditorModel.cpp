@@ -52,8 +52,7 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
 
     // when (x0, y0) and (x1, y1) are close: dy->0, dx->0, o->0
     float s = fminf(1.0f, delta / (1.25f*minDy));
-    dy *= s;
-    dy *= s;
+    dy *= s*s;
 
     path.cubicTo(x0 + o + dx, y0 + dy, x1 + o - dx, y1 - dy, x1, y1);
     strokeType.createStrokedPath(path, path);

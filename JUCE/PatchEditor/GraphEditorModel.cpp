@@ -202,13 +202,13 @@ bool GfxModule::withinPort(XY p, XY& portPosition, string &port, bool & inputPor
 void GfxModule::draw(Graphics & g, bool selected) {
     if (latched_mouseHover) {
         auto c = Colours::cyan;
-        g.setColour(c.withAlpha(0.25f));
+        g.setColour(Colour(0xCC002222));
     }
     else if (selected) {
-        g.setColour(Colour(0xBB888888));
+        g.setColour(Colour(0xCC888888));
     }
     else {
-        g.setColour(Colour(0xBB000000));
+        g.setColour(Colour(0xCC000000));
     }
     float cornerSize = 5.f;
     if(isParameter) cornerSize = c_NodeSize*0.5f;

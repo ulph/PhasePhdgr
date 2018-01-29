@@ -27,7 +27,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     , mainFrame(
         [this](int i, const string& n) {
             if (!inited) return; // hack
-            if(n == "scopes") guiUpdateTimer.startTimer((int)(1.f / 60.f* 1000.f));
+            if(n == "scopes") guiUpdateTimer.startTimer((int)(1.f / 30.f* 1000.f));
             else guiUpdateTimer.stopTimer();
 #if INTERCEPT_STD_STREAMS
             if(n == "debug") debugViewUpdateTimer->startTimer(1000);

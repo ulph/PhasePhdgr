@@ -4,7 +4,7 @@ namespace PhasePhckr {
 
     class Scope {
     private:
-        float scopeBuffer[512];
+        float scopeBuffer[256];
         const size_t scopeBufferSize;
         unsigned int scopeBufferWriteIndex;
         float scopeDrift;

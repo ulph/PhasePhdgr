@@ -26,7 +26,7 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     , mainFrame(
         [this](int i, const string& n) {
             if (!inited) return; // hack            
-            if(n == "scopes") guiUpdateTimer.startTimer((int)(1.f / 60.f* 1000.f));
+            if(n == "scopes") guiUpdateTimer.startTimer((int)(1.f / 30.f* 1000.f));
             else guiUpdateTimer.stopTimer();
             if (n == "parameters") parameterEditor.startTimer();
             else parameterEditor.stopTimer();

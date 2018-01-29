@@ -15,7 +15,7 @@ Scope::Scope()
 void Scope::writeToBuffer(const float * sourceBuffer, int numSamples, float sampleRate, float hz) {
     // fill scope buffer with a (poorly) resampled version matching a couple of cycles
     if (hz > 1) {
-        unsigned int numPeriods = 8;
+        unsigned int numPeriods = 4;
         float samplesPerPeriod = sampleRate / hz;
         float decimation = (float)numPeriods * samplesPerPeriod / (float)scopeBufferSize;
         float i = 0;

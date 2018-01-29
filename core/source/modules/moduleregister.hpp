@@ -71,7 +71,8 @@ public:
         /* mixing */
         cg.registerModule("XFADE", &(CrossFade::factory));
         cg.registerModule("FADEX", &(FadeCross::factory));
-        // TODO, XFADE / FADEX variants with more io, aka (DE)MUX
+        cg.registerModule("MUX4", &(Mux4::factory));
+        cg.registerModule("MUX8", &(Mux8::factory));
 
         /* logic */
         cg.registerModule("SAMPHOLD", &(SampleAndHold::factory));

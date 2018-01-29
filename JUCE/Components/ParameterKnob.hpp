@@ -114,7 +114,8 @@ public:
 
     virtual void sliderValueChanged(Slider * slider_) override {
         float v = (float)slider_->getValue();
-        parameter->setValueNotifyingHost(v);
+        float normV = parameter->range.convertTo0to1(v);
+        parameter->setValueNotifyingHost(normV);
     }
 
     virtual void mouseDown(const MouseEvent & event) override {

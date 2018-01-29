@@ -10,7 +10,7 @@ const float c_fontSize = 1.35f*c_PortSize;
 static float calcCableOffset(unsigned int index) {
     auto sign = ((index % 2) == 0) ? -1.0f : 1.0f;
     auto normIndex = (float)((index + 1) >> 1);
-    auto scale = 10.0f;
+    auto scale = 5.0f;
     return sign * normIndex * scale;
 }
 
@@ -29,6 +29,7 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
 
     float delta = sqrtf((x0 - x1)*(x0 - x1) + (y0 - y1)*(y0 - y1));
     float deltaY = fabsf(y0 - y1);
+    float deltaX = fabsf(x0 - x1);
     float deltaYNorm = sqrtf(sqrtf(deltaY)); // (over)compensate for cubicness, which makes it behave a bit stretchy
 
     // eq for y1 < y0
@@ -56,7 +57,10 @@ static void calcCable(Path & path, float x0, float y0, float x1, float y1, float
     float s = fminf(1.0f, delta / (1.25f*minDy));
     dy *= s*s;
 
-    path.cubicTo(x0 + o + dx, y0 + dy, x1 + o - dx, y1 - dy, x1, y1);
+    float syo = fminf(1.0f, deltaX / (1.5f*minDy));
+    float yo = x1 > x0 ? -syo*o : syo*o;
+
+    path.cubicTo(x0 + o + dx, y0 + yo + dy, x1 + o - dx, y1 + yo - dy, x1, y1);
     strokeType.createStrokedPath(path, path);
 }
 

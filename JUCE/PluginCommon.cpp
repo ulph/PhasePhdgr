@@ -260,12 +260,25 @@ void InputBufferingProcessor::process(AudioSampleBuffer& buffer, float sampleRat
 
 // ...
 
-ParameterEditor::ParameterEditor() {
+ParameterEditor::ParameterEditor() 
+    : updateTimer(new function<void()>(
+        [this]() {
+            for (const auto &knob : parameterKnobs) {
+                knob->update();
+            }
+        })
+    ){
     addAndMakeVisible(pageTabs);
+    float fps = 30.f;
+    updateTimer.startTimer((int)(1.f / fps* 1000.f));
 }
 
 ParameterEditor::~ParameterEditor() {
+    updateTimer.stopTimer();
     for (auto* p : pages) delete p;
+    for (const auto &knob : parameterKnobs) {
+        delete knob;
+    }
 }
 
 void ParameterEditor::resized() {
@@ -274,6 +287,7 @@ void ParameterEditor::resized() {
 }
 
 void ParameterEditor::addKnob(ParameterKnob* knob) {
+    parameterKnobs.push_back(knob);
     const int knobsPerPage = Parameters::knobsPerBank*Parameters::banksPerPage;
     if (0 == (knobCtr % knobsPerPage)) {
         auto* p = new PPGrid;

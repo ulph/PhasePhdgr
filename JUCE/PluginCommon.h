@@ -158,6 +158,8 @@ private:
     vector<PPGrid*> pages;
     int knobCtr = 0;
     const vector<float> rowLayout = { 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
+    LambdaTimer updateTimer;
+    vector<ParameterKnob *> parameterKnobs;
 public:
     ParameterEditor();
     virtual ~ParameterEditor();

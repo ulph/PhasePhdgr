@@ -86,6 +86,7 @@ public:
 
     void updateLayout(const string &component, const map<string, ModulePosition> &layout);
 
+    PPLookAndFeel lookAndFeel;
 };
 
 #endif  // PLUGINPROCESSORFX_H_INCLUDED

@@ -33,9 +33,6 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     )
     , fileBrowserPanel(processor)
     , guiUpdateTimer(new function<void()>([this](){
-        for(const auto &knob : parameterKnobs){
-            knob->update();
-        }
         inputScopeL.repaint();
         inputScopeR.repaint();
         inputScopeXY.repaint();
@@ -60,8 +57,7 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     scopePPGrid.setColoumns({0.33f, 0.33f, 0.33f});
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
-
-    processor.parameters.initializeKnobs(this);
+    processor.parameters.initializeKnobs(parameterEditor);
 
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 
@@ -71,15 +67,14 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     float fps = 30.f;
     guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
+    setLookAndFeel(&processor.lookAndFeel);
+
     resized();
 }
 
 PhasePhckrEditorFX::~PhasePhckrEditorFX()
 {
     guiUpdateTimer.stopTimer();
-    for(const auto &knob : parameterKnobs){
-        delete knob;
-    }
 }
 
 void PhasePhckrEditorFX::paint (Graphics& g)

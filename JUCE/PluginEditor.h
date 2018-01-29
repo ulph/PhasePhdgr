@@ -33,7 +33,6 @@ public:
     friend Parameters;
 
 private:
-    PPLookAndFeel lookAndFeel;
 
     PhasePhckrProcessor& processor;
 
@@ -64,7 +63,6 @@ private:
     LambdaTimer* debugViewUpdateTimer;
 #endif
 
-    vector<ParameterKnob *> parameterKnobs;
     LambdaTimer guiUpdateTimer;
 
     SettingsEditor settingsEditor;

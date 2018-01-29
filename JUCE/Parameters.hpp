@@ -2,6 +2,7 @@
 
 #include "ParameterKnob.hpp"
 #include "Parameter.hpp"
+#include "PluginCommon.h"
 
 typedef pair<SynthGraphType, string> ParameterIdentifier;
 
@@ -20,7 +21,7 @@ public:
     static const int numberOfPages = 8;
 
     void initialize(AudioProcessor * p);
-    template<class T> void initializeKnobs(T* e);
+    void initializeKnobs(ParameterEditor& parameterEditor);
     bool accessParameter(int index, Parameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
     void swapParameterIndices(int onto_idx, int dropped_idx); // via gui
@@ -30,18 +31,3 @@ public:
     vector<PresetParameterDescriptor> serialize();
     void deserialize(const vector<PresetParameterDescriptor>& pv);
 };
-
-template<class T> void Parameters::initializeKnobs(T * e) {
-    for (int i = 0; i<numberOfParameters(); i++) {
-        Parameter* p = nullptr;
-        if (accessParameter(i, &p)) {
-            auto knob = new ParameterKnob(p,
-                [this](int onto_idx, int dropped_idx) {
-                    swapParameterIndices(onto_idx, dropped_idx);
-                }
-            );
-            e->parameterKnobs.push_back(knob);
-            e->parameterEditor.addKnob(knob);
-        }
-    }
-}

@@ -14,6 +14,20 @@ void Parameters::initialize(AudioProcessor * p){
     }
 }
 
+void Parameters::initializeKnobs(ParameterEditor& parameterEditor) {
+    for (int i = 0; i<numberOfParameters(); i++) {
+        Parameter* p = nullptr;
+        if (accessParameter(i, &p)) {
+            auto knob = new ParameterKnob(p,
+                [this](int onto_idx, int dropped_idx) {
+                swapParameterIndices(onto_idx, dropped_idx);
+            }
+            );
+            parameterEditor.addKnob(knob);
+        }
+    }
+}
+
 void Parameters::updateParameters(bool reset)
 {
     // clear the routing

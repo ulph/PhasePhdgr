@@ -54,9 +54,6 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 
     // TODO, tie the timer to the scopes view visibility
     , guiUpdateTimer(new function<void()>([this](){
-        for(const auto &knob : parameterKnobs){
-            knob->update();
-        }
         voiceScopeL.repaint();
         voiceScopeR.repaint();
         voiceScopeXY.repaint();
@@ -88,8 +85,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     scopePPGrid.addComponent(&effectScopeGrid);
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
-
-    processor.parameters.initializeKnobs(this);
+    processor.parameters.initializeKnobs(parameterEditor);
 
     mainFrame.addTab("settings", Colours::black, &settingsEditor, false);
 
@@ -123,7 +119,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     float fps = 30.f;
     guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
-    setLookAndFeel(&lookAndFeel);
+    setLookAndFeel(&processor.lookAndFeel);
 
     resized();
 }
@@ -131,9 +127,6 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 PhasePhckrEditor::~PhasePhckrEditor()
 {
     guiUpdateTimer.stopTimer();
-    for(const auto &knob : parameterKnobs){
-        delete knob;
-    }
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;

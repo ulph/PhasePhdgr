@@ -104,6 +104,8 @@ public:
 
     void updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout);
 
+    PPLookAndFeel lookAndFeel;
+
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

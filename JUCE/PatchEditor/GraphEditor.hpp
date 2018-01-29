@@ -60,6 +60,10 @@ public:
     void setDoc(const Doc& newDoc);
     void setGlobalComponents(const map<string, ComponentDescriptor>& globalComponents);
 
+    void clearZoom();
+    void increaseZoom();
+    void decreaseZoom();
+
 private:
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
@@ -127,9 +131,6 @@ private:
 
     float zoom;
 
-    void clearZoom();
-    void increaseZoom();
-    void decreaseZoom();
     void applyZoom();
 
     void findCloseThings(const XY& pos, GfxPort** closestPort, GfxModule** closestModule, GfxWire** closestWire, bool& nearestSource);
@@ -153,7 +154,7 @@ public:
 };
 
 
-class GraphEditorBundle : public Component{
+class GraphEditorBundle : public Component, public ButtonListener{
 private:
     GraphViewPort view;
 public:
@@ -168,6 +169,14 @@ public:
         const LayoutUpdateCallback &layoutUpdateCb
     );
     GraphEditor editor;
+
+    TextButton decreaseZoomButton;
+    TextButton resetZoomButton;
+    TextButton increaseZoomButton;
+
     void paint(Graphics& g);
     void resized();
+
+    void buttonClicked(Button* btn) override;
+
 };

@@ -831,6 +831,19 @@ GraphEditorBundle::GraphEditorBundle(
 {
     addAndMakeVisible(view);
     view.setViewedComponent(&editor, false);
+
+    addAndMakeVisible(decreaseZoomButton);
+    addAndMakeVisible(resetZoomButton);
+    addAndMakeVisible(increaseZoomButton);
+
+    decreaseZoomButton.setButtonText("-");
+    resetZoomButton.setButtonText("");
+    increaseZoomButton.setButtonText("+");
+
+    decreaseZoomButton.addListener(this);
+    resetZoomButton.addListener(this);
+    increaseZoomButton.addListener(this);
+
     resized();
 }
 
@@ -842,5 +855,18 @@ void GraphEditorBundle::paint(Graphics& g)
 void GraphEditorBundle::resized()
 {
     view.setBoundsRelative(0, 0, 1.0f, 1.0f);
+
+    const int btnSize = 15;
+    decreaseZoomButton.setBounds(0, getHeight() - btnSize, btnSize, btnSize);
+    resetZoomButton.setBounds(btnSize, getHeight() - btnSize, btnSize, btnSize);
+    increaseZoomButton.setBounds(2*btnSize, getHeight() - btnSize, btnSize, btnSize);
+
     repaint();
+}
+
+void GraphEditorBundle::buttonClicked(Button* btn) {
+    if (btn == &decreaseZoomButton) editor.decreaseZoom();
+    else if (btn == &resetZoomButton) editor.clearZoom();
+    else if (btn == &increaseZoomButton) editor.increaseZoom();
+    else assert(0);
 }

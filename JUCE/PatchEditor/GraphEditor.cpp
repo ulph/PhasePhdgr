@@ -857,9 +857,9 @@ void GraphEditorBundle::resized()
     view.setBoundsRelative(0, 0, 1.0f, 1.0f);
 
     const int btnSize = 15;
-    decreaseZoomButton.setBounds(0, getHeight() - btnSize, btnSize, btnSize);
-    resetZoomButton.setBounds(btnSize, getHeight() - btnSize, btnSize, btnSize);
-    increaseZoomButton.setBounds(2*btnSize, getHeight() - btnSize, btnSize, btnSize);
+    decreaseZoomButton.setBounds(0, getHeight() - btnSize - 10, btnSize, btnSize);
+    resetZoomButton.setBounds(btnSize, getHeight() - btnSize - 10, btnSize, btnSize);
+    increaseZoomButton.setBounds(2*btnSize, getHeight() - btnSize - 10, btnSize, btnSize);
 
     repaint();
 }

@@ -5,7 +5,7 @@
 
 #include <random>
 
-const float c_fontSize = 1.4f*c_PortSize;
+const float c_fontSize = 1.35f*c_PortSize;
 
 static float calcCableOffset(unsigned int index) {
     auto sign = ((index % 2) == 0) ? -1.0f : 1.0f;

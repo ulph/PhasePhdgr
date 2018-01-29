@@ -52,7 +52,7 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     setResizeLimits(128, 128, 8000, 8000);
     setConstrainer(nullptr);
     setResizable(true, true);
-    setBoundsConstrained(Rectangle<int>(1800, 1000)); // slightly less than 1080p
+    setBoundsConstrained(Rectangle<int>(1000, 700)); // slightly less than 720p
     addAndMakeVisible(mainFrame);
     
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);

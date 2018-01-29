@@ -122,7 +122,7 @@ private:
 
     XY mouseDownPos;
 
-    const float defaultZoom = 1.0f;
+    const float defaultZoom = 0.9f;
     const float zoomIncrement = 1.05f;
 
     float zoom;

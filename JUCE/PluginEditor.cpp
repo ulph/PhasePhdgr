@@ -23,7 +23,20 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     , outputScopeL(processor.getSynth()->getEffectScope(0))
     , outputScopeR(processor.getSynth()->getEffectScope(1))
     , outputScopeXY(processor.getSynth()->getEffectScope(0), processor.getSynth()->getEffectScope(1))
-    , mainFrame(TabbedButtonBar::TabsAtTop)
+
+    , mainFrame(
+        [this](int i, const string& n) {
+            if (!inited) return; // hack
+            if(n == "scopes") guiUpdateTimer.startTimer((int)(1.f / 60.f* 1000.f));
+            else guiUpdateTimer.stopTimer();
+#if INTERCEPT_STD_STREAMS
+            if(n == "debug") debugViewUpdateTimer->startTimer(1000);
+            else debugViewUpdateTimer->stopTimer();
+#endif
+            if (n == "parameters") parameterEditor.startTimer();
+            else parameterEditor.stopTimer();
+        }
+    )
 
     , settingsEditor(
         processor.subSettings
@@ -52,7 +65,6 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 
     , fileBrowserPanel(processor)
 
-    // TODO, tie the timer to the scopes view visibility
     , guiUpdateTimer(new function<void()>([this](){
         voiceScopeL.repaint();
         voiceScopeR.repaint();
@@ -111,17 +123,20 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
         if (s.size()) {
             cerrView.insertTextAtCaret(s);
         }
-    }));
-    debugViewUpdateTimer->startTimer(1000);
+    }));   
 #endif
 
     processor.broadcastPatch();
-    float fps = 30.f;
-    guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
     setLookAndFeel(&processor.lookAndFeel);
 
     resized();
+
+    // triple hack
+    inited = true;
+    mainFrame.setCurrentTabIndex(1);
+    mainFrame.setCurrentTabIndex(0);
+
 }
 
 PhasePhckrEditor::~PhasePhckrEditor()

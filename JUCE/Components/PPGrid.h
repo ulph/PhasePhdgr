@@ -17,7 +17,6 @@ private:
 
 public:
     PPGrid() : coloumnSizes({ 0.5f, 0.5f }) {}
-    virtual void paint (Graphics&) override;
     virtual void resized() override;
     virtual void addComponent(Component* component);
     virtual void setColoumns(const vector<float> &coloumnSizes);

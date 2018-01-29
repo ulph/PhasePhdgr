@@ -34,6 +34,8 @@ public:
 
 private:
 
+    bool inited = false;
+
     PhasePhckrProcessor& processor;
 
     ScopeView voiceScopeL;
@@ -43,7 +45,7 @@ private:
     ScopeView outputScopeR;
     XYScopeView outputScopeXY;
 
-    TabbedComponent mainFrame;
+    PPTabbedComponent mainFrame;
     PPGGrid voiceScopeGrid;
     PPGGrid effectScopeGrid;
     PPGrid scopePPGrid;

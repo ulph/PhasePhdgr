@@ -30,6 +30,8 @@ public:
     friend Parameters;
 
 private:
+    bool inited = false;
+
     PhasePhckrProcessorFX& processor;
 
     ScopeView inputScopeL;
@@ -40,7 +42,7 @@ private:
     ScopeView outputScopeR;
     XYScopeView outputScopeXY;
 
-    TabbedComponent mainFrame;
+    PPTabbedComponent mainFrame;
     PPGrid scopePPGrid;
     ParameterEditor parameterEditor;
 

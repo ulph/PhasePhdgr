@@ -1,28 +1,6 @@
 #include "JuceHeader.h"
 #include "PPGrid.h"
 
-void PPGrid::paint(Graphics& g){
-  return;
-
-  float numberOfRows = ceilf(((float)components.size()) / ((float)coloumnSizes.size()));
-
-  float size_y = (float)this->getHeight();
-  float size_x = (float)this->getWidth();
-
-  g.setColour(Colour(0xff111111));
-  for(float i=0; i<numberOfRows; ++i){
-    g.drawHorizontalLine((int)((i/numberOfRows) * size_y), 0.0f, size_x);
-  }
-  g.drawHorizontalLine((int)size_y, 0.0f, size_x);
-
-  int x = 0;
-  g.drawVerticalLine(x, 0.0f, size_y);
-  for(int i=0; i<coloumnSizes.size(); ++i){
-    x += (int)(coloumnSizes[i] * size_x);
-    g.drawVerticalLine(x, 0.0f, size_y);
-  }
-}
-
 void PPGrid::resized(){
   float numberOfRows = ceilf(((float)components.size()) / ((float)coloumnSizes.size()));
 
@@ -47,7 +25,6 @@ void PPGrid::resized(){
     x += w;
     i++;
   }
-  repaint();
 }
 
 void PPGrid::addComponent(Component* component){

@@ -269,16 +269,24 @@ ParameterEditor::ParameterEditor()
         })
     ){
     addAndMakeVisible(pageTabs);
-    float fps = 30.f;
-    updateTimer.startTimer((int)(1.f / fps* 1000.f));
+    startTimer();
 }
 
 ParameterEditor::~ParameterEditor() {
-    updateTimer.stopTimer();
+    stopTimer();
     for (auto* p : pages) delete p;
     for (const auto &knob : parameterKnobs) {
         delete knob;
     }
+}
+
+void ParameterEditor::startTimer() {
+    float fps = 30.f;
+    updateTimer.startTimer((int)(1.f / fps * 1000.f));
+}
+
+void ParameterEditor::stopTimer() {
+    updateTimer.stopTimer();
 }
 
 void ParameterEditor::resized() {

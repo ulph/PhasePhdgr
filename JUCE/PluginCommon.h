@@ -165,6 +165,8 @@ public:
     virtual ~ParameterEditor();
     void addKnob(ParameterKnob* knob);
     void resized() override;
+    void stopTimer();
+    void startTimer();
 };
 
 
@@ -186,5 +188,29 @@ public:
         const Slider::SliderStyle style, 
         Slider& slider
     ) override;
+
+};
+
+
+class PPTabbedComponent : public TabbedComponent {
+private:
+    function<void(int i, const string & n)> cb;
+public:
+    PPTabbedComponent(
+        const function<void(int i, const string & n)>& cb_
+    ) 
+        : TabbedComponent(TabbedButtonBar::TabsAtTop)
+        , cb(cb_)
+    {
+        
+    }
+
+    virtual void currentTabChanged(
+        int newCurrentTabIndex,
+        const String & newCurrentTabName
+    ) override 
+    {
+        cb(newCurrentTabIndex, newCurrentTabName.toStdString());
+    }
 
 };

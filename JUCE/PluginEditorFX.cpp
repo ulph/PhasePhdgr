@@ -23,7 +23,15 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     , outputScopeL(processor.getEffect()->getEffectScope(0))
     , outputScopeR(processor.getEffect()->getEffectScope(1))
     , outputScopeXY(processor.getEffect()->getEffectScope(0), processor.getEffect()->getEffectScope(1))
-    , mainFrame(TabbedButtonBar::TabsAtTop)
+    , mainFrame(
+        [this](int i, const string& n) {
+            if (!inited) return; // hack            
+            if(n == "scopes") guiUpdateTimer.startTimer((int)(1.f / 60.f* 1000.f));
+            else guiUpdateTimer.stopTimer();
+            if (n == "parameters") parameterEditor.startTimer();
+            else parameterEditor.stopTimer();
+        }
+    )
     , effectEditor(
         processor.subEffectChain,
         processor.subComponentRegister,
@@ -64,12 +72,15 @@ PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorFX& p)
     mainFrame.addTab("files", Colours::black, &fileBrowserPanel, false);
 
     processor.broadcastPatch();
-    float fps = 30.f;
-    guiUpdateTimer.startTimer((int)(1.f/fps* 1000.f));
 
     setLookAndFeel(&processor.lookAndFeel);
 
     resized();
+
+    // triple hack
+    inited = true;
+    mainFrame.setCurrentTabIndex(1);
+    mainFrame.setCurrentTabIndex(0);
 }
 
 PhasePhckrEditorFX::~PhasePhckrEditorFX()

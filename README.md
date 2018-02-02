@@ -21,6 +21,10 @@ If updating the JUCE bits open JUCE/PhasePhckr.jucer with projucer and save. Ign
 
 ## json ##
 
-We rely on nlhomann/json for this. 
+We rely on nlhomann/json for this. We have a forked version to tweak the pretty print behaviour.
 
 Our code expects nlhomann/json.hpp in include path. There is a field in our CMAKE for it.
+
+## threadpool ##
+
+We rely on a threadpool implementation of this. Note, forked to add a namespace.

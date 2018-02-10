@@ -2,7 +2,7 @@
 
 #include "phasephckr/design.hpp"
 
-#include "nlohmann/json.hpp"
+#include "json.hpp"
 using nlohmann::json;
 
 namespace PhasePhckr {

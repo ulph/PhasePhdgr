@@ -14,17 +14,16 @@ Run cmake from ./core
 
 Run cmake from the root.
 
-Download or clone JUCE SDK and VST3 SDK. There's an option for either in our CMAKE, fill those in...
+Download or clone JUCE SDK and VST3 SDK. There's an option for location either in our CMAKE.
 
 If updating the JUCE bits open JUCE/PhasePhckr.jucer with projucer and save. Ignore the generated project, but do commit any changes to the generated stubs.
 
 
-## json ##
+## submodules ##
 
-We rely on nlhomann/json for this. We have a forked version to tweak the pretty print behaviour.
+### json ###
+We rely on nlhomann/json for this. We use a forked version to tweak the pretty print behaviour.
 
-Our code expects nlhomann/json.hpp in include path. There is a field in our CMAKE for it.
-
-## threadpool ##
+### threadpool ###
 
 We rely on a threadpool implementation of this. Note, forked to add a namespace.

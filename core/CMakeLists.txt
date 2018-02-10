@@ -10,8 +10,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 find_package(Threads)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../submodules/ThreadPool)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../submodules/json/src)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
-include(nlohmann_json)
 
 option(OPT_SSE2 ON)
 if(${OPT_SSE2})

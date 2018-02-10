@@ -1,6 +1,8 @@
 #ifndef DELAY_HPP
 #define DELAY_HPP
 
+#include <string.h>
+
 #include "module.hpp"
 #include "sinc.hpp"
 #include "inlines.hpp"

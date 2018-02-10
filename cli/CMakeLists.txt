@@ -13,4 +13,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 add_executable(phasephckr_cli main.cpp ${PHASEPHCKR_SRC})
 set_property(TARGET phasephckr_cli PROPERTY FOLDER cli)
 
-target_link_libraries(phasephckr_cli ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(phasephckr_cli ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})

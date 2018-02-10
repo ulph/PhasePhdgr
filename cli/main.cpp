@@ -33,8 +33,35 @@ class PhasePhckrJackApp {
     jack_status_t js;
     jack_client_t* jc = nullptr;
 
-    void handle_midi(const jack_midi_event_t& in_event){
-      // TODO
+    static inline bool is_noteon(const jack_midi_event_t& in_event) {
+      return ((*(in_event.buffer) & 0xf0)) == 0x90;
+    }
+
+    static inline bool is_noteoff(const jack_midi_event_t& in_event) {
+      return ((*(in_event.buffer)) & 0xf0) == 0x80;
+    }
+
+    static inline int calc_note(const jack_midi_event_t& in_event) {
+      return *(in_event.buffer + 1);
+    }
+
+    static inline float calc_vel(const jack_midi_event_t& in_event) {
+      auto vel = 0.0f;
+      if(*(in_event.buffer + 2) != 0) vel = (float)(*(in_event.buffer + 2)) / 127.f;
+      return vel;
+    }
+
+    void handle_midi(const jack_midi_event_t& in_event) {
+      if (is_noteon(in_event)) {
+        auto note = calc_note(in_event);
+        auto vel = calc_vel(in_event);
+        synth.handleNoteOnOff(0, note, vel, true);
+      }
+      else if (is_noteon(in_event)) {
+        auto note = calc_note(in_event);
+        auto vel = calc_vel(in_event);
+        synth.handleNoteOnOff(0, note, vel, false);
+      }
     }
 
     int process(jack_nframes_t nframes){

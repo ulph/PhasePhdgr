@@ -163,4 +163,42 @@ namespace PhasePhckr {
         return ex;
     }
 
+    const ConnectionGraphDescriptor passThrough = {
+        {},
+        std::vector<ModulePortConnection>{
+            { { "inBus", "left" }, { "outBus", "left" } },
+            { { "inBus", "right" }, { "outBus", "right" } },
+        },
+        {}
+    };
+
+    PatchDescriptor getPassthroughEffectChain() {
+        PatchDescriptor ex;
+        ex.root.graph = passThrough;
+        return ex;
+    }
+
+    const ConnectionGraphDescriptor exSimpleVoiceChain = {
+        std::map<string, string>{
+            {"osc", "SINE"},
+            {"vca", "MUL"},
+            {"ph", "PHASE"},
+        },
+        std::vector<ModulePortConnection>{
+            { { "inBus", "pitch_hz" }, { "ph", "freq" } },
+            { { "inBus", "gate" },{ "vca", "in2" } },
+            { { "osc", "sine" },{ "vca", "in" } },
+            { { "ph", "phase" }, { "osc", "phase" } },
+            { { "vca", "out" }, { "outBus", "left" } },
+            { { "vca", "out" }, { "outBus", "right" } },
+        },
+        std::map<ModulePort, float>{}
+    };
+
+    PatchDescriptor getExampleSimpleVoiceChain() {
+        PatchDescriptor ex;
+        ex.root.graph = exSimpleVoiceChain;
+        return ex;
+    }
+
 }

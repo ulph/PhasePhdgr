@@ -24,7 +24,7 @@ class PhasePhckrJackApp {
 
     jack_port_t *in_midi;
 
-	  jack_port_t *out_left;
+	jack_port_t *out_left;
     jack_port_t *out_right;
 
     jack_default_audio_sample_t fs;
@@ -106,8 +106,8 @@ class PhasePhckrJackApp {
 
 int sample_rate_changed(jack_nframes_t nframes, void *arg) {
   auto app = static_cast<PhasePhckrJackApp *>(arg);
-	app->fs = (jack_default_audio_sample_t)nframes;
-	return 0;
+  app->fs = (jack_default_audio_sample_t)nframes;
+  return 0;
 }
 
 
@@ -118,7 +118,7 @@ int process (jack_nframes_t nframes, void *arg) {
 
 
 static void signal_handler(int sig) {
-	exit(0);
+  exit(0);
 }
 
 
@@ -134,22 +134,22 @@ int main(int argc, char **argv) {
   app.jc = jack_client_open("PhasePhckr", app.jo, &app.js);
   if(!app.jc) return -1;
 
-  app.synth.setEffectChain(getExampleEffectChain(), app.comp);
-  app.synth.setVoiceChain(getExampleVoiceChain(), app.comp);
+  app.synth.setEffectChain(getPassthroughEffectChain(), app.comp);
+  app.synth.setVoiceChain(getExampleSimpleVoiceChain(), app.comp);
 
   // setup jack
   jack_set_process_callback(app.jc, process, &app);
   app.in_midi = jack_port_register(app.jc, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
-	app.out_left = jack_port_register(app.jc, "audio_out_left", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-	app.out_right = jack_port_register(app.jc, "audio_out_right", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+  app.out_left = jack_port_register(app.jc, "audio_out_left", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+  app.out_right = jack_port_register(app.jc, "audio_out_right", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
   if((app.in_midi == NULL) || (app.out_left == NULL) || (app.out_right == NULL)) return -1;
   app.fs = jack_get_sample_rate(app.jc);
 
   // handle signals etc
   jack_on_shutdown (app.jc, shutdown, 0);
   signal(SIGQUIT, signal_handler);
-	signal(SIGTERM, signal_handler);
-	signal(SIGHUP, signal_handler);
+  signal(SIGTERM, signal_handler);
+  signal(SIGHUP, signal_handler);
   signal(SIGINT, signal_handler);
 
   // activate 

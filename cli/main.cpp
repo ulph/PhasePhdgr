@@ -57,7 +57,7 @@ class PhasePhckrJackApp {
         auto vel = calc_vel(in_event);
         synth.handleNoteOnOff(0, note, vel, true);
       }
-      else if (is_noteon(in_event)) {
+      else if (is_noteoff(in_event)) {
         auto note = calc_note(in_event);
         auto vel = calc_vel(in_event);
         synth.handleNoteOnOff(0, note, vel, false);
@@ -78,6 +78,10 @@ class PhasePhckrJackApp {
 
       auto *l = (jack_default_audio_sample_t *) jack_port_get_buffer(out_left, nframes);
       auto *r = (jack_default_audio_sample_t *) jack_port_get_buffer(out_right, nframes);
+      for(int i=0; i<nframes; i++){
+        l[i] = 0.0f;
+        r[i] = 0.0f;
+      }
 
       while(frame_index < nframes) {
         while(event_index < event_count){
@@ -150,15 +154,6 @@ int main(int argc, char **argv) {
 
   // activate 
   if(auto r = jack_activate(app.jc)) return r;
-
-  #if 0
-  // connect to hw output
-  auto ports = jack_get_ports(app.jc, NULL, NULL, JackPortIsPhysical|JackPortIsInput);
-  if(ports == NULL) return -1;
-  if(auto r = jack_connect(app.jc, jack_port_name(app.out_left), ports[0])) return r;
-  if(auto r = jack_connect(app.jc, jack_port_name(app.out_right), ports[1])) return r;
-  jack_free(ports);
-  #endif
 
   // process spin
   while(1){ sleep(1); }

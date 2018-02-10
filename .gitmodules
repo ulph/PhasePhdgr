@@ -1,0 +1,6 @@
+[submodule "submodules/json"]
+	path = submodules/json
+	url = git@github.com:ulph/json.git
+[submodule "submodules/ThreadPool"]
+	path = submodules/ThreadPool
+	url = git@github.com:ulph/ThreadPool.git

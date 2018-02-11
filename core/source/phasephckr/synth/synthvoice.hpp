@@ -32,7 +32,7 @@ private:
     float rmsSlew;
     float rms;
     SynthVoiceThreading threadStuff;
-    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { 0.0f };
+    float internalBuffer[2][SYNTH_VOICE_BUFFER_LENGTH] = { { 0.0f }, { 0.0f } };
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
     bool buffersSilenced = false;

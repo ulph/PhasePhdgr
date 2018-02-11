@@ -24,7 +24,7 @@ class PhasePhckrJackApp {
 
     jack_port_t *in_midi;
 
-	jack_port_t *out_left;
+    jack_port_t *out_left;
     jack_port_t *out_right;
 
     jack_default_audio_sample_t fs;
@@ -69,12 +69,12 @@ class PhasePhckrJackApp {
 
       if(nframes % sz != 0) return -1;
      
-	    jack_midi_event_t in_event;
+      jack_midi_event_t in_event;
       jack_nframes_t frame_index = 0;
-	    jack_nframes_t event_index = 0;
+      jack_nframes_t event_index = 0;
 
       void* port_buf = jack_port_get_buffer(in_midi, nframes);
-	    jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
+        jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
 
       auto *l = (jack_default_audio_sample_t *) jack_port_get_buffer(out_left, nframes);
       auto *r = (jack_default_audio_sample_t *) jack_port_get_buffer(out_right, nframes);

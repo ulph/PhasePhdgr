@@ -22,10 +22,10 @@ class PhasePhckrJackApp {
     Synth synth;
     ComponentRegister comp;
 
-    jack_port_t *in_midi;
+    jack_port_t *in_midi = nullptr;
 
-    jack_port_t *out_left;
-    jack_port_t *out_right;
+    jack_port_t *out_left = nullptr;
+    jack_port_t *out_right = nullptr;
 
     jack_default_audio_sample_t fs;
 
@@ -138,11 +138,11 @@ int main(int argc, char **argv) {
   app.synth.setVoiceChain(getExampleSimpleVoiceChain(), app.comp);
 
   // setup jack
-  jack_set_process_callback(app.jc, process, &app);
   app.in_midi = jack_port_register(app.jc, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
   app.out_left = jack_port_register(app.jc, "audio_out_left", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
   app.out_right = jack_port_register(app.jc, "audio_out_right", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
   if((app.in_midi == NULL) || (app.out_left == NULL) || (app.out_right == NULL)) return -1;
+  jack_set_process_callback(app.jc, process, &app);
   app.fs = jack_get_sample_rate(app.jc);
 
   // handle signals etc

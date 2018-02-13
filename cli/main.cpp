@@ -45,11 +45,11 @@ class PhasePhckrJackApp {
     };
 
     static inline MessageByte calc_status(const jack_midi_event_t& in_event) {
-      return ((*(in_event.buffer) & 0xf0))
+      return (MessageByte)((*(in_event.buffer) & 0xf0));
     }
 
     static inline int calc_channel(const jack_midi_event_t& in_event) {
-        return *(in_event.buffer & 0b00001111);
+        return *(in_event.buffer) & 0b00001111;
     }
 
     static inline int calc_note(const jack_midi_event_t& in_event) {
@@ -63,16 +63,18 @@ class PhasePhckrJackApp {
     void handle_midi(const jack_midi_event_t& in_event) {
       // TODO, a proper implementation ...
       switch (calc_status(in_event)) {
-        case NoteOn:
+        case NoteOn:{
           auto note = calc_note(in_event);
           auto vel = calc_vxl(in_event);
           synth.handleNoteOnOff(0, note, vel, true);
           break;
-        case NoteOff:
+        }
+        case NoteOff:{
           auto note = calc_note(in_event);
           auto vel = calc_vxl(in_event);
           synth.handleNoteOnOff(0, note, vel, false);
           break;
+        }
           // etc
         default:
           break;

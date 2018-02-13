@@ -4,3 +4,9 @@
 [submodule "submodules/ThreadPool"]
 	path = submodules/ThreadPool
 	url = git@github.com:ulph/ThreadPool.git
+[submodule "submodules/vst3sdk"]
+	path = submodules/vst3sdk
+	url = git@github.com:steinbergmedia/vst3sdk.git
+[submodule "submodules/JUCE"]
+	path = submodules/JUCE
+	url = git@github.com:WeAreROLI/JUCE.git

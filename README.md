@@ -1,23 +1,64 @@
 # README #
 
-Read my lips... Suck my balls!
+PhasePhckr is a (extendable) software module synthesizer.
 
+# Use #
 
-## core / synth / tools ##
+...
+
+## Patch structure ##
+
+### Presets ###
+
+### Patch ###
+
+### Component ###
+
+Global vs local.
+
+## Variants ##
+
+### JUCE/VST ###
+Synth version, FX version.
+
+### CLI ###
+Jack.
+
+# Extend #
+
+## JSON/Graphs ##
+
+Just use the software, and build a library of COMPONENTS, VOICE/EFFECT PATCHES and PRESETS in nested folder structures.
+
+## Binary/Nodes ##
+
+Use the minimal plugin SDK to create a dynamic library that defines a bunch of new processing nodes (Modules).
+
+# Develop #
+
+Core synth should build on c++11 compliant platforms, including OSX, Linux, and Windows for both x86 and ARM.
+
+JUCE/VST layer should build for OSX, Linux and Windows X86.
+
+## build targets ##
+
+### core / synth / tools ###
 
 See "json" below.
 
 Run cmake from ./core
 
+### VST / JUCE ###
 
-## VST / JUCE ##
+Run cmake from the root, enable option BUILD_JUCE
 
-Run cmake from the root.
+### CLI client(s) ###
 
-Download or clone JUCE SDK and VST3 SDK. There's an option for location either in our CMAKE.
+Run cmake from the root, enable option BUILD_CLI
 
-If updating the JUCE bits open JUCE/PhasePhckr.jucer with projucer and save. Ignore the generated project, but do commit any changes to the generated stubs.
+### Plugin SDK export ###
 
+Run cmake from the root, enable option BUILD_PLUGIN_SDK
 
 ## submodules ##
 
@@ -27,3 +68,9 @@ We rely on nlhomann/json for this. We use a forked version to tweak the pretty p
 ### threadpool ###
 
 We rely on a threadpool implementation of this. Note, forked to add a namespace.
+
+### VST3 SDK ### 
+This a depency to JUCE
+
+### JUCE ##
+Heavily used for GUI and VST/AU etc wrapping

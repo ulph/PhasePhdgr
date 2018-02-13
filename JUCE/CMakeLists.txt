@@ -9,11 +9,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # JUCE stuff
-set(JUCE_SDK_ROOT "" CACHE FILEPATH "JUCE5 SDK root")
+set(JUCE_SDK_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../submodules/JUCE)
 include_directories(${JUCE_SDK_ROOT}/modules)
 
 # VST3 SDK stuff
-set(VST3_SDK_ROOT "" CACHE FILEPATH "VST3 SDK root")
+set(VST3_SDK_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../submodules/vst3sdk)
 include_directories(${VST3_SDK_ROOT})
 
 add_subdirectory(JuceJunk)

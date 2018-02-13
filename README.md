@@ -6,6 +6,8 @@ Under the hood, all connections and states are described via hiarchies in JSON. 
 
 Dumbed down mobile versions are planned, as is a simple embedded webserver in the headless case to allow patch selection/editing.
 
+For more information, see the [user guide][man].
+
 ## build targets ##
 
 * core / synth / tools - buildable from from ./core
@@ -19,3 +21,5 @@ Dumbed down mobile versions are planned, as is a simple embedded webserver in th
 * ThreadPool - forked to add a namespace
 * VST3 SDK
 * JUCE
+
+[man] : doc/index.md

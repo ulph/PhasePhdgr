@@ -1,64 +1,15 @@
 # README #
 
-PhasePhckr is a (extendable) software module synthesizer.
+PhasePhckr is a (extendable) software module synthesizer. It comes both as a headless CLI (jack) synth, and wrapped inside an elaborate VST/GUI (JUCE) in two flavours (instrument and effect).
 
-# Use #
-
-...
-
-## Patch structure ##
-
-### Presets ###
-
-### Patch ###
-
-### Component ###
-
-Global vs local.
-
-## Variants ##
-
-### JUCE/VST ###
-Synth version, FX version.
-
-### CLI ###
-Jack.
-
-# Extend #
-
-## JSON/Graphs ##
-
-Just use the software, and build a library of COMPONENTS, VOICE/EFFECT PATCHES and PRESETS in nested folder structures.
-
-## Binary/Nodes ##
-
-Use the minimal plugin SDK to create a dynamic library that defines a bunch of new processing nodes (Modules).
-
-# Develop #
-
-Core synth should build on c++11 compliant platforms, including OSX, Linux, and Windows for both x86 and ARM.
-
-JUCE/VST layer should build for OSX, Linux and Windows X86.
+Under the hood, all connections and states are described via hiarchies in JSON. A user can create subgraphs, optionally storing it to disk, and reference it from other (sub)graphs. Advanced users can extend the synth by using the minimal sdk provided.
 
 ## build targets ##
 
-### core / synth / tools ###
-
-See "json" below.
-
-Run cmake from ./core
-
-### VST / JUCE ###
-
-Run cmake from the root, enable option BUILD_JUCE
-
-### CLI client(s) ###
-
-Run cmake from the root, enable option BUILD_CLI
-
-### Plugin SDK export ###
-
-Run cmake from the root, enable option BUILD_PLUGIN_SDK
+* core / synth / tools - buildable from from ./core
+* VST / JUCE - option BUILD_JUCE
+* CLI client(s) - option BUILD_CLI
+* Plugin SDK export - option BUILD_PLUGIN_SDK
 
 ## submodules ##
 

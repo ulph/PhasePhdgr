@@ -56,26 +56,62 @@ class PhasePhckrJackApp {
       return *(in_event.buffer + 1);
     }
 
+    static inline int calc_cc(const jack_midi_event_t& in_event) {
+      return *(in_event.buffer + 1);
+    }
+
     static inline float calc_vxl(const jack_midi_event_t& in_event) {
       return (float)(*(in_event.buffer + 2)) / 127.f;
     }
 
+    static inline float calc_ch_press(const jack_midi_event_t& in_event) {
+      return (float)(*(in_event.buffer + 1)) / 127.f;
+    }
+
+    static inline float calc_bend(const jack_midi_event_t& in_event) {
+      return (float)(*(in_event.buffer + 1)) / 127.f;
+    }
+
     void handle_midi(const jack_midi_event_t& in_event) {
       // TODO, a proper implementation ...
+      int ch = calc_channel(in_event);
       switch (calc_status(in_event)) {
-        case NoteOn:{
+        case NoteOn: {
           auto note = calc_note(in_event);
           auto vel = calc_vxl(in_event);
-          synth.handleNoteOnOff(0, note, vel, true);
+          synth.handleNoteOnOff(ch, note, vel, true);
           break;
         }
-        case NoteOff:{
+        case NoteOff: {
           auto note = calc_note(in_event);
           auto vel = calc_vxl(in_event);
-          synth.handleNoteOnOff(0, note, vel, false);
+          synth.handleNoteOnOff(ch, note, vel, false);
           break;
         }
-          // etc
+        case PolyPress: {
+          auto note = calc_note(in_event);
+          auto val = calc_vxl(in_event);
+          synth.handleNoteZ(ch, note, val);
+          break;
+        }
+        case ChanPress: {
+          synth.handleZ(ch, calc_ch_press(in_event));
+          break;
+        }
+        case CC: {
+          auto cc = calc_cc(in_event);
+          auto val = calc_vxl(in_event);
+          switch(cc) {
+            // TODO, see JUCE layer
+            default:
+              break;
+          }
+          break;
+        }
+        case PitchBend: {
+          // TODO
+          break;
+        }
         default:
           break;
       }

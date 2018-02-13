@@ -162,10 +162,10 @@ PatchEditor::PatchEditor(
     )
     , layoutUpdateCb(layoutUpdateCb_)
 {
-    addAndMakeVisible(PPGrid);
-    PPGrid.addComponent(&editorStack);
-    PPGrid.addComponent(&docView);
-    PPGrid.setColoumns({ 0.875f, 0.125f });
+    addAndMakeVisible(ppgrid);
+    ppgrid.addComponent(&editorStack);
+    ppgrid.addComponent(&docView);
+    ppgrid.setColoumns({ 0.875f, 0.125f });
 
     editorStack.addTab(rootMarker, Colours::black, &rootBundle, false);
 
@@ -212,7 +212,7 @@ void PatchEditor::paint(Graphics& g)
 
 void PatchEditor::resized()
 {
-    PPGrid.setBoundsRelative(0, 0, 1, 1);
+    ppgrid.setBoundsRelative(0, 0, 1, 1);
     repaint();
 }
 

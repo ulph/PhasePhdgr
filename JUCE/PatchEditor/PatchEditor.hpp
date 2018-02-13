@@ -49,7 +49,7 @@ class PatchEditor : public Component
     SubValue<PhasePhckr::ComponentRegister> &subCmpReg;
     int cmpRegHandle;
 
-    PPGrid PPGrid;
+    PPGrid ppgrid;
 
     GraphEditorBundle rootBundle;
 

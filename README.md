@@ -4,6 +4,8 @@ PhasePhckr is a (extendable) software module synthesizer. It comes both as a hea
 
 Under the hood, all connections and states are described via hiarchies in JSON. A user can create subgraphs, optionally storing it to disk, and reference it from other (sub)graphs. Advanced users can extend the synth by using the minimal sdk provided.
 
+Dumbed down mobile versions are planned, as is a simple embedded webserver in the headless case to allow patch selection/editing.
+
 ## build targets ##
 
 * core / synth / tools - buildable from from ./core

@@ -140,6 +140,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
         else if(msg.isPitchWheel()){
             midiMessageQueue.emplace_back(
                 PPMidiMessage::Type::X,
+                evtPos,
                 ch,
                 2.f*((float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
             );
@@ -147,6 +148,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
         else if(msg.isAftertouch()){
             midiMessageQueue.emplace_back(
                 PPMidiMessage::Type::NoteZ,
+                evtPos,
                 ch,
                 msg.getNoteNumber(),
                 (float)msg.getAfterTouchValue() / 127.f
@@ -155,6 +157,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
         else if(msg.isChannelPressure()){
             midiMessageQueue.emplace_back(
                 PPMidiMessage::Type::Z,
+                evtPos,
                 ch,
                 (float)msg.getChannelPressureValue() / 127.f
             );
@@ -167,6 +170,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
                 case 64:
                     midiMessageQueue.emplace_back(
                         PPMidiMessage::Type::Sustain,
+                        evtPos,
                         ch,
                         val
                     );
@@ -174,6 +178,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
                 case 74:
                     midiMessageQueue.emplace_back(
                         PPMidiMessage::Type::Y,
+                        evtPos,
                         ch,
                         val
                     );
@@ -181,6 +186,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
                 case 1:
                     midiMessageQueue.emplace_back(
                         PPMidiMessage::Type::ModWheel,
+                        evtPos,
                         ch,
                         val
                     );
@@ -188,6 +194,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
                 case 2:
                     midiMessageQueue.emplace_back(
                         PPMidiMessage::Type::Breath,
+                        evtPos,
                         ch,
                         val
                     );
@@ -195,6 +202,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
                 case 11:
                     midiMessageQueue.emplace_back(
                         PPMidiMessage::Type::Expression,
+                        evtPos,
                         ch,
                         val
                     );

@@ -231,7 +231,7 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
     int idx = getNoteDataIndex(channel, note);
     if (idx == -1) return;
 
-    if (channelData[channel].sustain < 0.5f) {
+    if (sustain < 0.5f) {
         if(notes.at(idx).state == NoteState::ON) {
             int voiceIdx = notes.at(idx).voiceIndex;
             if (voiceIdx != -1 && voiceIdx < voices.size()) {
@@ -361,10 +361,10 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
     }
 }
 
-void VoiceBus::handleSustain(int channel, float position, std::vector<SynthVoice*> &voices) {
-    if (channelData[channel].sustain >= 0.5f && position < 0.5f) {
+void VoiceBus::handleSustain(float position, std::vector<SynthVoice*> &voices) {
+    if (sustain >= 0.5f && position < 0.5f) {
         for (auto it = notes.begin(); it != notes.end();) {
-            if (it->channel == channel && (it->state & NoteState::SUSTAINED)) {
+            if (it->state & NoteState::SUSTAINED) {
                 if (it->voiceIndex != -1 && it->state == NoteState::SUSTAINED) {
                     voices[it->voiceIndex]->mpe.off(it->note, 0.0f);
                 }
@@ -375,7 +375,7 @@ void VoiceBus::handleSustain(int channel, float position, std::vector<SynthVoice
             }
         }
     }
-    channelData[channel].sustain = position;
+    sustain = position;
 }
 
 int VoiceBus::getNoteDataIndex(int channel, int note) {

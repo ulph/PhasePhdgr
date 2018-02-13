@@ -37,12 +37,10 @@ struct ChannelData {
         : x(0.0f)
         , y(0.0f)
         , z(0.0f)
-        , sustain(0.0f) 
     {}
     float x;
     float y;
     float z;
-    float sustain;
 };
 
 class VoiceBus {
@@ -52,7 +50,7 @@ public:
     void handleY(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleZ(int channel, float position, std::vector<SynthVoice*> &voices);
     void handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices);
-    void handleSustain(int channel, float position, std::vector<SynthVoice*> &voices); // TODO; should not use channel
+    void handleSustain(float position, std::vector<SynthVoice*> &voices);
     void update(const std::vector<SynthVoice*> &voices);
     int findScopeVoiceIndex(std::vector<SynthVoice*> &voices);
     void setLegato(LegatoMode status) { legato = status; }
@@ -77,6 +75,7 @@ private:
     int getNoteDataIndex(int channel, int note);
     int getNoteDataIndexForStealingVoice(int voiceIdx);
     ChannelData channelData[16];
+    float sustain = 0.f;
     bool sanitize(const std::vector<SynthVoice*> &voices);
 };
 

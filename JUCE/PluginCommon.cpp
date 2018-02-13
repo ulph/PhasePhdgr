@@ -69,7 +69,7 @@ void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& mi
                 break;
 
             case PPMidiMessage::Type::Sustain:
-                synth->handleSustain(it->channel, it->value);
+                synth->handleSustain(it->value);
                 break;
             case PPMidiMessage::Type::ModWheel:
                 synth->handleModWheel(it->value);

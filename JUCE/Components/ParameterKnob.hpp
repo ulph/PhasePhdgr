@@ -4,7 +4,7 @@
 #include <phasephckr/locks.hpp>
 #include "Parameter.hpp"
 
-class ParameterKnob : public Component, public SliderListener, public DragAndDropTarget {
+class ParameterKnob : public Component, public Slider::Listener, public DragAndDropTarget {
 private:
     Slider slider;
     Label label;

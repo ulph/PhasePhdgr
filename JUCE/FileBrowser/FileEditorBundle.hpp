@@ -16,7 +16,7 @@ typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
 using namespace PhasePhckrFileStuff;
 
-class FileEditorBundle : public GroupComponent, public ButtonListener, public FileBrowserListener
+class FileEditorBundle : public GroupComponent, public Button::Listener, public FileBrowserListener
 {
 
     // TODO, thread safety between checks and usages of checks ... maybe

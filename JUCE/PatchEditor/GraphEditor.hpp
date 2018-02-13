@@ -154,7 +154,7 @@ public:
 };
 
 
-class GraphEditorBundle : public Component, public ButtonListener{
+class GraphEditorBundle : public Component, public Button::Listener {
 private:
     GraphViewPort view;
 public:

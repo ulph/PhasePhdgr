@@ -8,7 +8,7 @@ using namespace PhasePhckr;
 
 #define shutup NotificationType::dontSendNotification
 
-class SettingsEditor : public Component, public ButtonListener {
+class SettingsEditor : public Component, public Button::Listener {
 private:
     PresetSettings settings;
     int subSettingsHandle = -1;

@@ -97,7 +97,6 @@ function(make_juce_lib lib_target)
             set(${list}
                 ${${list}}
                 ${${prefix}_LIBRARIES}
-                PARENT_SCOPE
             )
         endfunction()
 
@@ -112,7 +111,6 @@ function(make_juce_lib lib_target)
 
         set(JUCE_DEPS
             ${JUCE_DEPS}
-            PARENT_SCOPE
             CACHE
             INTERNAL
             ""

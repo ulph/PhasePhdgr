@@ -81,7 +81,7 @@ function(make_juce_lib lib_target)
         include(FindOpenGL)
         find_package(Threads)
 
-        set(JUCE_DEPS
+        set(JUCE_DEPS_
             ${CMAKE_THREAD_LIBS_INIT}
             ${OPENGL_LIBRARIES}
             ${CMAKE_DL_LIBS}
@@ -97,20 +97,21 @@ function(make_juce_lib lib_target)
             set(${list}
                 ${${list}}
                 ${${prefix}_LIBRARIES}
+                PARENT_SCOPE
             )
         endfunction()
 
-        add_package(ALSA alsa JUCE_DEPS)
-        add_package(FREETYPE2 freetype2 JUCE_DEPS)
-        add_package(GTK+X11 gtk+-x11-3.0 JUCE_DEPS)
-        add_package(CURL libcurl JUCE_DEPS)
-        add_package(WEBKIT2GTK webkit2gtk-4.0 JUCE_DEPS)
-        add_package(X11 x11 JUCE_DEPS)
-        add_package(XEXT xext JUCE_DEPS)
-        add_package(XINERAMA xinerama JUCE_DEPS)
+        add_package(ALSA alsa JUCE_DEPS_)
+        add_package(FREETYPE2 freetype2 JUCE_DEPS_)
+        add_package(GTK+X11 gtk+-x11-3.0 JUCE_DEPS_)
+        add_package(CURL libcurl JUCE_DEPS_)
+        add_package(WEBKIT2GTK webkit2gtk-4.0 JUCE_DEPS_)
+        add_package(X11 x11 JUCE_DEPS_)
+        add_package(XEXT xext JUCE_DEPS_)
+        add_package(XINERAMA xinerama JUCE_DEPS_)
 
         set(JUCE_DEPS
-            ${JUCE_DEPS}
+            ${JUCE_DEPS_}
             CACHE
             INTERNAL
             ""

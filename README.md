@@ -62,15 +62,7 @@ Run cmake from the root, enable option BUILD_PLUGIN_SDK
 
 ## submodules ##
 
-### json ###
-We rely on nlhomann/json for this. We use a forked version to tweak the pretty print behaviour.
-
-### threadpool ###
-
-We rely on a threadpool implementation of this. Note, forked to add a namespace.
-
-### VST3 SDK ### 
-This a depency to JUCE
-
-### JUCE ###
-Heavily used for GUI and VST/AU etc wrapping
+* nlhomann/json - forked version to tweak the pretty print behaviour
+* ThreadPool - forked to add a namespace
+* VST3 SDK
+* JUCE

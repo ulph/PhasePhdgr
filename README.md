@@ -22,4 +22,4 @@ For more information, see the [user guide][man].
 * VST3 SDK
 * JUCE
 
-[man] : doc/index.md
+[man] : doc/index.md "User Guide"

@@ -33,35 +33,49 @@ class PhasePhckrJackApp {
     jack_status_t js;
     jack_client_t* jc = nullptr;
 
-    static inline bool is_noteon(const jack_midi_event_t& in_event) {
-      return ((*(in_event.buffer) & 0xf0)) == 0x90;
+    // https://www.midi.org/specifications/item/table-1-summary-of-midi-message
+
+    enum MessageByte {
+        NoteOn    = 0b10010000,
+        NoteOff   = 0b10000000,
+        PolyPress = 0b10100000,
+        CC        = 0b10110000,
+        ChanPress = 0b11010000,
+        PitchBend = 0b11100000
+    };
+
+    static inline MessageByte calc_status(const jack_midi_event_t& in_event) {
+      return ((*(in_event.buffer) & 0xf0))
     }
 
-    static inline bool is_noteoff(const jack_midi_event_t& in_event) {
-      return ((*(in_event.buffer)) & 0xf0) == 0x80;
+    static inline int calc_channel(const jack_midi_event_t& in_event) {
+        return *(in_event.buffer & 0b00001111);
     }
 
     static inline int calc_note(const jack_midi_event_t& in_event) {
       return *(in_event.buffer + 1);
     }
 
-    static inline float calc_vel(const jack_midi_event_t& in_event) {
-      auto vel = 0.0f;
-      if(*(in_event.buffer + 2) != 0) vel = (float)(*(in_event.buffer + 2)) / 127.f;
-      return vel;
+    static inline float calc_vxl(const jack_midi_event_t& in_event) {
+      return (float)(*(in_event.buffer + 2)) / 127.f;
     }
 
     void handle_midi(const jack_midi_event_t& in_event) {
       // TODO, a proper implementation ...
-      if (is_noteon(in_event)) {
-        auto note = calc_note(in_event);
-        auto vel = calc_vel(in_event);
-        synth.handleNoteOnOff(0, note, vel, true);
-      }
-      else if (is_noteoff(in_event)) {
-        auto note = calc_note(in_event);
-        auto vel = calc_vel(in_event);
-        synth.handleNoteOnOff(0, note, vel, false);
+      switch (calc_status(in_event)) {
+        case NoteOn:
+          auto note = calc_note(in_event);
+          auto vel = calc_vxl(in_event);
+          synth.handleNoteOnOff(0, note, vel, true);
+          break;
+        case NoteOff:
+          auto note = calc_note(in_event);
+          auto vel = calc_vxl(in_event);
+          synth.handleNoteOnOff(0, note, vel, false);
+          break;
+          // etc
+        default:
+          break;
       }
     }
 

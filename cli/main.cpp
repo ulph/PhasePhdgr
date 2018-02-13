@@ -52,6 +52,7 @@ class PhasePhckrJackApp {
     }
 
     void handle_midi(const jack_midi_event_t& in_event) {
+      // TODO, a proper implementation ...
       if (is_noteon(in_event)) {
         auto note = calc_note(in_event);
         auto vel = calc_vel(in_event);
@@ -64,7 +65,7 @@ class PhasePhckrJackApp {
       }
     }
 
-    int process(jack_nframes_t nframes){
+    int process(jack_nframes_t nframes) {
       const int sz = Synth::internalBlockSize();
 
       if(nframes % sz != 0) return -1;

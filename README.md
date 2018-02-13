@@ -72,5 +72,5 @@ We rely on a threadpool implementation of this. Note, forked to add a namespace.
 ### VST3 SDK ### 
 This a depency to JUCE
 
-### JUCE ##
+### JUCE ###
 Heavily used for GUI and VST/AU etc wrapping

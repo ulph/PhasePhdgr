@@ -19,5 +19,5 @@ For more information, see the [user guide](doc/index.md).
 
 * nlhomann/json - forked version to tweak the pretty print behaviour
 * ThreadPool - forked to add a namespace
-* VST3 SDK
+* VST3 SDK - note, is a collection of submodules itself
 * JUCE

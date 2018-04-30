@@ -67,6 +67,7 @@ public:
     void setStealPolicy(NoteStealPolicy newPolicy) { stealPolicy = newPolicy; }
     void setReactivationPolicy(NoteReactivationPolicy newPolicy) { reactivationPolicy = newPolicy; }
     void setActivationPolicy(NoteActivationPolicy newPolicy) { activationPolicy = newPolicy; }
+    void reassignVoices(std::vector<SynthVoice*> &voices);
 private:
     enum class fvr {
         NewVoice,

@@ -50,9 +50,7 @@ void Synth::resetVoiceBus(const SynthVoice* voice) {
     voiceBus->setReactivationPolicy(settings.getNoteReactivationPolicy());
     voiceBus->setActivationPolicy(settings.noteActivationPolicy);
 
-    for (SynthVoice *v : voices) {
-        delete v;
-    }
+    for (auto v : voices) delete v;
     voices.clear();
 
     auto numVoices = settings.polyphony > 0 ? settings.polyphony : 1;
@@ -62,6 +60,8 @@ void Synth::resetVoiceBus(const SynthVoice* voice) {
         v_->mpe.setIndex(i, settings.polyphony);
         voices.push_back(v_);
     }
+
+    voiceBus->reassignVoices(voices);
 }
 
 const ParameterHandleMap& Synth::setVoiceChain(const PatchDescriptor& voiceChain, const ComponentRegister & cp){

@@ -40,14 +40,14 @@ public:
     {
         for (auto i = 0; i < c_numFractions; ++i)
         {
-            float frac = (float)i*1.0f / (float(c_numFractions));
-            float M = 0.f;
+            auto frac = (float)i*1.0f / (float(c_numFractions));
+            auto M = 0.f;
             for (auto n = 0; n < N; ++n)
             {
-                int ni = makeIndex(N, n, i);
-                float arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
-                float w = blackman(arg, (double)N - 1.0);
-                coeffs[ni] = w*sincf(arg * normFreq);
+                auto ni = makeIndex(N, n, i);
+                auto arg = ((float)n - frac - ((float)N - 1.f) / 2.f);
+                auto w = blackman(arg, (double)N - 1.0);
+                coeffs[ni] = (float)w*sincf(arg * normFreq);
                 M += coeffs[ni];
             }
             if (normAmp) {

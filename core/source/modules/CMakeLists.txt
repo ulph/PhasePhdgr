@@ -45,5 +45,5 @@ set(SRC
 )
 
 add_library(modules_obj OBJECT ${SRC})
-set_target_properties(modules_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(modules_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(modules_obj PROPERTIES FOLDER core)

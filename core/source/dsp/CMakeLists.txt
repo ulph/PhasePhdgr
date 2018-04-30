@@ -4,5 +4,5 @@ set(SRC
 )
 
 add_library(dsp_obj OBJECT ${SRC})
-set_target_properties(dsp_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+set_target_properties(dsp_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(dsp_obj PROPERTIES FOLDER core)

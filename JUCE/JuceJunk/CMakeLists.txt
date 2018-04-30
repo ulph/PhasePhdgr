@@ -121,7 +121,7 @@ function(make_juce_lib lib_target)
     endif()
 
     add_library(${lib_target} OBJECT ${JUCE_SRC})
-    set_target_properties(${lib_target} PROPERTIES COMPILE_FLAGS "-fPIC")
+    set_target_properties(${lib_target} PROPERTIES POSITION_INDEPENDENT_CODE ON)    
     set_target_properties(${lib_target} PROPERTIES FOLDER JUCE/JUCE)
 
 endfunction(make_juce_lib)

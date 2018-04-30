@@ -377,9 +377,11 @@ void PPLookAndFeel::drawLinearSlider(
 ) {
     assert(style == Slider::LinearHorizontal);
 
+    const float hh = (float)trackHalfHeight;
+
     g.setColour(findColour(Slider::trackColourId));
-    g.fillRoundedRectangle(x, height*0.5f - trackHalfHeight, width, 2.0f * trackHalfHeight, trackHalfHeight);
+    g.fillRoundedRectangle((float)x, (float)height*0.5f - hh, (float)width, 2.0f * hh, hh);
 
     g.setColour(findColour(Slider::thumbColourId));
-    g.fillRoundedRectangle(sliderPos - trackHalfHeight, height*0.5f - 2.0f*trackHalfHeight, 2.0f * trackHalfHeight, 4.0f * trackHalfHeight, trackHalfHeight);
+    g.fillRoundedRectangle(sliderPos - hh, height*0.5f - 2.0f*hh, 2.0f * hh, 4.0f * hh, hh);
 }

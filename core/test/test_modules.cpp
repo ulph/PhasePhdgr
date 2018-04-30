@@ -19,7 +19,9 @@ int main(int argc, char *argv[])
     FILE * outfile = stdout;
 #ifdef _MSC_VER
     fprintf(stderr, "Windows can't pipe raw bytes on stdout, writing to 'data.dat' instead.");
-    outfile = fopen("data.dat", "wb"); 
+    auto err = fopen_s(&outfile, "data.dat", "wb");
+    assert(outfile);
+    assert(err == 0);
 #endif
 
     if (argc > 1) {

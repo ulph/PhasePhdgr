@@ -27,7 +27,7 @@ void FadeCross::process() {
 static inline void muxProcess(float in, float select, std::vector<Pad>& outputs) {
     for (int i = 0; i < outputs.size(); i++) outputs[i].value = 0.0f;
     int idx = (int)(select * outputs.size());
-    idx = idx >= outputs.size() ? outputs.size() - 1 : idx;
+    idx = idx >= outputs.size() ? (int)(outputs.size() - 1) : idx;
     idx = idx < 0 ? 0 : idx;
     outputs[idx].value = in;
 }

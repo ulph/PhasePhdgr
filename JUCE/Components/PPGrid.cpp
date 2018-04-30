@@ -16,10 +16,10 @@ void PPGrid::resized(){
 
     // set positions/size
     c->setBounds(
-        x * getWidth() + padding,
-        y / numberOfRows * getHeight() + padding,
-        w * getWidth() - 2 * padding,
-        1.f / numberOfRows * getHeight() - 2 * padding
+        (int)(x * getWidth()) + padding,
+        (int)(y / numberOfRows * getHeight()) + padding,
+        (int)(w * getWidth()) - 2 * padding,
+        (int)(1.f / numberOfRows * getHeight()) - 2 * padding
     );
 
     x += w;

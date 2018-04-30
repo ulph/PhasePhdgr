@@ -7,7 +7,11 @@
 
 namespace PhasePhckr {
 
- VoiceBus::fvr VoiceBus::findVoice(int newNote, NoteData* noteData, const std::vector<SynthVoice*> &voices) {
+bool inline noteIsNotStolen(const NoteDataValue &n) {
+    return (n.state & NoteState::STOLEN) == 0;
+}
+
+VoiceBus::fvr VoiceBus::findVoice(int newNote, NoteDataValue* noteData, const std::vector<SynthVoice*> &voices) {
     // active or steal a voice based on policies
 
     fvr res = fvr::NoVoice;
@@ -102,10 +106,9 @@ namespace PhasePhckr {
 
     if(selectedInactiveSilentIdx == -1 && selectedInactiveIdx == -1 && stealPolicy == NoteStealPolicyOldest){
         // a bit special, as mpe state has lost knowledge of when a key was originally pressed down
-        for(int i=0; i<notes.size(); i++){
-            const auto& n = notes.at(i);
-            if(n.voiceIndex >= 0 && !(n.state & NoteState::STOLEN) && n.voiceIndex < voices.size()){
-                selectedActiveIdx = n.voiceIndex;
+        for (const auto& n : notes) {
+            if (n.second.voiceIndex >= 0 && !(n.second.state & NoteState::STOLEN) && n.second.voiceIndex < voices.size()) {
+                selectedActiveIdx = n.second.voiceIndex;
                 break;
             }
         }
@@ -134,15 +137,16 @@ namespace PhasePhckr {
             (stealPolicy == NoteStealPolicyClosest)
         // ...
         ) {
-            auto nIdxToSteal = getNoteDataIndexForStealingVoice(selectedActiveIdx);
-            if (nIdxToSteal != -1) {
-                auto& nts = notes[nIdxToSteal];
-                nts.state = (NoteState) (nts.state | NoteState::STOLEN);
-                noteData->voiceIndex = selectedActiveIdx;
-                noteData->velocity = nts.velocity; // in case of legato
-                res = fvr::StolenVoice;
+            for (auto &n : notes) {
+                if (n.second.voiceIndex == selectedActiveIdx && noteIsNotStolen(n.second)) {
+                    n.second.state = (NoteState)(n.second.state | NoteState::STOLEN);
+                    n.second.voiceIndex = -1;
+                    noteData->voiceIndex = selectedActiveIdx;
+                    noteData->velocity = n.second.velocity; // in case of legato
+                    res = fvr::StolenVoice;
+                    break;
+                }
             }
-            else assert(0);
         }
         else if (stealPolicy != NoteStealPolicyNone) { // TODO refactor
             noteData->state = (NoteState)(noteData->state | NoteState::STOLEN);
@@ -153,31 +157,27 @@ namespace PhasePhckr {
     return res;
 }
 
+
 void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
-    int idx = getNoteDataIndex(channel, note);
+    NoteDataKey k(channel, note);
 
     // special handling for retriggering sustained notes
-    if (idx != -1) {
-        auto n = &notes[idx];
+    if (notes.count(k)) {
+        auto n = &notes.at(k);
         if (n->voiceIndex >= 0 && n->voiceIndex < voices.size()) {
             if ((n->state == NoteState::SUSTAINED) && legato == LegatoModeRetrigger) {
                 voices[n->voiceIndex]->mpe.off(note, 0.0f);
                 // TODO, should not be needed to delete it
-                notes.erase(notes.begin() + idx);
-                assert(getNoteDataIndex(channel, note) == -1);
-                idx = -1;
+                notes.erase(k);
             }
         }
     }
 
     // find matching note data (or create new)
-    NoteData* n = nullptr;
-    if (idx == -1) {
-        notes.emplace_back(channel, note, velocity);
-        n = &notes.back();
-        idx = (int)notes.size()-1;
+    if ( !notes.count(k) ) {
+        notes[k] = NoteDataValue(velocity);
     }
-    else n = &notes[idx];
+    auto n = &notes.at(k);
 
     // prevent re-activation of stolen voices
     if(n->state == NoteState::STOLEN) return;
@@ -196,13 +196,9 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 
     // not possible to assign a voice nor wait for one, throw the note state away and bail out
     if (r == fvr::NoVoice) {
-        notes.erase(notes.begin() + idx);
+        notes.erase(k);
         return;
     }
-
-    // update channel/note
-    n->channel = channel;
-    n->note = note;
 
     // update velocity
     if(r != fvr::StolenVoice) n->velocity = velocity;
@@ -228,47 +224,50 @@ void VoiceBus::handleNoteOn(int channel, int note, float velocity, std::vector<S
 }
 
 void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices) {
-    int idx = getNoteDataIndex(channel, note);
-    if (idx == -1) return;
+    NoteDataKey k(channel, note);
+
+    if (!notes.count(k)) return;
+
+    auto& v = notes.at(k);
 
     if (sustain < 0.5f) {
-        if(notes.at(idx).state == NoteState::ON) {
-            int voiceIdx = notes.at(idx).voiceIndex;
+        if(v.state == NoteState::ON) {
+            int voiceIdx = v.voiceIndex;
             if (voiceIdx != -1 && voiceIdx < voices.size()) {
                 voices[voiceIdx]->mpe.off(note, velocity);
 
                 auto closestDistance = INT_MAX;
-                auto toReviveIdx = -1;
+                NoteDataKey toReviveKey;
                 auto lowestWaiting = INT_MAX;
                 auto highestWaiting = INT_MIN;
 
                 if (reactivationPolicy != NoteReactivationPolicyNone) {
                     // sift through the stolen notes and revive the one matching the policy
-                    for (auto sIdx = 0; sIdx < notes.size(); sIdx++) {
-                        if (notes.at(sIdx).state & NoteState::STOLEN) {
-                            if (notes.at(sIdx).note == note && notes.at(sIdx).channel == channel) {
-                                continue;
+                    for (auto &n : notes) {
+                        if (n.second.state & NoteState::STOLEN) {
+                            if (n.first.note == note && n.first.channel == channel) {
+                                continue; // found ourselves
                             }
                             else {
-                                auto sNote = notes.at(sIdx).note;
+                                auto sNote = n.first.note;
                                 auto distance = abs(note - sNote);
                                 if (reactivationPolicy == NoteReactivationPolicyHighest && sNote > highestWaiting) {
                                     highestWaiting = sNote;
-                                    toReviveIdx = sIdx;
+                                    toReviveKey = n.first;
                                 }
                                 else if (reactivationPolicy == NoteReactivationPolicyLowest && sNote < lowestWaiting) {
                                     lowestWaiting = sNote;
-                                    toReviveIdx = sIdx;
+                                    toReviveKey = n.first;
                                 }
                                 else if (reactivationPolicy == NoteReactivationPolicyLast) {
-                                    toReviveIdx = sIdx;
+                                    toReviveKey = n.first;
                                 }
-                                else if (reactivationPolicy == NoteReactivationPolicyFirst && toReviveIdx == -1) {
-                                    toReviveIdx = sIdx;
+                                else if (reactivationPolicy == NoteReactivationPolicyFirst && !toReviveKey.isValid()) {
+                                    toReviveKey = n.first;
                                 }
                                 else if (reactivationPolicy == NoteReactivationPolicyClosest && distance < closestDistance) {
                                     closestDistance = distance;
-                                    toReviveIdx = sIdx;
+                                    toReviveKey = n.first;
                                 }
                                 // ...
                             }
@@ -276,9 +275,9 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                     }
                 }
 
-                if (toReviveIdx != -1) {
+                if (toReviveKey.isValid()) {
                     float legatoVelocity = voices[voiceIdx]->mpe.getState().strikeZ;
-                    auto& toRevive = notes.at(toReviveIdx);
+                    auto& toRevive = notes.at(toReviveKey);
                     toRevive.voiceIndex = voiceIdx;
                     bool doLegato = legato != LegatoModeRetrigger && legato != LegatoModeRetriggerReleaseVelocity;
                     if(legato == LegatoModeFreezeVelocity)
@@ -289,19 +288,17 @@ void VoiceBus::handleNoteOff(int channel, int note, float velocity, std::vector<
                         toRevive.velocity = velocity;
                     // ...
                     toRevive.state = NoteState::ON;
-                    voices[voiceIdx]->mpe.on(toRevive.note, toRevive.velocity, doLegato);
-                    voices[voiceIdx]->mpe.glide(channelData[toRevive.channel].x);
-                    voices[voiceIdx]->mpe.slide(channelData[toRevive.channel].y);
-                    voices[voiceIdx]->mpe.press(channelData[toRevive.channel].z);
+                    voices[voiceIdx]->mpe.on(toReviveKey.note, toRevive.velocity, doLegato);
+                    voices[voiceIdx]->mpe.glide(channelData[toReviveKey.channel].x);
+                    voices[voiceIdx]->mpe.slide(channelData[toReviveKey.channel].y);
+                    voices[voiceIdx]->mpe.press(channelData[toReviveKey.channel].z);
                 }
-
             }
         }
-        notes.erase(notes.begin() + idx);
+        notes.erase(k);
     }
     else {
-        auto& n = notes.at(idx);
-        n.state = (NoteState)(n.state | NoteState::SUSTAINED);
+        v.state = (NoteState)(v.state | NoteState::SUSTAINED);
     }
 }
 
@@ -314,16 +311,12 @@ void VoiceBus::handleNoteOnOff(int channel, int note, float velocity, bool on, s
     }
 }
 
-bool inline noteIsNotStolen(const NoteData& n) {
-    return (n.state & NoteState::STOLEN) == 0;
-}
-
 void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].x = position;
     for (const auto &n : notes) {
-        if (n.channel == channel && noteIsNotStolen(n)) {
-            if (n.voiceIndex != -1) {
-                voices[n.voiceIndex]->mpe.glide(position);
+        if (n.first.channel == channel && noteIsNotStolen(n.second)) {
+            if (n.second.voiceIndex != -1) {
+                voices[n.second.voiceIndex]->mpe.glide(position);
             }
         }
     }
@@ -332,9 +325,9 @@ void VoiceBus::handleX(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].y = position;
     for (const auto &n : notes) {
-        if (n.channel == channel && noteIsNotStolen(n)) {
-            if (n.voiceIndex != -1) {
-                voices[n.voiceIndex]->mpe.slide(position);
+        if (n.first.channel == channel && noteIsNotStolen(n.second)) {
+            if (n.second.voiceIndex != -1) {
+                voices[n.second.voiceIndex]->mpe.slide(position);
             }
         }
     }
@@ -343,20 +336,21 @@ void VoiceBus::handleY(int channel, float position, std::vector<SynthVoice*> &vo
 void VoiceBus::handleZ(int channel, float position, std::vector<SynthVoice*> &voices) {
     channelData[channel].z = position;
     for (const auto &n : notes) {
-        if (n.channel == channel && noteIsNotStolen(n)) {
-            if (n.voiceIndex != -1) {
-                voices[n.voiceIndex]->mpe.press(position);
+        if (n.first.channel == channel && noteIsNotStolen(n.second)) {
+            if (n.second.voiceIndex != -1) {
+                voices[n.second.voiceIndex]->mpe.press(position);
             }
         }
     }
 }
 
 void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<SynthVoice*> &voices) {
-    int idx = getNoteDataIndex(channel, note);
-    if (idx != -1) {
-        notes[idx].notePressure = position;
-        if (notes[idx].voiceIndex != -1 && noteIsNotStolen(notes[idx])) {
-            voices[notes[idx].voiceIndex]->mpe.press(position);
+    NoteDataKey k(channel, note);
+    if (notes.count(k)) {
+        auto& v = notes.at(k);
+        v.notePressure = position;
+        if (v.voiceIndex != -1 && noteIsNotStolen(v)) {
+            voices[v.voiceIndex]->mpe.press(position);
         }
     }
 }
@@ -364,9 +358,9 @@ void VoiceBus::handleNoteZ(int channel, int note, float position, std::vector<Sy
 void VoiceBus::handleSustain(float position, std::vector<SynthVoice*> &voices) {
     if (sustain >= 0.5f && position < 0.5f) {
         for (auto it = notes.begin(); it != notes.end();) {
-            if (it->state & NoteState::SUSTAINED) {
-                if (it->voiceIndex != -1 && it->state == NoteState::SUSTAINED) {
-                    voices[it->voiceIndex]->mpe.off(it->note, 0.0f);
+            if (it->second.state & NoteState::SUSTAINED) {
+                if (it->second.voiceIndex != -1 && it->second.state == NoteState::SUSTAINED) {
+                    voices[it->second.voiceIndex]->mpe.off(it->first.note, 0.0f);
                 }
                 it = notes.erase(it);
             }
@@ -376,32 +370,6 @@ void VoiceBus::handleSustain(float position, std::vector<SynthVoice*> &voices) {
         }
     }
     sustain = position;
-}
-
-int VoiceBus::getNoteDataIndex(int channel, int note) {
-    int i = 0;
-    int idx = -1;
-    for (const auto &n : notes) {
-        if (n.note == note && n.channel == channel) {
-            if (idx == -1) idx = i;
-            else assert(0);
-        }
-        i++;
-    }
-    return idx;
-}
-
-int VoiceBus::getNoteDataIndexForStealingVoice(int voiceIdx) {
-    int i = 0;
-    int idx = -1;
-    for (const auto &n : notes) {
-        if (n.voiceIndex == voiceIdx && noteIsNotStolen(n)) {
-            if (idx == -1) idx = i;
-            else assert(0);
-        }
-        i++;
-    }
-    return idx;
 }
 
 int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
@@ -420,15 +388,10 @@ int VoiceBus::findScopeVoiceIndex(std::vector<SynthVoice*> &voices) {
 
 bool VoiceBus::sanitize(const std::vector<SynthVoice*> &voices) {
     int numActiveNotes = 0;
-    for (int i = 0; i < notes.size(); i++) {
-        const auto& n = notes.at(i);
-        assert(n.state >= NoteState::ON && n.state <= NoteState::SUSTAINED_AND_STOLEN);
-        numActiveNotes += noteIsNotStolen(n);
-        for (int j = i + 1; j < notes.size(); j++) {
-            const auto& nn = notes.at(j);
-            assert( !(n.channel == nn.channel && n.note == nn.note) );
-            assert( n.voiceIndex == -1 || !( noteIsNotStolen(n) && noteIsNotStolen(nn) && n.voiceIndex == nn.voiceIndex) );
-        }
+    for (const auto& n : notes) {
+        assert(n.second.state >= NoteState::ON && n.second.state <= NoteState::SUSTAINED_AND_STOLEN);
+        assert(n.first.isValid());
+        numActiveNotes += noteIsNotStolen(n.second);
     }
     assert( numActiveNotes <= voices.size() );
     

@@ -14,22 +14,32 @@ enum NoteState {
     SUSTAINED_AND_STOLEN = 0b11
 };
 
-struct NoteData {
-    NoteState state;
-    int channel;
-    int note;
-    int voiceIndex;
-    float notePressure;
-    float velocity;
-    NoteData(int channel, int note, float velocity) 
-        : state(NoteState::ON)
-        , channel(channel)
+struct NoteDataKey {
+    int channel = -1;
+    int note = -1;
+    NoteDataKey() {}
+    NoteDataKey(int channel, int note)
+        : channel(channel)
         , note(note)
-        , voiceIndex(-1)
-        , notePressure(0)
-        , velocity(velocity)
+    {}
+    bool operator<(const NoteDataKey& rhs) const
     {
+        return std::tie(channel, note) < std::tie(rhs.channel, rhs.note);
     }
+    bool isValid() const {
+        return channel > 0 && channel <= 16 && note >= 0 && note <= 127;
+    }
+};
+
+struct NoteDataValue {
+    NoteState state = NoteState::ON;
+    int voiceIndex = -1;
+    float notePressure = 0;
+    float velocity = 0;
+    NoteDataValue() {}
+    NoteDataValue(float velocity)
+        : velocity(velocity)
+    {}
 };
 
 struct ChannelData {
@@ -64,16 +74,14 @@ private:
         NoVoice,
         WaitingForVoice
     };
-    fvr findVoice(int note, NoteData* noteData, const std::vector<SynthVoice*> &voices);
+    fvr findVoice(int note, NoteDataValue* noteData, const std::vector<SynthVoice*> &voices);
     void handleNoteOn(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     void handleNoteOff(int channel, int note, float velocity, std::vector<SynthVoice*> &voices);
     NoteStealPolicy stealPolicy = NoteStealPolicyNone;
     NoteReactivationPolicy reactivationPolicy = NoteReactivationPolicyNone;
     NoteActivationPolicy activationPolicy = NoteActivationPolicyOldest;
     LegatoMode legato = LegatoModeRetrigger;
-    std::vector<NoteData> notes;
-    int getNoteDataIndex(int channel, int note);
-    int getNoteDataIndexForStealingVoice(int voiceIdx);
+    std::map<NoteDataKey, NoteDataValue> notes;
     ChannelData channelData[16];
     float sustain = 0.f;
     bool sanitize(const std::vector<SynthVoice*> &voices);

@@ -11,8 +11,7 @@ using namespace PhasePhckr;
 ComponentDescriptor* GraphEditor::rootComponent() {
     // lock before call
     if (rootComponentName == rootMarker) return &patch.root;
-    if (patch.componentBundle.has(rootComponentName)) return &patch.componentBundle.get(rootComponentName); // TODO, const clash
-    return nullptr;
+    return patch.componentBundle.getPointer(rootComponentName);
 }
 
 GraphEditor::GraphEditor(

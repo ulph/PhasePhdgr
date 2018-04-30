@@ -162,6 +162,7 @@ struct ModulePosition {
 struct ComponentBundle {
     bool has(const string& type) const { return components.count(type); }
     const ComponentDescriptor& get(const string& type) const { return components.at(type); }
+    ComponentDescriptor * getPointer(const string& type) { return components.count(type) ? &components.at(type) : nullptr; } // TODO, guard with friend access
     const map<string, ComponentDescriptor>& getAll() const { return components; }
     void setAll(const map<string, ComponentDescriptor>& components_) { components = components_; }
     int create(ComponentDescriptor* rootComponent, const set<string>& modules, string& type);
@@ -170,13 +171,34 @@ struct ComponentBundle {
     int set(const string& type, const ComponentDescriptor& descriptor); // potentially braking graphs
     int rename(ComponentDescriptor* rootComponent, const string& type, const string& newType); // TODO, list of roots
     int renamePort(ComponentDescriptor* rootComponent, const string& type, const string& port, const string& newPort, bool inputPort); // TODO, list of roots
-    int removePort(ComponentDescriptor* rootComponent, const string& type, const string& port, bool inputPort); // TODO, list of roots
-    // addPort ...
-    // setDocString ...
-    int setPortUnit(const string& type, const string& port, const string& unit, bool inputPort);
-    int setPortValue(const string& type, const string& port, float value, bool inputPort);
-    int setLayout(const string& type, const map<string, ModulePosition> & layout);
-    void prune(std::list<ComponentDescriptor*> rootComponents); // TODO -- call from preset level
+    int removePort(const string& type, const string& port, bool inputPort) {
+        if (!has(type)) return -1;
+        return components.at(type).removePort(port, inputPort);
+    }
+    int setDocString(const string& type, const string& docString) {
+        if (!has(type)) return -1;
+        components.at(type).docString = docString;
+        return 0;
+    }
+    int addPort(const string& type, const string& portName, bool inputPort, const string& unit, float defaultValue) {
+        if (!has(type)) return -1;
+        return components.at(type).addPort(portName, inputPort, unit, defaultValue);
+    }
+    int setPortUnit(const string& type, const string& port, const string& unit, bool inputPort) {
+        if (!has(type)) return -1;
+        if (!inputPort) return -2; // NYI
+        return components.at(type).changePortUnit(port, unit);
+    }
+    int setPortValue(const string& type, const string& port, float value) {
+        if (!has(type)) return -1;
+        return components.at(type).changePortValue(port, value);
+    }
+    int setLayout(const string& type, const map<string, ModulePosition> & layout) {
+        if (!has(type)) return -1;
+        components.at(type).layout = layout;
+        return 0;
+    }
+    void prune(std::list<ComponentDescriptor*> rootComponents);
     void cleanUp() {
         for (auto& kv : components) {
             kv.second.cleanUp();
@@ -291,6 +313,7 @@ typedef map<int, PatchParameterDescriptor> ParameterHandleMap;
 void designPatch(
     ConnectionGraph &connectionGraph,
     const PatchDescriptor &description,
+    const ComponentBundle &componentBundle,
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,

@@ -18,6 +18,7 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     designPatch(
         connectionGraph,
         patchDescriptor,
+        patchDescriptor.componentBundle,
         c_voiceChainInBus,
         c_voiceChainOutBus,
         moduleHandles,

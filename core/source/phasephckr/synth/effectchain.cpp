@@ -16,6 +16,7 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
     designPatch(
         connectionGraph,
         patchDescriptor,
+        patchDescriptor.componentBundle,
         c_effectChainInBus,
         c_effectChainOutBus,
         moduleHandles,

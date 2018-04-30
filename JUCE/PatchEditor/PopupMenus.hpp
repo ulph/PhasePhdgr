@@ -163,7 +163,7 @@ public:
         }
 
         if (choice == 6) {
-            return 0 == patch.componentBundle.removePort(&patch.root, moduleType, port, inputPort);
+            return 0 == patch.componentBundle.removePort(moduleType, port, inputPort);
         }
 
         if (choice >= 9) {
@@ -180,7 +180,7 @@ public:
 
         auto newDefault = defaultValueLbl.edit.getText().getFloatValue();
         if (pd.defaultValue != newDefault) {
-            return 0 == patch.componentBundle.setPortValue(moduleType, port, newDefault, inputPort);
+            return 0 == patch.componentBundle.setPortValue(moduleType, port, newDefault);
         }
 
         return false;

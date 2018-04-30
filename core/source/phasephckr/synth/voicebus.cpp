@@ -411,15 +411,16 @@ void VoiceBus::update(const std::vector<SynthVoice*> &voices) {
 void VoiceBus::reassignVoices(std::vector<SynthVoice*> &voices) {
     size_t numVoicesAssigned = 0;
     for (auto& n : notes) {
+        n.second.voiceIndex = -1;
         if (noteIsNotStolen(n.second)) {
             if (numVoicesAssigned < voices.size()) {
-                handleNoteOn(n.first.channel, n.first.note, n.second.velocity, voices);
+                handleNoteOnOff(n.first.channel, n.first.note, n.second.velocity, true, voices);
                 numVoicesAssigned++;
-                continue;
+            }
+            else {
+                n.second.state = (NoteState)(n.second.state | NoteState::STOLEN);
             }
         }
-        n.second.voiceIndex = -1;
-        n.second.state = (NoteState) (n.second.state | NoteState::STOLEN);
     }
 }
 

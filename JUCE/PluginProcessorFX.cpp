@@ -197,7 +197,7 @@ void PhasePhckrProcessorFX::updateLayout(const string &component, const map<stri
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     auto* c = component == "root" ? &effectChain.root : nullptr;
-    if (effectChain.components.count(component)) c = &effectChain.components[component];
+    if (effectChain.componentBundle.has(component)) c = &effectChain.componentBundle.get(component);
     if (c == nullptr) return;
     c->layout = layout;
 

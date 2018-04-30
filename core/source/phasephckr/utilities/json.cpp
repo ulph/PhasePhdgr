@@ -106,14 +106,14 @@ void from_json(const json& j, ModulePosition& xy) {
 
 void to_json(json& j, const PatchDescriptor& p) {
     j["root"] = p.root;
-    if(p.components.size()) j["components"] = p.components;
+    if(p.componentBundle.getAll().size()) j["components"] = p.componentBundle.getAll();
     if(p.parameters.size()) j["parameters"] = p.parameters;
 }
 
 void from_json(const json& j, PatchDescriptor& p) {
     if (j.count("graph")) p.root.graph = j.at("graph").get<ConnectionGraphDescriptor>(); // legacy
     else p.root = j.at("root").get<ComponentDescriptor>();
-    if (j.count("components")) p.components = j.at("components").get<map<string, ComponentDescriptor>>();
+    if (j.count("components")) p.componentBundle.setAll(j.at("components").get<map<string, ComponentDescriptor>>());
     if (j.count("parameters")) p.parameters = j.at("parameters").get<vector<PatchParameterDescriptor>>();
 }
 

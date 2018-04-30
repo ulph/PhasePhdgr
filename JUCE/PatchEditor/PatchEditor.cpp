@@ -28,10 +28,10 @@ void makeComponentPopupMenu(PopupMenu & poop,
         ids.createOutputMenuId = ctr++;
         poop.addItem(ids.createOutputMenuId, c_componentMenuStrings.createOutput);
 
-        if (patch.components.count(type)) {
+        if (patch.componentBundle.has(type)) {
             ids.docStringMenuId = ctr++;
             PopupMenu docStringPoop;
-            ids.docStringEditor.setText(patch.components.at(type).docString, NotificationType::dontSendNotification);
+            ids.docStringEditor.setText(patch.componentBundle.get(type).docString, NotificationType::dontSendNotification);
             ids.docStringEditor.setMultiLine(true, true);
             ids.docStringEditor.setReturnKeyStartsNewLine(true);
             docStringPoop.addCustomItem(ids.docStringMenuId, &ids.docStringEditor, 200, 200, false);
@@ -62,27 +62,24 @@ bool applyComponentPopuMenuChoice(
 ){
     string newDocString = ids.docStringEditor.getText().toStdString();
     if (choice == ids.createInputMenuId || choice == ids.createOutputMenuId) {
-        if (!patch.components.count(type)) return false;
-        auto & comp = patch.components.at(type);
-        return 0 == patch.components.at(type).addPort("newPort", choice == ids.createInputMenuId, "", 0.0f);
+        return 0 == patch.componentBundle.addPort(type, "newPort", choice == ids.createInputMenuId, "", 0.0f);
     }
     else if (choice == ids.removeConflictingComponentMenuId) {
-        return 0 == patch.removeComponentType(type);
+        return 0 == patch.componentBundle.remove(type);
     }
     else if (choice == ids.removeLocalComponentMenuId) {
-        return 0 == patch.removeComponentType(type);
+        return 0 == patch.componentBundle.remove(type);
     }
     else if (choice == ids.addLocalComponentMenuId) {
         if (!global.count(type)) return false;
         string type_ = type;
-        return 0 == patch.addComponentType(type_, global.at(type));
+        return 0 == patch.componentBundle.add(type_, global.at(type), false);
     }
     else if (type != ids.name.edit.getText().toStdString()) {
-        return 0 == patch.renameComponentType(type, ids.name.edit.getText().toStdString());
+        return 0 == patch.componentBundle.rename(&patch.root, type, ids.name.edit.getText().toStdString());
     }
-    else if (patch.components.count(type) && newDocString != patch.components.at(type).docString) {
-        patch.components[type].docString = newDocString;
-        return true;
+    else if (patch.componentBundle.has(type) && newDocString != patch.componentBundle.get(type).docString) {
+        return 0 == patch.componentBundle.setDocString(type, newDocString);
     }
 
     return false;
@@ -90,7 +87,7 @@ bool applyComponentPopuMenuChoice(
 
 void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr, const PatchDescriptor pd){
     cr.makeComponentDocs(doc);
-    for (const auto & c : pd.components) {
+    for (const auto & c : pd.componentBundle.getAll()) {
         ModuleDoc d;
         PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
         doc.add(d);
@@ -103,7 +100,7 @@ void PatchEditor::refreshAndBroadcastDoc(){
     populateDocWithComponents(doc, cmpReg, patchCopy);
 
     set<string> localComponents;
-    for (const auto& kv : patchCopy.components) localComponents.insert(kv.first);
+    for (const auto& kv : patchCopy.componentBundle.getAll()) localComponents.insert(kv.first);
 
     docView.setLocalComponents(localComponents);
     docView.setGlobalComponents(globalComponents);
@@ -147,11 +144,11 @@ PatchEditor::PatchEditor(
     , docView(
         [this](const string& name, const MouseEvent& me) {
             if (me.mods.isRightButtonDown()) {
-                if (patchCopy.components.count(name) || globalComponents.count(name)){
+                if (patchCopy.componentBundle.has(name) || globalComponents.count(name)){
                     int ctr = 1;
                     PopupMenu poop;
                     ComponentPopupMenuState st;
-                    makeComponentPopupMenu(poop, ctr, st, name, patchCopy, cmpReg.all(), patchCopy.components);
+                    makeComponentPopupMenu(poop, ctr, st, name, patchCopy, cmpReg.all(), patchCopy.componentBundle.getAll());
                     auto choice = poop.show();
                     if (applyComponentPopuMenuChoice(choice, st, name, patchCopy, cmpReg.all())) {
                         subPatch.set(-1, patchCopy);
@@ -175,7 +172,7 @@ PatchEditor::PatchEditor(
             refreshAndBroadcastDoc();
             for (int i = 0; i < subPatchTypes.size(); ++i) {
                 auto t = subPatchTypes.at(i);
-                if (!desc.components.count(t)) editorStack.setCurrentTabIndex(i); // +1 (root) -1 (previous)
+                if (!desc.componentBundle.has(t)) editorStack.setCurrentTabIndex(i); // +1 (root) -1 (previous)
             }
         }
     );
@@ -219,12 +216,13 @@ void PatchEditor::resized()
 void PatchEditor::push_tab(const string& componentName, const string& componentType) {
     ComponentDescriptor cmp;
 
-    if (!patchCopy.components.count(componentType)) {
+    if (!patchCopy.componentBundle.has(componentType)) {
+        // TODO, is this needed? looks rather strange
         if(!cmpReg.getComponent(componentType, cmp)) return;
-        patchCopy.components[componentType] = cmp;
+        if(patchCopy.componentBundle.set(componentType, cmp)) return;
     }
 
-    cmp = patchCopy.components.at(componentType);
+    cmp = patchCopy.componentBundle.get(componentType);
     subPatchTypes.push_back(componentType);
     subPatchBundles.push_back(
         new GraphEditorBundle(
@@ -252,5 +250,4 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
     );
 
     editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
-
 }

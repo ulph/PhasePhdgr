@@ -159,7 +159,7 @@ void FileEditorBundle::setFileName(const string& newName){
 
 
 void updateComponentMap(map<string, ComponentDescriptor>& c, DocView& d, const PatchDescriptor& p){
-    c = p.components;
+    c = p.componentBundle.getAll();
     map<string, ModuleDoc> docs;
     for(const auto& kv : c){
         ModuleDoc doc;

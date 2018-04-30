@@ -20,6 +20,7 @@ namespace PhasePhckr {
 void designChain(
     ConnectionGraph &g,
     const PatchDescriptor &pd,
+    const ComponentBundle& cb,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
     ParameterHandleMap &parameterHandles,
@@ -42,8 +43,8 @@ bool checkModule(const ModuleVariable& m){
     return checkName(m.name);
 }
 
-bool checkComponent(const ModuleVariable& m, const PatchDescriptor& pd) {
-    if (!pd.components.count(m.type)) {
+bool checkComponent(const ModuleVariable& m, const ComponentBundle& cb) {
+    if (!cb.has(m.type)) {
         cerr << "Error: \"" << m.type << "\" is unknown Component type!" << endl;
         return false;
     }
@@ -58,6 +59,7 @@ bool unpackComponent(
     ConnectionGraph &g,
     const ModuleVariable &mv,
     const PatchDescriptor &pd,
+    const ComponentBundle& cb,
     ComponentDescriptor &parent,
     ComponentDescriptor &current,
     map<string, int> &moduleHandles,
@@ -130,7 +132,7 @@ bool unpackComponent(
         c.target.module = pfx + c.target.module;
     }
 
-    designChain(g, pd, current, moduleHandles, parameterHandles, depth);
+    designChain(g, pd, cb, current, moduleHandles, parameterHandles, depth);
 
     return true;
 }
@@ -139,6 +141,7 @@ bool unpackComponent(
 void designChain(
     ConnectionGraph &g,
     const PatchDescriptor &pd,
+    const ComponentBundle &cb,
     ComponentDescriptor &cd,
     map<string, int> &moduleHandles,
     ParameterHandleMap &parameterHandles,
@@ -151,9 +154,9 @@ void designChain(
     for (const auto &kv : cd.graph.modules) {
         const ModuleVariable m(kv);
         if (m.type.front() == componentMarker) {
-            if (!checkComponent(m, pd)) continue;
-            ComponentDescriptor child_cd = pd.components.at(m.type);
-            if(unpackComponent(g, m, pd, cd, child_cd, moduleHandles, parameterHandles, depth+1)){
+            if (!checkComponent(m, cb)) continue;
+            ComponentDescriptor child_cd = cb.get(m.type);
+            if(unpackComponent(g, m, pd, cb, cd, child_cd, moduleHandles, parameterHandles, depth+1)){
                 components.insert(m.name);
             }
         }
@@ -226,7 +229,8 @@ void designChain(
 
 void designPatch(
     ConnectionGraph &connectionGraph,
-    const PatchDescriptor &p_,
+    const PatchDescriptor &pd_,
+    const ComponentBundle &cb_,
     const vector<PadDescription>& inBus,
     const vector<PadDescription>& outBus,
     map<string, int> &moduleHandles,
@@ -235,19 +239,17 @@ void designPatch(
     const ComponentRegister & cp
 ) {
 
-    PatchDescriptor p = p_;
+    PatchDescriptor pd = pd_;
+
+    ComponentBundle cb = cb_;
 
     // copy over all global components
     for (const auto & kv : cp.all()){
-        if(!p.components.count(kv.first)){
-            p.components[kv.first] = kv.second;
-        }
-        else{
-            cerr << "Warning: Component \"" << kv.first << "\" is globally defined and in patch! Consider renaming the patch defined component." << endl;
-        }
+        if(!cb.has(kv.first)) cb.set(kv.first, kv.second);
+        else cerr << "Warning: Component \"" << kv.first << "\" is globally defined and in patch! Consider renaming the patch defined component." << endl;
     }
 
-    p.root.graph.pruneBusModules();
+    pd.root.graph.pruneBusModules();
 
     // create the special inBus and outBus modules
     auto inBus_ = new BusModule(inBus, true);
@@ -260,16 +262,17 @@ void designPatch(
     // begin parsing from root component
     designChain(
         connectionGraph,
-        p,
-        p.root,
+        pd,
+        cb,
+        pd.root,
         moduleHandles,
         parameterHandles,
         0
     );
 
     map<string, const PatchParameterDescriptor *> patchParams;
-    for (const auto& pd : p_.parameters) {
-        patchParams[pd.id] = &pd;
+    for (const auto& param : pd_.parameters) {
+        patchParams[param.id] = &param;
     }
 
     for (auto& kv : parameterHandles) {
@@ -279,13 +282,16 @@ void designPatch(
 
 }
 
-void PatchDescriptor::pruneUnusedComponents() {
-    set<string> usedTypes;
-    for (const auto& kv : root.graph.modules) {
-        const ModuleVariable m(kv);
-        usedTypes.insert(m.type);
+void ComponentBundle::prune(std::list<ComponentDescriptor*> rootComponents) {
+    std::set<string> usedTypes;
+    for (auto r : rootComponents) {
+        for (const auto& kv : r->graph.modules) {
+            const ModuleVariable m(kv);
+            usedTypes.insert(m.type);
+        }
     }
     for (const auto& c : components) {
+        // TODO, a buggy, need to recursively exhaust all references until no new are found. start with those in usedTypes before entering here
         for (const auto& kv : c.second.graph.modules) {
             const ModuleVariable m(kv);
             usedTypes.insert(m.type);
@@ -348,12 +354,12 @@ void ComponentDescriptor::componentTypePortWasRenamed(const string& type, const 
     }
 }
 
-int PatchDescriptor::renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort) {
+int ComponentBundle::renamePort(ComponentDescriptor* rootComponent, const string& type, const string& port, const string& newPort, bool inputPort) {
     if (!components.count(type)) return -4;
     auto ret = components[type].renamePort(port, newPort, inputPort);
     if (ret != 0) return ret;
 
-    root.componentTypePortWasRenamed(type, port, newPort, inputPort);
+    rootComponent->componentTypePortWasRenamed(type, port, newPort, inputPort);
     for (auto& c : components) {
         c.second.componentTypePortWasRenamed(type, port, newPort, inputPort);
     }
@@ -361,7 +367,7 @@ int PatchDescriptor::renameComponentTypePort(const string& type, const string& p
     return 0;
 }
 
-int PatchDescriptor::renameComponentType(const string& type, const string& newType) {
+int ComponentBundle::rename(ComponentDescriptor* rootComponent, const string& type, const string& newType) {
     if (!components.count(type)) return -1;
     if (!componentTypeIsValid(newType, true)) return -2;
     if (components.count(newType)) return -3;
@@ -369,7 +375,7 @@ int PatchDescriptor::renameComponentType(const string& type, const string& newTy
     components.erase(type);
     components[newType] = v;
 
-    root.componentTypeWasRenamed(type, newType);
+    rootComponent->componentTypeWasRenamed(type, newType);
     for (auto& c : components) {
         c.second.componentTypeWasRenamed(type, newType);
     }
@@ -377,7 +383,7 @@ int PatchDescriptor::renameComponentType(const string& type, const string& newTy
     return 0;
 }
 
-int PatchDescriptor::addComponentType(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict) {
+int ComponentBundle::add(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict) {
     if (!componentTypeIsValid(type, true)) return -1;
     if (!resolveNameConflict && components.count(type)) return -2;
 
@@ -389,7 +395,13 @@ int PatchDescriptor::addComponentType(string& type, const ComponentDescriptor& d
     return 0;
 }
 
-int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, const set<string>& modules, string& newType) {
+int ComponentBundle::set(const string& type, const ComponentDescriptor& descriptor) {
+    if (!componentTypeIsValid(type, true)) return -1;
+    components[type] = descriptor;
+    return 0;
+}
+
+int ComponentBundle::create(ComponentDescriptor* rootComponent, const std::set<string>& modules, string& newType) {
     if (modules.size() < 2) return -1;
     if (rootComponent == nullptr) return -2;
 
@@ -411,8 +423,8 @@ int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, 
     while (rootComponent->graph.modules.count(m + "_" + to_string(i))) i++;
     m += "_" + to_string(i);
 
-    set<string> outBusAlias;
-    set<string> inBusAlias;
+    std::set<string> outBusAlias;
+    std::set<string> inBusAlias;
     map<ModulePort, string> externalSourcesAlias;
     map<ModulePort, string> externalTargetsAlias;
 
@@ -496,7 +508,7 @@ int PatchDescriptor::createNewComponentType(ComponentDescriptor* rootComponent, 
     return 0;
 }
 
-int PatchDescriptor::removeComponentType(const string& type) {
+int ComponentBundle::remove(const string& type) {
     if (!components.count(type)) return -1;
     components.erase(type);
     return 0;
@@ -683,7 +695,7 @@ int ComponentDescriptor::changePortValue(const string & portName, float newValue
     return -1;
 }
 
-bool ComponentDescriptor::hasPort(const string & portName, bool inputPort) {
+bool ComponentDescriptor::hasPort(const string & portName, bool inputPort) const {
     auto& bus = inputPort ? inBus : outBus;
     for (auto& pd : bus) {
         if (pd.name == portName) {
@@ -693,7 +705,7 @@ bool ComponentDescriptor::hasPort(const string & portName, bool inputPort) {
     return false;
 }
 
-int ComponentDescriptor::getPort(const string & portName, PadDescription& result, bool inputPort) {
+int ComponentDescriptor::getPort(const string & portName, PadDescription& result, bool inputPort) const {
     auto& bus = inputPort ? inBus : outBus;
     for (auto& pd : bus) {
         if (pd.name == portName) {

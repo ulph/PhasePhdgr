@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO, this is a hot pile of garbage
+
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
@@ -62,7 +64,7 @@ public:
         if (inputPort && !gfxModule.getValue(port, value)) return false; // error
 
         if (moduleName == c_inBus.name || moduleName == c_outBus.name) {
-            if (patch.components.count(rootComponentName)) {
+            if (patch.componentBundle.has(rootComponentName)) {
                 moduleType = rootComponentName; // hijack
                 inputPort = moduleName == c_inBus.name; // flip
                 busModule = true;
@@ -93,10 +95,10 @@ public:
 
         popupMenu.addItem(4, "disconnect all");
 
-        if (patch.components.count(moduleType)) {
+        if (patch.componentBundle.has(moduleType)) {
             PopupMenu cmpPoop;
 
-            auto& cmp = patch.components[moduleType];
+            auto& cmp = patch.componentBundle.get(moduleType);
 
             cmpPoop.addCustomItem(5, &nameLbl, 200, 20, false);
 
@@ -157,14 +159,11 @@ public:
 
         auto newPort = nameLbl.edit.getText().toStdString();
         if (port != newPort) {
-            if (!patch.components.count(moduleType)) return false;
-            return 0 == patch.renameComponentTypePort(moduleType, port, newPort, inputPort);
+            return 0 == patch.componentBundle.renamePort(&patch.root, moduleType, port, newPort, inputPort);
         }
 
         if (choice == 6) {
-            if (!patch.components.count(moduleType)) return false;
-            auto& comp = patch.components.at(moduleType);
-            return 0 == comp.removePort(port, inputPort);
+            return 0 == patch.componentBundle.removePort(&patch.root, moduleType, port, inputPort);
         }
 
         if (choice >= 9) {
@@ -176,16 +175,12 @@ public:
 
         auto newUnit = unitLbl.edit.getText().toStdString();
         if (pd.unit != newUnit) {
-            if (!patch.components.count(moduleType)) return false;
-            auto& comp = patch.components.at(moduleType);
-            return 0 == comp.changePortUnit(port, newUnit);
+            return 0 == patch.componentBundle.setPortUnit(moduleType, port, newUnit, inputPort);
         }
 
         auto newDefault = defaultValueLbl.edit.getText().getFloatValue();
         if (pd.defaultValue != newDefault) {
-            if (!patch.components.count(moduleType)) return false;
-            auto& comp = patch.components.at(moduleType);
-            return 0 == comp.changePortValue(port, newDefault);
+            return 0 == patch.componentBundle.setPortValue(moduleType, port, newDefault, inputPort);
         }
 
         return false;
@@ -288,7 +283,7 @@ public:
             cloneComponentMenuId = ctr++;
             cmpPoop.addItem(cloneComponentMenuId, c_componentMenuStrings.clone);
 
-            makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.components);
+            makeComponentPopupMenu(cmpPoop, ctr, cmpState, moduleType, patch, globalComponents, patch.componentBundle.getAll());
 
         }
         else if (isComponentBus) {
@@ -332,11 +327,11 @@ public:
         }
         else if (choice == cloneComponentMenuId) {
             ComponentDescriptor cd;
-            if (patch.components.count(moduleType)) cd = patch.components.at(moduleType);
+            if (patch.componentBundle.has(moduleType)) cd = patch.componentBundle.get(moduleType);
             else if (globalComponents.count(moduleType)) cd = globalComponents.at(moduleType);
             else return false;
             string newType = moduleType + "_Clone";
-            if (0 != patch.addComponentType(newType, cd, true)) return false;
+            if (0 != patch.componentBundle.add(newType, cd, true)) return false;
             if (!rootComponent->graph.modules.count(moduleName)) return true;
             rootComponent->graph.modules[moduleName] = newType;
             return true;

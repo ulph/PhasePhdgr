@@ -4,7 +4,7 @@ bool validRootComponent(PatchDescriptor * patch, ComponentDescriptor* rootCompon
     if (!rootComponent) return false;
     bool validRootComponent = rootComponent == &patch->root;
     if (!validRootComponent) {
-        for (const auto& kv : patch->components) {
+        for (const auto& kv : patch->componentBundle.getAll()) {
             if (&(kv.second) == rootComponent) validRootComponent = true;
         }
     }

@@ -375,7 +375,7 @@ void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &compon
 
     auto& p = type == VOICE ? voiceChain : effectChain;
     auto* c = component == "root" ? &p.root : nullptr;
-    if (p.components.count(component)) c = &p.components[component];
+    if (p.componentBundle.has(component)) c = &p.componentBundle.get(component);
     if (c == nullptr) return;
     c->layout = layout;
 

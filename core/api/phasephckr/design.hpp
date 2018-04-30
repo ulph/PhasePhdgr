@@ -6,6 +6,7 @@
 #include <set>
 #include <iostream>
 #include <assert.h>
+#include <list>
 
 class ConnectionGraph;
 
@@ -137,8 +138,8 @@ struct ComponentDescriptor {
     int renamePort(const string & portName, const string & newPortName, bool inputPort);
     int changePortUnit(const string & portName, const string & newUnit);
     int changePortValue(const string & portName, float newValue);
-    bool hasPort(const string & portName, bool inputPort);
-    int getPort(const string & portName, PadDescription& result, bool inputPort);
+    bool hasPort(const string & portName, bool inputPort) const;
+    int getPort(const string & portName, PadDescription& result, bool inputPort) const;
     void cleanUp() {
         pruneLayout();
         graph.cleanUp();
@@ -158,28 +159,42 @@ struct ModulePosition {
     ModulePosition(float x_, float y_) : x((int)(x_ + 0.5f)), y((int)(y_ + 0.5f)) {}
 };
 
-struct PatchDescriptor {
-    ComponentDescriptor root;
-    // TODO - globalComponents and localComponents? Benefits are easier plumbing of data, easy to report what is overlapping etc
-    map<string, ComponentDescriptor> components;
-    vector<PatchParameterDescriptor> parameters;
-
-    int createNewComponentType(ComponentDescriptor* rootComponent, const set<string>& modules, string& type);
-    int addComponentType(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict=false);
-    int renameComponentType(const string& type, const string& newType);
-    int renameComponentTypePort(const string& type, const string& port, const string& newPort, bool inputPort);
-    int removeComponentType(const string& type);
-
-    void pruneUnusedComponents();
-
+struct ComponentBundle {
+    bool has(const string& type) const { return components.count(type); }
+    const ComponentDescriptor& get(const string& type) const { return components.at(type); }
+    const map<string, ComponentDescriptor>& getAll() const { return components; }
+    void setAll(const map<string, ComponentDescriptor>& components_) { components = components_; }
+    int create(ComponentDescriptor* rootComponent, const set<string>& modules, string& type);
+    int remove(const string& type);
+    int add(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict);
+    int set(const string& type, const ComponentDescriptor& descriptor); // potentially braking graphs
+    int rename(ComponentDescriptor* rootComponent, const string& type, const string& newType); // TODO, list of roots
+    int renamePort(ComponentDescriptor* rootComponent, const string& type, const string& port, const string& newPort, bool inputPort); // TODO, list of roots
+    int removePort(ComponentDescriptor* rootComponent, const string& type, const string& port, bool inputPort); // TODO, list of roots
+    // addPort ...
+    // setDocString ...
+    int setPortUnit(const string& type, const string& port, const string& unit, bool inputPort);
+    int setPortValue(const string& type, const string& port, float value, bool inputPort);
+    int setLayout(const string& type, const map<string, ModulePosition> & layout);
+    void prune(std::list<ComponentDescriptor*> rootComponents); // TODO -- call from preset level
     void cleanUp() {
-        pruneUnusedComponents();
-        root.cleanUp();
         for (auto& kv : components) {
             kv.second.cleanUp();
         }
     }
+private:
+    map<string, ComponentDescriptor> components;
+};
 
+struct PatchDescriptor {
+    ComponentDescriptor root;
+    // TODO - globalComponents and localComponents? Benefits are easier plumbing of data, easy to report what is overlapping etc
+    ComponentBundle componentBundle;
+    vector<PatchParameterDescriptor> parameters;
+    void cleanUp() {
+        root.cleanUp();
+        componentBundle.cleanUp();
+    }
 };
 
 /* Preset (voice patch + effect patch + parameters) */

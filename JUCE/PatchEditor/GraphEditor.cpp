@@ -11,7 +11,7 @@ using namespace PhasePhckr;
 ComponentDescriptor* GraphEditor::rootComponent() {
     // lock before call
     if (rootComponentName == rootMarker) return &patch.root;
-    if (patch.components.count(rootComponentName)) return &patch.components[rootComponentName];
+    if (patch.componentBundle.has(rootComponentName)) return &patch.componentBundle.get(rootComponentName); // TODO, const clash
     return nullptr;
 }
 
@@ -521,10 +521,10 @@ void GraphEditor::updateRenderComponents()
                 xy.y = (float)xy_.y / (float)c_PPGridSize;
             }
             auto gfxM = GfxModule(m, xy.x, xy.y, doc, rootComponent()->graph.values);
-            if (globalComponents.count(m.type) && patch.components.count(m.type)) {
+            if (globalComponents.count(m.type) && patch.componentBundle.has(m.type)) {
                 gfxM.state = GfxModule::CONFLICTINGCOMPONENT;
             }
-            else if (!globalComponents.count(m.type) && patch.components.count(m.type)) {
+            else if (!globalComponents.count(m.type) && patch.componentBundle.has(m.type)) {
                 gfxM.state = GfxModule::LOCALCOMPONENT;
             }
             else if (globalComponents.count(m.type)) {
@@ -784,7 +784,7 @@ void GraphEditor::selectionPopUpMenu() {
                     }
                     editor->selectedModules.clear();
                     string newType = "";
-                    modelChanged = 0 == editor->patch.createNewComponentType(editor->rootComponent(), selectedModules, newType);
+                    modelChanged = 0 == editor->patch.componentBundle.create(editor->rootComponent(), selectedModules, newType);
                 }
                 break;
                 case 2:

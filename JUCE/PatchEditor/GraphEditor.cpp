@@ -722,17 +722,12 @@ void GraphEditor::portPopUpMenu(GfxModule & module, const string & port, bool in
         auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
             [](int choice, GraphEditor* editor) {
                 if (editor == nullptr) return;
-
                 bool modelChanged = false;
-
                 {
                     auto l = editor->gfxGraphLock.make_scoped_lock();
                     modelChanged = editor->portPopupMenuData.handleChoice(editor->patch, editor->rootComponent(), choice);
                 }
-
-                if (modelChanged) {
-                    editor->propagatePatch();
-                }
+                if (modelChanged) editor->propagatePatch();
             }
             , this
         );
@@ -746,17 +741,12 @@ void GraphEditor::modulePopUpMenu(bool validModule, const string& moduleName, co
         auto cb = ModalCallbackFunction::forComponent<GraphEditor>(
             [](int choice, GraphEditor* editor) {
                 if (editor == nullptr) return;
-
                 bool modelChanged = false;
                 {
                     auto l = editor->gfxGraphLock.make_scoped_lock();
                     modelChanged = editor->modulePopupMenuData.handleChoice(editor->patch, editor->rootComponent(), editor->globalComponents, choice);
                 }
-
-                if (modelChanged) {
-                    editor->propagatePatch();
-                }
-
+                if (modelChanged) editor->propagatePatch();
             }
             , this
         );

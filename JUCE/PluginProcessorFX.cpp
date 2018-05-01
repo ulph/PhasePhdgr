@@ -143,7 +143,7 @@ PatchDescriptor PhasePhckrProcessorFX::getPatch() {
     auto presetParams = parameters.serialize();
     vector<PatchParameterDescriptor> params;
     for (const auto& ppd : presetParams) {
-        if (ppd.type == EFFECT) {
+        if (ppd.type == SynthGraphType::EFFECT) {
             auto pd = ppd.p;
             params.emplace_back(pd);
         }
@@ -189,7 +189,7 @@ void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p)
 
     effectChain = p;
     auto pv = effect->setEffectChain(effectChain, componentRegister);
-    parameters.setParametersHandleMap(EFFECT, pv);
+    parameters.setParametersHandleMap(SynthGraphType::EFFECT, pv);
 
     updateHostDisplay();
 }

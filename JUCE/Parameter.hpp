@@ -15,7 +15,7 @@ using namespace PhasePhckr;
 class Parameter : public AudioParameterFloat {
 private:
     int idx;
-    SynthGraphType type = UNDEFINED;
+    SynthGraphType type = SynthGraphType::UNDEFINED;
     PatchParameterDescriptor pd;
     bool active = false;
     static string clearedName(int idx)
@@ -38,7 +38,7 @@ public:
 
     void reset() {
         active = false;
-        type = UNDEFINED;
+        type = SynthGraphType::UNDEFINED;
         pd.id = clearedName(idx);
         range.start = 0.f;
         range.end = 1.f;
@@ -59,8 +59,8 @@ public:
     }
 
     string getFullName() const {
-        if (type == VOICE) return "v " + pd.id;
-        else if (type == EFFECT) return "e " + pd.id;
+        if (type == SynthGraphType::VOICE) return "v " + pd.id;
+        else if (type == SynthGraphType::EFFECT) return "e " + pd.id;
         return pd.id;
     }
 

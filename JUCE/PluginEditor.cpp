@@ -47,7 +47,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
         processor.subComponentRegister,
         c_voiceChainInBus,
         c_voiceChainOutBus,
-        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(VOICE, c, l); }
+        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(SynthGraphType::VOICE, c, l); }
     )
 
     , effectEditor(
@@ -55,7 +55,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
         processor.subComponentRegister,
         c_effectChainInBus,
         c_effectChainOutBus,
-        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(EFFECT, c, l); }
+        [this](const string& c, const map<string, ModulePosition>& l) { processor.updateLayout(SynthGraphType::EFFECT, c, l); }
     )
 
 #if INTERCEPT_STD_STREAMS

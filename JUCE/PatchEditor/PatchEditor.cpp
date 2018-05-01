@@ -202,13 +202,11 @@ void PatchEditor::applyComponentRegister() {
     refreshAndBroadcastDoc();
 }
 
-void PatchEditor::paint(Graphics& g)
-{
+void PatchEditor::paint(Graphics& g) {
     g.fillAll(Colour(0xff111111));
 }
 
-void PatchEditor::resized()
-{
+void PatchEditor::resized() {
     ppgrid.setBoundsRelative(0, 0, 1, 1);
     repaint();
 }

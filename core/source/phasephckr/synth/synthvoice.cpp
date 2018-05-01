@@ -22,7 +22,7 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
         c_voiceChainInBus,
         c_voiceChainOutBus,
         moduleHandles,
-        VOICE,
+        SynthGraphType::VOICE,
         parameterHandles,
         cp
     );

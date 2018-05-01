@@ -24,10 +24,10 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
         [this](const string& n, const json& j) {
-            processor.setPatch(VOICE, j);
+            processor.setPatch(SynthGraphType::VOICE, j);
         },
         [this](void) -> json {
-            return processor.getPatch(VOICE, true);
+            return processor.getPatch(SynthGraphType::VOICE, true);
         }
     )
     , effectFiles(
@@ -35,10 +35,10 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread,
         [this](const string& n, const json& j) {
-            processor.setPatch(EFFECT, j);
+            processor.setPatch(SynthGraphType::EFFECT, j);
         },
         [this](void) -> json {
-            return processor.getPatch(EFFECT, true);;
+            return processor.getPatch(SynthGraphType::EFFECT, true);;
         }
     )
     , presetFiles(

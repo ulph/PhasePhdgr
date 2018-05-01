@@ -260,8 +260,8 @@ PatchDescriptor PhasePhckrProcessor::getPatch(SynthGraphType type, bool extractP
 
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    if (type == VOICE) patch = voiceChain;
-    else if (type == EFFECT) patch = effectChain;
+    if (type == SynthGraphType::VOICE) patch = voiceChain;
+    else if (type == SynthGraphType::EFFECT) patch = effectChain;
 
     if (extractParameters) patch.parameters = getParameters(type);
 
@@ -278,11 +278,11 @@ void PhasePhckrProcessor::setPatch(SynthGraphType type, const PatchDescriptor& p
     patchCopy.cleanUp();
     patchCopy.componentBundle.reduceToComplement(componentRegister.all());
 
-    if (type == VOICE) {
+    if (type == SynthGraphType::VOICE) {
         setVoiceChain(patchCopy);
         subVoiceChain.set(activeVoiceHandle, patchCopy);
     }
-    else if (type == EFFECT) {
+    else if (type == SynthGraphType::EFFECT) {
         setEffectChain(patchCopy);
         subEffectChain.set(activeEffectHandle, patchCopy);
     }
@@ -291,8 +291,8 @@ void PhasePhckrProcessor::setPatch(SynthGraphType type, const PatchDescriptor& p
 PresetDescriptor PhasePhckrProcessor::getPreset() {
     PresetDescriptor preset;
 
-    preset.voice = getPatch(VOICE);
-    preset.effect = getPatch(EFFECT);
+    preset.voice = getPatch(SynthGraphType::VOICE);
+    preset.effect = getPatch(SynthGraphType::EFFECT);
     preset.parameters = parameters.serialize();
     preset.settings = activeSettings;
 
@@ -323,8 +323,8 @@ void PhasePhckrProcessor::setComponentRegister(const ComponentRegister& cr) {
 }
 
 void PhasePhckrProcessor::setPreset(const PresetDescriptor& preset) {
-    setPatch(VOICE, preset.voice);
-    setPatch(EFFECT, preset.effect);
+    setPatch(SynthGraphType::VOICE, preset.voice);
+    setPatch(SynthGraphType::EFFECT, preset.effect);
     setSettings(preset.settings);
     subSettings.set(activeSettingsHandle, activeSettings);
     parameters.deserialize(preset.parameters);
@@ -355,7 +355,7 @@ void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
 
     voiceChain = p;
     auto pv = synth->setVoiceChain(voiceChain, componentRegister);
-    parameters.setParametersHandleMap(VOICE, pv);
+    parameters.setParametersHandleMap(SynthGraphType::VOICE, pv);
 
     updateHostDisplay();
 }
@@ -370,7 +370,7 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
 
     effectChain = p;
     auto pv = synth->setEffectChain(effectChain, componentRegister);
-    parameters.setParametersHandleMap(EFFECT, pv);
+    parameters.setParametersHandleMap(SynthGraphType::EFFECT, pv);
 
     updateHostDisplay();
 }
@@ -378,10 +378,18 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
 void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    auto& p = type == VOICE ? voiceChain : effectChain;
+    auto& p = type == SynthGraphType::VOICE ? voiceChain : effectChain;
 
-    if (component == "root") p.root.graph.layout = layout;
-    else p.componentBundle.setLayout(component, layout);
+    if (component == "root") {
+        p.root.graph.layout = layout;
+    }
+    else {
+        if(p.componentBundle.setLayout(component, layout)) return;
+    }
+
+    auto& sp = type == SynthGraphType::VOICE ? subVoiceChain : subEffectChain;
+    auto& sph = type == SynthGraphType::VOICE ? activeVoiceHandle : activeEffectHandle;
+    sp.set(sph, p);
 
     // hack, as updateHostDisplay() doesn't work for Reaper
     Parameter* pa = nullptr;

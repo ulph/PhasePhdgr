@@ -20,7 +20,7 @@ EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister
         c_effectChainInBus,
         c_effectChainOutBus,
         moduleHandles,
-        EFFECT,
+        SynthGraphType::EFFECT,
         parameterHandles,
         cp
     );

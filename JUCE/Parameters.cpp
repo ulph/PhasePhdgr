@@ -44,12 +44,12 @@ void Parameters::updateParameters(bool reset)
     map<ParameterIdentifier, const PatchParameterDescriptor*> validParameters;
     map<ParameterIdentifier, int> validParametersHandles;
     for (const auto& kv : effectParameters) {
-        ParameterIdentifier tid(EFFECT, kv.second.id);
+        ParameterIdentifier tid(SynthGraphType::EFFECT, kv.second.id);
         validParameters[tid] = &kv.second;
         validParametersHandles[tid] = kv.first;
     }
     for (const auto& kv : voiceParameters) {
-        ParameterIdentifier tid(VOICE, kv.second.id);
+        ParameterIdentifier tid(SynthGraphType::VOICE, kv.second.id);
         validParameters[tid] = &kv.second;
         validParametersHandles[tid] = kv.first;
     }
@@ -178,11 +178,11 @@ void Parameters::setParametersHandleMap(SynthGraphType type, const ParameterHand
     // from synth
     auto scoped_lock = parameterLock.make_scoped_lock();
 
-    if (type == VOICE) {
+    if (type == SynthGraphType::VOICE) {
         voiceParameters = pv;
         updateParameters();
     }
-    else if (type == EFFECT) {
+    else if (type == SynthGraphType::EFFECT) {
         effectParameters = pv;
         updateParameters();
     }
@@ -198,7 +198,7 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
         auto handle = kv.second;
         float value = *fp;
         switch (type) {
-        case EFFECT:
+        case SynthGraphType::EFFECT:
             effect->handleEffectParameter(handle, value);
             break;
         default:
@@ -217,10 +217,10 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
         auto handle = kv.second;
         float value = *fp;
         switch (type) {
-        case VOICE:
+        case SynthGraphType::VOICE:
             synth->handleVoiceParameter(handle, value);
             break;
-        case EFFECT:
+        case SynthGraphType::EFFECT:
             synth->handleEffectParameter(handle, value);
             break;
         default:

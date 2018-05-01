@@ -163,13 +163,13 @@ void from_json(const json& j, PresetParameterDescriptor& p) {
     if (j.count("type")) p.type = j.at("type");
     else {
         // if type is missing, try legacy style
-        p.type = UNDEFINED;
+        p.type = SynthGraphType::UNDEFINED;
         if (p.p.id.substr(0, 2) == "e ") {
-            p.type = EFFECT;
+            p.type = SynthGraphType::EFFECT;
             p.p.id = p.p.id.substr(2);
         }
         else if (p.p.id.substr(0, 2) == "v ") {
-            p.type = VOICE;
+            p.type = SynthGraphType::VOICE;
             p.p.id = p.p.id.substr(2);
         }
     }

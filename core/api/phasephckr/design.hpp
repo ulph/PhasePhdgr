@@ -366,7 +366,7 @@ struct PresetSettings {
     NoteReactivationPolicy getNoteReactivationPolicy();
 };
 
-enum SynthGraphType {
+enum class SynthGraphType : uint8_t {
     UNDEFINED = 0,
     VOICE = 1,
     EFFECT = 2
@@ -374,7 +374,7 @@ enum SynthGraphType {
 
 struct PresetParameterDescriptor {
     int index;
-    SynthGraphType type = UNDEFINED;
+    SynthGraphType type = SynthGraphType::UNDEFINED;
     PatchParameterDescriptor p; // TODO, change so that it only contains the string id
 };
 

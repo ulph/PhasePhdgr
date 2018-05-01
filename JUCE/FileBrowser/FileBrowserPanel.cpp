@@ -75,8 +75,6 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
         }
     )
 {
-    componentFiles.allowOverwrites(false);
-
     fileWatchThread.startThread();
     fileWatchThread.notify();
 

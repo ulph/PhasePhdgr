@@ -58,8 +58,8 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
 
         bool shouldWriteFile = true;
         if (targetFile.exists()){
+            PopupMenu confirmation;
             if (allowsOverwrites) {
-                PopupMenu confirmation;
                 confirmation.addSectionHeader("File exists - overwrite?");
                 confirmation.addItem(1, "Yes");
                 confirmation.addItem(2, "No");
@@ -69,8 +69,7 @@ void FileEditorBundle::buttonClicked(Button * btn)  {
                 else if (choice == 2) shouldWriteFile = false;
             }
             else {
-                PopupMenu confirmation;
-                confirmation.addSectionHeader("File exists - overwrites not allowed!"); // TODO, until better management of components and what patches depend on them, do this.
+                confirmation.addSectionHeader("File exists - overwrites not allowed!");
                 confirmation.show();
             }
         }

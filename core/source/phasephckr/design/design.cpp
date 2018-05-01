@@ -26,7 +26,7 @@ void designChain(
     ParameterHandleMap &parameterHandles,
     int depth
 );
-
+       
 bool checkName(const string& name) {
     if (!nameIsValid(name, true)) {
         cerr << "Error: \"" << name << "\" is not a valid Module name!" << endl;

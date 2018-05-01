@@ -39,9 +39,7 @@ FileBrowserPanelFX::FileBrowserPanelFX(PhasePhckrProcessorFX& p)
         }
     )
 {
-    componentFiles.allowOverwrites(false);
-
-    fileWatchThread.startThread();
+     fileWatchThread.startThread();
     fileWatchThread.notify();
 
     addAndMakeVisible(filesPPGrid);

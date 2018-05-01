@@ -26,8 +26,8 @@ struct ModuleVariable {
     ModuleVariable() {};
     ModuleVariable(const pair<string, string>& kv) : name(kv.first), type(kv.second) {};
     ModuleVariable(const string& n, const string& t) : name(n), type(t) {};
-    bool operator ==(ModuleVariable const& other) const {
-        return other.name == name && other.type == type;
+    bool operator==(const ModuleVariable& rhs) const {
+        return std::tie(name, type) == std::tie(rhs.name, rhs.type);
     }
 };
 
@@ -36,11 +36,11 @@ struct ModulePort {
     string port = "";
     ModulePort() {}
     ModulePort(const string& m, const string& p) : module(m), port(p) {}
-    bool operator ==(ModulePort const& other) const {
-        return other.module == module && other.port == port;
+    bool operator==(const ModulePort& rhs) const {
+        return std::tie(module, port) == std::tie(rhs.module, rhs.port);
     }
-    bool operator <(ModulePort const& other) const {
-        return pair<string, string>(other) < pair<string, string>(*this);
+    bool operator<(const ModulePort& rhs) const {
+        return std::tie(module, port) < std::tie(rhs.module, rhs.port);
     }
     explicit operator pair<string, string>() const { return make_pair(module, port); }
 };
@@ -50,11 +50,11 @@ struct ModulePortConnection {
     ModulePort target;
     ModulePortConnection() {}
     ModulePortConnection(const ModulePort& src, const ModulePort& trg) : source(src), target(trg) {}
-    bool operator ==(ModulePortConnection const& other) const {
-        return source == other.source && target == other.target;
+    bool operator==(const ModulePortConnection& rhs) const {
+        return std::tie(target, source) == std::tie(rhs.target, rhs.source);
     }
-    bool operator <(ModulePortConnection const& other) const {
-        return pair<ModulePort, ModulePort>(other) < pair<ModulePort, ModulePort>(*this);
+    bool operator<(const ModulePortConnection& rhs) const {
+        return std::tie(target, source) < std::tie(rhs.target, rhs.source);
     }
     explicit operator pair<ModulePort, ModulePort>() const { return make_pair(source, target); }
 };
@@ -64,15 +64,37 @@ struct ModulePortValue {
     float value;
     ModulePortValue(){}
     ModulePortValue(const ModulePort& mp, float v) : target(mp), value(v) {}
+    bool operator==(const ModulePortValue& rhs) const {
+        return std::tie(target, value) == std::tie(rhs.target, rhs.value);
+    }
 };
 
-struct ModulePosition;
+struct ModulePosition {
+    int x = 0;
+    int y = 0;
+    ModulePosition() {}
+    ModulePosition(int x_, int y_) : x(x_), y(y_) {}
+    ModulePosition(float x_, float y_) : x((int)(x_ + 0.5f)), y((int)(y_ + 0.5f)) {}
+    bool operator==(const ModulePosition& rhs) const {
+        return std::tie(x, y) == std::tie(rhs.x, rhs.y);
+    }
+};
 
 struct ConnectionGraphDescriptor {
     map<string, string> modules;
     vector<ModulePortConnection> connections;
     map<ModulePort, float> values;
     map<string, ModulePosition> layout;
+    bool operator==(const ConnectionGraphDescriptor& rhs) const {
+        // TODO, probably just exclude layout from comparison
+        return std::tie(modules, connections, values, layout) == std::tie(rhs.modules, rhs.connections, rhs.values, rhs.layout);
+    }
+
+    std::set<string> getTypes() {
+        std::set<string> types;
+        for (const auto& m : modules) types.insert(m.second);
+        return types;
+    }
 
     void pruneBusModules();
     void pruneDanglingConnections();
@@ -114,6 +136,9 @@ struct PadDescription {
     string name;
     string unit;
     float defaultValue;
+    bool operator==(const PadDescription& rhs) const {
+        return std::tie(name, unit, defaultValue) == std::tie(rhs.name, rhs.unit, rhs.defaultValue);
+    }
     PadDescription(){}
     PadDescription(string n, string u, float v) : name(n), unit(u), defaultValue(v){}
 };
@@ -122,11 +147,17 @@ struct ParameterValueDescriptor{
     float val = 0.0f;
     float min = 0.0f;
     float max = 1.0f;
+    bool operator==(const ParameterValueDescriptor& rhs) const {
+        return std::tie(val, min, max) == std::tie(rhs.val, rhs.min, rhs.max);
+    }
 };
 
 struct PatchParameterDescriptor {
     string id;
     ParameterValueDescriptor v;
+    bool operator==(const PatchParameterDescriptor& rhs) const {
+        return std::tie(id, v) == std::tie(rhs.id, rhs.v);
+    }
 };
 
 struct ComponentDescriptor {
@@ -134,6 +165,9 @@ struct ComponentDescriptor {
     vector<PadDescription> outBus;
     ConnectionGraphDescriptor graph;
     string docString;
+    bool operator==(const ComponentDescriptor& rhs) const {
+        return std::tie(inBus, outBus, graph, docString) == std::tie(rhs.inBus, rhs.outBus, rhs.graph, rhs.docString);
+    }
     int removePort(const string & portName, bool inputPort);
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort);
@@ -151,15 +185,13 @@ struct ComponentDescriptor {
 
 /* Patch */
 
-struct ModulePosition {
-    int x = 0;
-    int y = 0;
-    ModulePosition() {}
-    ModulePosition(int x_, int y_) : x(x_), y(y_) {}
-    ModulePosition(float x_, float y_) : x((int)(x_ + 0.5f)), y((int)(y_ + 0.5f)) {}
-};
-
 struct ComponentBundle {
+private:
+    map<string, ComponentDescriptor> components;
+public:
+    bool operator==(const ComponentBundle& rhs) const {
+        return std::tie(components) == std::tie(rhs.components);
+    }
     bool has(const string& type) const { return components.count(type); }
     const ComponentDescriptor& get(const string& type) const { return components.at(type); }
     ComponentDescriptor * getPointer(const string& type) { return components.count(type) ? &components.at(type) : nullptr; } // TODO, guard with friend access
@@ -171,48 +203,95 @@ struct ComponentBundle {
     int set(const string& type, const ComponentDescriptor& descriptor); // potentially braking graphs
     int rename(ComponentDescriptor* rootComponent, const string& type, const string& newType); // TODO, list of roots
     int renamePort(ComponentDescriptor* rootComponent, const string& type, const string& port, const string& newPort, bool inputPort); // TODO, list of roots
+
     int removePort(const string& type, const string& port, bool inputPort) {
         if (!has(type)) return -1;
         return components.at(type).removePort(port, inputPort);
     }
+
     int setDocString(const string& type, const string& docString) {
         if (!has(type)) return -1;
         components.at(type).docString = docString;
         return 0;
     }
+
     int addPort(const string& type, const string& portName, bool inputPort, const string& unit, float defaultValue) {
         if (!has(type)) return -1;
         return components.at(type).addPort(portName, inputPort, unit, defaultValue);
     }
+
     int setPortUnit(const string& type, const string& port, const string& unit, bool inputPort) {
         if (!has(type)) return -1;
         if (!inputPort) return -2; // NYI
         return components.at(type).changePortUnit(port, unit);
     }
+
     int setPortValue(const string& type, const string& port, float value) {
         if (!has(type)) return -1;
         return components.at(type).changePortValue(port, value);
     }
+
     int setLayout(const string& type, const map<string, ModulePosition> & layout) {
         if (!has(type)) return -1;
         components.at(type).graph.layout = layout;
         return 0;
     }
-    void prune(std::list<ComponentDescriptor*> rootComponents);
+
     void cleanUp() {
         for (auto& kv : components) {
             kv.second.cleanUp();
         }
     }
-private:
-    map<string, ComponentDescriptor> components;
+
+    void appendToUnion(const map<string, ComponentDescriptor> &other, std::set<string>& referenced) {
+        auto numReferenced = referenced.size();
+
+        // find all top-level references and in turn, what they refer
+        for (const auto& c : components) {
+            if (referenced.count(c.first)) {
+                for (const auto& kv : c.second.graph.modules) {
+                    referenced.insert(ModuleVariable(kv).type);
+                }
+            }
+            // ignore the rest
+        }
+
+        // add them in if missing
+        for (auto& kv : other) {
+            if (!components.count(kv.first) && referenced.count(kv.first)) {
+                components[kv.first] = kv.second;
+            }
+        }
+
+        // recurse if we found stuff
+        if (referenced.size() > numReferenced)
+            appendToUnion(other, referenced);
+    }
+
+    void reduceToComplement(const map<string, ComponentDescriptor> &other) {
+        for (auto& kv : other) {
+            if (components.count(kv.first) && components.at(kv.first) == kv.second) {
+                components.erase(kv.first);
+            }
+        }
+    }
+
+    void appendToUnion(const ComponentBundle & other, std::set<string>& referenced) {
+        appendToUnion(other.getAll(), referenced);
+    }
+
+    void reduceToComplement(const ComponentBundle & other) {
+        reduceToComplement(other.getAll());
+    }
 };
 
 struct PatchDescriptor {
     ComponentDescriptor root;
-    // TODO - globalComponents and localComponents? Benefits are easier plumbing of data, easy to report what is overlapping etc
     ComponentBundle componentBundle;
     vector<PatchParameterDescriptor> parameters;
+    bool operator==(const PatchDescriptor& rhs) const {
+        return std::tie(root, componentBundle, parameters) == std::tie(rhs.root, rhs.componentBundle, rhs.parameters);
+    }
     void cleanUp() {
         root.cleanUp();
         componentBundle.cleanUp();
@@ -296,13 +375,14 @@ enum SynthGraphType {
 struct PresetParameterDescriptor {
     int index;
     SynthGraphType type = UNDEFINED;
-    PatchParameterDescriptor p;
+    PatchParameterDescriptor p; // TODO, change so that it only contains the string id
 };
 
 struct PresetDescriptor {
     PatchDescriptor voice;
-    PatchDescriptor effect;
-    vector<PresetParameterDescriptor> parameters;
+    PatchDescriptor effect;   
+    // ... TODO, move any combination/separation logic from JUCE to this struct!
+    vector<PresetParameterDescriptor> parameters; // need to store voice and effect _positions_ jointly, TODO move position onto e/v and handle conflicts here instead!
     PresetSettings settings;
 };
 

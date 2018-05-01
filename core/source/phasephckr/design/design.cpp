@@ -282,32 +282,6 @@ void designPatch(
 
 }
 
-void ComponentBundle::prune(std::list<ComponentDescriptor*> rootComponents) {
-    std::set<string> usedTypes;
-    for (auto r : rootComponents) {
-        for (const auto& kv : r->graph.modules) {
-            const ModuleVariable m(kv);
-            usedTypes.insert(m.type);
-        }
-    }
-    for (const auto& c : components) {
-        // TODO, a buggy, need to recursively exhaust all references until no new are found. start with those in usedTypes before entering here
-        for (const auto& kv : c.second.graph.modules) {
-            const ModuleVariable m(kv);
-            usedTypes.insert(m.type);
-        }
-    }
-    auto it = components.begin();
-    while (it != components.end()) {
-        if (!usedTypes.count(it->first)) {
-            it = components.erase(it);
-        }
-        else {
-            it++;
-        }
-    }
-}
-
 void ConnectionGraphDescriptor::pruneLayout() {
     set<string> usedNames;
     usedNames.insert(c_inBus.name);

@@ -265,6 +265,9 @@ PatchDescriptor PhasePhckrProcessor::getPatch(SynthGraphType type, bool extractP
 
     if (extractParameters) patch.parameters = getParameters(type);
 
+    std::set<string> usedTypes = patch.root.graph.getTypes();
+    patch.componentBundle.appendToUnion(componentRegister.all(), usedTypes);
+
     patch.cleanUp();
 
     return patch;
@@ -273,6 +276,8 @@ PatchDescriptor PhasePhckrProcessor::getPatch(SynthGraphType type, bool extractP
 void PhasePhckrProcessor::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
     auto patchCopy = patch;
     patchCopy.cleanUp();
+    patchCopy.componentBundle.reduceToComplement(componentRegister.all());
+
     if (type == VOICE) {
         setVoiceChain(patchCopy);
         subVoiceChain.set(activeVoiceHandle, patchCopy);

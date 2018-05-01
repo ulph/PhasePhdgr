@@ -384,6 +384,12 @@ void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &compon
         p.root.graph.layout = layout;
     }
     else {
+        if (!p.componentBundle.has(component)) {
+            // if layout is changed for a global component, add a local copy
+            ComponentDescriptor cd;
+            if (false == componentRegister.getComponent(component, cd)) return;
+            if (p.componentBundle.set(component, cd)) return;
+        }
         if(p.componentBundle.setLayout(component, layout)) return;
     }
 

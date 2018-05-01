@@ -77,6 +77,7 @@ void to_json(json& j, const ConnectionGraphDescriptor& cgd) {
         }
         j["values"] = values;
     }
+    if (cgd.layout.size()) j["layout"] = cgd.layout;
 }
 
 void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
@@ -92,6 +93,7 @@ void from_json(const json& j, ConnectionGraphDescriptor& cgd) {
             cgd.values[mpv.target] = mpv.value;
         }
     }
+    if (j.count("layout")) cgd.layout = j.at("layout").get<map<string, ModulePosition>>();
 }
 
 void to_json(json& j, const ModulePosition& xy) {
@@ -122,7 +124,6 @@ void to_json(json& j, const ComponentDescriptor& cgd) {
     if (cgd.outBus.size()) j[c_outBus.name] = cgd.outBus;
     j["graph"] = cgd.graph;
     if (cgd.docString.size()) j["docString"] = cgd.docString;
-    if (cgd.layout.size()) j["layout"] = cgd.layout;
 }
 
 void from_json(const json& j, ComponentDescriptor& cgd) {
@@ -130,7 +131,7 @@ void from_json(const json& j, ComponentDescriptor& cgd) {
     if (j.count(c_outBus.name)) cgd.outBus = j.at(c_outBus.name).get<vector<PadDescription>>();
     cgd.graph = j.at("graph").get<ConnectionGraphDescriptor>();
     if (j.count("docString")) cgd.docString = j.at("docString").get<string>();
-    if (j.count("layout")) cgd.layout = j.at("layout").get<map<string, ModulePosition>>();
+    if (j.count("layout")) cgd.graph.layout = j.at("layout").get<map<string, ModulePosition>>(); // legacy
 }
 
 void to_json(json& j, const PatchParameterDescriptor& p) {

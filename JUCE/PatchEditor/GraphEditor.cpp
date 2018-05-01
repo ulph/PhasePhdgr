@@ -83,7 +83,7 @@ GraphEditor::~GraphEditor() {
 void GraphEditor::updateLayout() {
     auto l = gfxGraphLock.make_scoped_lock();
     for (const auto gm : modules) {
-        rootComponent()->layout[gm.module.name] =
+        rootComponent()->graph.layout[gm.module.name] =
             ModulePosition(
                 gm.position.x,
                 gm.position.y
@@ -107,7 +107,7 @@ void GraphEditor::propagateLayout() {
     map<string, ModulePosition> layoutCopy;
     {
         auto l = gfxGraphLock.make_scoped_lock();
-        layoutCopy = rootComponent()->layout;
+        layoutCopy = rootComponent()->graph.layout;
     }
     layoutUpdateCallback(rootComponentName, layoutCopy);
 }
@@ -244,7 +244,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
         draggedModule->repositionPorts();
         auto mv = vector<GfxModule>{ *draggedModule };
         auto l = gfxGraphLock.make_scoped_lock();
-        rootComponent()->layout[draggedModule->module.name] = ModulePosition(draggedModule->position.x, draggedModule->position.y);
+        rootComponent()->graph.layout[draggedModule->module.name] = ModulePosition(draggedModule->position.x, draggedModule->position.y);
         recalculateWires(mv);
         updateBounds(getVirtualBounds());
     }
@@ -403,7 +403,7 @@ void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
         string name = "";
         if (0 != rootComponent()->addModule(type, name)) return;
 
-        rootComponent()->layout[name] = ModulePosition(
+        rootComponent()->graph.layout[name] = ModulePosition(
             (float)pos.x - 0.5f*c_NodeSize,
             (float)pos.y - 0.5f*c_NodeSize
         );
@@ -514,8 +514,8 @@ void GraphEditor::updateRenderComponents()
         for (const auto & kv : rootComponent()->graph.modules) {
             ModuleVariable m(kv);
             XY xy(mp.at(m.name).x, mp.at(m.name).y);
-            if (rootComponent()->layout.count(m.name)) {
-                auto xy_ = rootComponent()->layout.at(m.name);
+            if (rootComponent()->graph.layout.count(m.name)) {
+                auto xy_ = rootComponent()->graph.layout.at(m.name);
                 xy.x = (float)xy_.x / (float)c_PPGridSize;
                 xy.y = (float)xy_.y / (float)c_PPGridSize;
             }

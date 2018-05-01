@@ -197,7 +197,7 @@ void PhasePhckrProcessorFX::setEffectChain(const PhasePhckr::PatchDescriptor &p)
 void PhasePhckrProcessorFX::updateLayout(const string &component, const map<string, ModulePosition> &layout) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    if (component == "root") effectChain.root.layout = layout;
+    if (component == "root") effectChain.root.graph.layout = layout;
     else effectChain.componentBundle.setLayout(component, layout);
 
     // hack, as updateHostDisplay() doesn't work for Reaper

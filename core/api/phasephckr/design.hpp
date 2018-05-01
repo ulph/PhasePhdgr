@@ -72,15 +72,18 @@ struct ConnectionGraphDescriptor {
     map<string, string> modules;
     vector<ModulePortConnection> connections;
     map<ModulePort, float> values;
+    map<string, ModulePosition> layout;
 
     void pruneBusModules();
     void pruneDanglingConnections();
     void pruneOrphanValues();
+    void pruneLayout();
 
     void cleanUp() {
         pruneBusModules();
         pruneDanglingConnections();
         pruneOrphanValues();
+        pruneLayout();
     }
 
     int add(const string& module, const string& type);
@@ -131,9 +134,7 @@ struct ComponentDescriptor {
     vector<PadDescription> outBus;
     ConnectionGraphDescriptor graph;
     string docString;
-    map<string, ModulePosition> layout;
     int removePort(const string & portName, bool inputPort);
-    void pruneLayout();
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort);
     int changePortUnit(const string & portName, const string & newUnit);
@@ -141,7 +142,6 @@ struct ComponentDescriptor {
     bool hasPort(const string & portName, bool inputPort) const;
     int getPort(const string & portName, PadDescription& result, bool inputPort) const;
     void cleanUp() {
-        pruneLayout();
         graph.cleanUp();
     }
     void componentTypeWasRenamed(const string& type, const string& newType);
@@ -195,7 +195,7 @@ struct ComponentBundle {
     }
     int setLayout(const string& type, const map<string, ModulePosition> & layout) {
         if (!has(type)) return -1;
-        components.at(type).layout = layout;
+        components.at(type).graph.layout = layout;
         return 0;
     }
     void prune(std::list<ComponentDescriptor*> rootComponents);

@@ -375,7 +375,7 @@ void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &compon
 
     auto& p = type == VOICE ? voiceChain : effectChain;
 
-    if (component == "root") p.root.layout = layout;
+    if (component == "root") p.root.graph.layout = layout;
     else p.componentBundle.setLayout(component, layout);
 
     // hack, as updateHostDisplay() doesn't work for Reaper

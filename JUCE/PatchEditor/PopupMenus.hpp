@@ -311,11 +311,6 @@ public:
             auto newModuleName = nameLbl.edit.getText().toStdString();
             if (moduleName != newModuleName) {
                 if (0 == rootComponent->graph.rename(moduleName, newModuleName)) {
-                    if (rootComponent->layout.count(moduleName)) {
-                        auto v = rootComponent->layout.at(moduleName);
-                        rootComponent->layout.erase(moduleName);
-                        rootComponent->layout[newModuleName] = v;
-                    }
                     return true;
                 }
             }

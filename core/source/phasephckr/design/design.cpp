@@ -308,11 +308,11 @@ void ComponentBundle::prune(std::list<ComponentDescriptor*> rootComponents) {
     }
 }
 
-void ComponentDescriptor::pruneLayout() {
+void ConnectionGraphDescriptor::pruneLayout() {
     set<string> usedNames;
     usedNames.insert(c_inBus.name);
     usedNames.insert(c_outBus.name);
-    for (const auto& kv : graph.modules) {
+    for (const auto& kv : modules) {
         const ModuleVariable m(kv);
         usedNames.insert(m.name);
     }
@@ -634,7 +634,7 @@ int ConnectionGraphDescriptor::rename(const string& module, const string& newMod
 
     for (auto& c : connections) {
         if (c.source.module == module) c.source.module = newModule;
-        else if (c.target.module == module) c.target.module = newModule;
+        if (c.target.module == module) c.target.module = newModule;
     }
 
     set<ModulePort> ks;
@@ -647,6 +647,11 @@ int ConnectionGraphDescriptor::rename(const string& module, const string& newMod
         auto newK = k;
         newK.module = newModule;
         values[newK] = v;
+    }
+
+    if (layout.count(module)) {
+        layout[newModule] = layout.at(module);
+        layout.erase(module);
     }
 
     return 0;

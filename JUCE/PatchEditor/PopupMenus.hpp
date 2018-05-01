@@ -50,11 +50,19 @@ private:
     string port;
     float value = 0.0f;
 
+    void reset() {
+        busModule = false;
+        value = 0.0f;
+        pd = PadDescription();
+        // rest is set in build
+    }
+
 public:
 
     bool build(PopupMenu& popupMenu, PatchDescriptor & patch, ComponentDescriptor* rootComponent, const string& rootComponentName, GfxModule & gfxModule, const string & port_, bool inputPort_)
     {
         popupMenu.clear();
+        reset();
 
         inputPort = inputPort_;
         port = port_;

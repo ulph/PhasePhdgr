@@ -11,6 +11,7 @@
 #include "PPGrid.h"
 
 #include <functional>
+#include <memory>
 
 using namespace PhasePhckrFileStuff;
 using namespace PhasePhckr;

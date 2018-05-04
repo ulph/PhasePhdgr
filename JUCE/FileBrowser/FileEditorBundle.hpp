@@ -1,7 +1,6 @@
 #pragma once
 
 #include "PluginProcessor.h"
-#include "PluginProcessorFX.h"
 
 #include "FileIO.hpp"
 #include "DirectoryWatcher.hpp"

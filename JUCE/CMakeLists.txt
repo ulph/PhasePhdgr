@@ -66,6 +66,12 @@ set(PH_COMMON_SRC
     SettingsEditor.hpp
     SettingsEditor.cpp
 
+    FileBrowser/FileBrowserPanel.cpp
+    FileBrowser/FileBrowserPanel.hpp
+    PluginEditor.cpp
+    PluginEditor.h
+    PluginProcessor.cpp
+    PluginProcessor.h
 )
 
 add_library(pp_common_obj OBJECT ${PH_COMMON_SRC})
@@ -73,32 +79,12 @@ set_target_properties(pp_common_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(pp_common_obj PROPERTIES FOLDER JUCE)
 
 set(PH_SYNTH_SRC
-  FileBrowser/FileBrowserPanel.cpp
-  FileBrowser/FileBrowserPanel.hpp
-  PluginEditor.cpp
-  PluginEditor.h
-  PluginProcessor.cpp
-  PluginProcessor.h
   exportSynth.cpp
 )
 
 add_library(pp_synth_obj OBJECT ${PH_SYNTH_SRC})
 set_target_properties(pp_synth_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(pp_synth_obj PROPERTIES FOLDER JUCE)
-
-set(PH_EFFECT_SRC
-  FileBrowser/FileBrowserPanelFX.cpp
-  FileBrowser/FileBrowserPanelFX.hpp
-  PluginEditorFX.cpp
-  PluginEditorFX.h
-  PluginProcessorFX.cpp
-  PluginProcessorFX.h
-  exportEffect.cpp
-)
-
-add_library(pp_effect_obj OBJECT ${PH_EFFECT_SRC})
-set_target_properties(pp_effect_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(pp_effect_obj PROPERTIES FOLDER JUCE)
 
 option(INTERCEPT_STD_STREAMS ON)
 
@@ -120,14 +106,3 @@ set( PHASEPHCKR_JUCE_SYNTH_SRC
 mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_SYNTH_SRC})
 TARGET_LINK_LIBRARIES(PhasePhckr ${JUCE_DEPS})
 set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
-
-
-set( PHASEPHCKR_JUCE_EFFECT_SRC
-    $<TARGET_OBJECTS:juce_effect_obj>
-    $<TARGET_OBJECTS:pp_common_obj>
-    $<TARGET_OBJECTS:pp_effect_obj>
-)
-
-mod_smtg_add_vst3plugin(PhasePhckrFX ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_EFFECT_SRC})
-TARGET_LINK_LIBRARIES(PhasePhckrFX ${JUCE_DEPS})
-set_target_properties(PhasePhckrFX PROPERTIES FOLDER JUCE/VST)

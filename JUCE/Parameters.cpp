@@ -207,7 +207,7 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
     }
 }
 
-void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
+void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth, PhasePhckr::Effect* effect) {
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {
@@ -221,8 +221,7 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
             synth->handleParameter(handle, value);
             break;
         case SynthGraphType::EFFECT:
-            assert(0); // fixme
-            synth->handleParameter(handle, value);
+            effect->handleParameter(handle, value);
             break;
         default:
             break;

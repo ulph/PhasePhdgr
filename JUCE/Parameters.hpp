@@ -26,7 +26,7 @@ public:
     size_t numberOfParameters();
     void swapParameterIndices(int onto_idx, int dropped_idx); // via gui
     void setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv);
-    void visitHandleParameterValues(Synth* synth);
+    void visitHandleParameterValues(Synth* synth, PhasePhckr::Effect* effect);
     void visitHandleParameterValues(Effect* effect);
     vector<PresetParameterDescriptor> serialize();
     void deserialize(const vector<PresetParameterDescriptor>& pv);

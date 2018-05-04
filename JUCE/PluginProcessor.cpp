@@ -215,7 +215,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
         }
     }
 
-    parameters.visitHandleParameterValues(synth);
+    parameters.visitHandleParameterValues(synth, effect);
     bufferingProcessor.process(buffer, midiMessageQueue, (float)getSampleRate(), synth, effect, getPlayHead());
 
     midiMessages.clear();

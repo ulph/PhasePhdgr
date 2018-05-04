@@ -28,6 +28,7 @@ private:
     void setVoiceChain(const PhasePhckr::PatchDescriptor &p);
     void setEffectChain(const PhasePhckr::PatchDescriptor &p);
     PhasePhckr::Synth* synth;
+    PhasePhckr::Effect* effect;
 
     ComponentFileLoader componentLoader;
 
@@ -82,6 +83,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     const PhasePhckr::Synth* getSynth() const;
+    const PhasePhckr::Effect* getEffect() const;
 
     SubValue<PresetSettings> subSettings;
     SubValue<PatchDescriptor> subVoiceChain;

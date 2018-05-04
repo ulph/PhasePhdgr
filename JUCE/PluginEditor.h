@@ -41,12 +41,16 @@ private:
     ScopeView voiceScopeL;
     ScopeView voiceScopeR;
     XYScopeView voiceScopeXY;
-    ScopeView outputScopeL;
-    ScopeView outputScopeR;
-    XYScopeView outputScopeXY;
+    ScopeView synthScopeL;
+    ScopeView synthScopeR;
+    XYScopeView synthScopeXY;
+    ScopeView effectScopeL;
+    ScopeView effectScopeR;
+    XYScopeView effectScopeXY;
 
     PPTabbedComponent mainFrame;
     PPGGrid voiceScopeGrid;
+    PPGGrid synthScopeGrid;
     PPGGrid effectScopeGrid;
     PPGrid scopePPGrid;
     ParameterEditor parameterEditor;

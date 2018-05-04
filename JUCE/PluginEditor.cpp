@@ -20,9 +20,12 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     , voiceScopeL(processor.getSynth()->getVoiceScope(0))
     , voiceScopeR(processor.getSynth()->getVoiceScope(1))
     , voiceScopeXY(processor.getSynth()->getVoiceScope(0), processor.getSynth()->getVoiceScope(1))
-    , outputScopeL(processor.getSynth()->getEffectScope(0))
-    , outputScopeR(processor.getSynth()->getEffectScope(1))
-    , outputScopeXY(processor.getSynth()->getEffectScope(0), processor.getSynth()->getEffectScope(1))
+    , synthScopeL(processor.getSynth()->getOutputScope(0))
+    , synthScopeR(processor.getSynth()->getOutputScope(1))
+    , synthScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
+    , effectScopeL(processor.getEffect()->getOutputScope(0))
+    , effectScopeR(processor.getEffect()->getOutputScope(1))
+    , effectScopeXY(processor.getEffect()->getOutputScope(0), processor.getEffect()->getOutputScope(1))
 
     , mainFrame(
         [this](int i, const string& n) {
@@ -69,9 +72,12 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
         voiceScopeL.repaint();
         voiceScopeR.repaint();
         voiceScopeXY.repaint();
-        outputScopeL.repaint();
-        outputScopeR.repaint();
-        outputScopeXY.repaint();
+        synthScopeL.repaint();
+        synthScopeR.repaint();
+        synthScopeXY.repaint();
+        effectScopeL.repaint();
+        effectScopeR.repaint();
+        effectScopeXY.repaint();
     }))
 {
 
@@ -82,18 +88,28 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     addAndMakeVisible(mainFrame);
     
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
+
     voiceScopeGrid.addComponent(&voiceScopeL);
     voiceScopeGrid.addComponent(&voiceScopeXY);
     voiceScopeGrid.addComponent(&voiceScopeR);
     voiceScopeGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
-    voiceScopeGrid.setText("voice output");
-    effectScopeGrid.addComponent(&outputScopeL);
-    effectScopeGrid.addComponent(&outputScopeXY);
-    effectScopeGrid.addComponent(&outputScopeR);
+    voiceScopeGrid.setText("voice");
+
+    synthScopeGrid.addComponent(&synthScopeL);
+    synthScopeGrid.addComponent(&synthScopeXY);
+    synthScopeGrid.addComponent(&synthScopeR);
+    synthScopeGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
+    synthScopeGrid.setText("synth");
+
+    effectScopeGrid.addComponent(&effectScopeL);
+    effectScopeGrid.addComponent(&effectScopeXY);
+    effectScopeGrid.addComponent(&effectScopeR);
     effectScopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
-    effectScopeGrid.setText("effect output");
+    effectScopeGrid.setText("effect");
+
     scopePPGrid.setColoumns({ 1.0f });
     scopePPGrid.addComponent(&voiceScopeGrid);
+    scopePPGrid.addComponent(&synthScopeGrid);
     scopePPGrid.addComponent(&effectScopeGrid);
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);

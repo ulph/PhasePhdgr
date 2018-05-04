@@ -199,7 +199,7 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
         float value = *fp;
         switch (type) {
         case SynthGraphType::EFFECT:
-            effect->handleEffectParameter(handle, value);
+            effect->handleParameter(handle, value);
             break;
         default:
             break;
@@ -218,10 +218,11 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth) {
         float value = *fp;
         switch (type) {
         case SynthGraphType::VOICE:
-            synth->handleVoiceParameter(handle, value);
+            synth->handleParameter(handle, value);
             break;
         case SynthGraphType::EFFECT:
-            synth->handleEffectParameter(handle, value);
+            assert(0); // fixme
+            synth->handleParameter(handle, value);
             break;
         default:
             break;

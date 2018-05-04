@@ -21,7 +21,7 @@ void storeState(const PresetDescriptor& preset, MemoryBlock& destData);
 
 void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset);
 
-void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition);
+void handlePlayHead(Base* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition);
 
 struct PPMidiMessage {
     enum class Type {
@@ -88,8 +88,6 @@ public:
         return strategy == Strategy::BUFFERING ? Effect::internalBlockSize() : 0;
     }
 
-//    virtual void process(AudioSampleBuffer& buffer, float sampleRate, Effect* effect, AudioPlayHead* playHead) = 0;
-
     BufferingProcessor(const Strategy& strategy_ = Strategy::BUFFERING)
         : strategy(strategy_)
         , outputBufferSamples(getLatency())
@@ -116,7 +114,7 @@ public:
     GeneratingBufferingProcessor()
         : BufferingProcessor(Strategy::AHEAD)
     {}
-    virtual void process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, AudioPlayHead* playHead);
+    virtual void process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, Effect* effect, AudioPlayHead* playHead);
 };
 
 

@@ -15,39 +15,47 @@ namespace PhasePhckr {
     class EffectChain;
     class VoiceBus;
 
-    class Effect {
+    class Base {
     public:
-        Effect();
-        virtual ~Effect();
-        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
-
+        Base();
+        virtual ~Base();
+        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate) = 0;
+        virtual const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) = 0;
         void handleTimeSignature(int numerator, int denominator);
         void handleBPM(float bpm);
         void handlePosition(float ppqPosition);
         void handleBarPosition(float ppqPosition);
         void handleTime(float time);
-
-        const ParameterHandleMap& setEffectChain(const PatchDescriptor & chain, const ComponentRegister & cp);
-        void handleEffectParameter(int handle, float value);
-        const Scope& getInputScope(int i) const;
-        const Scope& getEffectScope(int i) const;
         static int internalBlockSize();
+        const Scope& getOutputScope(int i) const;
+        virtual void handleParameter(int handle, float value) = 0;
     protected:
-        EffectChain* effects;
         float scopeHz;
-        Scope inputScopeL;
-        Scope inputScopeR;
+        GlobalData * globalData;
         Scope outputScopeL;
         Scope outputScopeR;
-        GlobalData *globalData;
-        PresetSettings settings;
     };
 
-    class Synth : public Effect {
+    class Effect : public Base {
+    public:
+        Effect();
+        virtual ~Effect();
+        void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate) override;
+        const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
+        const Scope& getInputScope(int i) const;
+        virtual void handleParameter(int handle, float value);
+        float setScopeHz(float hz) { return scopeHz = hz; }
+    protected:
+        EffectChain* effects;
+        Scope inputScopeL;
+        Scope inputScopeR;
+    };
+
+    class Synth : public Base {
     public:
         Synth();
         virtual ~Synth();
-        virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate);
+        void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate) override;
         void handleNoteOnOff(int channel, int note, float velocity, bool on);
         void handleX(int channel, float position);
         void handleY(int channel, float position);
@@ -57,11 +65,12 @@ namespace PhasePhckr {
         void handleExpression(float value);
         void handleBreath(float value);
         void handleModWheel(float value);
-        const ParameterHandleMap& setVoiceChain(const PatchDescriptor & chain, const ComponentRegister & cp);
-        void handleVoiceParameter(int handle, float value);
+        const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
+        virtual void handleParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;
-        virtual void applySettings(const PresetSettings& settings);
-        virtual const PresetSettings& retrieveSettings();
+        void applySettings(const PresetSettings& settings);
+        const PresetSettings& retrieveSettings();
+        float getScopeHz() { return scopeHz; }
     protected:
         VoiceBus *voiceBus;
         vector<SynthVoice*> voices;
@@ -71,6 +80,7 @@ namespace PhasePhckr {
         Scope voiceScopeL;
         Scope voiceScopeR;
         size_t concurrency;
+        PresetSettings settings;
         progschj::ThreadPool pool;
     };
 }

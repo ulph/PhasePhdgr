@@ -37,6 +37,7 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     parameters.initialize(this);
 
     synth = new PhasePhckr::Synth();
+    effect = new PhasePhckr::Effect();
     componentLoader.rescan();
 
     PresetDescriptor initialPreset;
@@ -52,6 +53,7 @@ PhasePhckrProcessor::~PhasePhckrProcessor()
     subEffectChain.unsubscribe(activeEffectHandle);
     subComponentRegister.unsubscribe(componentRegisterHandle);
     delete synth;
+    delete effect;
 }
 
 const String PhasePhckrProcessor::getName() const
@@ -214,7 +216,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
     }
 
     parameters.visitHandleParameterValues(synth);
-    bufferingProcessor.process(buffer, midiMessageQueue, (float)getSampleRate(), synth, getPlayHead());
+    bufferingProcessor.process(buffer, midiMessageQueue, (float)getSampleRate(), synth, effect, getPlayHead());
 
     midiMessages.clear();
 
@@ -245,6 +247,10 @@ void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes
 
 const PhasePhckr::Synth* PhasePhckrProcessor::getSynth() const {
     return synth;
+}
+
+const PhasePhckr::Effect* PhasePhckrProcessor::getEffect() const {
+    return effect;
 }
 
 void PhasePhckrProcessor::broadcastPatch() {
@@ -354,7 +360,7 @@ void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
     voiceHash = hash;
 
     voiceChain = p;
-    auto pv = synth->setVoiceChain(voiceChain, componentRegister);
+    auto pv = synth->setPatch(voiceChain, componentRegister);
     parameters.setParametersHandleMap(SynthGraphType::VOICE, pv);
 
     updateHostDisplay();
@@ -369,7 +375,7 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     effectHash = hash;
 
     effectChain = p;
-    auto pv = synth->setEffectChain(effectChain, componentRegister);
+    auto pv = effect->setPatch(effectChain, componentRegister);
     parameters.setParametersHandleMap(SynthGraphType::EFFECT, pv);
 
     updateHostDisplay();

@@ -23,7 +23,7 @@ void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset) {
     }
 }
 
-void handlePlayHead(Effect* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition) {
+void handlePlayHead(Base* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition) {
     if (playHead == nullptr) return;
     AudioPlayHead::CurrentPositionInfo info;
     playHead->getCurrentPosition(info);
@@ -95,7 +95,7 @@ void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& mi
     }
 }
 
-void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, AudioPlayHead* playHead) {
+void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPMidiMessage>& midiMessageQueue, float sampleRate, Synth* synth, Effect* effect, AudioPlayHead* playHead) {
     const int blockSize = buffer.getNumSamples();
     const int internalBlockSize = Synth::internalBlockSize();
 
@@ -146,6 +146,8 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
             handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
             processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
             synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), internalBlockSize, sampleRate);
+            effect->setScopeHz(synth->getScopeHz());
+            effect->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), internalBlockSize, sampleRate);
             destinationBufferOffset += internalBlockSize;
             stuffLeft -= internalBlockSize;
         }
@@ -157,6 +159,8 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
         handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
         processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
         synth->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);
+        effect->setScopeHz(synth->getScopeHz());
+        effect->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);
         auto* l = buffer.getWritePointer(0, destinationBufferOffset);
         auto* r = buffer.getWritePointer(1, destinationBufferOffset);
         int i = 0;

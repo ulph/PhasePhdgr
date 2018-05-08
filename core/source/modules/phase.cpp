@@ -1,7 +1,7 @@
 #include "phase.hpp"
 
 Phase::Phase() : trig(0.f), phase(0.f){
-    inputs.push_back(Pad("freq"));
+    inputs.push_back(Pad("freq", "hz"));
     inputs.push_back(Pad("reset"));
     inputs.push_back(Pad("start", -1.f));
     outputs.push_back(Pad("phase"));

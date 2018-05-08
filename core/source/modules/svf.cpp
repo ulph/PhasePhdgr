@@ -37,7 +37,7 @@ static inline float TrapezoidalTanSVFGetK(float res) {
 
 static inline void TrapezoidalTanSVFInitPads(std::vector<Pad>& inputs, std::vector<Pad>& outputs) {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 100.f));
+    inputs.push_back(Pad("fc", 100.f, "hz"));
     inputs.push_back(Pad("res"));
 
     outputs.push_back(Pad("low"));

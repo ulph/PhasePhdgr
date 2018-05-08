@@ -8,10 +8,10 @@ const auto c_blitTable = FractionalSincTable<BlitOsc::c_blitN>();
 
 BlitOsc::BlitOsc()
 {
-    inputs.push_back(Pad("freq"));
+    inputs.push_back(Pad("freq", "hz"));
     inputs.push_back(Pad("shape")); // saw <-> square
     inputs.push_back(Pad("pwm"));
-    inputs.push_back(Pad("syncFreq")); // 'master' osc freq, for osc sync purposes
+    inputs.push_back(Pad("syncFreq", "hz")); // 'master' osc freq, for osc sync purposes
     inputs.push_back(Pad("sync")); // how much to sync -- TODO non-linear map input range
     inputs.push_back(Pad("reset")); // reset both internal phases ... not suitable for osc sync as it'll alias
     inputs.push_back(Pad("softReset"));

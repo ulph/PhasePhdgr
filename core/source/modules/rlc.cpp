@@ -4,7 +4,7 @@
 RcLp::RcLp()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc", 16000.f));
+    inputs.push_back(Pad("wc", 16000.f, "hz"));
     outputs.push_back(Pad("out"));
 }
 
@@ -22,7 +22,7 @@ RcHp::RcHp()
     : x(0.0f)
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc", 40.f));
+    inputs.push_back(Pad("wc", 40.f, "hz"));
     outputs.push_back(Pad("out"));
 }
 
@@ -40,8 +40,8 @@ void RcHp::process()
 Lag::Lag()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc_up"));
-    inputs.push_back(Pad("wc_down"));
+    inputs.push_back(Pad("wc_up", "hz"));
+    inputs.push_back(Pad("wc_down", "hz"));
     outputs.push_back(Pad("out"));
 }
 
@@ -59,7 +59,7 @@ void Lag::process()
 LeakyIntegrator::LeakyIntegrator()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("freq"));
+    inputs.push_back(Pad("freq", "hz"));
     inputs.push_back(Pad("dcRemoval", 0.125f));
     outputs.push_back(Pad("out"));
 }
@@ -84,8 +84,8 @@ void LeakyIntegrator::process()
 RateLimiter::RateLimiter()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc_up"));
-    inputs.push_back(Pad("wc_down"));
+    inputs.push_back(Pad("wc_up", "hz")); // TODO, not true frequencies
+    inputs.push_back(Pad("wc_down", "hz"));
     outputs.push_back(Pad("out"));
 }
 

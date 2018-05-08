@@ -3,10 +3,10 @@
 
 TempoToTime::TempoToTime() {
     inputs.push_back(Pad("beats"));
-    inputs.push_back(Pad("bpm"));
+    inputs.push_back(Pad("bpm", "bpm"));
     // TODO, a reset thingy
-    outputs.push_back(Pad("period"));
-    outputs.push_back(Pad("freq"));
+    outputs.push_back(Pad("period", "s"));
+    outputs.push_back(Pad("freq", "hz"));
 }
 
 void TempoToTime::process() {
@@ -24,11 +24,11 @@ void TempoToTime::process() {
 
 
 Transpose::Transpose() {
-    inputs.push_back(Pad("freq"));
+    inputs.push_back(Pad("freq", "hz"));
     inputs.push_back(Pad("octave", 0.f));
     inputs.push_back(Pad("semi", 0.f));
     inputs.push_back(Pad("cent", 0.f));
-    outputs.push_back(Pad("freq"));
+    outputs.push_back(Pad("freq", "hz"));
 }
 
 void Transpose::process() {

@@ -34,6 +34,7 @@ namespace PhasePhckr {
         GlobalData * globalData;
         Scope outputScopeL;
         Scope outputScopeR;
+        float secondsSinceReset = 0;
     };
 
     class Effect : public Base {

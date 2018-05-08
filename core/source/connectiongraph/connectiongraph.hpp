@@ -70,6 +70,7 @@ public:
     void compileProgram(int module);
     void setSamplerate(float fs);
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
+    void reset();
 };
 
 #endif

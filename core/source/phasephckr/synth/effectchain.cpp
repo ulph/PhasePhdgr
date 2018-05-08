@@ -80,4 +80,8 @@ const ParameterHandleMap& EffectChain::getParameterHandles(){
     return parameterHandles;
 }
 
+void EffectChain::reset() {
+    connectionGraph.reset();
+}
+
 }

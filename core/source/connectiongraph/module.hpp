@@ -19,6 +19,7 @@ public:
     Pad(const char *name, float value) : name(name), value(value) { init(); }
     Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) { init(); }
     Pad(const char *name, const char *unit) : name(name), unit(unit) { init(); }
+    void reset() { value = 0.0f; for (auto& v : values) v = 0.0f; }
 };
 
 class Module
@@ -36,7 +37,6 @@ public:
     virtual ~Module() {}
     virtual Module *clone() const = 0;
     virtual std::string docString() const { return "..."; }
-
 private:
     virtual void init() {};
     std::string name = "";

@@ -626,3 +626,12 @@ void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList
         delete m;
     }
 }
+
+void ConnectionGraph::reset() {
+    for (auto i = 0u; i < modules.size(); i++) {
+        auto m = modules[i]->clone();
+        delete modules[i];
+        modules[i] = m;
+    }
+    compilationStatus = NOT_COMPILED;
+}

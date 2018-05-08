@@ -5,6 +5,9 @@
 
 namespace PhasePhckr {
 
+const float c_maxSaneValue = 5.f;
+const size_t c_numSecondsBetweenResetAttempts = 1.0f;
+
 Base::Base()
     : globalData(new GlobalData())
     , scopeHz(10.f)
@@ -82,6 +85,20 @@ void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int n
     inputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
     inputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
     effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
+
+    if (*leftChannelbuffer > c_maxSaneValue || *rightChannelbuffer > c_maxSaneValue) {
+        secondsSinceReset += numSamples / sampleRate;
+        if (secondsSinceReset > c_numSecondsBetweenResetAttempts) {
+            secondsSinceReset = 0.0f;
+            std::cerr << "abnormal sample value, resetting effect chain" << std::endl;
+            effects->reset();
+            for (auto i = 0; i < numSamples; i++) {
+                leftChannelbuffer[i] = 0.0f;
+                rightChannelbuffer[i] = 0.0f;
+            }
+        }
+    }
+
     outputScopeL.writeToBuffer(leftChannelbuffer, numSamples, sampleRate, scopeHz);
     outputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
 }
@@ -130,6 +147,19 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         if (scopeVoiceIndex != -1) {
             voiceScopeL.writeToBuffer(voices[scopeVoiceIndex]->getInternalBuffer(0), chunkSize, sampleRate, scopeHz);
             voiceScopeR.writeToBuffer(voices[scopeVoiceIndex]->getInternalBuffer(1), chunkSize, sampleRate, scopeHz);
+        }
+    }
+
+    if (*leftChannelbuffer > c_maxSaneValue || *rightChannelbuffer > c_maxSaneValue) {
+        secondsSinceReset += numSamples / sampleRate;
+        if (secondsSinceReset > c_numSecondsBetweenResetAttempts) {
+            secondsSinceReset = 0.0f;
+            std::cerr << "abnormal sample value, resetting voice chains" << std::endl;
+            for (auto v : voices) v->reset();
+            for (auto i = 0; i < numSamples; i++) {
+                leftChannelbuffer[i] = 0.0f;
+                rightChannelbuffer[i] = 0.0f;
+            }
         }
     }
 

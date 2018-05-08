@@ -154,4 +154,8 @@ const ParameterHandleMap& SynthVoice::getParameterHandles(){
     return parameterHandles;
 }
 
+void SynthVoice::reset() {
+    connectionGraph.reset();
+}
+
 }

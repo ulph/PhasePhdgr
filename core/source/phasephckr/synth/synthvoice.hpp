@@ -50,6 +50,7 @@ public:
     bool isSilent() const;
     float getRms() const;
     void preCompile(float fs);
+    void reset();
 };
 
 }

@@ -22,6 +22,7 @@ public:
     const ParameterHandleMap& getParameterHandles();
     void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, GlobalData& globalData);
     virtual ~EffectChain(){}
+    void reset();
 };
 
 }

@@ -12,6 +12,11 @@ public:
         m.block_process();
     }
 
+    static void reset(Module& m) {
+        for (auto &p : m.inputs) p.reset();
+        for (auto &p : m.outputs) p.reset();
+    }
+
     static const std::vector<Pad>& getInputs(const Module& m) { return m.inputs; }
     static const std::vector<Pad>& getOutputs(const Module& m) { return m.outputs; }
 

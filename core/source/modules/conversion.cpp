@@ -5,7 +5,7 @@ TempoToTime::TempoToTime() {
     inputs.push_back(Pad("beats"));
     inputs.push_back(Pad("bpm", "bpm"));
     // TODO, a reset thingy
-    outputs.push_back(Pad("period", "s"));
+    outputs.push_back(Pad("period", "seconds"));
     outputs.push_back(Pad("freq", "hz"));
 }
 

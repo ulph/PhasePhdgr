@@ -895,10 +895,10 @@ const vector<PadDescription> c_effectChainInBus = {
 
     { "sigNom", "", 0 },
     { "sigDen", "", 0 },
-    { "barLen", "", 0 },
+    { "barLen", "ppq", 0 },
     { "bpm", "bpm", 0 },
-    { "barPos", "", 0 },
-    { "pos", "", 0 },
+    { "barPos", "ppq", 0 },
+    { "pos", "ppq", 0 },
     { "time", "seconds", 0 }
 
 };
@@ -923,10 +923,10 @@ const vector<PadDescription> c_voiceChainInBus = {
 
     { "sigNom", "", 0 },
     { "sigDen", "", 0 },
-    { "barLen", "", 0 },
+    { "barLen", "ppq", 0 },
     { "bpm", "bpm", 0 },
-    { "barPos", "", 0 },
-    { "pos", "", 0 },
+    { "barPos", "ppq", 0 },
+    { "pos", "ppq", 0 },
     { "time", "seconds", 0 },
 
     { "noteIndex", "", 0 },

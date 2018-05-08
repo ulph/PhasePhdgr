@@ -63,7 +63,7 @@ namespace PhasePhckr {
         void signature(int num, int den) { 
             timeSt.nominator = num;
             timeSt.denominator = den;
-            timeSt.barLength = 4.f*(float)num / float(den); 
+            timeSt.barLength = 4.f * float(num) / float(den); 
         }
         void bpm(float bpm) { timeSt.bpm = bpm; }
         void position(float pos) { timeSt.position = pos; }

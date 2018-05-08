@@ -639,20 +639,24 @@ void ConnectionGraph::reset() {
 const float c_maxSaneValue = 5.f; // TODO, share with synth.cpp
 
 void ConnectionGraph::troubleshoot() {
-    auto check_value = [](float value) {return fabsf(value) < c_maxSaneValue; };
+    auto check_value = [&](float value, const std::string& unit) {
+        if (unit == "hz") return fabsf(value) < fs/2;
+        if (unit == "bpm") return value >= 0;
+        if (unit == "ppq") return value >= 0;
+        if (unit == "seconds") return value >= 0;
+        return fabsf(value) < c_maxSaneValue; 
+    };
 
     auto check_pads = [&](const std::vector<Pad> & pads) {
         std::vector<std::pair<size_t, float>> problems;
         for (auto j = 0u; j < pads.size(); j++) {
             auto& pad = pads.at(j);
-            if (pad.unit == "hz") continue;
-            if (pad.unit == "bpm") continue;
-            if (!check_value(pad.value)) {
+            if (!check_value(pad.value, pad.unit)) {
                 problems.push_back(std::make_pair(j, pad.value)); 
                 continue;
             }
             for (auto n = 0u; n < Pad::k_blockSize; n++) {
-                if (!check_value(pad.values[n])) {
+                if (!check_value(pad.values[n], pad.unit)) {
                     problems.push_back(std::make_pair(j, pad.values[n]));
                     break;
                 }

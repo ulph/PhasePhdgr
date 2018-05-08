@@ -28,14 +28,9 @@ void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset, nloh
     }
 }
 
-void handlePlayHead(Base* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition) {
+void updatePlayHead(AudioPlayHead* playHead, const int blockSize, const float sampleRate, AudioPlayHead::CurrentPositionInfo& info, float& barPosition) {
     if (playHead == nullptr) return;
-    AudioPlayHead::CurrentPositionInfo info;
     playHead->getCurrentPosition(info);
-    effect->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);
-    effect->handleBPM((float)info.bpm);
-    effect->handlePosition((float)info.ppqPosition);
-    effect->handleTime((float)info.timeInSeconds);
     if (info.isPlaying) {
         barPosition = (float)info.ppqPosition - (float)info.ppqPositionOfLastBarStart;
     }
@@ -46,6 +41,13 @@ void handlePlayHead(Base* effect, AudioPlayHead* playHead, const int blockSize, 
         barPosition += quarterdelta;
         barPosition = fmod(barPosition, barLength);
     }
+}
+
+void handlePlayHead(Base* effect, const AudioPlayHead::CurrentPositionInfo& info, float barPosition) {
+    effect->handleTimeSignature(info.timeSigNumerator, info.timeSigDenominator);
+    effect->handleBPM((float)info.bpm);
+    effect->handlePosition((float)info.ppqPosition);
+    effect->handleTime((float)info.timeInSeconds);
     effect->handleBarPosition(barPosition);
 }
 
@@ -148,7 +150,9 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
     if (alignedBlockSize > 0) {
         int stuffLeft = alignedBlockSize;
         while (stuffLeft > 0) {
-            handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
+            updatePlayHead(playHead, internalBlockSize, sampleRate, info, barPosition);
+            handlePlayHead(synth, info, barPosition);
+            handlePlayHead(effect, info, barPosition);
             processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
             synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), internalBlockSize, sampleRate);
             effect->setScopeHz(synth->getScopeHz());
@@ -161,7 +165,9 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
 
     // if not all samples fit, calculate a new frame and store
     if (carryOverSamples > 0) {
-        handlePlayHead(synth, playHead, internalBlockSize, sampleRate, barPosition);
+        updatePlayHead(playHead, internalBlockSize, sampleRate, info, barPosition);
+        handlePlayHead(synth, info, barPosition);
+        handlePlayHead(effect, info, barPosition);
         processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
         synth->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);
         effect->setScopeHz(synth->getScopeHz());
@@ -208,7 +214,8 @@ void InputBufferingProcessor::process(AudioSampleBuffer& buffer, float sampleRat
 
     auto scratchBufferSize = 0;
     if (inputBufferSamples == internalBlockSize) {
-        handlePlayHead(effect, playHead, internalBlockSize, sampleRate, barPosition);
+        updatePlayHead(playHead, internalBlockSize, sampleRate, info, barPosition);
+        handlePlayHead(effect, info, barPosition);
         effect->update(inputBuffer[0], inputBuffer[1], internalBlockSize, sampleRate);
         for (int j = 0; j < internalBlockSize; j++) {
             scratchBuffer.setSample(0, j, inputBuffer[0][j]);
@@ -219,7 +226,8 @@ void InputBufferingProcessor::process(AudioSampleBuffer& buffer, float sampleRat
 
         auto alignedBlockSize = internalBlockSize * ((blockSize - i) / internalBlockSize);
         if (alignedBlockSize) {
-            handlePlayHead(effect, playHead, alignedBlockSize, sampleRate, barPosition);
+            updatePlayHead(playHead, internalBlockSize, sampleRate, info, barPosition);
+            handlePlayHead(effect, info, barPosition);
             effect->update(buffer.getWritePointer(0, i), buffer.getWritePointer(1, i), alignedBlockSize, sampleRate);
             scratchBuffer.copyFrom(0, scratchBufferSize, buffer.getReadPointer(0, i), alignedBlockSize);
             scratchBuffer.copyFrom(1, scratchBufferSize, buffer.getReadPointer(1, i), alignedBlockSize);

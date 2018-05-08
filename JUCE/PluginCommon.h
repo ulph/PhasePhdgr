@@ -21,8 +21,6 @@ void storeState(const PresetDescriptor& preset, MemoryBlock& destData, const nlo
 
 void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset, nlohmann::json& extra);
 
-void handlePlayHead(Base* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition);
-
 struct PPMidiMessage {
     enum class Type {
         Uknown,
@@ -76,6 +74,7 @@ public:
 protected:
     Strategy strategy;
 
+    AudioPlayHead::CurrentPositionInfo info;
     float barPosition = 0;
     int inputBufferSamples = 0;
     int outputBufferSamples; // set via getLatency() in initializer list

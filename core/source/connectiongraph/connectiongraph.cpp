@@ -636,15 +636,16 @@ void ConnectionGraph::reset() {
     compilationStatus = NOT_COMPILED;
 }
 
-const float c_maxSaneValue = 5.f; // TODO, share with synth.cpp
-
 void ConnectionGraph::troubleshoot() {
+    // TODO, turn this hack into some problem report thing which a 
+    // gui can use to visually represent problematic pieces of graph
+
     auto check_value = [&](float value, const std::string& unit) {
         if (unit == "hz") return fabsf(value) < fs/2;
         if (unit == "bpm") return value >= 0;
         if (unit == "ppq") return value >= 0;
         if (unit == "seconds") return value >= 0;
-        return fabsf(value) < c_maxSaneValue; 
+        return fabsf(value) < 5.0f; // TODO, share with synth.cpp
     };
 
     auto check_pads = [&](const std::vector<Pad> & pads) {

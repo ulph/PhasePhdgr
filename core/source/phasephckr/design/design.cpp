@@ -654,8 +654,9 @@ int ComponentDescriptor::addPort(const string & portName, bool inputPort, const 
     return 0;
 }
 
-int ComponentDescriptor::changePortUnit(const string & portName, const string & newUnit) {
-    for (auto& pd : inBus) {
+int ComponentDescriptor::changePortUnit(const string & portName, const string & newUnit, bool inputPort) {
+    auto& bus = inputPort ? inBus : outBus;
+    for (auto& pd : bus) {
         if (pd.name == portName) {
             pd.unit = newUnit;
             return 0;

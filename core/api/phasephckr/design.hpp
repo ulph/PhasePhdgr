@@ -171,7 +171,7 @@ struct ComponentDescriptor {
     int removePort(const string & portName, bool inputPort);
     int addPort(const string & portName, bool inputPort, const string & unit, const float & defaultValue);
     int renamePort(const string & portName, const string & newPortName, bool inputPort);
-    int changePortUnit(const string & portName, const string & newUnit);
+    int changePortUnit(const string & portName, const string & newUnit, bool inputPort);
     int changePortValue(const string & portName, float newValue);
     bool hasPort(const string & portName, bool inputPort) const;
     int getPort(const string & portName, PadDescription& result, bool inputPort) const;
@@ -222,8 +222,7 @@ public:
 
     int setPortUnit(const string& type, const string& port, const string& unit, bool inputPort) {
         if (!has(type)) return -1;
-        if (!inputPort) return -2; // NYI
-        return components.at(type).changePortUnit(port, unit);
+        return components.at(type).changePortUnit(port, unit, inputPort);
     }
 
     int setPortValue(const string& type, const string& port, float value) {

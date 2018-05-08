@@ -110,16 +110,18 @@ public:
 
             cmpPoop.addCustomItem(5, &nameLbl, 200, 20, false);
 
-            if (inputPort && 0 == cmp.getPort(port, pd, true)) {
+            if (0 == cmp.getPort(port, pd, inputPort)) {
                 unitLbl.title.setText("Unit:", NotificationType::dontSendNotification);
                 unitLbl.edit.setText(pd.unit, NotificationType::dontSendNotification);
+                cmpPoop.addCustomItem(7, &unitLbl, 200, 20, false);
+            }
 
+            if (inputPort && 0 == cmp.getPort(port, pd, true)) {
                 defaultValueLbl.title.setText("Default:", NotificationType::dontSendNotification);
                 defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
-
-                cmpPoop.addCustomItem(7, &defaultValueLbl, 200, 20, false);
-                cmpPoop.addCustomItem(8, &unitLbl, 200, 20, false);
+                cmpPoop.addCustomItem(8, &defaultValueLbl, 200, 20, false);
             }
+
             cmpPoop.addItem(6, "remove port");
 
             popupMenu.addSubMenu("Component", cmpPoop);

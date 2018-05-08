@@ -6,7 +6,7 @@
 namespace PhasePhckr {
 
 const float c_maxSaneValue = 5.f;
-const size_t c_numSecondsBetweenResetAttempts = 1.0f;
+const float c_numSecondsBetweenResetAttempts = 1.0f;
 
 Base::Base()
     : globalData(new GlobalData())

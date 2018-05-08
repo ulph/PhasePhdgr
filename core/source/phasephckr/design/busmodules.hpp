@@ -17,7 +17,7 @@ public:
         ModuleAccessor::setName(*this, newName);
         for(const auto &p : ports){
             const char * name = p.name.c_str();
-            const char * unit = p.name.c_str();
+            const char * unit = p.unit.c_str();
             Pad pad(name, p.defaultValue, unit);
             inputs.push_back(pad);
         }

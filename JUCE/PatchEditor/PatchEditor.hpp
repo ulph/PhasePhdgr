@@ -42,6 +42,7 @@ class PatchEditor : public Component
 
     SubValue<PatchDescriptor> &subPatch;
     PatchDescriptor patchCopy;
+
     int patchHandle;
 
     set<string> globalComponents;

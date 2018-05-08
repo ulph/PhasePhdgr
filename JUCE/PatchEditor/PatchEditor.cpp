@@ -135,7 +135,8 @@ PatchEditor::PatchEditor(
        patchCopy,
        inBus,
        outBus,
-       layoutUpdateCb_
+       layoutUpdateCb_,
+       false
     )
     , editorStack(
         subPatchTypes, 
@@ -214,10 +215,12 @@ void PatchEditor::resized() {
 void PatchEditor::push_tab(const string& componentName, const string& componentType) {
     ComponentDescriptor cmp;
 
+    bool readOnly = false;
+
     if (!patchCopy.componentBundle.has(componentType)) {
-        // TODO, is this needed? looks rather strange
         if(!cmpReg.getComponent(componentType, cmp)) return;
         if(patchCopy.componentBundle.set(componentType, cmp)) return;
+        readOnly = true;
     }
 
     cmp = patchCopy.componentBundle.get(componentType);
@@ -231,7 +234,8 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
             patchCopy,
             cmp.inBus,
             cmp.outBus,
-            layoutUpdateCb
+            layoutUpdateCb,
+            readOnly
         )
     );
 

@@ -39,7 +39,8 @@ public:
         SubValue<PatchDescriptor> &subPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus,
-        const LayoutUpdateCallback &layoutUpdateCb
+        const LayoutUpdateCallback &layoutUpdateCb,
+        bool readOnly
     );
     ~GraphEditor();
 
@@ -65,6 +66,7 @@ public:
     void decreaseZoom();
 
 private:
+    bool readOnly = false;
     void updateBounds(const pair<XY, XY>& rectange);
     void updateBounds(const XY & position, const XY & size);
 
@@ -166,7 +168,8 @@ public:
         const PatchDescriptor& initialPatch,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus,
-        const LayoutUpdateCallback &layoutUpdateCb
+        const LayoutUpdateCallback &layoutUpdateCb,
+        bool readOnly
     );
     GraphEditor editor;
 

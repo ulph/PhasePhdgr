@@ -23,7 +23,8 @@ GraphEditor::GraphEditor(
     SubValue<PatchDescriptor> &subPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus,
-    const LayoutUpdateCallback &layoutUpdateCb
+    const LayoutUpdateCallback &layoutUpdateCb,
+    bool readOnly_
 )
     : subPatch(subPatch)
     , doc(initialDoc)
@@ -36,6 +37,7 @@ GraphEditor::GraphEditor(
     , docIsDirty(false)
     , rootComponentName(rootComponent_)
     , layoutUpdateCallback(layoutUpdateCb)
+    , readOnly(readOnly_)
 {
     setDoc(initialDoc);
     setGraph(initialPatch);
@@ -92,6 +94,9 @@ void GraphEditor::updateLayout() {
 }
 
 void GraphEditor::propagatePatch() {
+    assert(readOnly == false);
+    if (readOnly) return;
+
     updateLayout();
     PatchDescriptor patchCopy;
     {
@@ -103,6 +108,9 @@ void GraphEditor::propagatePatch() {
 }
 
 void GraphEditor::propagateLayout() {
+    assert(readOnly == false);
+    if (readOnly) return;
+
     updateLayout();
     map<string, ModulePosition> layoutCopy;
     {
@@ -123,6 +131,9 @@ void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
 
 void GraphEditor::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);
+
+    if (readOnly) return;
+
     if (event.mods.isMiddleButtonDown()) return;
 
     bool modelChanged = false;
@@ -235,6 +246,7 @@ void GraphEditor::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails &
 }
 
 void GraphEditor::mouseDrag(const MouseEvent & event) {
+    if (readOnly) return;
     bool modelChanged = false;
     auto mousePos = XY((float)event.x, (float)event.y);
     if (draggedModule) {
@@ -293,6 +305,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
 }
 
 void GraphEditor::mouseUp(const MouseEvent & event) {
+    if (readOnly) return;
     XY mousePos((float)event.x, (float)event.y);
     bool modelChanged = false;
     if (looseWire.isValid) {
@@ -393,6 +406,7 @@ void GraphEditor::updateBounds(const pair<XY, XY>& rectangle) {
 }
 
 void GraphEditor::itemDropped(const SourceDetails & dragSourceDetails){
+    if (readOnly) return;
 
     auto type = dragSourceDetails.description.toString().toStdString();
     auto pos = dragSourceDetails.localPosition;
@@ -428,7 +442,8 @@ void GraphEditor::paint(Graphics& g){
 
     updateRenderComponents();
 
-    g.fillAll(Colour(0xff111111));
+    if (readOnly) g.fillAll(Colour(0xff888888));
+    else g.fillAll(Colour(0xff111111));
 
     for(auto &w : wires){
         w.draw(g);
@@ -804,7 +819,8 @@ GraphEditorBundle::GraphEditorBundle(
     const PatchDescriptor& initialPatch,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus,
-    const LayoutUpdateCallback &layoutUpdateCb
+    const LayoutUpdateCallback &layoutUpdateCb,
+    bool readOnly
 )
     : editor(
         graphEditor
@@ -816,6 +832,7 @@ GraphEditorBundle::GraphEditorBundle(
         , inBus
         , outBus
         , layoutUpdateCb
+        , readOnly
     )
 {
     addAndMakeVisible(view);

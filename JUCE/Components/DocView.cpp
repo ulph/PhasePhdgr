@@ -11,6 +11,7 @@ void DocListModel::setDocs(const std::map<std::string, ModuleDoc> & moduleDocs_)
     moduleDocs = moduleDocs_;
     rows.clear();
     for (const auto &kv : moduleDocs) {
+        if (!genericTypeIsValid(kv.first, true)) continue;
         rows.push_back(kv.first);
     }
     drawEntry(lastKey);
@@ -71,13 +72,8 @@ void DocListModel::listBoxItemClicked(int row, const MouseEvent &me) {
 }
 
 void DocListModel::showDoc(const string& type) {
-    for (auto r = 0u; r < rows.size(); r++) {
-        const auto &key = rows[r];
-        if (type == rows[r]) {
-            lastKey = key;
-            drawEntry(key);
-        }
-    }
+    lastKey = type;
+    drawEntry(type);
 }
 
 var DocListModel::getDragSourceDescription (const SparseSet< int > &rowsToDescribe){

@@ -39,6 +39,8 @@ class PatchEditor : public Component
 {
     Doc doc;
     DocView docView;
+    ModuleDoc inBusDoc;
+    ModuleDoc outBusDoc;
 
     SubValue<PatchDescriptor> &subPatch;
     PatchDescriptor patchCopy;

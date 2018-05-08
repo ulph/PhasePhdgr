@@ -85,19 +85,22 @@ bool applyComponentPopuMenuChoice(
     return false;
 }
 
-void populateDocWithComponents(Doc & doc, const PhasePhckr::ComponentRegister cr, const PatchDescriptor pd){
-    cr.makeComponentDocs(doc);
-    for (const auto & c : pd.componentBundle.getAll()) {
+void PatchEditor::refreshAndBroadcastDoc(){
+    doc = Doc();
+
+    // global docs
+    cmpReg.makeComponentDocs(doc);
+
+    // local docs
+    for (const auto & c : patchCopy.componentBundle.getAll()) {
         ModuleDoc d;
         PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
         doc.add(d);
     }
-}
 
-
-void PatchEditor::refreshAndBroadcastDoc(){
-    doc = Doc();
-    populateDocWithComponents(doc, cmpReg, patchCopy);
+    // bus docs
+    doc.add(inBusDoc);
+    doc.add(outBusDoc);
 
     set<string> localComponents;
     for (const auto& kv : patchCopy.componentBundle.getAll()) localComponents.insert(kv.first);
@@ -166,6 +169,9 @@ PatchEditor::PatchEditor(
     ppgrid.setColoumns({ 0.875f, 0.125f });
 
     editorStack.addTab(rootMarker, Colours::black, &rootBundle, false);
+
+    inBusDoc.fromBusModulePorts(inBus, true);
+    outBusDoc.fromBusModulePorts(outBus, false);
 
     patchHandle = subPatch.subscribe(
         [this](const PatchDescriptor& desc) {

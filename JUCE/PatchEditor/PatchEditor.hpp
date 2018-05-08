@@ -77,5 +77,6 @@ public:
     virtual ~PatchEditor();
     void paint(Graphics& g);
     void resized();
+    void showDoc(const string& type);
 
 };

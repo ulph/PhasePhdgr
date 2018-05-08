@@ -70,6 +70,16 @@ void DocListModel::listBoxItemClicked(int row, const MouseEvent &me) {
     }
 }
 
+void DocListModel::showDoc(const string& type) {
+    for (auto r = 0u; r < rows.size(); r++) {
+        const auto &key = rows[r];
+        if (type == rows[r]) {
+            lastKey = key;
+            drawEntry(key);
+        }
+    }
+}
+
 var DocListModel::getDragSourceDescription (const SparseSet< int > &rowsToDescribe){
     if(!rowsToDescribe.isEmpty()){
         return String(rows[rowsToDescribe[0]]);
@@ -112,4 +122,8 @@ void DocView::setLocalComponents(const set<string>& localComponents) {
 
 void DocView::resized(){
     docPPGrid.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
+}
+
+void DocView::showDoc(const string& type) {
+    docListModel.showDoc(type);
 }

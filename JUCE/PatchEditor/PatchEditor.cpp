@@ -253,3 +253,7 @@ void PatchEditor::push_tab(const string& componentName, const string& componentT
 
     editorStack.setCurrentTabIndex(editorStack.getNumTabs()-1);
 }
+
+void PatchEditor::showDoc(const string& type) {
+    docView.showDoc(type);
+}

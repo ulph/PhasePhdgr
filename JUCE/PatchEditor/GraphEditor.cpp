@@ -132,8 +132,6 @@ void GraphEditor::mouseDoubleClick(const MouseEvent & event) {
 void GraphEditor::mouseDown(const MouseEvent & event) {
     viewPort.setScrollOnDragEnabled(true);
 
-    if (readOnly) return;
-
     if (event.mods.isMiddleButtonDown()) return;
 
     bool modelChanged = false;
@@ -147,7 +145,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
         GfxWire* pickedWire = nullptr;
         bool nearestSource = false;
         findCloseThings(mouseDownPos, &pickedPort, &pickedModule, &pickedWire, nearestSource);
-        if (pickedPort && pickedModule) {
+        if (pickedPort && pickedModule && !readOnly) {
             if (event.mods.isRightButtonDown()) {
                 // port popup menu
                 portPopUpMenu(*pickedModule, pickedPort->port, pickedPort->isInput);
@@ -163,7 +161,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             userInteraction = true;
         }
         else if (pickedModule) {
-            if (event.mods.isRightButtonDown()) {
+            if (event.mods.isRightButtonDown() && !readOnly) {
                 if (selectedModules.count(pickedModule)) {
                     // selection popup menu
                     selectionPopUpMenu();
@@ -174,7 +172,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     modulePopUpMenu(validModule, pickedModule->module.name, pickedModule->module.type);
                 }
             }
-            else if (event.mods.isShiftDown()) {
+            else if (event.mods.isShiftDown() && !readOnly) {
                 // add/remove modules to/from selection
                 if (selectedModules.count(pickedModule)) {
                     selectedModules.erase(pickedModule);
@@ -183,7 +181,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     selectedModules.insert(pickedModule);
                 }
             }
-            else if (event.mods.isCtrlDown()) {
+            else if (event.mods.isCtrlDown() && !readOnly) {
                 // autoConnect wire
                 looseWire.isValid = true;
                 looseWire.destination = mouseDownPos;
@@ -194,10 +192,12 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             else {
                 // drag a module
                 draggedModule = pickedModule;
+                // show in doc view
+                patchEditor.showDoc(pickedModule->module.type);
             }
             userInteraction = true;
         }
-        else if (pickedWire) {
+        else if (pickedWire && !readOnly) {
             // disconnect something
             if (disconnect(pickedWire, mouseDownPos, nearestSource)) {
                 modelChanged = true;
@@ -205,6 +205,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             }
         }
     }
+
+    if (readOnly) return;
 
     if (!userInteraction) {
         // (un)select region

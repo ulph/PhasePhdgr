@@ -71,6 +71,7 @@ public:
     void setSamplerate(float fs);
     void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
     void reset();
+    void troubleshoot();
 };
 
 #endif

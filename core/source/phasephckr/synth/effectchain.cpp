@@ -81,6 +81,7 @@ const ParameterHandleMap& EffectChain::getParameterHandles(){
 }
 
 void EffectChain::reset() {
+    connectionGraph.troubleshoot();
     connectionGraph.reset();
 }
 

@@ -86,7 +86,7 @@ void Effect::update(float * leftChannelbuffer, float * rightChannelbuffer, int n
     inputScopeR.writeToBuffer(rightChannelbuffer, numSamples, sampleRate, scopeHz);
     effects->update(leftChannelbuffer, rightChannelbuffer, numSamples, sampleRate, *globalData);
 
-    if (*leftChannelbuffer > c_maxSaneValue || *rightChannelbuffer > c_maxSaneValue) {
+    if (fabsf(*leftChannelbuffer) > c_maxSaneValue || fabsf(*rightChannelbuffer) > c_maxSaneValue) {
         secondsSinceReset += numSamples / sampleRate;
         if (secondsSinceReset > c_numSecondsBetweenResetAttempts) {
             secondsSinceReset = 0.0f;
@@ -150,7 +150,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         }
     }
 
-    if (*leftChannelbuffer > c_maxSaneValue || *rightChannelbuffer > c_maxSaneValue) {
+    if (fabsf(*leftChannelbuffer) > c_maxSaneValue || fabsf(*rightChannelbuffer) > c_maxSaneValue) {
         secondsSinceReset += numSamples / sampleRate;
         if (secondsSinceReset > c_numSecondsBetweenResetAttempts) {
             secondsSinceReset = 0.0f;

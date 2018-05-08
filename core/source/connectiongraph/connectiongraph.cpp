@@ -635,3 +635,41 @@ void ConnectionGraph::reset() {
     }
     compilationStatus = NOT_COMPILED;
 }
+
+const float c_maxSaneValue = 5.f; // TODO, share with synth.cpp
+
+void ConnectionGraph::troubleshoot() {
+    auto check_value = [](float value) {return fabsf(value) < c_maxSaneValue; };
+
+    auto check_pads = [&](const std::vector<Pad> & pads) {
+        std::vector<std::pair<size_t, float>> problems;
+        for (auto j = 0u; j < pads.size(); j++) {
+            auto& pad = pads.at(j);
+            if (pad.unit == "hz") continue;
+            if (!check_value(pad.value)) {
+                problems.push_back(std::make_pair(j, pad.value)); 
+                continue;
+            }
+            for (auto n = 0u; n < Pad::k_blockSize; n++) {
+                if (!check_value(pad.values[n])) {
+                    problems.push_back(std::make_pair(j, pad.values[n]));
+                    break;
+                }
+            }
+        }
+        return problems;
+    };
+
+    for (auto mi = 0u; mi < modules.size(); mi++) {
+        auto m = modules[mi];
+        auto iprobs = check_pads(ModuleAccessor::getInputs(*m));
+        auto oprobs = check_pads(ModuleAccessor::getOutputs(*m));
+        for (const auto& p : iprobs) {
+            std::cerr << "input @ Module " << mi << " (" << ModuleAccessor::getName(*modules.at(mi)) << ") " << " Pad " << p.first << " = " << p.second << std::endl;
+        }
+        for (const auto& p : oprobs) {
+            std::cerr << "output @ Module " << mi << " (" << ModuleAccessor::getName(*modules.at(mi)) << ") " << " Pad " << p.first << " = " << p.second << std::endl;
+        }
+    }
+
+}

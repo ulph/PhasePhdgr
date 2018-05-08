@@ -2,13 +2,18 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 class ModuleAccessor;
 
 struct Pad
 {
 private:
-    void init() { for (int i = 0; i < k_blockSize; ++i) values[i] = value; }
+    void init() { 
+        for (int i = 0; i < k_blockSize; ++i) values[i] = value;
+        std::transform(unit.begin(), unit.end(), unit.begin(), ::tolower);
+        // TODO, sanitate name also
+    }
 public:
     static const int k_blockSize = 64;
     std::string name;

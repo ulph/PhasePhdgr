@@ -155,6 +155,7 @@ const ParameterHandleMap& SynthVoice::getParameterHandles(){
 }
 
 void SynthVoice::reset() {
+    connectionGraph.troubleshoot();
     connectionGraph.reset();
 }
 

@@ -84,7 +84,6 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     setResizeLimits(128, 128, 8000, 8000);
     setConstrainer(nullptr);
     setResizable(true, true);
-    setBoundsConstrained(Rectangle<int>(1000, 700)); // slightly less than 720p
     addAndMakeVisible(mainFrame);
     
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
@@ -155,8 +154,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
 
 }
 
-PhasePhckrEditor::~PhasePhckrEditor()
-{
+PhasePhckrEditor::~PhasePhckrEditor() {
     guiUpdateTimer.stopTimer();
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
@@ -164,13 +162,12 @@ PhasePhckrEditor::~PhasePhckrEditor()
 #endif
 }
 
-void PhasePhckrEditor::paint (Graphics& g)
-{
+void PhasePhckrEditor::paint(Graphics& g) {
     g.fillAll(Colour(0xff111111));
 }
 
-void PhasePhckrEditor::resized()
-{
+void PhasePhckrEditor::resized() {
     mainFrame.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
     repaint();
+    processor.forceStateBump();
 }

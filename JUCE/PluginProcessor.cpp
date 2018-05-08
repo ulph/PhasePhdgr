@@ -222,27 +222,50 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
 
 }
 
-bool PhasePhckrProcessor::hasEditor() const
-{
+bool PhasePhckrProcessor::hasEditor() const {
     return true;
 }
 
-AudioProcessorEditor* PhasePhckrProcessor::createEditor()
-{
-    return new PhasePhckrEditor (*this);
+void extractExtra(AudioProcessorEditor *ed, PhasePhckrProcessor::InstanceSpecificPeristantState& ex) {
+    if (!ed) return;
+    ex.width = ed->getWidth();
+    ex.height = ed->getHeight();
 }
 
-void PhasePhckrProcessor::getStateInformation (MemoryBlock& destData)
-{
+void applyExtra(AudioProcessorEditor *ed, const PhasePhckrProcessor::InstanceSpecificPeristantState& ex) {
+    if (!ed) return;
+    ed->setBoundsConstrained(Rectangle<int>(ex.width, ex.height));
+}
+
+AudioProcessorEditor* PhasePhckrProcessor::createEditor() {
+    auto ed = new PhasePhckrEditor(*this);
+    applyExtra(ed, extra);
+    return ed;
+}
+
+void to_json(json& j, const PhasePhckrProcessor::InstanceSpecificPeristantState& e) {
+    j["gui_width"] = e.width;
+    j["gui_height"] = e.height;
+}
+
+void from_json(const json& j, PhasePhckrProcessor::InstanceSpecificPeristantState& e) {
+    if(j.count("gui_width")) e.width = j["gui_width"];
+    if (j.count("gui_height")) e.height = j["gui_height"];
+}
+
+void PhasePhckrProcessor::getStateInformation (MemoryBlock& destData) {
     auto p = getPreset();
-    storeState(p, destData);
+    extractExtra(getActiveEditor(), extra);
+    storeState(p, destData, extra);
 }
 
-void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes)
-{
+void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes) {
     PresetDescriptor preset;
-    loadState(data, sizeInBytes, preset);
+    nlohmann::json extra_j;
+    loadState(data, sizeInBytes, preset, extra_j);
     setPreset(preset);
+    extra = extra_j;
+    applyExtra(getActiveEditor(), extra);
 }
 
 const PhasePhckr::Synth* PhasePhckrProcessor::getSynth() const {
@@ -343,12 +366,7 @@ void PhasePhckrProcessor::setSettings(const PhasePhckr::PresetSettings &s) {
 
     activeSettings = s;
 
-    // hack, as updateHostDisplay() doesn't work for Reaper
-    Parameter* pa = nullptr;
-    parameters.accessParameter(0, &pa);
-    if (pa != nullptr) pa->setValueNotifyingHost(*pa);
-
-    updateHostDisplay();
+    forceStateBump();
 }
 
 void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
@@ -363,7 +381,7 @@ void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
     auto pv = synth->setPatch(voiceChain, componentRegister);
     parameters.setParametersHandleMap(SynthGraphType::VOICE, pv);
 
-    updateHostDisplay();
+    forceStateBump();
 }
 
 void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
@@ -378,7 +396,7 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     auto pv = effect->setPatch(effectChain, componentRegister);
     parameters.setParametersHandleMap(SynthGraphType::EFFECT, pv);
 
-    updateHostDisplay();
+    forceStateBump();
 }
 
 void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout) {
@@ -403,6 +421,10 @@ void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &compon
     auto& sph = type == SynthGraphType::VOICE ? activeVoiceHandle : activeEffectHandle;
     sp.set(sph, p);
 
+    forceStateBump();
+}
+
+void PhasePhckrProcessor::forceStateBump() {
     // hack, as updateHostDisplay() doesn't work for Reaper
     Parameter* pa = nullptr;
     parameters.accessParameter(0, &pa);

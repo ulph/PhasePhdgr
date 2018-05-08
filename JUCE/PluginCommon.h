@@ -17,9 +17,9 @@ using namespace PhasePhckrFileStuff;
 using namespace PhasePhckr;
 using namespace std;
 
-void storeState(const PresetDescriptor& preset, MemoryBlock& destData);
+void storeState(const PresetDescriptor& preset, MemoryBlock& destData, const nlohmann::json& extra);
 
-void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset);
+void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset, nlohmann::json& extra);
 
 void handlePlayHead(Base* effect, AudioPlayHead* playHead, const int blockSize, const float sampleRate, float& barPosition);
 

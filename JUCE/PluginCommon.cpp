@@ -1,8 +1,11 @@
 #include "PluginCommon.h"
 #include "Parameters.hpp"
 
-void storeState(const PresetDescriptor& preset, MemoryBlock& destData) {
+const string extra_key = "_instance_specific";
+
+void storeState(const PresetDescriptor& preset, MemoryBlock& destData, const nlohmann::json& extra) {
     json j = preset;
+    if (extra.size()) j[extra_key] = extra;
     string ss = j.dump(2); // json lib bugged with long rows
     const char* s = ss.c_str();
     size_t n = (strlen(s) + 1) / sizeof(char);
@@ -11,10 +14,12 @@ void storeState(const PresetDescriptor& preset, MemoryBlock& destData) {
     assert(destData.getSize() == n);
 }
 
-void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset) {
+void loadState(const void* data, int sizeInBytes, PresetDescriptor& preset, nlohmann::json& extra) {
     string ss((const char*)data);
     try {
-        preset = json::parse(ss.c_str());
+        auto j = json::parse(ss.c_str());
+        if (j.count(extra_key)) extra = j.at(extra_key);
+        preset = j;
     }
     catch (const nlohmann::detail::exception& e) {
         auto msg = e.what();

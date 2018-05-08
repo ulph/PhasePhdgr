@@ -22,6 +22,12 @@ using namespace PhasePhckrFileStuff;
 
 class PhasePhckrProcessor  : public AudioProcessor
 {
+public:
+    struct InstanceSpecificPeristantState {
+        // slightly less than 720p
+        int width = 1000;
+        int height = 700;
+    };
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrProcessor)
@@ -50,6 +56,8 @@ private:
     size_t effectHash = 0;
 
     vector<PPMidiMessage> midiMessageQueue;
+
+    InstanceSpecificPeristantState extra;
 
     simple_lock synthUpdateLock;
 
@@ -107,6 +115,8 @@ public:
     void updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout);
 
     PPLookAndFeel lookAndFeel;
+
+    void forceStateBump();
 
 };
 

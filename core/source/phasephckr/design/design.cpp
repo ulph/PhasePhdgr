@@ -896,10 +896,10 @@ const vector<PadDescription> c_effectChainInBus = {
     { "sigNom", "", 0 },
     { "sigDen", "", 0 },
     { "barLen", "", 0 },
-    { "bpm", "", 0 },
+    { "bpm", "bpm", 0 },
     { "barPos", "", 0 },
     { "pos", "", 0 },
-    { "time", "", 0 }
+    { "time", "seconds", 0 }
 
 };
 
@@ -912,7 +912,7 @@ const vector<PadDescription> c_voiceChainInBus = {
     { "gate", "", 0 },
     { "strike_z", "", 0 },
     { "lift_z", "", 0 },
-    { "pitch_hz", "", 0 },
+    { "pitch_hz", "hz", 0 },
     { "glide_x", "", 0 },
     { "slide_y", "", 0 },
     { "press_z", "", 0 },
@@ -924,10 +924,10 @@ const vector<PadDescription> c_voiceChainInBus = {
     { "sigNom", "", 0 },
     { "sigDen", "", 0 },
     { "barLen", "", 0 },
-    { "bpm", "", 0 },
+    { "bpm", "bpm", 0 },
     { "barPos", "", 0 },
     { "pos", "", 0 },
-    { "time", "", 0 },
+    { "time", "seconds", 0 },
 
     { "noteIndex", "", 0 },
     { "noteIndex2", "", 0 },

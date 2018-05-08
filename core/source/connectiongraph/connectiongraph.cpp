@@ -646,6 +646,7 @@ void ConnectionGraph::troubleshoot() {
         for (auto j = 0u; j < pads.size(); j++) {
             auto& pad = pads.at(j);
             if (pad.unit == "hz") continue;
+            if (pad.unit == "bpm") continue;
             if (!check_value(pad.value)) {
                 problems.push_back(std::make_pair(j, pad.value)); 
                 continue;
@@ -665,10 +666,14 @@ void ConnectionGraph::troubleshoot() {
         auto iprobs = check_pads(ModuleAccessor::getInputs(*m));
         auto oprobs = check_pads(ModuleAccessor::getOutputs(*m));
         for (const auto& p : iprobs) {
-            std::cerr << "input @ Module " << mi << " (" << ModuleAccessor::getName(*modules.at(mi)) << ") " << " Pad " << p.first << " = " << p.second << std::endl;
+            auto unit = ModuleAccessor::getInputs(*modules.at(mi))[p.first].unit;
+            auto name = ModuleAccessor::getInputs(*modules.at(mi))[p.first].name;
+            std::cerr << "input @ Module "  << mi << " (" << ModuleAccessor::getName(*modules.at(mi)) << ") " << name << " (" << p.first << ") = " << p.second << " " << unit << std::endl;
         }
         for (const auto& p : oprobs) {
-            std::cerr << "output @ Module " << mi << " (" << ModuleAccessor::getName(*modules.at(mi)) << ") " << " Pad " << p.first << " = " << p.second << std::endl;
+            auto unit = ModuleAccessor::getOutputs(*modules.at(mi))[p.first].unit;
+            auto name = ModuleAccessor::getOutputs(*modules.at(mi))[p.first].name;
+            std::cerr << "output @ Module " << mi << " (" << ModuleAccessor::getName(*modules.at(mi)) << ") " << name << " (" << p.first << ") = " << p.second << " " << unit << std::endl;
         }
     }
 

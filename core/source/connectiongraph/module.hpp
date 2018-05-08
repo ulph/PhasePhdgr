@@ -16,10 +16,10 @@ private:
     }
 public:
     static const int k_blockSize = 64;
-    std::string name;
+    std::string name = "";
+    std::string unit = "";
     float value = 0.0f;
     float values[Pad::k_blockSize] = { 0.0f };
-    std::string unit = "";
     Pad(const char *name) : name(name) { init(); }
     Pad(const char *name, float value) : name(name), value(value) { init(); }
     Pad(const char *name, float value, const char *unit) : name(name), value(value), unit(unit) { init(); }

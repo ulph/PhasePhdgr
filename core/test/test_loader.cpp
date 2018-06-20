@@ -4,35 +4,40 @@
 #include "pluginsregister.hpp"
 #include "connectiongraph.hpp"
 
+#define TEST(condition, msg_on_fail) \
+if(!condition) { \
+  std::cerr << "TEST failed: " <<__FILE__ << ":" << __LINE__ << " " << #condition " " << msg_on_fail << std::endl;\
+  exit(-1);\
+} \
+else { \
+  std::cout << "TEST passed: " << __FILE__ << ":" << __LINE__ << " " << #condition << std::endl;\
+}
+
 int main(int argc, const char* argv[])
 {
     std::string p = BuildDylibName("plugin_example"); // see example.cpp
 
     {
-        std::cout << std::endl << "TEST PhasePhckr::PluginLoader" << std::endl;
-
         PhasePhckr::PluginLoader ex(p.c_str());
         auto d = ex.getData();
+        TEST(d, p << " failed to load");
 
-        if (!d) {
-            std::cerr << "e: " << p << " failed to load" << std::endl;
-            return -1;
-        }
-        std::cout << d->getName() << " (" << p << ")" << " loaded" << std::endl;
+        std::cout << "Loaded plug-in: " << d->getName() << " (filename: " << p << ")" << std::endl;
+
+        TEST((strcmp("sdk_example_plugin", d->getName()) == 0), "unexpected plugin name " << d->getName());
 
         ModuleFactoryMap m;
 
         d->enumerateFactories(m);
 
-        if (!m.size()) {
-            std::cerr << "e: No factories enumerated!" << std::endl;
-            return -2;
-        }
+        TEST(m.size(), "No factories enumerated!");
 
         for (const auto& kv : m) {
             auto m = kv.second();
             std::cout << kv.first << " - " << m->docString() << std::endl;
         }
+
+        TEST(m.count("sdk_example_module"), "Expected to find module in example plugin");
 
         ConnectionGraph cg;
 
@@ -53,15 +58,13 @@ int main(int argc, const char* argv[])
     }
 
     {
-        std::cout << std::endl << "TEST PhasePhckr::PluginsRegister" << std::endl;
-
         PhasePhckr::PluginsRegister pr;
-        pr.loadPlugin(p.c_str());
+        TEST(pr.loadPlugin(p.c_str()), "Failed to load plugin into PluginRegister.");
         
         ConnectionGraph cg;
         pr.registerModules(&cg);
 
-        auto m = cg.addModule("EXAMPLE/EX"); // notice, prefixed and uppercase
+        TEST((cg.addModule("SDK_EXAMPLE_PLUGIN.SDK_EXAMPLE_MODULE") >= 0), "Failed to add expected module to connection graph."); // notice, prefixed and uppercase
     }
 
     return 0;

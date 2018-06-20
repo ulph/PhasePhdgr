@@ -809,12 +809,12 @@ NoteReactivationPolicy PresetSettings::getNoteReactivationPolicy() {
 
 const locale ansi_loc("C");
 
-bool characterIsValid(char c, bool allowLower, bool allowScope) {
+bool characterIsValid(char c, bool allowLower, bool allowNameScope) {
     bool isValid = isupper(c, ansi_loc) || isdigit(c, ansi_loc) || c == '_';
     if (!isValid && allowLower) {
         isValid = islower(c, ansi_loc);
     }
-    if (!isValid && allowScope) {
+    if (!isValid && allowNameScope) {
         isValid = c == scopeSeparator;
     }
     return isValid;
@@ -843,7 +843,7 @@ bool typeIsValid(const string& s, bool allowScope) {
     if (s.size() < 1) return false;
     if (s == c_inBus.type || s == c_outBus.type) return false;
     for (auto c : s) {
-        if (!characterIsValid(c, true, allowScope)) return false;
+        if (!characterIsValid(c, false, allowScope)) return false;
     }
     return true;
 }

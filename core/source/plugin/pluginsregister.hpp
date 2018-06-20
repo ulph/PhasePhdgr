@@ -12,7 +12,7 @@ namespace PhasePhckr {
     class PluginLoader;
 
     class PluginsRegister {
-        std::map<std::string, PluginLoader*> plugins;
+        std::map<std::string, PluginLoader*> plugins; // TODO, unique pointers
         ModuleFactoryMap modules;
     public:
         PluginsRegister();

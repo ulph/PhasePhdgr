@@ -46,13 +46,13 @@ namespace PhasePhckr {
         std::transform(pluginName.begin(), pluginName.end(), pluginName.begin(), ::toupper);
 
         if (!pluginNameIsValid(pluginName)) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid type '" << pluginName << "'" << std::endl;
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid plugin basename '" << pluginName << "'" << std::endl;
             delete p;
             return false;
         }
 
         if (plugins.count(pluginName)) {
-            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate type '" << pluginName << "'" << " was defined in '" << plugins.at(pluginName)->filename << "'" << std::endl;
+            std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Duplicate plugin basename '" << pluginName << "'" << " was defined in '" << plugins.at(pluginName)->filename << "'" << std::endl;
             delete p;
             return false;
         }
@@ -63,7 +63,7 @@ namespace PhasePhckr {
         d->enumerateFactories(newModules);
 
         for (const auto& kv : newModules) {
-            std::string n = pluginName + "/";
+            std::string n = pluginName + scopeSeparator;
             std::string m = kv.first;
             std::transform(m.begin(), m.end(), m.begin(), ::toupper);
             if (!typeIsValid(m, false)) {
@@ -72,7 +72,7 @@ namespace PhasePhckr {
             }
             n += m;
             if (!pluginModuleNameIsValid(n)) {
-                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid module type '" << n << "'" << std::endl;
+                std::cerr << "PluginsRegister::loadPlugin error '" << pluginFileName << "' Invalid plugin module type '" << n << "'" << std::endl;
                 continue;
             }
             if (modules.count(n)) {

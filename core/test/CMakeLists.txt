@@ -28,3 +28,7 @@ add_executable(test_plugin_sdk test_loader.cpp ${TEST_COMMON_SRC})
 set_property(TARGET test_plugin_sdk PROPERTY FOLDER core/test)
 target_link_libraries(test_plugin_sdk ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 endif()
+
+add_test(NAME test_synthvoice COMMAND test_synthvoice)
+add_test(NAME test_modules COMMAND test_modules)
+add_test(NAME test_plugin_sdk COMMAND test_plugin_sdk)

@@ -5,4 +5,7 @@ add_subdirectory(dsp)
 add_subdirectory(modules)
 add_subdirectory(phasephckr)
 add_subdirectory(threading)
-add_subdirectory(plugin)
+
+if(${SUPPORT_PLUGIN_LOADING})
+    add_subdirectory(plugin)
+endif()

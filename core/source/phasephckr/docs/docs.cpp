@@ -5,8 +5,6 @@
 #include "moduleaccessor.hpp"
 #include "busmodules.hpp"
 
-#include "pluginloader.hpp"
-
 namespace PhasePhckr {
 
     void ModuleDoc::fromModule(const Module* module) {

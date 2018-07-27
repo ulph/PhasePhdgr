@@ -24,7 +24,7 @@ int main(int argc, const char* argv[])
 
         std::cout << "Loaded plug-in: " << d->getName() << " (filename: " << p << ")" << std::endl;
 
-        TEST((strcmp("sdk_example_plugin", d->getName()) == 0), "unexpected plugin name " << d->getName());
+        TEST((strcmp("sdk_ex", d->getName()) == 0), "unexpected plugin name " << d->getName());
 
         ModuleFactoryMap m;
 
@@ -37,7 +37,7 @@ int main(int argc, const char* argv[])
             std::cout << kv.first << " - " << m->docString() << std::endl;
         }
 
-        TEST(m.count("sdk_example_module"), "Expected to find module in example plugin");
+        TEST(m.count("ex_mod"), "Expected to find module in example plugin");
 
         ConnectionGraph cg;
 
@@ -64,7 +64,7 @@ int main(int argc, const char* argv[])
         ConnectionGraph cg;
         pr.registerModules(&cg);
 
-        TEST((cg.addModule("SDK_EXAMPLE_PLUGIN.SDK_EXAMPLE_MODULE") >= 0), "Failed to add expected module to connection graph."); // notice, prefixed and uppercase
+        TEST((cg.addModule("SDK_EX.EX_MOD") >= 0), "Failed to add expected module to connection graph."); // notice, prefixed and uppercase
     }
 
     return 0;

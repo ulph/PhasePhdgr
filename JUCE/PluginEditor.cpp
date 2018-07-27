@@ -46,6 +46,11 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     )
 
     , voiceEditor(
+        [this] { 
+            auto d = Doc();
+            processor.sdkExtensionManager.updateDoc(&d);
+            return d;
+        },
         processor.subVoiceChain,
         processor.subComponentRegister,
         c_voiceChainInBus,
@@ -54,6 +59,11 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     )
 
     , effectEditor(
+        [this] {
+            auto d = Doc();
+            processor.sdkExtensionManager.updateDoc(&d);
+            return d;
+        },
         processor.subEffectChain,
         processor.subComponentRegister,
         c_effectChainInBus,

@@ -118,6 +118,8 @@ public:
 
     void forceStateBump();
 
+    SDKExtensionManager sdkExtensionManager; // no race, as only write is on constructor of processor
+
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

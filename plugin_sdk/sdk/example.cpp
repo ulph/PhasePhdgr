@@ -1,6 +1,6 @@
 #include "plugin_api.hpp"
 
-static const char* c_name = "sdk_example_plugin";
+static const char* c_name = "sdk_ex";
 
 class ExPluginModule : public ModuleCRTP<ExPluginModule> {
 public:
@@ -22,7 +22,7 @@ static struct ExPluginData : public PluginData {
         return c_name;
     }
     virtual void enumerateFactories(ModuleFactoryMap& modules) const {
-        modules["sdk_example_module"] = ExPluginModule::factory;
+        modules["ex_mod"] = ExPluginModule::factory;
     }
 } pluginData;
 

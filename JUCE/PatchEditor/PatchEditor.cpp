@@ -86,7 +86,7 @@ bool applyComponentPopuMenuChoice(
 }
 
 void PatchEditor::refreshAndBroadcastDoc(){
-    doc = Doc();
+    doc = docFactory();
 
     // global docs
     cmpReg.makeComponentDocs(doc);
@@ -122,13 +122,15 @@ void PatchEditor::refreshAndBroadcastDoc(){
 
 
 PatchEditor::PatchEditor(
+    std::function<Doc()> docFactory_,
     SubValue<PatchDescriptor> &subPatch_,
     SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus,
     LayoutUpdateCallback layoutUpdateCb_
 )
-    : subPatch(subPatch_)
+    : docFactory(docFactory_)
+    , subPatch(subPatch_)
     , subCmpReg(subCmpReg)
     , rootBundle(
        *this,

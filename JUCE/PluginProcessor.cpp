@@ -34,6 +34,15 @@ PhasePhckrProcessor::PhasePhckrProcessor()
 
     createInitialUserLibrary(componentRegister);
 
+    // extension loading hax
+    std::set<std::string> plugins;
+    auto sdk_dir = PhasePhckrFileStuff::sdkExtensionsDir;
+    for (const auto & fname : sdk_dir.findChildFiles(File::findFiles, false, "*.ppp.*")) {
+        plugins.insert(fname.getFullPathName().toStdString());
+    }
+    sdkExtensionManager.registerSdkExtensions(plugins);
+    // end of extension loading hax
+
     parameters.initialize(this);
 
     synth = new PhasePhckr::Synth();
@@ -378,7 +387,7 @@ void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
     voiceHash = hash;
 
     voiceChain = p;
-    auto pv = synth->setPatch(voiceChain, componentRegister);
+    auto pv = synth->setPatch(voiceChain, componentRegister, sdkExtensionManager);
     parameters.setParametersHandleMap(SynthGraphType::VOICE, pv);
 
     forceStateBump();
@@ -393,7 +402,7 @@ void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
     effectHash = hash;
 
     effectChain = p;
-    auto pv = effect->setPatch(effectChain, componentRegister);
+    auto pv = effect->setPatch(effectChain, componentRegister, sdkExtensionManager);
     parameters.setParametersHandleMap(SynthGraphType::EFFECT, pv);
 
     forceStateBump();

@@ -254,4 +254,14 @@ void SDKExtensionManager::registerSdkExtensions(const std::set<std::string>& fil
     }
 }
 
+void SDKExtensionManager::updateDoc(Doc* doc) {
+    auto cg = ConnectionGraph();
+    sdkPluginRegister->registerModules(&cg);
+    std::vector<ModuleDoc> dd;
+    cg.makeModuleDocs(dd);
+    for (const auto & d : dd) {
+        doc->add(d);
+    }
+}
+
 }

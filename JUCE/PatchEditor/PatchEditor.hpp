@@ -37,6 +37,7 @@ public:
 
 class PatchEditor : public Component
 {
+    std::function<Doc()> docFactory;
     Doc doc;
     DocView docView;
     ModuleDoc inBusDoc;
@@ -70,6 +71,7 @@ class PatchEditor : public Component
 
 public:
     PatchEditor(
+        std::function<Doc()> docFactory,
         SubValue<PatchDescriptor> &subPatch,
         SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
         const vector<PadDescription> &inBus,

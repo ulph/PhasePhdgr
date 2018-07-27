@@ -91,11 +91,13 @@ namespace PhasePhckr {
     };
 
     class PluginsRegister;
+    class Doc;
     class SDKExtensionManager {
     public:
         SDKExtensionManager();
         virtual ~SDKExtensionManager();
         void registerSdkExtensions(const std::set<std::string>& filenames);
+        void updateDoc(Doc* doc);
         friend Base;
         friend Effect;
         friend Synth;

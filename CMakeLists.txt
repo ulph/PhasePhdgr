@@ -17,6 +17,7 @@ option(BUILD_GTEST OFF)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/submodules/ThreadPool)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/submodules/json/src)
+
 if(${BUILD_GTEST})
 include(gtest)
 endif()

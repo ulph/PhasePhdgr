@@ -17,3 +17,11 @@ set(EX_SRC
 add_library(plugin_example.ppp SHARED ${EX_SRC})
 set_target_properties(plugin_example.ppp PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(plugin_example.ppp PROPERTIES FOLDER phasephckr_plugin_sdk)
+
+install(
+    TARGETS plugin_example.ppp
+    ARCHIVE DESTINATION .
+    LIBRARY DESTINATION .
+    RUNTIME DESTINATION .
+    COMPONENT .
+)

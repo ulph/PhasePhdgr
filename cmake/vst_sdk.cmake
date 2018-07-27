@@ -1,6 +1,6 @@
 # Copy paste (and modify) from VST SDK, as JUCE did not play nice ...
 
-set(VST3_OUTPUT_DIR ${CMAKE_BINARY_DIR}/VST3 CACHE FILEPATH "Where to put the VST3")
+set(VST3_OUTPUT_DIR ${CMAKE_BINARY_DIR}/VST)
 
 function(mod_smtg_set_exported_symbols target exported_symbols_file)
     if(MSVC)

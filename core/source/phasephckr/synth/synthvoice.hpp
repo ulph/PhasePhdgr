@@ -12,6 +12,8 @@
 #include "moduleregister.hpp"
 #include "busmodules.hpp"
 
+#include "pluginsregister.hpp"
+
 #define SYNTH_VOICE_BUFFER_LENGTH 1024
 
 namespace PhasePhckr {
@@ -38,7 +40,7 @@ private:
     bool buffersSilenced = false;
 
 public:
-    SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp);
+    SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp, const PluginsRegister * sdkReg);
     virtual ~SynthVoice();
     virtual void processingStart(int numSamples, float sampleRate, const GlobalData& g);
     void threadedProcess();

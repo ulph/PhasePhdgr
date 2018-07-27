@@ -5,6 +5,8 @@
 #include "connectiongraph.hpp"
 #include "voicebus.hpp"
 
+#include "pluginsregister.hpp"
+
 using namespace std;
 
 namespace PhasePhckr {
@@ -17,7 +19,7 @@ private:
     map<string, int> moduleHandles;
     ParameterHandleMap parameterHandles;
 public:
-    EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp);
+    EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp, const PluginsRegister * sdkReg);
     void setParameter(int handle, float value);
     const ParameterHandleMap& getParameterHandles();
     void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate, GlobalData& globalData);

@@ -15,12 +15,15 @@ namespace PhasePhckr {
     class EffectChain;
     class VoiceBus;
 
+    class SDKExtensionManager;
+
     class Base {
     public:
         Base();
         virtual ~Base();
         virtual void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate) = 0;
         virtual const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) = 0;
+        virtual const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) = 0;
         void handleTimeSignature(int numerator, int denominator);
         void handleBPM(float bpm);
         void handlePosition(float ppqPosition);
@@ -43,6 +46,7 @@ namespace PhasePhckr {
         virtual ~Effect();
         void update(float * leftChannelbuffer, float * rightChannelbuffer, int numSamples, float sampleRate) override;
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
+        const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) override;
         const Scope& getInputScope(int i) const;
         virtual void handleParameter(int handle, float value);
         float setScopeHz(float hz) { return scopeHz = hz; }
@@ -67,6 +71,7 @@ namespace PhasePhckr {
         void handleBreath(float value);
         void handleModWheel(float value);
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
+        const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) override;
         virtual void handleParameter(int handle, float value);
         const Scope& getVoiceScope(int i) const;
         void applySettings(const PresetSettings& settings);
@@ -84,4 +89,18 @@ namespace PhasePhckr {
         PresetSettings settings;
         progschj::ThreadPool pool;
     };
+
+    class PluginsRegister;
+    class SDKExtensionManager {
+    public:
+        SDKExtensionManager();
+        virtual ~SDKExtensionManager();
+        void registerSdkExtensions(const std::set<std::string>& filenames);
+        friend Base;
+        friend Effect;
+        friend Synth;
+    private:
+        PluginsRegister * sdkPluginRegister;
+    };
+
 }

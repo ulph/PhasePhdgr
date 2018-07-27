@@ -26,7 +26,7 @@ namespace PhasePhckr {
         for (auto kv : plugins) delete kv.second;
     }
 
-    void PluginsRegister::registerModules(ConnectionGraph* cg) {
+    void PluginsRegister::registerModules(ConnectionGraph* cg) const {
         for (const auto& kv : modules) {
             cg->registerModule(kv.first, kv.second);
         }

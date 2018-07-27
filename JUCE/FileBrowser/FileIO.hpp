@@ -19,6 +19,8 @@ namespace PhasePhckrFileStuff {
     const std::string componentsDirName = "component";
     const std::string presetsDirName = "preset";
 
+    const std::string sdkExtensionsDirName = "sdk_plugins";
+
     const File rootDir = File(
         File::getSpecialLocation(
             File::SpecialLocationType::userApplicationDataDirectory
@@ -29,6 +31,8 @@ namespace PhasePhckrFileStuff {
     const File voicesDir = File(rootDir.getFullPathName() + File::getSeparatorString() + voiceDirName);
     const File componentsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + componentsDirName);
     const File presetsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + presetsDirName);
+
+    const File sdkExtensionsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + sdkExtensionsDirName);
 
     void createDirIfNeeded(File dir);
 

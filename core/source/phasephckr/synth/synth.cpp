@@ -3,6 +3,9 @@
 #include "synthvoice.hpp"
 #include "effectchain.hpp"
 
+#include "plugin_api.hpp"
+#include "pluginsregister.hpp"
+
 namespace PhasePhckr {
 
 const float c_maxSaneValue = 5.f;
@@ -47,7 +50,13 @@ Synth::~Synth(){
 
 const ParameterHandleMap& Effect::setPatch(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
     delete effects;
-    effects = new EffectChain(fxChain, cp);
+    effects = new EffectChain(fxChain, cp, nullptr);
+    return effects->getParameterHandles();
+}
+
+const ParameterHandleMap& Effect::setPatch(const PatchDescriptor& fxChain, const ComponentRegister & cp, const SDKExtensionManager & sdk) {
+    delete effects;
+    effects = new EffectChain(fxChain, cp, sdk.sdkPluginRegister);
     return effects->getParameterHandles();
 }
 
@@ -74,7 +83,14 @@ void Synth::resetVoiceBus(const SynthVoice* voice) {
 }
 
 const ParameterHandleMap& Synth::setPatch(const PatchDescriptor& voiceChain, const ComponentRegister & cp){
-    SynthVoice v(voiceChain, cp);
+    SynthVoice v(voiceChain, cp, nullptr);
+    v.preCompile(lastKnownSampleRate);
+    resetVoiceBus(&v);
+    return voices[0]->getParameterHandles(); // they're identical
+}
+
+const ParameterHandleMap& Synth::setPatch(const PatchDescriptor& voiceChain, const ComponentRegister & cp, const SDKExtensionManager & sdk) {
+    SynthVoice v(voiceChain, cp, sdk.sdkPluginRegister);
     v.preCompile(lastKnownSampleRate);
     resetVoiceBus(&v);
     return voices[0]->getParameterHandles(); // they're identical
@@ -221,6 +237,20 @@ void Synth::applySettings(const PresetSettings& newSettings) {
         auto v = *voices[0];
         v.mpe.reset();
         resetVoiceBus(&v);
+    }
+}
+
+SDKExtensionManager::SDKExtensionManager()
+    : sdkPluginRegister(new PluginsRegister())
+{}
+
+SDKExtensionManager::~SDKExtensionManager() {
+    delete sdkPluginRegister;
+}
+
+void SDKExtensionManager::registerSdkExtensions(const std::set<std::string>& filenames) {
+    for (const auto& fname : filenames) {
+        sdkPluginRegister->loadPlugin(fname.c_str());
     }
 }
 

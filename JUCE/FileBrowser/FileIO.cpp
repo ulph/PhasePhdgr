@@ -62,6 +62,8 @@ namespace PhasePhckrFileStuff {
         createDirIfNeeded(componentsDir);
         createDirIfNeeded(presetsDir);
         createDirIfNeeded(presetsDir.getFullPathName() + factorySubDir);
+
+        createDirIfNeeded(sdkExtensionsDir);
     }
 
     File getInitialVoiceFile() {

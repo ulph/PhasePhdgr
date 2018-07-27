@@ -8,9 +8,12 @@
 
 namespace PhasePhckr {
 
-EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp) {
-    PatchDescriptor patchDescriptor = fxChain;
+EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp, const PluginsRegister * sdkReg) {
     ModuleRegister::registerAllModules(connectionGraph);
+    if (sdkReg) sdkReg->registerModules(&connectionGraph);
+
+    PatchDescriptor patchDescriptor = fxChain;
+
     moduleHandles.clear();
     parameterHandles.clear();
     designPatch(

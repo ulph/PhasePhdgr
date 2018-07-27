@@ -3,13 +3,14 @@
 namespace PhasePhckr
 {
 
-
-SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp)
+SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp, const PluginsRegister * sdkReg)
     : connectionGraph()
     , rmsSlew(0.99f)
     , rms(0.0f)
 {
     ModuleRegister::registerAllModules(connectionGraph);
+    if (sdkReg) sdkReg->registerModules(&connectionGraph);
+
     PatchDescriptor patchDescriptor = voiceChain;
 
     moduleHandles.clear();
@@ -27,8 +28,8 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
         cp
     );
 
-    inBus = moduleHandles["inBus"];
-    outBus = moduleHandles["outBus"];
+    inBus = moduleHandles[c_inBus.name];
+    outBus = moduleHandles[c_outBus.name];
 }
 
 void SynthVoice::preCompile(float fs) {

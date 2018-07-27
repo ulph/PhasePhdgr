@@ -17,7 +17,7 @@ namespace PhasePhckr {
     public:
         PluginsRegister();
         virtual ~PluginsRegister();
-        void registerModules(ConnectionGraph* cg);
+        void registerModules(ConnectionGraph* cg) const;
         bool loadPlugin(const char* pluginName);
     };
 }

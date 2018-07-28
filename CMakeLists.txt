@@ -23,6 +23,10 @@ if(${BUILD_GTEST})
 include(gtest)
 endif()
 
+if(${SUPPORT_PLUGIN_LOADING})
+    add_definitions(-DSUPPORT_PLUGIN_LOADING=1)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core/api)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
@@ -38,8 +42,14 @@ set( PHASEPHCKR_SRC
     $<TARGET_OBJECTS:modules_obj>
     $<TARGET_OBJECTS:phasephckr_obj>
     $<TARGET_OBJECTS:threading_obj>
-    $<TARGET_OBJECTS:plugin_obj>
 )
+
+if(${SUPPORT_PLUGIN_LOADING})
+    set( PHASEPHCKR_SRC
+        ${PHASEPHCKR_SRC}
+        $<TARGET_OBJECTS:plugin_obj>
+    )
+endif()
 
 if(${BUILD_JUCE})
     add_subdirectory(JUCE)

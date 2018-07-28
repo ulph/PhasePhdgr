@@ -102,7 +102,7 @@ namespace PhasePhckr {
         friend Effect;
         friend Synth;
     private:
-        PluginsRegister * sdkPluginRegister;
+        PluginsRegister * sdkPluginRegister = nullptr;
     };
 
 }

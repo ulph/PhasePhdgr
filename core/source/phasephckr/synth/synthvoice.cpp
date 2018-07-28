@@ -9,7 +9,9 @@ SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegiste
     , rms(0.0f)
 {
     ModuleRegister::registerAllModules(connectionGraph);
+#if SUPPORT_PLUGIN_LOADING
     if (sdkReg) sdkReg->registerModules(&connectionGraph);
+#endif
 
     PatchDescriptor patchDescriptor = voiceChain;
 

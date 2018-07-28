@@ -3,8 +3,9 @@
 #include "synthvoice.hpp"
 #include "effectchain.hpp"
 
-#include "plugin_api.hpp"
+#if SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
+#endif
 
 namespace PhasePhckr {
 
@@ -241,20 +242,27 @@ void Synth::applySettings(const PresetSettings& newSettings) {
 }
 
 SDKExtensionManager::SDKExtensionManager()
+#if SUPPORT_PLUGIN_LOADING
     : sdkPluginRegister(new PluginsRegister())
+#endif
 {}
 
 SDKExtensionManager::~SDKExtensionManager() {
+#if SUPPORT_PLUGIN_LOADING
     delete sdkPluginRegister;
+#endif
 }
 
 void SDKExtensionManager::registerSdkExtensions(const std::set<std::string>& filenames) {
+#if SUPPORT_PLUGIN_LOADING
     for (const auto& fname : filenames) {
         sdkPluginRegister->loadPlugin(fname.c_str());
     }
+#endif
 }
 
 void SDKExtensionManager::updateDoc(Doc* doc) {
+#if SUPPORT_PLUGIN_LOADING
     auto cg = ConnectionGraph();
     sdkPluginRegister->registerModules(&cg);
     std::vector<ModuleDoc> dd;
@@ -262,6 +270,7 @@ void SDKExtensionManager::updateDoc(Doc* doc) {
     for (const auto & d : dd) {
         doc->add(d);
     }
+#endif
 }
 
 }

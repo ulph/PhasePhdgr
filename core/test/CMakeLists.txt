@@ -13,8 +13,14 @@ set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:dsp_obj>
     $<TARGET_OBJECTS:modules_obj>
     $<TARGET_OBJECTS:phasephckr_obj>
-    $<TARGET_OBJECTS:plugin_obj>
 )
+
+if(${SUPPORT_PLUGIN_LOADING})
+    set( TEST_COMMON_SRC
+        ${TEST_COMMON_SRC}
+        $<TARGET_OBJECTS:plugin_obj>
+    )
+endif()
 
 add_executable(test_synthvoice test_synthvoice.cpp ${TEST_COMMON_SRC})
 set_property(TARGET test_synthvoice PROPERTY FOLDER core/test)

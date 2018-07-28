@@ -5,9 +5,13 @@
 #include "connectiongraph.hpp"
 #include "voicebus.hpp"
 
-#include "pluginsregister.hpp"
-
 using namespace std;
+
+#if SUPPORT_PLUGIN_LOADING
+#include "pluginsregister.hpp"
+#else
+class PluginsRegister;
+#endif
 
 namespace PhasePhckr {
 

@@ -15,7 +15,9 @@
 #if SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
 #else
-class PluginsRegister;
+namespace PhasePhckr {
+    class PluginsRegister;
+};
 #endif
 
 #define SYNTH_VOICE_BUFFER_LENGTH 1024

@@ -10,7 +10,9 @@ using namespace std;
 #if SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
 #else
-class PluginsRegister;
+namespace PhasePhckr {
+    class PluginsRegister;
+}
 #endif
 
 namespace PhasePhckr {

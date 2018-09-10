@@ -9,8 +9,8 @@ pipeline {
         }    
         stage('Build') {
             steps {
-                cmake -G Ninja
-                ninja
+                bash cmake -G Ninja
+                bash ninja
             }
         }
     }

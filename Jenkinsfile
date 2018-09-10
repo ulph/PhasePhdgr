@@ -7,9 +7,13 @@ pipeline {
                 checkout scm
             }
         }    
-        stage('Build') {
+        stage('Configure / Generate') {
             steps {
                 bash '''cmake -G Ninja'''
+            }
+        } 
+        stage('Build') {
+            steps {
                 bash '''ninja'''
             }
         }

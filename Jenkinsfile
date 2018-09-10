@@ -17,5 +17,10 @@ pipeline {
                 sh '''ninja'''
             }
         }
+        stage('Test') {
+            steps {
+                sh '''ctest'''
+            }
+        }
     }
 }

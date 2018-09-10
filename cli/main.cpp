@@ -186,9 +186,12 @@ int main(int argc, char **argv) {
 
   app.jc = jack_client_open("PhasePhckr", app.jo, &app.js);
   if(!app.jc) return -1;
+  
+  PatchDescriptor patch;
+  patch.voice = getExampleSimpleVoiceChain();
+  patch.effect = getPassthroughEffectChain();
 
-  app.synth.setEffectChain(getPassthroughEffectChain(), app.comp);
-  app.synth.setVoiceChain(getExampleSimpleVoiceChain(), app.comp);
+  app.synth.setPatch(patch);
 
   // setup jack
   app.in_midi = jack_port_register(app.jc, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);

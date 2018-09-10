@@ -9,12 +9,12 @@ pipeline {
         }    
         stage('Configure / Generate') {
             steps {
-                bash '''cmake -G Ninja'''
+                sh '''cmake -G Ninja'''
             }
         } 
         stage('Build') {
             steps {
-                bash '''ninja'''
+                sh '''ninja'''
             }
         }
     }

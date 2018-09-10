@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
   patch.voice = getExampleSimpleVoiceChain();
   patch.effect = getPassthroughEffectChain();
 
-  app.synth.setPatch(patch);
+  app.synth.setPatch(patch, app.comp);
 
   // setup jack
   app.in_midi = jack_port_register(app.jc, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h> 
 
 #include "pluginloader.hpp"
 #include "pluginsregister.hpp"

@@ -7,7 +7,7 @@ pipeline {
                 checkout scm
             }
         }    
-        stage('Configure / Generate') {
+        stage('Configure') {
             steps {
                 sh '''cmake -G Ninja -DBUILD_JUCE=ON -DBUILD_CLI=ON -DSUPPORT_PLUGIN_LOADING=ON -DBUILD_PLUGIN_SDK=ON .'''
             }
@@ -20,6 +20,16 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''ctest'''
+            }
+        }
+        stage('Package') {
+            steps {
+                echo '''NYI'''
+            }
+        }
+        stage('Publish') {
+            steps {
+                echo '''NYI'''
             }
         }
     }

@@ -11,8 +11,7 @@ using namespace PhasePhckrFileStuff;
 using namespace std;
 
 PhasePhckrProcessor::PhasePhckrProcessor()    
-    : AudioProcessor(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
-    , componentLoader(subComponentRegister)
+    : PhasePhckrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
 {
 
     midiMessageQueue.reserve(128); // some nice large-ish number
@@ -262,13 +261,13 @@ void from_json(const json& j, PhasePhckrProcessor::InstanceSpecificPeristantStat
     if (j.count("gui_height")) e.height = j["gui_height"];
 }
 
-void PhasePhckrProcessor::getStateInformation (MemoryBlock& destData) {
+void PhasePhckrProcessorBase::getStateInformation (MemoryBlock& destData) {
     auto p = getPreset();
     extractExtra(getActiveEditor(), extra);
     storeState(p, destData, extra);
 }
 
-void PhasePhckrProcessor::setStateInformation (const void* data, int sizeInBytes) {
+void PhasePhckrProcessorBase::setStateInformation (const void* data, int sizeInBytes) {
     PresetDescriptor preset;
     nlohmann::json extra_j;
     loadState(data, sizeInBytes, preset, extra_j);
@@ -326,7 +325,7 @@ void PhasePhckrProcessor::setPatch(SynthGraphType type, const PatchDescriptor& p
     }
 }
 
-PresetDescriptor PhasePhckrProcessor::getPreset() {
+PresetDescriptor PhasePhckrProcessorBase::getPreset() {
     PresetDescriptor preset;
 
     preset.voice = getPatch(SynthGraphType::VOICE);
@@ -360,7 +359,7 @@ void PhasePhckrProcessor::setComponentRegister(const ComponentRegister& cr) {
     componentRegister = cr;
 }
 
-void PhasePhckrProcessor::setPreset(const PresetDescriptor& preset) {
+void PhasePhckrProcessorBase::setPreset(const PresetDescriptor& preset) {
     setPatch(SynthGraphType::VOICE, preset.voice);
     setPatch(SynthGraphType::EFFECT, preset.effect);
     setSettings(preset.settings);

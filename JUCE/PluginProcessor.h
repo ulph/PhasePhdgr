@@ -16,18 +16,56 @@
 
 #include <functional>
 
-
 using namespace std;
 using namespace PhasePhckrFileStuff;
 
-class PhasePhckrProcessor  : public AudioProcessor
-{
+class PhasePhckrProcessorBase : public AudioProcessor {
 public:
     struct InstanceSpecificPeristantState {
         // slightly less than 720p
         int width = 1000;
         int height = 700;
     };
+
+    PhasePhckrProcessorBase(const BusesProperties& ioConfig)
+        : AudioProcessor(ioConfig)
+        , componentLoader(subComponentRegister)
+    {}
+
+protected:
+    ComponentFileLoader componentLoader;
+
+    PhasePhckr::PresetSettings activeSettings;
+    int activeSettingsHandle;
+
+    PhasePhckr::ComponentRegister componentRegister;
+    int componentRegisterHandle;
+
+    InstanceSpecificPeristantState extra;
+
+    simple_lock synthUpdateLock;
+
+public:
+
+    void getStateInformation(MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
+
+    SubValue<PresetSettings> subSettings;
+    SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
+
+    void setPreset(const PresetDescriptor& preset);
+    PresetDescriptor getPreset();
+
+    virtual PatchDescriptor getPatch(SynthGraphType type, bool extractParameters = false) = 0;
+    virtual void setPatch(SynthGraphType type, const PatchDescriptor& patch) = 0;
+    virtual void setSettings(const PhasePhckr::PresetSettings &settings) = 0;
+
+    Parameters parameters;
+
+};
+
+class PhasePhckrProcessor: public PhasePhckrProcessorBase
+{
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrProcessor)
@@ -36,19 +74,11 @@ private:
     PhasePhckr::Synth* synth;
     PhasePhckr::Effect* effect;
 
-    ComponentFileLoader componentLoader;
-
-    PhasePhckr::PresetSettings activeSettings;
-    int activeSettingsHandle;
-
     PhasePhckr::PatchDescriptor voiceChain;
     int activeVoiceHandle;
 
     PhasePhckr::PatchDescriptor effectChain;
     int activeEffectHandle;
-
-    PhasePhckr::ComponentRegister componentRegister;
-    int componentRegisterHandle;
 
     GeneratingBufferingProcessor bufferingProcessor;
 
@@ -56,10 +86,6 @@ private:
     size_t effectHash = 0;
 
     vector<PPMidiMessage> midiMessageQueue;
-
-    InstanceSpecificPeristantState extra;
-
-    simple_lock synthUpdateLock;
 
 public:
     PhasePhckrProcessor();
@@ -87,30 +113,21 @@ public:
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
 
-    void getStateInformation (MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
-
     const PhasePhckr::Synth* getSynth() const;
     const PhasePhckr::Effect* getEffect() const;
 
-    SubValue<PresetSettings> subSettings;
     SubValue<PatchDescriptor> subVoiceChain;
     SubValue<PatchDescriptor> subEffectChain;
-    SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
 
     void broadcastPatch();
     vector<PresetParameterDescriptor> getPresetParameters();
     vector<PatchParameterDescriptor> getParameters(SynthGraphType type);
-    PatchDescriptor getPatch(SynthGraphType type, bool extractParameters=false);
-    PresetDescriptor getPreset();
+    PatchDescriptor getPatch(SynthGraphType type, bool extractParameters=false) override;
 
-    void setPreset(const PresetDescriptor& preset);
-    void setSettings(const PhasePhckr::PresetSettings &settings);
-    void setPatch(SynthGraphType type, const PatchDescriptor& patch);
+    void setSettings(const PhasePhckr::PresetSettings &settings) override;
+    void setPatch(SynthGraphType type, const PatchDescriptor& patch) override;
 
     void setComponentRegister(const ComponentRegister& cr);
-
-    Parameters parameters;
 
     void updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout);
 

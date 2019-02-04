@@ -234,13 +234,13 @@ bool PhasePhckrProcessor::hasEditor() const {
     return true;
 }
 
-void extractExtra(AudioProcessorEditor *ed, PhasePhckrProcessor::InstanceSpecificPeristantState& ex) {
+void extractExtra(AudioProcessorEditor *ed, PhasePhckrProcessorBase::InstanceSpecificPeristantState& ex) {
     if (!ed) return;
     ex.width = ed->getWidth();
     ex.height = ed->getHeight();
 }
 
-void applyExtra(AudioProcessorEditor *ed, const PhasePhckrProcessor::InstanceSpecificPeristantState& ex) {
+void applyExtra(AudioProcessorEditor *ed, const PhasePhckrProcessorBase::InstanceSpecificPeristantState& ex) {
     if (!ed) return;
     ed->setBoundsConstrained(Rectangle<int>(ex.width, ex.height));
 }
@@ -251,12 +251,12 @@ AudioProcessorEditor* PhasePhckrProcessor::createEditor() {
     return ed;
 }
 
-void to_json(json& j, const PhasePhckrProcessor::InstanceSpecificPeristantState& e) {
+void to_json(json& j, const PhasePhckrProcessorBase::InstanceSpecificPeristantState& e) {
     j["gui_width"] = e.width;
     j["gui_height"] = e.height;
 }
 
-void from_json(const json& j, PhasePhckrProcessor::InstanceSpecificPeristantState& e) {
+void from_json(const json& j, PhasePhckrProcessorBase::InstanceSpecificPeristantState& e) {
     if(j.count("gui_width")) e.width = j["gui_width"];
     if (j.count("gui_height")) e.height = j["gui_height"];
 }

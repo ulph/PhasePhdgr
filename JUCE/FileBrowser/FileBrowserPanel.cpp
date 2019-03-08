@@ -4,7 +4,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
     : fileWatchThread("editorFileWatchThread")
     , processor(p)
     , subEffectHandle(
-        processor.subEffectChain.subscribe(
+        processor.getPropagator(SynthGraphType::EFFECT).subscribe(
             [this](const auto& pd) {
                 effectFiles.invalidateSelection();
                 updateComponentMap(effectComponents, effectDocView, pd);
@@ -12,7 +12,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
         )
     )
     , subVoiceHandle(
-        processor.subVoiceChain.subscribe(
+        processor.getPropagator(SynthGraphType::VOICE).subscribe(
             [this](const auto& pd) {
                 voiceFiles.invalidateSelection();
                 updateComponentMap(voiceComponents, voiceDocView, pd);
@@ -99,6 +99,6 @@ void FileBrowserPanel::resized()
 }
 
 FileBrowserPanel::~FileBrowserPanel(){
-    processor.subVoiceChain.unsubscribe(subVoiceHandle);
-    processor.subEffectChain.unsubscribe(subEffectHandle);
+    processor.getPropagator(SynthGraphType::VOICE).unsubscribe(subVoiceHandle);
+    processor.getPropagator(SynthGraphType::EFFECT).unsubscribe(subEffectHandle);
 }

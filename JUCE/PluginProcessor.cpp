@@ -16,19 +16,24 @@ PhasePhckrProcessor::PhasePhckrProcessor()
 
     midiMessageQueue.reserve(128); // some nice large-ish number
 
+    synth = new PhasePhckr::Synth();
+    effect = new PhasePhckr::Effect();
+
+    bundles[SynthGraphType::VOICE].processor = synth;
+    bundles[SynthGraphType::EFFECT].processor = effect;
+
     activeSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s){
         setSettings(s);
     });
-    activeVoiceHandle = subVoiceChain.subscribe([this](const PhasePhckr::PatchDescriptor& v){
-        setVoiceChain(v);
-    });
-    activeEffectHandle = subEffectChain.subscribe([this](const PhasePhckr::PatchDescriptor& e){
-        setEffectChain(e);
-    });
-    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){ 
+
+    for (auto &kv : bundles) {
+        bundles[kv.first].handle = bundles[kv.first].propagator.subscribe([this, type=kv.first](const PhasePhckr::PatchDescriptor& p) {
+            setPatch(type, p);
+        });
+    }
+    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){
         setComponentRegister(cr);
-        setVoiceChain(voiceChain);
-        setEffectChain(effectChain);
+        for (auto &kv : bundles) setPatch(kv.first, kv.second.patch);
     });
 
     createInitialUserLibrary(componentRegister);
@@ -44,8 +49,6 @@ PhasePhckrProcessor::PhasePhckrProcessor()
 
     parameters.initialize(this);
 
-    synth = new PhasePhckr::Synth();
-    effect = new PhasePhckr::Effect();
     componentLoader.rescan();
 
     PresetDescriptor initialPreset;
@@ -57,14 +60,14 @@ PhasePhckrProcessor::PhasePhckrProcessor()
 
 PhasePhckrProcessor::~PhasePhckrProcessor()
 {
-    subVoiceChain.unsubscribe(activeVoiceHandle);
-    subEffectChain.unsubscribe(activeEffectHandle);
+    bundles[SynthGraphType::EFFECT].propagator.unsubscribe(bundles[SynthGraphType::EFFECT].handle);
+    bundles[SynthGraphType::VOICE].propagator.unsubscribe(bundles[SynthGraphType::VOICE].handle);
     subComponentRegister.unsubscribe(componentRegisterHandle);
     delete synth;
     delete effect;
 }
 
-const String PhasePhckrProcessor::getName() const
+const String PhasePhckrProcessorBase::getName() const
 {
     return JucePlugin_Name;
 }
@@ -79,39 +82,39 @@ bool PhasePhckrProcessor::producesMidi() const
     return false;
 }
 
-double PhasePhckrProcessor::getTailLengthSeconds() const
+double PhasePhckrProcessorBase::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int PhasePhckrProcessor::getNumPrograms()
+int PhasePhckrProcessorBase::getNumPrograms()
 {
     return 1;
 }
 
-int PhasePhckrProcessor::getCurrentProgram()
+int PhasePhckrProcessorBase::getCurrentProgram()
 {
     return 0;
 }
 
-void PhasePhckrProcessor::setCurrentProgram (int index)
+void PhasePhckrProcessorBase::setCurrentProgram (int index)
 {
 }
 
-const String PhasePhckrProcessor::getProgramName (int index)
+const String PhasePhckrProcessorBase::getProgramName (int index)
 {
     return String();
 }
 
-void PhasePhckrProcessor::changeProgramName (int index, const String& newName)
+void PhasePhckrProcessorBase::changeProgramName (int index, const String& newName)
 {
 }
 
-void PhasePhckrProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void PhasePhckrProcessorBase::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 }
 
-void PhasePhckrProcessor::releaseResources()
+void PhasePhckrProcessorBase::releaseResources()
 {
 }
 
@@ -230,7 +233,7 @@ void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& m
 
 }
 
-bool PhasePhckrProcessor::hasEditor() const {
+bool PhasePhckrProcessorBase::hasEditor() const {
     return true;
 }
 
@@ -276,29 +279,23 @@ void PhasePhckrProcessorBase::setStateInformation (const void* data, int sizeInB
     applyExtra(getActiveEditor(), extra);
 }
 
-const PhasePhckr::Synth* PhasePhckrProcessor::getSynth() const {
-    return synth;
+const PhasePhckr::Base* PhasePhckrProcessor::get(SynthGraphType type) const {
+    if (type == SynthGraphType::EFFECT) return effect;
+    else if (type == SynthGraphType::VOICE) return synth;
+    return nullptr;
 }
 
-const PhasePhckr::Effect* PhasePhckrProcessor::getEffect() const {
-    return effect;
-}
-
-void PhasePhckrProcessor::broadcastPatch() {
+void PhasePhckrProcessorBase::broadcastPatch() {
     // editor should call this once after construction
     subComponentRegister.set(componentRegisterHandle, componentRegister);
-    subVoiceChain.set(activeVoiceHandle, voiceChain);
-    subEffectChain.set(activeEffectHandle, effectChain);
+    for (const auto &b : bundles) b.second.broadcast();
     subSettings.set(activeSettingsHandle, activeSettings);
 }
 
-PatchDescriptor PhasePhckrProcessor::getPatch(SynthGraphType type, bool extractParameters) {
-    PatchDescriptor patch;
-
+PatchDescriptor PhasePhckrProcessorBase::getPatch(SynthGraphType type, bool extractParameters) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    if (type == SynthGraphType::VOICE) patch = voiceChain;
-    else if (type == SynthGraphType::EFFECT) patch = effectChain;
+    PatchDescriptor patch = bundles[type].patch;
 
     if (extractParameters) patch.parameters = getParameters(type);
 
@@ -308,21 +305,6 @@ PatchDescriptor PhasePhckrProcessor::getPatch(SynthGraphType type, bool extractP
     patch.cleanUp();
 
     return patch;
-}
-
-void PhasePhckrProcessor::setPatch(SynthGraphType type, const PatchDescriptor& patch) {
-    auto patchCopy = patch;
-    patchCopy.cleanUp();
-    patchCopy.componentBundle.reduceToComplement(componentRegister.all());
-
-    if (type == SynthGraphType::VOICE) {
-        setVoiceChain(patchCopy);
-        subVoiceChain.set(activeVoiceHandle, patchCopy);
-    }
-    else if (type == SynthGraphType::EFFECT) {
-        setEffectChain(patchCopy);
-        subEffectChain.set(activeEffectHandle, patchCopy);
-    }
 }
 
 PresetDescriptor PhasePhckrProcessorBase::getPreset() {
@@ -336,11 +318,11 @@ PresetDescriptor PhasePhckrProcessorBase::getPreset() {
     return preset;
 }
 
-vector<PresetParameterDescriptor> PhasePhckrProcessor::getPresetParameters() {
+vector<PresetParameterDescriptor> PhasePhckrProcessorBase::getPresetParameters() {
     return parameters.serialize();
 }
 
-vector<PatchParameterDescriptor> PhasePhckrProcessor::getParameters(SynthGraphType type) {
+vector<PatchParameterDescriptor> PhasePhckrProcessorBase::getParameters(SynthGraphType type) {
     vector<PresetParameterDescriptor> presetParams = parameters.serialize();
     vector<PatchParameterDescriptor> params;
 
@@ -354,7 +336,7 @@ vector<PatchParameterDescriptor> PhasePhckrProcessor::getParameters(SynthGraphTy
     return params;
 }
 
-void PhasePhckrProcessor::setComponentRegister(const ComponentRegister& cr) {
+void PhasePhckrProcessorBase::setComponentRegister(const ComponentRegister& cr) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
     componentRegister = cr;
 }
@@ -367,50 +349,46 @@ void PhasePhckrProcessorBase::setPreset(const PresetDescriptor& preset) {
     parameters.deserialize(preset.parameters);
 }
 
-void PhasePhckrProcessor::setSettings(const PhasePhckr::PresetSettings &s) {
+void PhasePhckrProcessorBase::setSettings(const PhasePhckr::PresetSettings &s) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    synth->applySettings(s);
+    for (auto &kv: bundles) {
+        kv.second.processor->applySettings(s);
+    }
 
     activeSettings = s;
 
     forceStateBump();
 }
 
-void PhasePhckrProcessor::setVoiceChain(const PhasePhckr::PatchDescriptor &p) {
+void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::PatchDescriptor &patch) {
+    auto p = patch;
+    p.cleanUp();
+    p.componentBundle.reduceToComplement(componentRegister.all());
+
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
+
+    auto &bundle = bundles[type];
 
     json j = p;
     auto hash = std::hash<string>{}( j.dump() );
-    if (hash == voiceHash) return;
-    voiceHash = hash;
+    if (hash == bundle.hash) return;
 
-    voiceChain = p;
-    auto pv = synth->setPatch(voiceChain, componentRegister, sdkExtensionManager);
-    parameters.setParametersHandleMap(SynthGraphType::VOICE, pv);
-
-    forceStateBump();
-}
-
-void PhasePhckrProcessor::setEffectChain(const PhasePhckr::PatchDescriptor &p) {
-    auto scoped_lock = synthUpdateLock.make_scoped_lock();
-
-    json j = p;
-    auto hash = std::hash<string>{}(j.dump());
-    if (hash == effectHash) return;
-    effectHash = hash;
-
-    effectChain = p;
-    auto pv = effect->setPatch(effectChain, componentRegister, sdkExtensionManager);
-    parameters.setParametersHandleMap(SynthGraphType::EFFECT, pv);
+    bundle.hash = hash;
+    bundle.patch = p;
+    auto pv = bundle.processor->setPatch(bundle.patch, componentRegister, sdkExtensionManager);
+    parameters.setParametersHandleMap(type, pv);
+    bundle.broadcast();
 
     forceStateBump();
 }
 
-void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout) {
+void PhasePhckrProcessorBase::updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    auto& p = type == SynthGraphType::VOICE ? voiceChain : effectChain;
+    auto &bundle = bundles[type];
+
+    auto& p = bundle.patch;
 
     if (component == "root") {
         p.root.graph.layout = layout;
@@ -425,14 +403,16 @@ void PhasePhckrProcessor::updateLayout(SynthGraphType type, const string &compon
         if(p.componentBundle.setLayout(component, layout)) return;
     }
 
-    auto& sp = type == SynthGraphType::VOICE ? subVoiceChain : subEffectChain;
-    auto& sph = type == SynthGraphType::VOICE ? activeVoiceHandle : activeEffectHandle;
-    sp.set(sph, p);
+    bundle.broadcast();
 
     forceStateBump();
 }
 
-void PhasePhckrProcessor::forceStateBump() {
+SubValue<PatchDescriptor> & PhasePhckrProcessorBase::getPropagator(SynthGraphType type) {
+    return bundles[type].propagator;
+}
+
+void PhasePhckrProcessorBase::forceStateBump() {
     // hack, as updateHostDisplay() doesn't work for Reaper
     Parameter* pa = nullptr;
     parameters.accessParameter(0, &pa);

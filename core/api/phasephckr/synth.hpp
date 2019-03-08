@@ -29,7 +29,9 @@ namespace PhasePhckr {
         void handlePosition(float ppqPosition);
         void handleBarPosition(float ppqPosition);
         void handleTime(float time);
+        virtual void applySettings(const PresetSettings& settings) {};
         static int internalBlockSize();
+        virtual const Scope& getVoiceScope(int i) const;
         const Scope& getOutputScope(int i) const;
         virtual void handleParameter(int handle, float value) = 0;
     protected:
@@ -73,8 +75,8 @@ namespace PhasePhckr {
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) override;
         virtual void handleParameter(int handle, float value);
-        const Scope& getVoiceScope(int i) const;
-        void applySettings(const PresetSettings& settings);
+        const Scope& getVoiceScope(int i) const override;
+        void applySettings(const PresetSettings& settings) override;
         const PresetSettings& retrieveSettings();
         float getScopeHz() { return scopeHz; }
     protected:

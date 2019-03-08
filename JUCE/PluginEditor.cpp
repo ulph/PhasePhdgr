@@ -17,15 +17,15 @@ using namespace std;
 
 PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
-    , voiceScopeL(processor.getSynth()->getVoiceScope(0))
-    , voiceScopeR(processor.getSynth()->getVoiceScope(1))
-    , voiceScopeXY(processor.getSynth()->getVoiceScope(0), processor.getSynth()->getVoiceScope(1))
-    , synthScopeL(processor.getSynth()->getOutputScope(0))
-    , synthScopeR(processor.getSynth()->getOutputScope(1))
-    , synthScopeXY(processor.getSynth()->getOutputScope(0), processor.getSynth()->getOutputScope(1))
-    , effectScopeL(processor.getEffect()->getOutputScope(0))
-    , effectScopeR(processor.getEffect()->getOutputScope(1))
-    , effectScopeXY(processor.getEffect()->getOutputScope(0), processor.getEffect()->getOutputScope(1))
+    , voiceScopeL(processor.get(SynthGraphType::VOICE)->getVoiceScope(0))
+    , voiceScopeR(processor.get(SynthGraphType::VOICE)->getVoiceScope(1))
+    , voiceScopeXY(processor.get(SynthGraphType::VOICE)->getVoiceScope(0), processor.get(SynthGraphType::VOICE)->getVoiceScope(1))
+    , synthScopeL(processor.get(SynthGraphType::VOICE)->getOutputScope(0))
+    , synthScopeR(processor.get(SynthGraphType::VOICE)->getOutputScope(1))
+    , synthScopeXY(processor.get(SynthGraphType::VOICE)->getOutputScope(0), processor.get(SynthGraphType::VOICE)->getOutputScope(1))
+    , effectScopeL(processor.get(SynthGraphType::EFFECT)->getOutputScope(0))
+    , effectScopeR(processor.get(SynthGraphType::EFFECT)->getOutputScope(1))
+    , effectScopeXY(processor.get(SynthGraphType::EFFECT)->getOutputScope(0), processor.get(SynthGraphType::EFFECT)->getOutputScope(1))
 
     , mainFrame(
         [this](int i, const string& n) {
@@ -51,7 +51,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
             processor.sdkExtensionManager.updateDoc(&d);
             return d;
         },
-        processor.subVoiceChain,
+        processor.getPropagator(SynthGraphType::VOICE),
         processor.subComponentRegister,
         c_voiceChainInBus,
         c_voiceChainOutBus,
@@ -64,7 +64,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
             processor.sdkExtensionManager.updateDoc(&d);
             return d;
         },
-        processor.subEffectChain,
+        processor.getPropagator(SynthGraphType::EFFECT),
         processor.subComponentRegister,
         c_effectChainInBus,
         c_effectChainOutBus,

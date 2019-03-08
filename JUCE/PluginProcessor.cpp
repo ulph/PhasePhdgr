@@ -302,7 +302,9 @@ void PhasePhckrProcessorBase::broadcastPatch() {
 PatchDescriptor PhasePhckrProcessorBase::getPatch(SynthGraphType type, bool extractParameters) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
-    PatchDescriptor patch = bundles[type].patch;
+    PatchDescriptor patch; 
+    
+    if(bundles.count(type)) patch = bundles.at(type).patch;
 
     if (extractParameters) patch.parameters = getParameters(type);
 
@@ -360,6 +362,7 @@ void PhasePhckrProcessorBase::setSettings(const PhasePhckr::PresetSettings &s) {
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     for (auto &kv: bundles) {
+        if (!kv.second.processor) continue;
         kv.second.processor->applySettings(s);
     }
 
@@ -369,6 +372,8 @@ void PhasePhckrProcessorBase::setSettings(const PhasePhckr::PresetSettings &s) {
 }
 
 void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::PatchDescriptor &patch) {
+    if (!bundles.count(type)) return;
+
     auto p = patch;
     p.cleanUp();
     p.componentBundle.reduceToComplement(componentRegister.all());
@@ -391,6 +396,8 @@ void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::Pa
 }
 
 void PhasePhckrProcessorBase::updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout) {
+    if (!bundles.count(type)) return;
+
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
 
     auto &bundle = bundles[type];
@@ -416,6 +423,7 @@ void PhasePhckrProcessorBase::updateLayout(SynthGraphType type, const string &co
 }
 
 SubValue<PatchDescriptor> & PhasePhckrProcessorBase::getPropagator(SynthGraphType type) {
+    // TODO, get rid of this access
     return bundles[type].propagator;
 }
 

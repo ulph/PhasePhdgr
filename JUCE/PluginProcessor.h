@@ -63,6 +63,7 @@ protected:
         int handle;
         SubValue<PatchDescriptor> propagator;
         void broadcast() const {
+            if(!processor) return
             propagator.set(handle, patch);
         }
         void unsubscribe() {

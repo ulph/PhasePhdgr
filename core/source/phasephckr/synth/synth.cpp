@@ -226,6 +226,10 @@ const Scope& Base::getVoiceScope(int i) const {
     return getOutputScope(i);
 }
 
+const Scope& Base::getInputScope(int i) const {
+    return getOutputScope(i);
+}
+
 const Scope& Effect::getInputScope(int i) const {
     if (i == 0) return inputScopeL;
     else if (i == 1) return inputScopeR;

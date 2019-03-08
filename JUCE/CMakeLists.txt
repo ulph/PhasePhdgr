@@ -86,6 +86,14 @@ add_library(pp_synth_obj OBJECT ${PH_SYNTH_SRC})
 set_target_properties(pp_synth_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(pp_synth_obj PROPERTIES FOLDER JUCE)
 
+set(PH_FX_SRC
+  exportFx.cpp
+)
+
+add_library(pp_fx_obj OBJECT ${PH_FX_SRC})
+set_target_properties(pp_fx_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(pp_fx_obj PROPERTIES FOLDER JUCE)
+
 option(INTERCEPT_STD_STREAMS ON)
 
 if(${INTERCEPT_STD_STREAMS})
@@ -103,12 +111,30 @@ set( PHASEPHCKR_JUCE_SYNTH_SRC
     $<TARGET_OBJECTS:pp_synth_obj>
 )
 
+set( PHASEPHCKR_JUCE_FX_SRC
+    $<TARGET_OBJECTS:juce_fx_obj>
+    $<TARGET_OBJECTS:pp_common_obj>
+    $<TARGET_OBJECTS:pp_fx_obj>
+)
+
 mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_SYNTH_SRC})
 TARGET_LINK_LIBRARIES(PhasePhckr ${JUCE_DEPS})
 set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
 
+mod_smtg_add_vst3plugin(PhasePhckrFx ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_FX_SRC})
+TARGET_LINK_LIBRARIES(PhasePhckrFx ${JUCE_DEPS})
+set_target_properties(PhasePhckrFx PROPERTIES FOLDER JUCE/VST)
+
 install(
     TARGETS PhasePhckr
+    ARCHIVE DESTINATION .
+    LIBRARY DESTINATION .
+    RUNTIME DESTINATION .
+    COMPONENT .
+)
+
+install(
+    TARGETS PhasePhckrFx
     ARCHIVE DESTINATION .
     LIBRARY DESTINATION .
     RUNTIME DESTINATION .

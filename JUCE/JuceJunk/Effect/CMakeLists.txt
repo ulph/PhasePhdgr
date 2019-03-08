@@ -7,4 +7,4 @@ add_definitions(-DJucePlugin_Desc="PhasePhckrFX") # override
 add_definitions(-DJucePlugin_VSTCategory=kPlugCategEffect) # override
 add_definitions(-DJucePlugin_PluginCode=0x4f6f6162) # 0x4f6f6161 + 1
 
-make_juce_lib(juce_effect_obj)
+make_juce_lib(juce_fx_obj)

@@ -4,7 +4,7 @@
 
 class FileBrowserPanel : public Component {
 private:
-    PhasePhckrProcessor& processor;
+    PhasePhckrProcessorBase & processor;
     int subVoiceHandle;
     int subEffectHandle;
     TimeSliceThread fileWatchThread;
@@ -23,7 +23,7 @@ private:
     ComponentDescriptor selectedComponent;
 
 public:
-    FileBrowserPanel(PhasePhckrProcessor& editor);
+    FileBrowserPanel(PhasePhckrProcessorBase& editor);
     virtual ~FileBrowserPanel();
     void resized() override;
 };

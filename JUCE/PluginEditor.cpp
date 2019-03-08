@@ -15,8 +15,9 @@ using namespace PhasePhckrFileStuff;
 
 using namespace std;
 
-PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
+PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
     : AudioProcessorEditor (&p), processor (p)
+    /*
     , voiceScopeL(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0))
     , voiceScopeR(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
     , voiceScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0), processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
@@ -26,7 +27,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     , effectScopeL(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0))
     , effectScopeR(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
     , effectScopeXY(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0), processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
-
+    */
     , mainFrame(
         [this](int i, const string& n) {
             if (!inited) return; // hack
@@ -79,6 +80,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     , fileBrowserPanel(processor)
 
     , guiUpdateTimer(new function<void()>([this](){
+        /*
         voiceScopeL.repaint();
         voiceScopeR.repaint();
         voiceScopeXY.repaint();
@@ -88,6 +90,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
         effectScopeL.repaint();
         effectScopeR.repaint();
         effectScopeXY.repaint();
+        */
     }))
 {
 
@@ -98,6 +101,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
 
+    /*
     voiceScopeGrid.addComponent(&voiceScopeL);
     voiceScopeGrid.addComponent(&voiceScopeXY);
     voiceScopeGrid.addComponent(&voiceScopeR);
@@ -115,6 +119,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     effectScopeGrid.addComponent(&effectScopeR);
     effectScopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
     effectScopeGrid.setText("effect");
+    */
 
     scopePPGrid.setColoumns({ 1.0f });
     scopePPGrid.addComponent(&voiceScopeGrid);

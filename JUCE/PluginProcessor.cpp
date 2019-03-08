@@ -47,47 +47,9 @@ void PhasePhckrProcessorBase::destroy() {
     subComponentRegister.unsubscribe(componentRegisterHandle);
 }
 
-PhasePhckrProcessor::PhasePhckrProcessor()    
-    : PhasePhckrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
-{
-
-    midiMessageQueue.reserve(128); // some nice large-ish number
-
-    synth = new PhasePhckr::Synth();
-    effect = new PhasePhckr::Effect();
-
-    bundles[SynthGraphType::VOICE].processor = synth;
-    bundles[SynthGraphType::EFFECT].processor = effect;
-
-    initialize();
-
-    PresetDescriptor initialPreset;
-    initialPreset.voice = getExampleVoiceChain();
-    initialPreset.effect = getExampleEffectChain();
-
-    setPreset(initialPreset);
-}
-
-PhasePhckrProcessor::~PhasePhckrProcessor()
-{
-    destroy();
-    delete synth;
-    delete effect;
-}
-
 const String PhasePhckrProcessorBase::getName() const
 {
     return JucePlugin_Name;
-}
-
-bool PhasePhckrProcessor::acceptsMidi() const
-{
-    return true;
-}
-
-bool PhasePhckrProcessor::producesMidi() const
-{
-    return false;
 }
 
 double PhasePhckrProcessorBase::getTailLengthSeconds() const
@@ -126,123 +88,18 @@ void PhasePhckrProcessorBase::releaseResources()
 {
 }
 
-bool PhasePhckrProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
-{
-    if (layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) return false;
-    return true;
-}
-
-void PhasePhckrProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
-{
-    auto dn = ScopedNoDenormals();
-
-    const int numOutputChannels = getTotalNumOutputChannels();
-    for (int i = 0; i < numOutputChannels; ++i) {
-        buffer.clear(i, 0, buffer.getNumSamples());
-    }
-
-    auto l = synthUpdateLock.make_scoped_lock();
-
-    // handle MIDI messages
-    MidiBuffer::Iterator midiIt(midiMessages);
-    int evtPos = 0;
-    MidiMessage msg;
-    while (midiIt.getNextEvent(msg, evtPos)){
-        int ch = msg.getChannel();
-        if(msg.isNoteOnOrOff()){
-            midiMessageQueue.emplace_back(
-                msg.isNoteOn(true) ? PPMidiMessage::Type::On : PPMidiMessage::Type::Off,
-                evtPos,
-                ch,
-                msg.getNoteNumber(),
-                msg.getFloatVelocity()
-            );
-        }
-        else if(msg.isPitchWheel()){
-            midiMessageQueue.emplace_back(
-                PPMidiMessage::Type::X,
-                evtPos,
-                ch,
-                2.f*((float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
-            );
-        }
-        else if(msg.isAftertouch()){
-            midiMessageQueue.emplace_back(
-                PPMidiMessage::Type::NoteZ,
-                evtPos,
-                ch,
-                msg.getNoteNumber(),
-                (float)msg.getAfterTouchValue() / 127.f
-            );
-        }
-        else if(msg.isChannelPressure()){
-            midiMessageQueue.emplace_back(
-                PPMidiMessage::Type::Z,
-                evtPos,
-                ch,
-                (float)msg.getChannelPressureValue() / 127.f
-            );
-        }
-        else if(msg.isController()){
-            int cc = msg.getControllerNumber();
-            float val = (float)msg.getControllerValue() / 127.f;
-            // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
-            switch (cc) {
-                case 64:
-                    midiMessageQueue.emplace_back(
-                        PPMidiMessage::Type::Sustain,
-                        evtPos,
-                        ch,
-                        val
-                    );
-                    break;
-                case 74:
-                    midiMessageQueue.emplace_back(
-                        PPMidiMessage::Type::Y,
-                        evtPos,
-                        ch,
-                        val
-                    );
-                    break;
-                case 1:
-                    midiMessageQueue.emplace_back(
-                        PPMidiMessage::Type::ModWheel,
-                        evtPos,
-                        ch,
-                        val
-                    );
-                    break;
-                case 2:
-                    midiMessageQueue.emplace_back(
-                        PPMidiMessage::Type::Breath,
-                        evtPos,
-                        ch,
-                        val
-                    );
-                    break;
-                case 11:
-                    midiMessageQueue.emplace_back(
-                        PPMidiMessage::Type::Expression,
-                        evtPos,
-                        ch,
-                        val
-                    );
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    parameters.visitHandleParameterValues(synth, effect);
-    bufferingProcessor.process(buffer, midiMessageQueue, (float)getSampleRate(), synth, effect, getPlayHead());
-
-    midiMessages.clear();
-
-}
-
 bool PhasePhckrProcessorBase::hasEditor() const {
     return true;
+}
+
+void to_json(json& j, const PhasePhckrProcessorBase::InstanceSpecificPeristantState& e) {
+    j["gui_width"] = e.width;
+    j["gui_height"] = e.height;
+}
+
+void from_json(const json& j, PhasePhckrProcessorBase::InstanceSpecificPeristantState& e) {
+    if(j.count("gui_width")) e.width = j["gui_width"];
+    if (j.count("gui_height")) e.height = j["gui_height"];
 }
 
 void extractExtra(AudioProcessorEditor *ed, PhasePhckrProcessorBase::InstanceSpecificPeristantState& ex) {
@@ -254,22 +111,6 @@ void extractExtra(AudioProcessorEditor *ed, PhasePhckrProcessorBase::InstanceSpe
 void applyExtra(AudioProcessorEditor *ed, const PhasePhckrProcessorBase::InstanceSpecificPeristantState& ex) {
     if (!ed) return;
     ed->setBoundsConstrained(Rectangle<int>(ex.width, ex.height));
-}
-
-AudioProcessorEditor* PhasePhckrProcessor::createEditor() {
-    auto ed = new PhasePhckrEditor(*this);
-    applyExtra(ed, extra);
-    return ed;
-}
-
-void to_json(json& j, const PhasePhckrProcessorBase::InstanceSpecificPeristantState& e) {
-    j["gui_width"] = e.width;
-    j["gui_height"] = e.height;
-}
-
-void from_json(const json& j, PhasePhckrProcessorBase::InstanceSpecificPeristantState& e) {
-    if(j.count("gui_width")) e.width = j["gui_width"];
-    if (j.count("gui_height")) e.height = j["gui_height"];
 }
 
 void PhasePhckrProcessorBase::getStateInformation (MemoryBlock& destData) {
@@ -373,14 +214,14 @@ void PhasePhckrProcessorBase::setSettings(const PhasePhckr::PresetSettings &s) {
 
 void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::PatchDescriptor &patch) {
     if (!bundles.count(type)) return;
+    auto scoped_lock = synthUpdateLock.make_scoped_lock();
+    auto &bundle = bundles[type];
+    if (!bundle.processor) return;
 
     auto p = patch;
     p.cleanUp();
     p.componentBundle.reduceToComplement(componentRegister.all());
 
-    auto scoped_lock = synthUpdateLock.make_scoped_lock();
-
-    auto &bundle = bundles[type];
 
     json j = p;
     auto hash = std::hash<string>{}( j.dump() );
@@ -434,4 +275,225 @@ void PhasePhckrProcessorBase::forceStateBump() {
     if (pa != nullptr) pa->setValueNotifyingHost(*pa);
 
     updateHostDisplay();
+}
+
+// synth
+
+PhasePhckrProcessor::PhasePhckrProcessor()
+    : PhasePhckrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
+{
+
+    midiMessageQueue.reserve(128); // some nice large-ish number
+
+    synth = new PhasePhckr::Synth();
+    effect = new PhasePhckr::Effect();
+
+    bundles[SynthGraphType::VOICE].processor = synth;
+    bundles[SynthGraphType::EFFECT].processor = effect;
+
+    initialize();
+
+    PresetDescriptor initialPreset;
+    initialPreset.voice = getExampleVoiceChain();
+    initialPreset.effect = getExampleEffectChain();
+
+    setPreset(initialPreset);
+}
+
+PhasePhckrProcessor::~PhasePhckrProcessor()
+{
+    destroy();
+    delete synth;
+    delete effect;
+}
+
+AudioProcessorEditor* PhasePhckrProcessor::createEditor() {
+    auto ed = new PhasePhckrEditor(*this);
+    applyExtra(ed, extra);
+    return ed;
+}
+
+bool PhasePhckrProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+{
+    if (layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) return false;
+    return true;
+}
+
+bool PhasePhckrProcessor::acceptsMidi() const
+{
+    return true;
+}
+
+bool PhasePhckrProcessor::producesMidi() const
+{
+    return false;
+}
+
+void PhasePhckrProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+{
+    auto dn = ScopedNoDenormals();
+
+    const int numOutputChannels = getTotalNumOutputChannels();
+    for (int i = 0; i < numOutputChannels; ++i) {
+        buffer.clear(i, 0, buffer.getNumSamples());
+    }
+
+    auto l = synthUpdateLock.make_scoped_lock();
+
+    // handle MIDI messages
+    MidiBuffer::Iterator midiIt(midiMessages);
+    int evtPos = 0;
+    MidiMessage msg;
+    while (midiIt.getNextEvent(msg, evtPos)) {
+        int ch = msg.getChannel();
+        if (msg.isNoteOnOrOff()) {
+            midiMessageQueue.emplace_back(
+                msg.isNoteOn(true) ? PPMidiMessage::Type::On : PPMidiMessage::Type::Off,
+                evtPos,
+                ch,
+                msg.getNoteNumber(),
+                msg.getFloatVelocity()
+            );
+        }
+        else if (msg.isPitchWheel()) {
+            midiMessageQueue.emplace_back(
+                PPMidiMessage::Type::X,
+                evtPos,
+                ch,
+                2.f*((float)msg.getPitchWheelValue() / (float)(0x3fff) - 0.5f)
+            );
+        }
+        else if (msg.isAftertouch()) {
+            midiMessageQueue.emplace_back(
+                PPMidiMessage::Type::NoteZ,
+                evtPos,
+                ch,
+                msg.getNoteNumber(),
+                (float)msg.getAfterTouchValue() / 127.f
+            );
+        }
+        else if (msg.isChannelPressure()) {
+            midiMessageQueue.emplace_back(
+                PPMidiMessage::Type::Z,
+                evtPos,
+                ch,
+                (float)msg.getChannelPressureValue() / 127.f
+            );
+        }
+        else if (msg.isController()) {
+            int cc = msg.getControllerNumber();
+            float val = (float)msg.getControllerValue() / 127.f;
+            // TODO, LSB for 1,2,11 (33,34,43) in a standard compliant way
+            switch (cc) {
+            case 64:
+                midiMessageQueue.emplace_back(
+                    PPMidiMessage::Type::Sustain,
+                    evtPos,
+                    ch,
+                    val
+                );
+                break;
+            case 74:
+                midiMessageQueue.emplace_back(
+                    PPMidiMessage::Type::Y,
+                    evtPos,
+                    ch,
+                    val
+                );
+                break;
+            case 1:
+                midiMessageQueue.emplace_back(
+                    PPMidiMessage::Type::ModWheel,
+                    evtPos,
+                    ch,
+                    val
+                );
+                break;
+            case 2:
+                midiMessageQueue.emplace_back(
+                    PPMidiMessage::Type::Breath,
+                    evtPos,
+                    ch,
+                    val
+                );
+                break;
+            case 11:
+                midiMessageQueue.emplace_back(
+                    PPMidiMessage::Type::Expression,
+                    evtPos,
+                    ch,
+                    val
+                );
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    parameters.visitHandleParameterValues(synth, effect);
+    bufferingProcessor.process(buffer, midiMessageQueue, (float)getSampleRate(), synth, effect, getPlayHead());
+
+    midiMessages.clear();
+
+}
+
+// effect
+
+PhasePhckrProcessorFx::PhasePhckrProcessorFx()
+    : PhasePhckrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
+{
+    effect = new PhasePhckr::Effect();
+
+    bundles[SynthGraphType::EFFECT].processor = effect;
+
+    initialize();
+
+    PresetDescriptor initialPreset;
+    initialPreset.effect = getExampleEffectChain();
+
+    setPreset(initialPreset);
+}
+
+PhasePhckrProcessorFx::~PhasePhckrProcessorFx()
+{
+    destroy();
+    delete effect;
+}
+
+AudioProcessorEditor* PhasePhckrProcessorFx::createEditor() {
+    auto ed = new PhasePhckrEditor(*this);
+    applyExtra(ed, extra);
+    return ed;
+}
+
+bool PhasePhckrProcessorFx::isBusesLayoutSupported(const BusesLayout& layouts) const
+{
+    if (layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) return false;
+    if (layouts.getMainInputChannelSet() != AudioChannelSet::stereo()) return false;
+    return true;
+}
+
+bool PhasePhckrProcessorFx::acceptsMidi() const
+{
+    return false;
+}
+
+bool PhasePhckrProcessorFx::producesMidi() const
+{
+    return false;
+}
+
+void PhasePhckrProcessorFx::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+{
+    auto dn = ScopedNoDenormals();
+
+    const int numOutputChannels = getTotalNumOutputChannels();
+    for (int i = 0; i < numOutputChannels; ++i) {
+        buffer.clear(i, 0, buffer.getNumSamples());
+    }
+
+    auto l = synthUpdateLock.make_scoped_lock();
+    
+    bufferingProcessor.process(buffer, (float)getSampleRate(), effect, getPlayHead());
 }

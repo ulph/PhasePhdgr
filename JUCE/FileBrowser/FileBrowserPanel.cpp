@@ -1,6 +1,6 @@
 #include "FileBrowserPanel.hpp"
 
-FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessor& p)
+FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
     : fileWatchThread("editorFileWatchThread")
     , processor(p)
     , subEffectHandle(

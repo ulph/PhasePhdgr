@@ -23,7 +23,7 @@ class PhasePhckrEditor  : public AudioProcessorEditor, public DragAndDropContain
 {
 public:
     PhasePhckrEditor (
-        PhasePhckrProcessor&
+        PhasePhckrProcessorBase&
      );
     ~PhasePhckrEditor();
 
@@ -36,8 +36,9 @@ private:
 
     bool inited = false;
 
-    PhasePhckrProcessor& processor;
+    PhasePhckrProcessorBase& processor;
 
+    /*
     ScopeView voiceScopeL;
     ScopeView voiceScopeR;
     XYScopeView voiceScopeXY;
@@ -47,6 +48,7 @@ private:
     ScopeView effectScopeL;
     ScopeView effectScopeR;
     XYScopeView effectScopeXY;
+    */
 
     PPTabbedComponent mainFrame;
     PPGGrid voiceScopeGrid;

@@ -140,4 +140,28 @@ public:
     bool producesMidi() const override;
 };
 
+
+class PhasePhckrProcessorFx : public PhasePhckrProcessorBase
+{
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrProcessorFx)
+    PhasePhckr::Effect* effect;
+
+    InputBufferingProcessor bufferingProcessor;
+
+public:
+    PhasePhckrProcessorFx();
+    ~PhasePhckrProcessorFx();
+
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+
+    void processBlock(AudioSampleBuffer&, MidiBuffer&) override;
+
+    AudioProcessorEditor* createEditor() override;
+    bool acceptsMidi() const override;
+    bool producesMidi() const override;
+};
+
+
 #endif  // PLUGINPROCESSOR_H_INCLUDED

@@ -10,6 +10,43 @@
 using namespace PhasePhckrFileStuff;
 using namespace std;
 
+void PhasePhckrProcessorBase::initialize() {
+
+    activeSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s) {
+        setSettings(s);
+    });
+
+    for (auto &kv : bundles) {
+        bundles[kv.first].handle = bundles[kv.first].propagator.subscribe([this, type = kv.first](const PhasePhckr::PatchDescriptor& p) {
+            setPatch(type, p);
+        });
+    }
+    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr) {
+        setComponentRegister(cr);
+        for (auto &kv : bundles) setPatch(kv.first, kv.second.patch);
+    });
+
+    createInitialUserLibrary(componentRegister);
+
+    componentLoader.rescan();
+
+    // extension loading hax
+    std::set<std::string> plugins;
+    auto sdk_dir = PhasePhckrFileStuff::sdkExtensionsDir;
+    for (const auto & fname : sdk_dir.findChildFiles(File::findFiles, false, "*.ppp.*")) {
+        plugins.insert(fname.getFullPathName().toStdString());
+    }
+    sdkExtensionManager.registerSdkExtensions(plugins);
+    // end of extension loading hax
+
+    parameters.initialize(this);
+}
+
+void PhasePhckrProcessorBase::destroy() {
+    for (auto &kv : bundles) kv.second.unsubscribe();
+    subComponentRegister.unsubscribe(componentRegisterHandle);
+}
+
 PhasePhckrProcessor::PhasePhckrProcessor()    
     : PhasePhckrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
 {
@@ -22,34 +59,7 @@ PhasePhckrProcessor::PhasePhckrProcessor()
     bundles[SynthGraphType::VOICE].processor = synth;
     bundles[SynthGraphType::EFFECT].processor = effect;
 
-    activeSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s){
-        setSettings(s);
-    });
-
-    for (auto &kv : bundles) {
-        bundles[kv.first].handle = bundles[kv.first].propagator.subscribe([this, type=kv.first](const PhasePhckr::PatchDescriptor& p) {
-            setPatch(type, p);
-        });
-    }
-    componentRegisterHandle = subComponentRegister.subscribe([this](const PhasePhckr::ComponentRegister& cr){
-        setComponentRegister(cr);
-        for (auto &kv : bundles) setPatch(kv.first, kv.second.patch);
-    });
-
-    createInitialUserLibrary(componentRegister);
-
-    // extension loading hax
-    std::set<std::string> plugins;
-    auto sdk_dir = PhasePhckrFileStuff::sdkExtensionsDir;
-    for (const auto & fname : sdk_dir.findChildFiles(File::findFiles, false, "*.ppp.*")) {
-        plugins.insert(fname.getFullPathName().toStdString());
-    }
-    sdkExtensionManager.registerSdkExtensions(plugins);
-    // end of extension loading hax
-
-    parameters.initialize(this);
-
-    componentLoader.rescan();
+    initialize();
 
     PresetDescriptor initialPreset;
     initialPreset.voice = getExampleVoiceChain();
@@ -60,9 +70,7 @@ PhasePhckrProcessor::PhasePhckrProcessor()
 
 PhasePhckrProcessor::~PhasePhckrProcessor()
 {
-    bundles[SynthGraphType::EFFECT].propagator.unsubscribe(bundles[SynthGraphType::EFFECT].handle);
-    bundles[SynthGraphType::VOICE].propagator.unsubscribe(bundles[SynthGraphType::VOICE].handle);
-    subComponentRegister.unsubscribe(componentRegisterHandle);
+    destroy();
     delete synth;
     delete effect;
 }
@@ -279,10 +287,9 @@ void PhasePhckrProcessorBase::setStateInformation (const void* data, int sizeInB
     applyExtra(getActiveEditor(), extra);
 }
 
-const PhasePhckr::Base* PhasePhckrProcessor::get(SynthGraphType type) const {
-    if (type == SynthGraphType::EFFECT) return effect;
-    else if (type == SynthGraphType::VOICE) return synth;
-    return nullptr;
+const PhasePhckr::Base* PhasePhckrProcessorBase::getProcessor(SynthGraphType type) const {
+    if (!bundles.count(type)) return nullptr;
+    return bundles.at(type).processor;
 }
 
 void PhasePhckrProcessorBase::broadcastPatch() {

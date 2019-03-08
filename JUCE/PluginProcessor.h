@@ -65,9 +65,16 @@ protected:
         void broadcast() const {
             propagator.set(handle, patch);
         }
+        void unsubscribe() {
+            propagator.unsubscribe(handle);
+        }
     };
 
     std::map<SynthGraphType, processor_bundle> bundles;
+
+    void initialize();
+
+    void destroy();
 
 public:
 
@@ -84,7 +91,6 @@ public:
 
     Parameters parameters;
 
-    virtual const PhasePhckr::Base* get(SynthGraphType type) const { return nullptr; };
     vector<PresetParameterDescriptor> getPresetParameters();
     vector<PatchParameterDescriptor> getParameters(SynthGraphType type);
 
@@ -103,6 +109,8 @@ public:
     void updateLayout(SynthGraphType type, const string &component, const map<string, ModulePosition> &layout);
 
     PPLookAndFeel lookAndFeel;
+
+    const PhasePhckr::Base* getProcessor(SynthGraphType type) const;
 
 };
 
@@ -129,8 +137,6 @@ public:
     AudioProcessorEditor* createEditor() override;
     bool acceptsMidi() const override;
     bool producesMidi() const override;
-
-    const PhasePhckr::Base* get(SynthGraphType type) const override;
 };
 
 #endif  // PLUGINPROCESSOR_H_INCLUDED

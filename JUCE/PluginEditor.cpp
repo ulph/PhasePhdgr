@@ -17,15 +17,15 @@ using namespace std;
 
 PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
-    , voiceScopeL(processor.get(SynthGraphType::VOICE)->getVoiceScope(0))
-    , voiceScopeR(processor.get(SynthGraphType::VOICE)->getVoiceScope(1))
-    , voiceScopeXY(processor.get(SynthGraphType::VOICE)->getVoiceScope(0), processor.get(SynthGraphType::VOICE)->getVoiceScope(1))
-    , synthScopeL(processor.get(SynthGraphType::VOICE)->getOutputScope(0))
-    , synthScopeR(processor.get(SynthGraphType::VOICE)->getOutputScope(1))
-    , synthScopeXY(processor.get(SynthGraphType::VOICE)->getOutputScope(0), processor.get(SynthGraphType::VOICE)->getOutputScope(1))
-    , effectScopeL(processor.get(SynthGraphType::EFFECT)->getOutputScope(0))
-    , effectScopeR(processor.get(SynthGraphType::EFFECT)->getOutputScope(1))
-    , effectScopeXY(processor.get(SynthGraphType::EFFECT)->getOutputScope(0), processor.get(SynthGraphType::EFFECT)->getOutputScope(1))
+    , voiceScopeL(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0))
+    , voiceScopeR(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
+    , voiceScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0), processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
+    , synthScopeL(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0))
+    , synthScopeR(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
+    , synthScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0), processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
+    , effectScopeL(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0))
+    , effectScopeR(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
+    , effectScopeXY(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0), processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
 
     , mainFrame(
         [this](int i, const string& n) {

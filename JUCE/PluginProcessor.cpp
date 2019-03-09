@@ -487,13 +487,6 @@ bool PhasePhckrProcessorFx::producesMidi() const
 void PhasePhckrProcessorFx::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     auto dn = ScopedNoDenormals();
-
-    const int numOutputChannels = getTotalNumOutputChannels();
-    for (int i = 0; i < numOutputChannels; ++i) {
-        buffer.clear(i, 0, buffer.getNumSamples());
-    }
-
-    auto l = synthUpdateLock.make_scoped_lock();
-    
+    auto l = synthUpdateLock.make_scoped_lock();   
     bufferingProcessor.process(buffer, (float)getSampleRate(), effect, getPlayHead());
 }

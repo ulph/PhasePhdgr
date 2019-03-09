@@ -103,7 +103,7 @@ void GraphEditor::propagatePatch() {
         auto l = gfxGraphLock.make_scoped_lock();
         patchCopy = patch;
     }
-    subPatch.set(-1, patchCopy); // we want it back (lazily forces refresh/sync)
+    subPatch.set(subPatchHandle, patchCopy); // we want it back (lazily forces refresh/sync)
     repaint();
 }
 

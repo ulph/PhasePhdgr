@@ -59,11 +59,13 @@ protected:
     struct processor_bundle {
         PhasePhckr::Base* processor = nullptr;
         PhasePhckr::PatchDescriptor patch;
-        size_t hash;
-        int handle;
+        size_t hash = 0;
+        int handle = std::numeric_limits<int>::max();
         SubValue<PatchDescriptor> propagator;
         void broadcast() const {
-            if(!processor) return
+            if (!processor) {
+                return;
+            }
             propagator.set(handle, patch);
         }
         void unsubscribe() {

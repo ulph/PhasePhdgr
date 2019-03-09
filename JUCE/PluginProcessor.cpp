@@ -222,7 +222,6 @@ void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::Pa
     p.cleanUp();
     p.componentBundle.reduceToComplement(componentRegister.all());
 
-
     json j = p;
     auto hash = std::hash<string>{}( j.dump() );
     if (hash == bundle.hash) return;
@@ -265,6 +264,7 @@ void PhasePhckrProcessorBase::updateLayout(SynthGraphType type, const string &co
 
 SubValue<PatchDescriptor> & PhasePhckrProcessorBase::getPropagator(SynthGraphType type) {
     // TODO, get rid of this access
+    assert(bundles.count(type));
     return bundles[type].propagator;
 }
 

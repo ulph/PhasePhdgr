@@ -57,7 +57,9 @@ public:
     
     int subscribe(std::function<void(const T&)> callback) {
         listeners.emplace(ctr, callback);
-        return ctr++;
+        assert(listeners.size() < std::numeric_limits<int>::max());
+        while (listeners.count(ctr) && ctr != -1) { ctr++; }
+        return ctr;
     }
     
     void unsubscribe(int handle) {

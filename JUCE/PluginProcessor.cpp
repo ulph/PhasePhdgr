@@ -264,7 +264,7 @@ void PhasePhckrProcessorBase::updateLayout(SynthGraphType type, const string &co
 
 SubValue<PatchDescriptor> & PhasePhckrProcessorBase::getPropagator(SynthGraphType type) {
     // TODO, get rid of this access
-    assert(bundles.count(type));
+    if (!bundles.count(type)) return nullPatchPropagator;
     return bundles[type].propagator;
 }
 

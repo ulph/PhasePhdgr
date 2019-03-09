@@ -85,6 +85,8 @@ public:
     SubValue<PresetSettings> subSettings;
     SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
 
+    SubValue<PatchDescriptor> nullPatchPropagator;
+
     void setPreset(const PresetDescriptor& preset);
     PresetDescriptor getPreset();
 

@@ -49,24 +49,24 @@ template <class T>
 class SubValue {
 
 private:
-    int ctr;
-    std::map<int, std::function<void(const T&)>> listeners;
+    unsigned int ctr;
+    std::map<unsigned int, std::function<void(const T&)>> listeners;
 
 public:
     SubValue() : ctr(0) {}
     
-    int subscribe(std::function<void(const T&)> callback) {
+    unsigned int subscribe(std::function<void(const T&)> callback) {
+        assert(listeners.size() < std::numeric_limits<unsigned int>::max());
+        while (listeners.count(ctr)) { ctr++; }
         listeners.emplace(ctr, callback);
-        assert(listeners.size() < std::numeric_limits<int>::max());
-        while (listeners.count(ctr) && ctr != -1) { ctr++; }
         return ctr;
     }
     
-    void unsubscribe(int handle) {
+    void unsubscribe(unsigned int handle) {
         listeners.erase(handle);
     }
 
-    void set(int handle, const T& newValue) const {
+    void set(unsigned int handle, const T& newValue) const {
         for (const auto &l : listeners) {
             if (l.first != handle) {
                 l.second(newValue);

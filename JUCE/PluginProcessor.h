@@ -63,9 +63,7 @@ protected:
         int handle = std::numeric_limits<int>::max();
         SubValue<PatchDescriptor> propagator;
         void broadcast() const {
-            if (!processor) {
-                return;
-            }
+            assert(processor);
             propagator.set(handle, patch);
         }
         void unsubscribe() {

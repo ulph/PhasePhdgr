@@ -3,7 +3,11 @@
 #include <phasephckr.hpp>
 #include "JuceHeader.h"
 
-class ScopeView : public Component
+class ScopeI : public Component {
+    //
+};
+
+class ScopeView : public ScopeI
 {
 public:
     ScopeView(const PhasePhckr::Scope& source) : source(source) {}
@@ -15,7 +19,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ScopeView)
 };
 
-class XYScopeView : public Component
+class XYScopeView : public ScopeI
 {
 public:
     XYScopeView(const PhasePhckr::Scope& sourceL, const PhasePhckr::Scope& sourceR) : sourceL(sourceL), sourceR(sourceR){}

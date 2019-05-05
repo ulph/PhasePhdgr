@@ -15,19 +15,8 @@ using namespace PhasePhckrFileStuff;
 
 using namespace std;
 
-PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
+PhasePhckrEditorBase::PhasePhckrEditorBase(PhasePhckrProcessorBase& p)
     : AudioProcessorEditor (&p), processor (p)
-    /*
-    , voiceScopeL(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0))
-    , voiceScopeR(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
-    , voiceScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0), processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
-    , synthScopeL(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0))
-    , synthScopeR(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
-    , synthScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0), processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
-    , effectScopeL(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0))
-    , effectScopeR(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
-    , effectScopeXY(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0), processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
-    */
     , mainFrame(
         [this](int i, const string& n) {
             if (!inited) return; // hack
@@ -80,17 +69,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
     , fileBrowserPanel(processor)
 
     , guiUpdateTimer(new function<void()>([this](){
-        /*
-        voiceScopeL.repaint();
-        voiceScopeR.repaint();
-        voiceScopeXY.repaint();
-        synthScopeL.repaint();
-        synthScopeR.repaint();
-        synthScopeXY.repaint();
-        effectScopeL.repaint();
-        effectScopeR.repaint();
-        effectScopeXY.repaint();
-        */
+        for(auto &s: scopes) s->repaint();
     }))
 {
 
@@ -102,6 +81,27 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
 
     /*
+
+    ScopeView voiceScopeL;
+    ScopeView voiceScopeR;
+    XYScopeView voiceScopeXY;
+    ScopeView synthScopeL;
+    ScopeView synthScopeR;
+    XYScopeView synthScopeXY;
+    ScopeView effectScopeL;
+    ScopeView effectScopeR;
+    XYScopeView effectScopeXY;
+
+    , voiceScopeL(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0))
+    , voiceScopeR(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
+    , voiceScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0), processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
+    , synthScopeL(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0))
+    , synthScopeR(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
+    , synthScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0), processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
+    , effectScopeL(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0))
+    , effectScopeR(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
+    , effectScopeXY(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0), processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
+
     voiceScopeGrid.addComponent(&voiceScopeL);
     voiceScopeGrid.addComponent(&voiceScopeXY);
     voiceScopeGrid.addComponent(&voiceScopeR);
@@ -119,12 +119,13 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
     effectScopeGrid.addComponent(&effectScopeR);
     effectScopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
     effectScopeGrid.setText("effect");
-    */
 
-    scopePPGrid.setColoumns({ 1.0f });
     scopePPGrid.addComponent(&voiceScopeGrid);
     scopePPGrid.addComponent(&synthScopeGrid);
     scopePPGrid.addComponent(&effectScopeGrid);
+    */
+
+    scopePPGrid.setColoumns({ 1.0f });
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
     processor.parameters.initializeKnobs(parameterEditor);
@@ -132,6 +133,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
     mainFrame.addTab("settings", Colours::black, &settingsEditor, false);
 
     mainFrame.addTab("voice patch", Colours::black, &voiceEditor, false);
+
     mainFrame.addTab("effect patch", Colours::black, &effectEditor, false);
 
     mainFrame.addTab("files", Colours::black, &fileBrowserPanel, false);
@@ -169,7 +171,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p)
 
 }
 
-PhasePhckrEditor::~PhasePhckrEditor() {
+PhasePhckrEditorBase::~PhasePhckrEditorBase() {
     guiUpdateTimer.stopTimer();
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
@@ -177,12 +179,20 @@ PhasePhckrEditor::~PhasePhckrEditor() {
 #endif
 }
 
-void PhasePhckrEditor::paint(Graphics& g) {
+void PhasePhckrEditorBase::paint(Graphics& g) {
     g.fillAll(Colour(0xff111111));
 }
 
-void PhasePhckrEditor::resized() {
+void PhasePhckrEditorBase::resized() {
     mainFrame.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
     repaint();
     processor.forceStateBump();
+}
+
+PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p) : PhasePhckrEditorBase(p) {
+    //
+}
+
+PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorBase& p) : PhasePhckrEditorBase(p) {
+    //
 }

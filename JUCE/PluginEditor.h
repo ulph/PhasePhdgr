@@ -19,18 +19,21 @@
 
 #include "SettingsEditor.hpp"
 
-class PhasePhckrEditor  : public AudioProcessorEditor, public DragAndDropContainer
+class PhasePhckrEditorBase  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:
-    PhasePhckrEditor (
-        PhasePhckrProcessorBase&
-     );
-    ~PhasePhckrEditor();
+    PhasePhckrEditorBase ( PhasePhckrProcessorBase& );
+    virtual ~PhasePhckrEditorBase();
 
     void paint (Graphics&) override;
     void resized() override;
 
     friend Parameters;
+
+protected:
+    std::vector<std::unique_ptr<ScopeI>> scopes;
+    PPGrid scopePPGrid;
+    PPTabbedComponent mainFrame;
 
 private:
 
@@ -38,23 +41,6 @@ private:
 
     PhasePhckrProcessorBase& processor;
 
-    /*
-    ScopeView voiceScopeL;
-    ScopeView voiceScopeR;
-    XYScopeView voiceScopeXY;
-    ScopeView synthScopeL;
-    ScopeView synthScopeR;
-    XYScopeView synthScopeXY;
-    ScopeView effectScopeL;
-    ScopeView effectScopeR;
-    XYScopeView effectScopeXY;
-    */
-
-    PPTabbedComponent mainFrame;
-    PPGGrid voiceScopeGrid;
-    PPGGrid synthScopeGrid;
-    PPGGrid effectScopeGrid;
-    PPGrid scopePPGrid;
     ParameterEditor parameterEditor;
 
     FileBrowserPanel fileBrowserPanel;
@@ -75,8 +61,26 @@ private:
 
     SettingsEditor settingsEditor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditorBase)
 };
 
+class PhasePhckrEditor: public PhasePhckrEditorBase {
+public:
+    PhasePhckrEditor ( PhasePhckrProcessorBase& p);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditor)
+private:
+    PPGGrid voiceScopeGrid;
+    PPGGrid synthScopeOutGrid;
+    PPGGrid effectScopeOutGrid;
+};
+
+class PhasePhckrEditorFX: public PhasePhckrEditorBase {
+public:
+    PhasePhckrEditorFX ( PhasePhckrProcessorBase& p);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditorFX)
+private:
+    PPGGrid effectScopeInGrid;
+    PPGGrid effectScopeOutGrid;
+};
 
 #endif  // PLUGINEDITOR_H_INCLUDED

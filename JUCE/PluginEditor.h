@@ -31,13 +31,9 @@ public:
     friend Parameters;
 
 protected:
-    std::vector<std::unique_ptr<ScopeI>> scopes;
+    std::vector<ScopeI *> scopes; // TODO, memory management from hell
     PPGrid scopePPGrid;
     PPTabbedComponent mainFrame;
-
-private:
-
-    bool inited = false;
 
     PhasePhckrProcessorBase& processor;
 
@@ -47,6 +43,12 @@ private:
 
     PatchEditor voiceEditor;
     PatchEditor effectEditor;
+
+    SettingsEditor settingsEditor;
+
+private:
+
+    bool inited = false;
 
 #if INTERCEPT_STD_STREAMS
     InterceptStringStream coutIntercept;
@@ -58,8 +60,6 @@ private:
 #endif
 
     LambdaTimer guiUpdateTimer;
-
-    SettingsEditor settingsEditor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditorBase)
 };

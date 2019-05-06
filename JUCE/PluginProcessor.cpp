@@ -462,7 +462,7 @@ PhasePhckrProcessorFx::~PhasePhckrProcessorFx()
 }
 
 AudioProcessorEditor* PhasePhckrProcessorFx::createEditor() {
-    auto ed = new PhasePhckrEditor(*this);
+    auto ed = new PhasePhckrEditorFX(*this);
     applyExtra(ed, extra);
     return ed;
 }

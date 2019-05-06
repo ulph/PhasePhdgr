@@ -80,51 +80,6 @@ PhasePhckrEditorBase::PhasePhckrEditorBase(PhasePhckrProcessorBase& p)
     
     mainFrame.addTab("scopes", Colours::black, &scopePPGrid, false);
 
-    /*
-
-    ScopeView voiceScopeL;
-    ScopeView voiceScopeR;
-    XYScopeView voiceScopeXY;
-    ScopeView synthScopeL;
-    ScopeView synthScopeR;
-    XYScopeView synthScopeXY;
-    ScopeView effectScopeL;
-    ScopeView effectScopeR;
-    XYScopeView effectScopeXY;
-
-    , voiceScopeL(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0))
-    , voiceScopeR(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
-    , voiceScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(0), processor.getProcessor(SynthGraphType::VOICE)->getVoiceScope(1))
-    , synthScopeL(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0))
-    , synthScopeR(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
-    , synthScopeXY(processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(0), processor.getProcessor(SynthGraphType::VOICE)->getOutputScope(1))
-    , effectScopeL(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0))
-    , effectScopeR(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
-    , effectScopeXY(processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(0), processor.getProcessor(SynthGraphType::EFFECT)->getOutputScope(1))
-
-    voiceScopeGrid.addComponent(&voiceScopeL);
-    voiceScopeGrid.addComponent(&voiceScopeXY);
-    voiceScopeGrid.addComponent(&voiceScopeR);
-    voiceScopeGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
-    voiceScopeGrid.setText("voice");
-
-    synthScopeGrid.addComponent(&synthScopeL);
-    synthScopeGrid.addComponent(&synthScopeXY);
-    synthScopeGrid.addComponent(&synthScopeR);
-    synthScopeGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
-    synthScopeGrid.setText("synth");
-
-    effectScopeGrid.addComponent(&effectScopeL);
-    effectScopeGrid.addComponent(&effectScopeXY);
-    effectScopeGrid.addComponent(&effectScopeR);
-    effectScopeGrid.setColoumns({0.33f, 0.33f, 0.33f});
-    effectScopeGrid.setText("effect");
-
-    scopePPGrid.addComponent(&voiceScopeGrid);
-    scopePPGrid.addComponent(&synthScopeGrid);
-    scopePPGrid.addComponent(&effectScopeGrid);
-    */
-
     scopePPGrid.setColoumns({ 1.0f });
 
     mainFrame.addTab("parameters", Colours::black, &parameterEditor, false);
@@ -177,6 +132,7 @@ PhasePhckrEditorBase::~PhasePhckrEditorBase() {
     debugViewUpdateTimer->stopTimer();
     delete debugViewUpdateTimer;
 #endif
+    for(auto s: scopes) delete s;
 }
 
 void PhasePhckrEditorBase::paint(Graphics& g) {
@@ -190,9 +146,84 @@ void PhasePhckrEditorBase::resized() {
 }
 
 PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p) : PhasePhckrEditorBase(p) {
-    //
+    voiceScopeGrid.setText("voice");
+    scopePPGrid.addComponent(&voiceScopeGrid);
+    
+    synthScopeOutGrid.setText("synth");
+    scopePPGrid.addComponent(&synthScopeOutGrid);
+
+    effectScopeOutGrid.setText("effect");
+    scopePPGrid.addComponent(&effectScopeOutGrid);
+
+    auto s = processor.getProcessor(SynthGraphType::VOICE);
+    auto e = processor.getProcessor(SynthGraphType::EFFECT);
+
+    if(!e || !s) return;
+
+    auto voiceScopeL = new ScopeView(s->getVoiceScope(0));
+    auto voiceScopeR = new ScopeView(s->getVoiceScope(1));
+    auto voiceScopeXY = new XYScopeView(s->getVoiceScope(0), s->getVoiceScope(1));
+    scopes.push_back(voiceScopeL);
+    scopes.push_back(voiceScopeR);
+    scopes.push_back(voiceScopeXY);
+    voiceScopeGrid.addComponent(voiceScopeL);
+    voiceScopeGrid.addComponent(voiceScopeR);
+    voiceScopeGrid.addComponent(voiceScopeXY);
+    voiceScopeGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
+ 
+    auto synthScopeL = new ScopeView(s->getOutputScope(0));
+    auto synthScopeR = new ScopeView(s->getOutputScope(1));
+    auto synthScopeXY = new XYScopeView(s->getOutputScope(0), s->getOutputScope(1));
+    scopes.push_back(synthScopeL);
+    scopes.push_back(synthScopeR);
+    scopes.push_back(synthScopeXY);
+    synthScopeOutGrid.addComponent(synthScopeL);
+    synthScopeOutGrid.addComponent(synthScopeR);
+    synthScopeOutGrid.addComponent(synthScopeXY);
+    synthScopeOutGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
+
+    auto effectScopeL = new ScopeView(e->getOutputScope(0));
+    auto effectScopeR = new ScopeView(e->getOutputScope(1));
+    auto effectScopeXY = new XYScopeView(e->getOutputScope(0), e->getOutputScope(1));
+    scopes.push_back(effectScopeL);
+    scopes.push_back(effectScopeR);
+    scopes.push_back(effectScopeXY);
+    effectScopeOutGrid.addComponent(effectScopeL);
+    effectScopeOutGrid.addComponent(effectScopeR);
+    effectScopeOutGrid.addComponent(effectScopeXY);
+    effectScopeOutGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
+
 }
 
 PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorBase& p) : PhasePhckrEditorBase(p) {
-    //
+    effectScopeInGrid.setText("input");
+    scopePPGrid.addComponent(&effectScopeInGrid);
+
+    effectScopeOutGrid.setText("output");
+    scopePPGrid.addComponent(&effectScopeOutGrid);
+
+    auto e = processor.getProcessor(SynthGraphType::EFFECT);
+    if(!e) return;
+
+    auto inputScopeL = new ScopeView(e->getInputScope(0));
+    auto inputScopeR = new ScopeView(e->getInputScope(1));
+    auto inputScopeXY = new XYScopeView(e->getInputScope(0), e->getInputScope(1));
+    scopes.push_back(inputScopeL);
+    scopes.push_back(inputScopeR);
+    scopes.push_back(inputScopeXY);
+    effectScopeInGrid.addComponent(inputScopeL);
+    effectScopeInGrid.addComponent(inputScopeR);
+    effectScopeInGrid.addComponent(inputScopeXY);
+    effectScopeInGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
+
+    auto effectScopeL = new ScopeView(e->getOutputScope(0));
+    auto effectScopeR = new ScopeView(e->getOutputScope(1));
+    auto effectScopeXY = new XYScopeView(e->getOutputScope(0), e->getOutputScope(1));
+    scopes.push_back(effectScopeL);
+    scopes.push_back(effectScopeR);
+    scopes.push_back(effectScopeXY);
+    effectScopeOutGrid.addComponent(effectScopeL);
+    effectScopeOutGrid.addComponent(effectScopeR);
+    effectScopeOutGrid.addComponent(effectScopeXY);
+    effectScopeOutGrid.setColoumns({ 0.33f, 0.33f, 0.33f });
 }

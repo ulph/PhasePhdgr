@@ -177,8 +177,8 @@ public:
     TextButton resetZoomButton;
     TextButton increaseZoomButton;
 
-    void paint(Graphics& g);
-    void resized();
+    void paint(Graphics& g) override;
+    void resized() override;
 
     void buttonClicked(Button* btn) override;
 

@@ -51,7 +51,7 @@ namespace PhasePhckr {
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) override;
         const Scope& getInputScope(int i) const override;
-        virtual void handleParameter(int handle, float value);
+        void handleParameter(int handle, float value) override;
         float setScopeHz(float hz) { return scopeHz = hz; }
     protected:
         EffectChain* effects;
@@ -75,7 +75,7 @@ namespace PhasePhckr {
         void handleModWheel(float value);
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) override;
-        virtual void handleParameter(int handle, float value);
+        void handleParameter(int handle, float value) override;
         const Scope& getVoiceScope(int i) const override;
         void applySettings(const PresetSettings& settings) override;
         const PresetSettings& retrieveSettings();

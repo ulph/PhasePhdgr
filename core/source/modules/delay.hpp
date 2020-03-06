@@ -26,7 +26,6 @@ private:
     const FractionalSincTable<N>& c_table;
     float clearFlag;
     float slewedTime;
-    float alphaTime;
 public:
     Delay(const FractionalSincTable<N>& table)
         : bufferSize(0)
@@ -34,13 +33,13 @@ public:
         , readPosition(0)
         , c_table(table)
         , slewedTime(0.f)
-        , alphaTime(DesignRcLp(10.f, Module::fsInv))
     {
         Module::inputs.push_back(Pad("in"));
         Module::inputs.push_back(Pad("time", 0.5f, "seconds"));
         Module::inputs.push_back(Pad("gain", 1.0f));
         Module::inputs.push_back(Pad("clear"));
         Module::inputs.push_back(Pad("compensation", 0.0f, "samples"));
+        Module::inputs.push_back(Pad("timeSlewWc", 2.0f, "hz"));
         Module::outputs.push_back(Pad("out"));
     };
 
@@ -51,7 +50,6 @@ public:
         , readPosition(0)
         , c_table(other.c_table)
         , slewedTime(0.0f)
-        , alphaTime(other.alphaTime)
     {
     }
 
@@ -68,6 +66,7 @@ public:
         clearFlag = Module::inputs[3].value;
 
         float target_t = limit(Module::inputs[1].value, 0, c_max_delay_t);
+        float alphaTime = DesignRcLp(Module::inputs[5].value, Module::fsInv);
         slewedTime = alphaTime*target_t + (1.0f - alphaTime)*slewedTime;
         float t = slewedTime;
         float g = Module::inputs[2].value;

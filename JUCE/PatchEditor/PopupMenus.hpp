@@ -338,7 +338,7 @@ public:
             if (patch.componentBundle.has(moduleType)) cd = patch.componentBundle.get(moduleType);
             else if (globalComponents.count(moduleType)) cd = globalComponents.at(moduleType);
             else return false;
-            string newType = moduleType + "_Clone";
+            string newType = moduleType + "_CLONE";
             if (0 != patch.componentBundle.add(newType, cd, true)) return false;
             if (!rootComponent->graph.modules.count(moduleName)) return true;
             rootComponent->graph.modules[moduleName] = newType;

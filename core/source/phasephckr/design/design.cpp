@@ -358,8 +358,16 @@ int ComponentBundle::rename(ComponentDescriptor* rootComponent, const string& ty
 }
 
 int ComponentBundle::add(string& type, const ComponentDescriptor& descriptor, bool resolveNameConflict) {
-    if (!componentTypeIsValid(type, true)) return -1;
-    if (!resolveNameConflict && components.count(type)) return -2;
+    if (!componentTypeIsValid(type, true)) {
+        std::cerr << "invalid type '" << type << "'\n";
+        return -1;
+    }
+    if (!resolveNameConflict && components.count(type)) {
+        std::cerr << "name conflict '" << type << "'\n";
+        return -2;
+    }
+
+    std::cerr << "added component '" << type << "'\n";
 
     string newType = type;
     while (components.count(newType)) newType += "_";
@@ -840,10 +848,19 @@ bool nameIsValid(const string& s, bool allowScope){
 }
 
 bool typeIsValid(const string& s, bool allowScope) {
-    if (s.size() < 1) return false;
-    if (s == c_inBus.type || s == c_outBus.type) return false;
+    if (s.size() < 1) {
+        std::cerr << s << "emtpy\n";
+        return false;
+    } 
+    if (s == c_inBus.type || s == c_outBus.type) {
+        std::cerr << s << " is reserved\n";
+        return false;
+    }
     for (auto c : s) {
-        if (!characterIsValid(c, false, allowScope)) return false;
+        if (!characterIsValid(c, false, allowScope)) {
+            std::cerr << s << " has invalid character\n";
+            return false;
+        }
     }
     return true;
 }

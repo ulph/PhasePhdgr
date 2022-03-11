@@ -80,14 +80,21 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
 
     addAndMakeVisible(filesPPGrid);
 
-    filesPPGrid.addComponent(&voiceFiles);
+    if(processor.isSynth()){
+        filesPPGrid.addComponent(&voiceFiles);
+        filesPPGrid.addComponent(&presetFiles);
+    }
+
     filesPPGrid.addComponent(&effectFiles);
-    filesPPGrid.addComponent(&presetFiles);
 
     filesPPGrid.addComponent(&componentFilesPPGrid);
     componentFilesPPGrid.addComponent(&componentFiles);
     componentFilesPPGrid.addComponent(&docViewTab);
-    docViewTab.addTab("voice", Colours::black, &voiceDocView, false);
+
+    if(processor.isSynth()){
+        docViewTab.addTab("voice", Colours::black, &voiceDocView, false);
+    }
+
     docViewTab.addTab("effect", Colours::black, &effectDocView, false);
 
     resized();
@@ -99,6 +106,8 @@ void FileBrowserPanel::resized()
 }
 
 FileBrowserPanel::~FileBrowserPanel(){
-    processor.getPropagator(SynthGraphType::VOICE).unsubscribe(subVoiceHandle);
+    if(processor.isSynth()){
+        processor.getPropagator(SynthGraphType::VOICE).unsubscribe(subVoiceHandle);
+    }
     processor.getPropagator(SynthGraphType::EFFECT).unsubscribe(subEffectHandle);
 }

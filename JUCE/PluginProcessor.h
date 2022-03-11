@@ -43,6 +43,10 @@ public:
     const String getProgramName(int index) override;
     void changeProgramName(int index, const String& newName) override;
 
+    bool isSynth() const {
+        return getProcessor(SynthGraphType::VOICE) != nullptr;         
+    }
+
 protected:
     ComponentFileLoader componentLoader;
 

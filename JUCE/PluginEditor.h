@@ -4,7 +4,6 @@
 #include <vector>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #include "PluginProcessor.h"
 #include "ScopeView.h"
@@ -18,6 +17,8 @@
 #include "ParameterKnob.hpp"
 
 #include "SettingsEditor.hpp"
+
+#include <juce_audio_processors/juce_audio_processors.h>
 
 class PhasePhckrEditorBase  : public AudioProcessorEditor, public DragAndDropContainer
 {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "JuceHeader.h"
 #include <map>
 #include <utility>
 #include <functional>

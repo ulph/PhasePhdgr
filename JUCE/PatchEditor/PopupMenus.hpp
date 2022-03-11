@@ -3,7 +3,6 @@
 // TODO, this is a hot pile of garbage
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #include "CommonEditor.hpp"
 

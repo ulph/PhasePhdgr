@@ -1,4 +1,3 @@
-#include <JuceHeader.h>
 #include "ScopeView.h"
 
 void ScopeView::paint (Graphics& g)

@@ -15,8 +15,11 @@
 
 #include <functional>
 
+#include <juce_audio_processors/juce_audio_processors.h>
+
 using namespace std;
 using namespace PhasePhckrFileStuff;
+using namespace juce;
 
 class PhasePhckrProcessorBase : public AudioProcessor {
 public:

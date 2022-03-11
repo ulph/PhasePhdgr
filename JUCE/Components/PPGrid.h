@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 using namespace std;
 

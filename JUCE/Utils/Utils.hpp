@@ -5,6 +5,8 @@
 
 #include <phasephckr.hpp>
 
+using namespace juce;
+
 #if INTERCEPT_STD_STREAMS
 struct InterceptStringStream {
     InterceptStringStream(std::ostream & stream)

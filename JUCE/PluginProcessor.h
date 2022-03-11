@@ -140,6 +140,7 @@ public:
     AudioProcessorEditor* createEditor() override;
     bool acceptsMidi() const override;
     bool producesMidi() const override;
+    const String getName() const override;
 };
 
 
@@ -163,6 +164,7 @@ public:
     AudioProcessorEditor* createEditor() override;
     bool acceptsMidi() const override;
     bool producesMidi() const override;
+    const String getName() const override;
 };
 
 

@@ -438,6 +438,10 @@ void PhasePhckrProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mi
 
 }
 
+const String PhasePhckrProcessor::getName() const {
+    return "phasepckr";
+}
+
 // effect
 
 PhasePhckrProcessorFx::PhasePhckrProcessorFx()
@@ -489,4 +493,8 @@ void PhasePhckrProcessorFx::processBlock(AudioSampleBuffer& buffer, MidiBuffer& 
     auto dn = ScopedNoDenormals();
     auto l = synthUpdateLock.make_scoped_lock();   
     bufferingProcessor.process(buffer, (float)getSampleRate(), effect, getPlayHead());
+}
+
+const String PhasePhckrProcessorFx::getName() const {
+    return "phasepckrfx";
 }

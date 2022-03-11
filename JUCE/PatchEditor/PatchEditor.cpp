@@ -19,9 +19,9 @@ void makeComponentPopupMenu(PopupMenu & poop,
     ids.name.edit.setEditable(true, true, false);
 
     if (local.count(type)) {
-#if 0
+
         ids.typeMenuId = ctr++;
-        poop.addCustomItem(ids.typeMenuId, &ids.name, 200, 20, false);
+        poop.addCustomItem(ids.typeMenuId, ids.name, 200, 20, false);
 
         ids.createInputMenuId = ctr++;
         poop.addItem(ids.createInputMenuId, c_componentMenuStrings.createInput);
@@ -35,10 +35,10 @@ void makeComponentPopupMenu(PopupMenu & poop,
             ids.docStringEditor.setText(patch.componentBundle.get(type).docString, NotificationType::dontSendNotification);
             ids.docStringEditor.setMultiLine(true, true);
             ids.docStringEditor.setReturnKeyStartsNewLine(true);
-            docStringPoop.addCustomItem(ids.docStringMenuId, &ids.docStringEditor, 200, 200, false);
+            docStringPoop.addCustomItem(ids.docStringMenuId, ids.docStringEditor, 200, 200, false);
             poop.addSubMenu(c_componentMenuStrings.docString, docStringPoop);
         }
-#endif
+
     }
 
     if (global.count(type) && local.count(type)) {

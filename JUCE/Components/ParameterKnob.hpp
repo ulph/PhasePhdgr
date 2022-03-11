@@ -128,16 +128,16 @@ public:
                 drg->startDragging(desc, this);
             }
             else if (event.mods.isRightButtonDown()) {
-#if 0
+
                 auto pm = PopupMenu();
                 Label start("start", to_string(parameter->range.start));
                 start.setEditable(true, true, false);
                 pm.addSectionHeader("min:");
-                pm.addCustomItem(2, &start, 50, 20, false);
+                pm.addCustomItem(2, start, 50, 20, false);
                 Label end("end", to_string(parameter->range.end));
                 end.setEditable(true, true, false);
                 pm.addSectionHeader("max:");
-                pm.addCustomItem(4, &end, 50, 20, false);
+                pm.addCustomItem(4, end, 50, 20, false);
                 pm.show();
                 float newStart = start.getText().getFloatValue();
                 float newEnd = end.getText().getFloatValue();
@@ -149,7 +149,7 @@ public:
                     parameter->range.end = newEnd;
                     parameter->setValueNotifyingHost(*parameter);
                 }
-#endif
+
             }
         }
     }

@@ -84,7 +84,7 @@ set( USED_JUCE_COMPILE_DEFINITIONS
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
-    JUCE_MODAL_LOOPS_PERMITTED=1 # workaround, see https://forum.juce.com/t/6-1-issue-with-show-is-not-a-member-of-juce-popupmenu/47511
+    JUCE_MODAL_LOOPS_PERMITTED=1 # workaround, should really redo the pop up menus... see https://forum.juce.com/t/6-1-issue-with-show-is-not-a-member-of-juce-popupmenu/47511
 )
 
 juce_add_plugin(PhasePhckr
@@ -110,21 +110,4 @@ juce_add_plugin(PhasePhckrFx
 target_sources(PhasePhckrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC} ${PHASEPHCKR_SRC})
 target_link_libraries(PhasePhckrFx PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
 target_compile_definitions(PhasePhckrFx PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
-juce_generate_juce_header(PhasePhckrFx)
 set_target_properties(PhasePhckrFx PROPERTIES FOLDER JUCE/VST)
-
-install(
-    TARGETS PhasePhckr
-    ARCHIVE DESTINATION .
-    LIBRARY DESTINATION .
-    RUNTIME DESTINATION .
-    COMPONENT .
-)
-
-install(
-    TARGETS PhasePhckrFx
-    ARCHIVE DESTINATION .
-    LIBRARY DESTINATION .
-    RUNTIME DESTINATION .
-    COMPONENT .
-)

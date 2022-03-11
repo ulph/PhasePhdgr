@@ -20,6 +20,8 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+using namespace juce;
+
 class PhasePhckrEditorBase  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:

@@ -19,6 +19,7 @@ void makeComponentPopupMenu(PopupMenu & poop,
     ids.name.edit.setEditable(true, true, false);
 
     if (local.count(type)) {
+#if 0
         ids.typeMenuId = ctr++;
         poop.addCustomItem(ids.typeMenuId, &ids.name, 200, 20, false);
 
@@ -37,6 +38,7 @@ void makeComponentPopupMenu(PopupMenu & poop,
             docStringPoop.addCustomItem(ids.docStringMenuId, &ids.docStringEditor, 200, 200, false);
             poop.addSubMenu(c_componentMenuStrings.docString, docStringPoop);
         }
+#endif
     }
 
     if (global.count(type) && local.count(type)) {
@@ -179,7 +181,7 @@ PatchEditor::PatchEditor(
         [this](const PatchDescriptor& desc) {
             patchCopy = desc;
             refreshAndBroadcastDoc();
-            for (int i = 0; i < subPatchTypes.size(); ++i) {
+            for (size_t i = 0u; i < subPatchTypes.size(); ++i) {
                 auto t = subPatchTypes.at(i);
                 if (!desc.componentBundle.has(t)) editorStack.setCurrentTabIndex(i); // +1 (root) -1 (previous)
             }

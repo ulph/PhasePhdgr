@@ -1,3 +1,4 @@
+#include "Parameters.hpp"
 #include "Parameter.hpp"
 #include "PluginEditor.h"
 
@@ -15,7 +16,7 @@ void Parameters::initialize(AudioProcessor * p){
 }
 
 void Parameters::initializeKnobs(ParameterEditor& parameterEditor) {
-    for (int i = 0; i<numberOfParameters(); i++) {
+    for (size_t i = 0u; i<numberOfParameters(); i++) {
         Parameter* p = nullptr;
         if (accessParameter(i, &p)) {
             auto knob = new ParameterKnob(p,
@@ -65,14 +66,14 @@ void Parameters::updateParameters(bool reset)
 
     // find any valid preset parameter
     map<ParameterIdentifier, int> validPresetParameters; // and build a convinience set for checking existance
-    for (int i = 0; i < presetParameters.size(); ++i) {
+    for (size_t i = 0u; i < presetParameters.size(); ++i) {
         const auto& p = presetParameters.at(i);
         ParameterIdentifier tid(p.type, p.p.id);
         if (validParameters.count(tid)) validPresetParameters[tid] = i;
     }
 
     // update floatParameters and parameterRouting
-    int firstFreeSlot = 0;
+    size_t firstFreeSlot = 0;
     for (const auto& kv : validParameters) {
         const auto& tid = kv.first;
 
@@ -124,19 +125,23 @@ void Parameters::updateParameters(bool reset)
     }
 }
 
-bool Parameters::accessParameter(int index, Parameter ** param) {
+bool Parameters::accessParameter(size_t index, Parameter ** param) {
+#if 0
     // potentially unsafe hack
     if (index >= numberOfParameters()) return false;
     *param = floatParameters[index];
     return true;
+#else
+    return false;
+#endif
 }
 
 size_t Parameters::numberOfParameters() {
     return floatParameters.size();
 }
 
-void Parameters::swapParameterIndices(int onto_idx, int dropped_idx) {
-
+void Parameters::swapParameterIndices(size_t onto_idx, size_t dropped_idx) {
+#if 0
     if (onto_idx == dropped_idx) return;
     if (onto_idx < 0 || dropped_idx < 0) return;
     if (onto_idx >= floatParameters.size() || dropped_idx >= floatParameters.size()) return;
@@ -146,7 +151,7 @@ void Parameters::swapParameterIndices(int onto_idx, int dropped_idx) {
 
     auto scoped_lock = parameterLock.make_scoped_lock();
 
-    for (auto* fp : floatParameters) {
+    for (auto fp : floatParameters) {
         auto index = fp->getParameterIndex();
         if (index == onto_idx) a = fp;
         if (index == dropped_idx) b = fp;
@@ -171,7 +176,7 @@ void Parameters::swapParameterIndices(int onto_idx, int dropped_idx) {
         a->initialize(bT, bP);
         updateParameters();
     }
-
+#endif
 }
 
 void Parameters::setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv) {

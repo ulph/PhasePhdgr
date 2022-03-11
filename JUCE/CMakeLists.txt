@@ -77,13 +77,14 @@ set( USED_JUCE_LIBS
 set( USED_JUCE_FLAGS
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
-    juce::juce_recommended_warning_flags
+#    juce::juce_recommended_warning_flags
 )
 
 set( USED_JUCE_COMPILE_DEFINITIONS
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
+    JUCE_MODAL_LOOPS_PERMITTED=1 # workaround, see https://forum.juce.com/t/6-1-issue-with-show-is-not-a-member-of-juce-popupmenu/47511
 )
 
 juce_add_plugin(PhasePhckr

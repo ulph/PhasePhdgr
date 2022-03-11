@@ -16,15 +16,15 @@ class Parameters {
     void updateParameters(bool reset=false);
 
 public:
-    static const int knobsPerBank = 8;
-    static const int banksPerPage = 8;
-    static const int numberOfPages = 8;
+    static const size_t knobsPerBank = 8;
+    static const size_t banksPerPage = 8;
+    static const size_t numberOfPages = 8;
 
     void initialize(AudioProcessor * p);
     void initializeKnobs(ParameterEditor& parameterEditor);
-    bool accessParameter(int index, Parameter ** param); // JUCE layer needs to couple to UI element
+    bool accessParameter(size_t index, Parameter ** param); // JUCE layer needs to couple to UI element
     size_t numberOfParameters();
-    void swapParameterIndices(int onto_idx, int dropped_idx); // via gui
+    void swapParameterIndices(size_t onto_idx, size_t dropped_idx); // via gui
     void setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv);
     void visitHandleParameterValues(Synth* synth, PhasePhckr::Effect* effect);
     void visitHandleParameterValues(Effect* effect);

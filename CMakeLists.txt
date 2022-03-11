@@ -49,7 +49,6 @@ endif()
 
 if(${BUILD_JUCE})
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/submodules/JUCE)
-  juce_set_vst3_sdk_path(${CMAKE_CURRENT_SOURCE_DIR}/submodules/vst3sdk)
   add_subdirectory(JUCE)
 endif()
 

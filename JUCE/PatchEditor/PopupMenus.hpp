@@ -99,15 +99,17 @@ public:
         }
 
         if (inputPort && !busModule) {
+#if 0
             popupMenu.addCustomItem(2, &valueLbl, 200, 20, false);
             popupMenu.addItem(3, "clear value");
+#endif
         }
 
         popupMenu.addItem(4, "disconnect all");
 
         if (patch.componentBundle.has(moduleType)) {
             PopupMenu cmpPoop;
-
+#if 0
             auto& cmp = patch.componentBundle.get(moduleType);
 
             cmpPoop.addCustomItem(5, &nameLbl, 200, 20, false);
@@ -123,6 +125,7 @@ public:
                 defaultValueLbl.edit.setText(to_string(pd.defaultValue), NotificationType::dontSendNotification);
                 cmpPoop.addCustomItem(8, &defaultValueLbl, 200, 20, false);
             }
+#endif
 
             cmpPoop.addItem(6, "remove port");
 
@@ -133,7 +136,7 @@ public:
         {
             int ctr = 9;
             PopupMenu disconnectSubmenu;
-            for (int i = 0; i < rootComponent->graph.connections.size(); i++) {
+            for (size_t i = 0u; i < rootComponent->graph.connections.size(); i++) {
                 const auto& c = rootComponent->graph.connections.at(i);
                 if (inputPort_ && c.target.module == gfxModule.module.name && c.target.port == port) {
                     disconnectSubmenu.addItem(ctr, c.source.module + " : " + c.source.port);
@@ -179,7 +182,7 @@ public:
         }
 
         if (choice >= 9) {
-            int i = choice - 9;
+            size_t i = choice - 9;
             if (i < rootComponent->graph.connections.size()) {
                 return 0 == rootComponent->graph.disconnect(rootComponent->graph.connections.at(i));
             }
@@ -284,10 +287,12 @@ public:
 
         nameMenuId = ctr++;
         delMenuId = ctr++;
+#if 0
         if (moduleName != c_inBus.name && moduleName != c_outBus.name) {
             popupMenu.addCustomItem(nameMenuId, &nameLbl, 200, 20, false);
             popupMenu.addItem(delMenuId, "remove module");
         }
+#endif
 
         PopupMenu cmpPoop;
 

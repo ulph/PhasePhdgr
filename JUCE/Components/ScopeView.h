@@ -2,6 +2,10 @@
 
 #include <phasephckr.hpp>
 
+#include <juce_audio_plugin_client/juce_audio_plugin_client.h>
+
+using namespace juce;
+
 class ScopeI : public Component {
     //
 };

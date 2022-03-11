@@ -128,6 +128,7 @@ public:
                 drg->startDragging(desc, this);
             }
             else if (event.mods.isRightButtonDown()) {
+#if 0
                 auto pm = PopupMenu();
                 Label start("start", to_string(parameter->range.start));
                 start.setEditable(true, true, false);
@@ -148,6 +149,7 @@ public:
                     parameter->range.end = newEnd;
                     parameter->setValueNotifyingHost(*parameter);
                 }
+#endif
             }
         }
     }

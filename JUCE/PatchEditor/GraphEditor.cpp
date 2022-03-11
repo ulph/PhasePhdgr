@@ -171,7 +171,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     bool validModule = false;
                     {
                         auto l = gfxGraphLock.make_scoped_lock();
-                        auto validModule = rootComponent()->graph.modules.count(pickedModule->module.name);
+                        validModule = rootComponent()->graph.modules.count(pickedModule->module.name);
                     }
                     modulePopUpMenu(validModule, pickedModule->module.name, pickedModule->module.type);
                 }

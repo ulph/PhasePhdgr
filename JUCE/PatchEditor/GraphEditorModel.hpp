@@ -11,6 +11,9 @@
 
 #include <phasephckr.hpp>
 
+#include <juce_graphics/juce_graphics.h>
+
+using namespace juce;
 using namespace PhasePhckr;
 using namespace std;
 

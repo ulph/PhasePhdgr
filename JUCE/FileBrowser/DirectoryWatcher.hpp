@@ -6,6 +6,11 @@
 
 #include "phasephckr_json.hpp"
 
+#include <juce_core/juce_core.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+
+using namespace juce;
+
 namespace PhasePhckrFileStuff {
 
     class StupidFileFilter : public FileFilter {

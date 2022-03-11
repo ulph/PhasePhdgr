@@ -4,8 +4,10 @@
 #include <iostream>
 
 #include <phasephckr.hpp>
+#include <juce_audio_plugin_client/juce_audio_plugin_client.h>
 
 using namespace std;
+using namespace juce;
 
 class PPGrid : public Component
 {

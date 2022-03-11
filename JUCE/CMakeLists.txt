@@ -61,26 +61,6 @@ set(PH_COMMON_SRC
     PluginProcessor.h
 )
 
-add_library(pp_common_obj OBJECT ${PH_COMMON_SRC})
-set_target_properties(pp_common_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(pp_common_obj PROPERTIES FOLDER JUCE)
-
-set(PH_SYNTH_SRC
-  exportSynth.cpp
-)
-
-add_library(pp_synth_obj OBJECT ${PH_SYNTH_SRC})
-set_target_properties(pp_synth_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(pp_synth_obj PROPERTIES FOLDER JUCE)
-
-set(PH_FX_SRC
-  exportFx.cpp
-)
-
-add_library(pp_fx_obj OBJECT ${PH_FX_SRC})
-set_target_properties(pp_fx_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(pp_fx_obj PROPERTIES FOLDER JUCE)
-
 option(INTERCEPT_STD_STREAMS ON)
 
 if(${INTERCEPT_STD_STREAMS})
@@ -89,19 +69,24 @@ else()
     add_definitions(-DINTERCEPT_STD_STREAMS=0)
 endif()
 
-set( PHASEPHCKR_JUCE_SYNTH_SRC
-    $<TARGET_OBJECTS:juce_synth_obj>
-    $<TARGET_OBJECTS:pp_common_obj>
-    $<TARGET_OBJECTS:pp_synth_obj>
+set( USED_JUCE_LIBS
+    juce::juce_audio_utils
+    juce::juce_events
 )
 
-set( PHASEPHCKR_JUCE_FX_SRC
-    $<TARGET_OBJECTS:juce_fx_obj>
-    $<TARGET_OBJECTS:pp_common_obj>
-    $<TARGET_OBJECTS:pp_fx_obj>
+set( USED_JUCE_FLAGS
+    juce::juce_recommended_config_flags
+    juce::juce_recommended_lto_flags
+    juce::juce_recommended_warning_flags
 )
 
-juce_add_plugin(PhasePhckr ${JUCE_DEPS}
+set( USED_JUCE_COMPILE_DEFINITIONS
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0
+    JUCE_VST3_CAN_REPLACE_VST2=0
+)
+
+juce_add_plugin(PhasePhckr
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     PLUGIN_MANUFACTURER_CODE "Ulha"
@@ -109,43 +94,21 @@ juce_add_plugin(PhasePhckr ${JUCE_DEPS}
     FORMATS AU VST3 Standalone
     PRODUCT_NAME "PhasePhckr"
 )
-target_link_libraries(PhasePhckr
-    PRIVATE
-        juce::juce_audio_utils
-    PUBLIC
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
-)
-target_compile_definitions(PhasePhckr
-    PUBLIC
-        JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
-        JUCE_VST3_CAN_REPLACE_VST2=0
-)
+target_sources(PhasePhckr PRIVATE exportSynth.cpp ${PH_COMMON_SRC})
+target_link_libraries(PhasePhckr PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
+target_compile_definitions(PhasePhckr PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
 set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
 
-juce_add_plugin(PhasePhckrFx ${JUCE_DEPS}
+juce_add_plugin(PhasePhckrFx
     IS_SYNTH FALSE
     PLUGIN_MANUFACTURER_CODE "Ulha"
     PLUGIN_CODE Ulh1
     FORMATS AU VST3 Standalone
     PRODUCT_NAME "PhasePhckrFx"
 )
-target_link_libraries(PhasePhckrFx
-    PRIVATE
-        juce::juce_audio_utils
-    PUBLIC
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
-)
-target_compile_definitions(PhasePhckrFx
-    PUBLIC
-        JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
-        JUCE_VST3_CAN_REPLACE_VST2=0
-)
+target_sources(PhasePhckrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC})
+target_link_libraries(PhasePhckrFx PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
+target_compile_definitions(PhasePhckrFx PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
 juce_generate_juce_header(PhasePhckrFx)
 set_target_properties(PhasePhckrFx PROPERTIES FOLDER JUCE/VST)
 

@@ -139,7 +139,6 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     
     {
         mouseDownPos = XY((float)event.x, (float)event.y);
-        auto l = gfxGraphLock.make_scoped_lock();
         GfxPort* pickedPort = nullptr;
         GfxModule* pickedModule = nullptr;
         GfxWire* pickedWire = nullptr;
@@ -152,6 +151,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             }
             else {
                 // begin dragin a wire
+                auto l = gfxGraphLock.make_scoped_lock();
                 looseWire.isValid = true;
                 looseWire.destination = mouseDownPos;
                 looseWire.attachedAtSource = !pickedPort->isInput;
@@ -167,12 +167,17 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                     selectionPopUpMenu();
                 }
                 else {
-                    // module popup menu
-                    auto validModule = rootComponent()->graph.modules.count(pickedModule->module.name);
+                    // module popup menu 
+                    bool validModule = false;
+                    {
+                        auto l = gfxGraphLock.make_scoped_lock();
+                        auto validModule = rootComponent()->graph.modules.count(pickedModule->module.name);
+                    }
                     modulePopUpMenu(validModule, pickedModule->module.name, pickedModule->module.type);
                 }
             }
             else if (event.mods.isShiftDown() && !readOnly) {
+                auto l = gfxGraphLock.make_scoped_lock();
                 // add/remove modules to/from selection
                 if (selectedModules.count(pickedModule)) {
                     selectedModules.erase(pickedModule);
@@ -182,6 +187,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 }
             }
             else if (event.mods.isCtrlDown() && !readOnly) {
+                auto l = gfxGraphLock.make_scoped_lock();                
                 // autoConnect wire
                 looseWire.isValid = true;
                 looseWire.destination = mouseDownPos;
@@ -190,6 +196,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
                 looseWire.position = mouseDownPos;
             }
             else {
+                auto l = gfxGraphLock.make_scoped_lock();                
                 // drag a module
                 draggedModule = pickedModule;
                 // show in doc view
@@ -209,6 +216,7 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
     if (readOnly) return;
 
     if (!userInteraction) {
+        auto l = gfxGraphLock.make_scoped_lock();        
         // (un)select region
         if (event.mods.isShiftDown()) {
             selecting = true;
@@ -218,7 +226,6 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             userInteraction = true;
         }
         else {
-            auto l = gfxGraphLock.make_scoped_lock();
             selectedModules.clear();
         }
     }
@@ -463,41 +470,47 @@ void GraphEditor::paint(Graphics& g){
 }
 
 void GraphEditor::setGlobalComponents(const map<string, ComponentDescriptor>& globalComponents_) {
-    auto scoped_lock = gfxGraphLock.make_scoped_lock();
-    globalComponents = globalComponents_;
-    docIsDirty = true;
+    {
+        auto scoped_lock = gfxGraphLock.make_scoped_lock();    
+        globalComponents = globalComponents_;
+        docIsDirty = true;
+    }
     repaint();
 }
 
 void GraphEditor::setDoc(const Doc& newDoc){
-    auto scoped_lock = gfxGraphLock.make_scoped_lock();
+    {
+        auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
-    doc = newDoc;
+        doc = newDoc;
 
-    auto * rt = rootComponent();
-    if (rootComponentName != rootMarker && rt != nullptr){
-        inBus = rt->inBus;
-        outBus = rt->outBus;
+        auto * rt = rootComponent();
+        if (rootComponentName != rootMarker && rt != nullptr){
+            inBus = rt->inBus;
+            outBus = rt->outBus;
+        }
+
+        ModuleDoc inBus_;
+        ModuleDoc outBus_;
+        inBus_.fromBusModulePorts(inBus, true);
+        outBus_.fromBusModulePorts(outBus, false);
+
+        doc.add(inBus_);
+        doc.add(outBus_);
+
+        docIsDirty = true;
+
     }
-
-    ModuleDoc inBus_;
-    ModuleDoc outBus_;
-    inBus_.fromBusModulePorts(inBus, true);
-    outBus_.fromBusModulePorts(outBus, false);
-
-    doc.add(inBus_);
-    doc.add(outBus_);
-
-    docIsDirty = true;
-
     repaint();
 }
 
 void GraphEditor::setGraph(const PatchDescriptor& newPatch) {
-  auto scoped_lock = gfxGraphLock.make_scoped_lock();
+    {
+        auto scoped_lock = gfxGraphLock.make_scoped_lock();
 
-  patch = newPatch;
-  patchIsDirty = true;
+        patch = newPatch;
+        patchIsDirty = true;
+    }
 
   repaint();
 }
@@ -741,7 +754,7 @@ void GraphEditor::portPopUpMenu(GfxModule & module, const string & port, bool in
                 if (editor == nullptr) return;
                 bool modelChanged = false;
                 {
-                    auto l = editor->gfxGraphLock.make_scoped_lock();
+                    auto l = editor->gfxGraphLock.make_scoped_lock(); // TODO - DEADLOCK
                     modelChanged = editor->portPopupMenuData.handleChoice(editor->patch, editor->rootComponent(), choice);
                 }
                 if (modelChanged) editor->propagatePatch();
@@ -760,7 +773,7 @@ void GraphEditor::modulePopUpMenu(bool validModule, const string& moduleName, co
                 if (editor == nullptr) return;
                 bool modelChanged = false;
                 {
-                    auto l = editor->gfxGraphLock.make_scoped_lock();
+                    auto l = editor->gfxGraphLock.make_scoped_lock(); // TODO - DEADLOCK
                     modelChanged = editor->modulePopupMenuData.handleChoice(editor->patch, editor->rootComponent(), editor->globalComponents, choice);
                 }
                 if (modelChanged) editor->propagatePatch();
@@ -780,7 +793,7 @@ void GraphEditor::selectionPopUpMenu() {
             bool modelChanged = false;
             if (editor == nullptr) return;
             {
-                auto l = editor->gfxGraphLock.make_scoped_lock();
+                auto l = editor->gfxGraphLock.make_scoped_lock(); // TODO - deadlock
                 switch (choice) {
                 case 1:
                 {

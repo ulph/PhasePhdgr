@@ -95,7 +95,7 @@ juce_add_plugin(PhasePhckr
     FORMATS AU VST3 Standalone
     PRODUCT_NAME "PhasePhckr"
 )
-target_sources(PhasePhckr PRIVATE exportSynth.cpp ${PH_COMMON_SRC})
+target_sources(PhasePhckr PRIVATE exportSynth.cpp ${PH_COMMON_SRC} ${PHASEPHCKR_SRC})
 target_link_libraries(PhasePhckr PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
 target_compile_definitions(PhasePhckr PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
 set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
@@ -107,7 +107,7 @@ juce_add_plugin(PhasePhckrFx
     FORMATS AU VST3 Standalone
     PRODUCT_NAME "PhasePhckrFx"
 )
-target_sources(PhasePhckrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC})
+target_sources(PhasePhckrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC} ${PHASEPHCKR_SRC})
 target_link_libraries(PhasePhckrFx PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
 target_compile_definitions(PhasePhckrFx PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
 juce_generate_juce_header(PhasePhckrFx)

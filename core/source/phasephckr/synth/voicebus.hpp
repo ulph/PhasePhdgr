@@ -27,7 +27,7 @@ struct NoteDataKey {
         return std::tie(channel, note) < std::tie(rhs.channel, rhs.note);
     }
     bool isValid() const {
-        return channel > 0 && channel <= 16 && note >= 0 && note <= 127;
+        return channel >= 0 && channel < 16 && note >= 0 && note < 128;
     }
 };
 

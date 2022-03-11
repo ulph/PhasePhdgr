@@ -1,4 +1,4 @@
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "PPGrid.h"
 
 void PPGrid::resized(){

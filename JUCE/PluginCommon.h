@@ -1,7 +1,6 @@
 #pragma once
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #include "DirectoryWatcher.hpp"
 #include "FileIO.hpp"

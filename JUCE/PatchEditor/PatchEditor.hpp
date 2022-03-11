@@ -4,7 +4,6 @@
 #include <vector>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #include "PPGrid.h"
 #include "Utils.hpp"

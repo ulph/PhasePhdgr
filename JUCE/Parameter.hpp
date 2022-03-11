@@ -5,8 +5,6 @@
 #include <string>
 #include <list>
 
-#include "JuceHeader.h"
-
 #include "phasephckr.hpp"
 
 using namespace std;

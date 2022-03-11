@@ -12,7 +12,6 @@
 #include <functional>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #include "GraphEditorModel.hpp"
 #include "GraphEditorPositions.hpp"

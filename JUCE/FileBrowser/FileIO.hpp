@@ -3,7 +3,7 @@
 #include <phasephckr.hpp>
 #include <phasephckr_json.hpp>
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
 #include "Utils.hpp"
 
 #include <regex>

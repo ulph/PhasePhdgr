@@ -1,7 +1,3 @@
-project(phasephckr_juce)
-cmake_minimum_required(VERSION 3.0)
-set (CMAKE_CXX_STANDARD 14)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 														 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -9,17 +5,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_definitions(-DNDEBUG)
-
-# JUCE stuff
-set(JUCE_SDK_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../submodules/JUCE)
-include_directories(${JUCE_SDK_ROOT}/modules)
-
-# VST3 SDK stuff
-set(VST3_SDK_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../submodules/vst3sdk)
-include_directories(${VST3_SDK_ROOT})
-
-add_subdirectory(JuceJunk)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/JuceJunk/JuceLibraryCode)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/PatchEditor)
@@ -104,9 +89,6 @@ else()
     add_definitions(-DINTERCEPT_STD_STREAMS=0)
 endif()
 
-# utilize the (modded) templates from VST SDK ...
-include(vst_sdk)
-
 set( PHASEPHCKR_JUCE_SYNTH_SRC
     $<TARGET_OBJECTS:juce_synth_obj>
     $<TARGET_OBJECTS:pp_common_obj>
@@ -119,12 +101,52 @@ set( PHASEPHCKR_JUCE_FX_SRC
     $<TARGET_OBJECTS:pp_fx_obj>
 )
 
-mod_smtg_add_vst3plugin(PhasePhckr ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_SYNTH_SRC})
-TARGET_LINK_LIBRARIES(PhasePhckr ${JUCE_DEPS})
+juce_add_plugin(PhasePhckr ${JUCE_DEPS}
+    IS_SYNTH TRUE
+    NEEDS_MIDI_INPUT TRUE
+    PLUGIN_MANUFACTURER_CODE "Ulha"
+    PLUGIN_CODE Ulh0
+    FORMATS AU VST3 Standalone
+    PRODUCT_NAME "PhasePhckr"
+)
+target_link_libraries(PhasePhckr
+    PRIVATE
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)
+target_compile_definitions(PhasePhckr
+    PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+)
 set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
 
-mod_smtg_add_vst3plugin(PhasePhckrFx ${VST3_SDK_ROOT} ${PHASEPHCKR_SRC} ${PHASEPHCKR_JUCE_FX_SRC})
-TARGET_LINK_LIBRARIES(PhasePhckrFx ${JUCE_DEPS})
+juce_add_plugin(PhasePhckrFx ${JUCE_DEPS}
+    IS_SYNTH FALSE
+    PLUGIN_MANUFACTURER_CODE "Ulha"
+    PLUGIN_CODE Ulh1
+    FORMATS AU VST3 Standalone
+    PRODUCT_NAME "PhasePhckrFx"
+)
+target_link_libraries(PhasePhckrFx
+    PRIVATE
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)
+target_compile_definitions(PhasePhckrFx
+    PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+)
+juce_generate_juce_header(PhasePhckrFx)
 set_target_properties(PhasePhckrFx PROPERTIES FOLDER JUCE/VST)
 
 install(

@@ -4,7 +4,6 @@
 #include <list>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #include "Utils.hpp"
 #include "PatchEditor.hpp"

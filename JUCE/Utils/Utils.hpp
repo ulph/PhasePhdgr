@@ -4,7 +4,6 @@
 #include <atomic>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 #if INTERCEPT_STD_STREAMS
 struct InterceptStringStream {

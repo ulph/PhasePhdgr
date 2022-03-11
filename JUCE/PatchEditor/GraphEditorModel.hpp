@@ -10,7 +10,6 @@
 #include <set>
 
 #include <phasephckr.hpp>
-#include "JuceHeader.h"
 
 using namespace PhasePhckr;
 using namespace std;

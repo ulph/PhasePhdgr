@@ -126,14 +126,10 @@ void Parameters::updateParameters(bool reset)
 }
 
 bool Parameters::accessParameter(size_t index, Parameter ** param) {
-#if 0
     // potentially unsafe hack
     if (index >= numberOfParameters()) return false;
     *param = floatParameters[index];
     return true;
-#else
-    return false;
-#endif
 }
 
 size_t Parameters::numberOfParameters() {
@@ -141,7 +137,6 @@ size_t Parameters::numberOfParameters() {
 }
 
 void Parameters::swapParameterIndices(size_t onto_idx, size_t dropped_idx) {
-#if 0
     if (onto_idx == dropped_idx) return;
     if (onto_idx < 0 || dropped_idx < 0) return;
     if (onto_idx >= floatParameters.size() || dropped_idx >= floatParameters.size()) return;
@@ -176,7 +171,6 @@ void Parameters::swapParameterIndices(size_t onto_idx, size_t dropped_idx) {
         a->initialize(bT, bP);
         updateParameters();
     }
-#endif
 }
 
 void Parameters::setParametersHandleMap(SynthGraphType type, const ParameterHandleMap& pv) {

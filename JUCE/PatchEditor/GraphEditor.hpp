@@ -116,7 +116,8 @@ private:
 
     simple_lock gfxGraphLock;
 
-    GfxModule *draggedModule = nullptr;
+    GfxModule *dragModule = nullptr;
+    XY dragDistance;
     GfxLooseWire looseWire;
     bool mouseIsHovering = false;
 

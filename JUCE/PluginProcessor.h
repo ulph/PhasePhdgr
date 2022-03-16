@@ -111,7 +111,7 @@ public:
 
     void broadcastPatch();
     PatchDescriptor getPatch(SynthGraphType type, bool extractParameters = false);
-    void setPatch(SynthGraphType type, const PatchDescriptor& patch);
+    void setPatch(SynthGraphType type, const PatchDescriptor& patch, bool cleanLocalComponentDupe=false);
 
     SubValue<PatchDescriptor> &getPropagator(SynthGraphType type);
 

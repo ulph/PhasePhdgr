@@ -273,7 +273,9 @@ void GfxModule::draw(Graphics & g, bool selected) {
     g.fillPath(path);
 
     g.setColour(Colours::white);
-    if (state == CONFLICTINGCOMPONENT) g.setColour(Colours::red);
+    if (state == CONFLICTINGCOMPONENT) {
+        g.setColour(Colours::red);
+    }
     else if (state == LOCALCOMPONENT) g.setColour(Colours::yellow);
     else if (state == UNKONWN) g.setColour(Colours::cyan);
 

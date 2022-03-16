@@ -192,8 +192,8 @@ void PhasePhckrProcessorBase::setComponentRegister(const ComponentRegister& cr) 
 }
 
 void PhasePhckrProcessorBase::setPreset(const PresetDescriptor& preset) {
-    setPatch(SynthGraphType::VOICE, preset.voice);
-    setPatch(SynthGraphType::EFFECT, preset.effect);
+    setPatch(SynthGraphType::VOICE, preset.voice, true);
+    setPatch(SynthGraphType::EFFECT, preset.effect, true);
     setSettings(preset.settings);
     subSettings.set(activeSettingsHandle, activeSettings);
     parameters.deserialize(preset.parameters);
@@ -212,7 +212,7 @@ void PhasePhckrProcessorBase::setSettings(const PhasePhckr::PresetSettings &s) {
     forceStateBump();
 }
 
-void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::PatchDescriptor &patch) {
+void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::PatchDescriptor &patch, bool cleanLocalComponentDupes) {
     if (!bundles.count(type)) return;
     auto scoped_lock = synthUpdateLock.make_scoped_lock();
     auto &bundle = bundles[type];
@@ -220,7 +220,9 @@ void PhasePhckrProcessorBase::setPatch(SynthGraphType type, const PhasePhckr::Pa
 
     auto p = patch;
     p.cleanUp();
-    p.componentBundle.reduceToComplement(componentRegister.all());
+    if(cleanLocalComponentDupes) {
+        p.componentBundle.reduceToComplement(componentRegister.all());
+    }
 
     json j = p;
     auto hash = std::hash<string>{}( j.dump() );

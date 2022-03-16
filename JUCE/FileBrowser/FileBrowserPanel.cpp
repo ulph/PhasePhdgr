@@ -24,7 +24,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
         PhasePhckrFileStuff::voicesDir,
         fileWatchThread,
         [this](const string& n, const json& j) {
-            processor.setPatch(SynthGraphType::VOICE, j);
+            processor.setPatch(SynthGraphType::VOICE, j, true);
         },
         [this](void) -> json {
             return processor.getPatch(SynthGraphType::VOICE, true);
@@ -35,7 +35,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
         PhasePhckrFileStuff::effectsDir,
         fileWatchThread,
         [this](const string& n, const json& j) {
-            processor.setPatch(SynthGraphType::EFFECT, j);
+            processor.setPatch(SynthGraphType::EFFECT, j, true);
         },
         [this](void) -> json {
             return processor.getPatch(SynthGraphType::EFFECT, true);;

@@ -367,10 +367,10 @@ int ComponentBundle::add(string& type, const ComponentDescriptor& descriptor, bo
         return -2;
     }
 
-    std::cerr << "added component '" << type << "'\n";
-
     string newType = type;
     while (components.count(newType)) newType += "_";
+
+    std::cerr << "added component '" << newType << "'\n";
 
     type = newType;
     components[type] = descriptor;

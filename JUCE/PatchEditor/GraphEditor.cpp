@@ -103,7 +103,7 @@ void GraphEditor::propagatePatch() {
         auto l = gfxGraphLock.make_scoped_lock();
         patchCopy = patch;
     }
-    subPatch.set(subPatchHandle, patchCopy); // we want it back (lazily forces refresh/sync)
+    subPatch.set(subPatchHandle, patchCopy);
     repaint();
 }
 
@@ -198,7 +198,8 @@ void GraphEditor::mouseDown(const MouseEvent & event) {
             else {
                 auto l = gfxGraphLock.make_scoped_lock();                
                 // drag a module
-                draggedModule = pickedModule;
+                dragModule = pickedModule;
+                dragDistance = XY(0.f, 0.f);
                 // show in doc view
                 patchEditor.showDoc(pickedModule->module.type);
             }
@@ -258,14 +259,15 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
     if (readOnly) return;
     bool modelChanged = false;
     auto mousePos = XY((float)event.x, (float)event.y);
-    if (draggedModule) {
+    if (dragModule) {
         XY delta = mousePos - mouseDownPos;
         mouseDownPos = mousePos;
-        draggedModule->position += delta;
-        draggedModule->repositionPorts();
-        auto mv = vector<GfxModule>{ *draggedModule };
+        dragModule->position += delta;
+        dragDistance += delta;
+        dragModule->repositionPorts();
+        auto mv = vector<GfxModule>{ *dragModule };
         auto l = gfxGraphLock.make_scoped_lock();
-        rootComponent()->graph.layout[draggedModule->module.name] = ModulePosition(draggedModule->position.x, draggedModule->position.y);
+        rootComponent()->graph.layout[dragModule->module.name] = ModulePosition(dragModule->position.x, dragModule->position.y);
         recalculateWires(mv);
         updateBounds(getVirtualBounds());
     }
@@ -278,7 +280,7 @@ void GraphEditor::mouseDrag(const MouseEvent & event) {
     if (selecting) {
         selectionStop = event.position;
     }
-    if (draggedModule || looseWire.isValid || selecting) {
+    if (dragModule || looseWire.isValid || selecting) {
         auto vpm = viewPort.getMouseXYRelative();
         auto vpb = viewPort.getWidth();
 
@@ -348,8 +350,8 @@ void GraphEditor::mouseUp(const MouseEvent & event) {
     moveIntoView(); // don't do this continously or stuff gets weird
     repaint();
     if (modelChanged) propagatePatch();
-    else if (draggedModule) propagateLayout();
-    draggedModule = nullptr;
+    else if (dragModule && (dragDistance.x != 0.f || dragDistance.y != 0.f )) propagateLayout();
+    dragModule = nullptr;
 }
 
 void GraphEditor::findCloseThings(const XY& pos, GfxPort** closestPort, GfxModule** closestModule, GfxWire** closestWire, bool& nearestSource) {

@@ -1,0 +1,148 @@
+{
+  "effect": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "left", "outPreGain", "left" ],
+          [ "inBus", "right", "outPreGain", "right" ],
+          [ "outPreGain", "right", "outBus", "right" ],
+          [ "outPreGain", "left", "outBus", "left" ]
+        ],
+        "layout": {
+          "inBus": [ 0, 0 ],
+          "outBus": [ 51, 486 ],
+          "outPreGain": [ 0, 200 ]
+        },
+        "modules": [
+          [ "outPreGain", "GAIN" ]
+        ],
+        "values": [
+          [ "outPreGain", "gain", 0.5 ]
+        ]
+      }
+    }
+  },
+  "settings": {
+    "legatoMode": 0,
+    "multicore": true,
+    "noteReactivationPolicy": 0,
+    "noteStealPolicy": 0,
+    "polyphony": 16
+  },
+  "voice": {
+    "components": {
+      "@MONO2STEREO_CHORUS": {
+        "graph": {
+          "connections": [
+            [ "vca", "left", "outBus", "left" ],
+            [ "vca", "right", "outBus", "right" ],
+            [ "inBus", "low", "vca", "left" ],
+            [ "new_PHASE_0", "phase", "new_ABS_0", "in" ],
+            [ "new_ABS_0", "out", "new_MUL_0", "in2" ],
+            [ "inBus", "low", "new_DELAY_LOW_Q_0", "in" ],
+            [ "new_MUL_0", "out", "new_DELAY_LOW_Q_0", "time" ],
+            [ "inBus", "low", "vca", "right" ],
+            [ "inBus", "low", "new_DELAY_LOW_Q_1", "in" ],
+            [ "new_MUL_1", "out", "new_DELAY_LOW_Q_1", "time" ],
+            [ "new_ABS_1", "out", "new_MUL_1", "in2" ],
+            [ "new_PHASE_1", "phase", "new_ABS_1", "in" ],
+            [ "new_DELAY_LOW_Q_1", "out", "vca", "left" ],
+            [ "new_DELAY_LOW_Q_0", "out", "vca", "right" ]
+          ],
+          "layout": {
+            "inBus": [ 231, 0 ],
+            "new_ABS_0": [ 31, 400 ],
+            "new_ABS_1": [ 631, 400 ],
+            "new_DELAY_LOW_Q_0": [ 123, 826 ],
+            "new_DELAY_LOW_Q_1": [ 556, 804 ],
+            "new_MUL_0": [ 31, 600 ],
+            "new_MUL_1": [ 631, 600 ],
+            "new_PHASE_0": [ 31, 200 ],
+            "new_PHASE_1": [ 631, 200 ],
+            "outBus": [ 231, 1200 ],
+            "vca": [ 442, 968 ]
+          },
+          "modules": [
+            [ "new_ABS_0", "ABS" ],
+            [ "new_ABS_1", "ABS" ],
+            [ "new_DELAY_LOW_Q_0", "DELAY_LOW_Q" ],
+            [ "new_DELAY_LOW_Q_1", "DELAY_LOW_Q" ],
+            [ "new_MUL_0", "MUL" ],
+            [ "new_MUL_1", "MUL" ],
+            [ "new_PHASE_0", "PHASE" ],
+            [ "new_PHASE_1", "PHASE" ],
+            [ "vca", "GAIN" ]
+          ],
+          "values": [
+            [ "new_MUL_0", "in", 0.00999999977648258 ],
+            [ "new_MUL_1", "in", 0.00999999977648258 ],
+            [ "new_PHASE_0", "freq", 0.400000005960464 ],
+            [ "new_PHASE_1", "freq", 0.5 ],
+            [ "vca", "gain", 0.25 ]
+          ]
+        },
+        "inBus": [
+          [ "low", "", 0.0 ]
+        ],
+        "outBus": [
+          [ "left", "", 0.0 ],
+          [ "right", "", 0.0 ]
+        ]
+      }
+    },
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "gate", "newENV0", "gate" ],
+          [ "inBus", "strike_z", "newENV0", "onBumpHeight" ],
+          [ "newENV0", "out", "newMUL2", "in2" ],
+          [ "inBus", "pitch_hz", "new_TRANSPOSE_0", "freq" ],
+          [ "new_TRANSPOSE_0", "freq", "new_OSC_BLIT_0", "freq" ],
+          [ "inBus", "pitch_hz", "new_TRANSPOSE_1", "freq" ],
+          [ "new_TRANSPOSE_1", "freq", "new_PHASE_0", "freq" ],
+          [ "new_PHASE_0", "phase", "new_TRESH_0", "in" ],
+          [ "inBus", "gate", "new_PHASE_0", "reset" ],
+          [ "inBus", "gate", "new_OSC_BLIT_0", "reset" ],
+          [ "new_PHASE_0", "phase", "new_ABS_0", "in" ],
+          [ "new_ABS_0", "out", "new_OSC_BLIT_0", "pwm" ],
+          [ "new_TRESH_0", "out", "new_TRANSPOSE_0", "octave" ],
+          [ "chorus", "left", "outBus", "left" ],
+          [ "chorus", "right", "outBus", "right" ],
+          [ "new_OSC_BLIT_0", "out", "newMUL2", "in" ],
+          [ "newMUL2", "out", "chorus", "low" ]
+        ],
+        "layout": {
+          "chorus": [ 238, 1193 ],
+          "inBus": [ 200, 0 ],
+          "newENV0": [ 958, 491 ],
+          "newMUL2": [ 214, 948 ],
+          "new_ABS_0": [ 444, 405 ],
+          "new_OSC_BLIT_0": [ 317, 632 ],
+          "new_PHASE_0": [ 591, 238 ],
+          "new_TRANSPOSE_0": [ 72, 371 ],
+          "new_TRANSPOSE_1": [ 898, 236 ],
+          "new_TRESH_0": [ 648, 413 ],
+          "outBus": [ 199, 1396 ]
+        },
+        "modules": [
+          [ "chorus", "@MONO2STEREO_CHORUS" ],
+          [ "newENV0", "CAMELENV" ],
+          [ "newMUL2", "MUL" ],
+          [ "new_ABS_0", "ABS" ],
+          [ "new_OSC_BLIT_0", "OSC_BLIT" ],
+          [ "new_PHASE_0", "PHASE" ],
+          [ "new_TRANSPOSE_0", "TRANSPOSE" ],
+          [ "new_TRANSPOSE_1", "TRANSPOSE" ],
+          [ "new_TRESH_0", "TRESH" ]
+        ],
+        "values": [
+          [ "new_OSC_BLIT_0", "dcRemoval", 1.0 ],
+          [ "new_OSC_BLIT_0", "shape", 0.5 ],
+          [ "new_TRANSPOSE_1", "cent", 10.0 ],
+          [ "new_TRANSPOSE_1", "octave", -2.0 ],
+          [ "new_TRANSPOSE_1", "semi", 0.0 ]
+        ]
+      }
+    }
+  }
+}

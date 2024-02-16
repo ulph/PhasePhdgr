@@ -1,0 +1,138 @@
+{
+  "effect": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "delayGain", "left", "stereoTape", "left" ],
+          [ "delayGain", "right", "stereoTape", "right" ],
+          [ "stereoTape", "left", "outPreGain", "left" ],
+          [ "stereoTape", "right", "outPreGain", "right" ],
+          [ "outPreGain", "left", "outSaturation", "left" ],
+          [ "outPreGain", "right", "outSaturation", "right" ],
+          [ "outSaturation", "left", "outPostGain", "left" ],
+          [ "outSaturation", "right", "outPostGain", "right" ],
+          [ "outPostGain", "left", "outBus", "left" ],
+          [ "outPostGain", "right", "outBus", "right" ],
+          [ "inBus", "left", "newDELAY0", "in" ],
+          [ "inBus", "right", "newDELAY1", "in" ],
+          [ "newDELAY0", "out", "newGAIN0", "left" ],
+          [ "newGAIN0", "left", "outPreGain", "left" ],
+          [ "newGAIN0", "right", "outPreGain", "right" ],
+          [ "newGAIN0", "left", "delayGain", "left" ],
+          [ "newGAIN0", "right", "delayGain", "right" ],
+          [ "newDELAY0", "out", "newGAIN0", "right" ],
+          [ "newDELAY1", "out", "newGAIN0", "left" ],
+          [ "newSCLSHFT0", "out", "newMUL0", "in" ],
+          [ "newMUL0", "out", "newDELAY1", "time" ],
+          [ "newSINE0", "sine", "newSCLSHFT0", "in" ],
+          [ "newPHASE0", "phase", "newSINE0", "phase" ],
+          [ "newDELAY1", "out", "newGAIN0", "right" ],
+          [ "newDELAY1", "out", "feedback", "in" ],
+          [ "feedback", "out", "newDELAY1", "in" ]
+        ],
+        "modules": [
+          [ "delayGain", "GAIN" ],
+          [ "feedback", "MUL" ],
+          [ "newDELAY0", "DELAY" ],
+          [ "newDELAY1", "DELAY" ],
+          [ "newGAIN0", "GAIN" ],
+          [ "newMUL0", "MUL" ],
+          [ "newPHASE0", "PHASE" ],
+          [ "newSCLSHFT0", "MULADD" ],
+          [ "newSINE0", "SINE" ],
+          [ "outPostGain", "GAIN" ],
+          [ "outPreGain", "GAIN" ],
+          [ "outSaturation", "SNATAN" ],
+          [ "stereoTape", "@FACTORY.STEREOTAPE" ]
+        ],
+        "values": [
+          [ "outPreGain", "gain", 0.5 ],
+          [ "outPostGain", "gain", 1.0 ],
+          [ "newSCLSHFT0", "mul", 0.5 ],
+          [ "newSCLSHFT0", "add", 1.0 ],
+          [ "newPHASE0", "freq", 0.100000001490116 ],
+          [ "newMUL0", "in2", 0.0149999996647239 ],
+          [ "newGAIN0", "gain", 1.0 ],
+          [ "newDELAY1", "gain", 0.5 ],
+          [ "newDELAY0", "time", 0.0 ],
+          [ "feedback", "in2", 0.75 ],
+          [ "delayGain", "gain", 0.25 ]
+        ]
+      }
+    }
+  },
+  "settings": { "legatoMode": 1, "multicore": true, "polyphony": 1 },
+  "voice": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "pitch_hz", "new_TRANSPOSE_0", "freq" ],
+          [ "new_MUL_1", "out", "new_TRANSPOSE_0", "octave" ],
+          [ "inBus", "pitch_hz", "new_OSC_BLIT_0", "syncFreq" ],
+          [ "new_TRANSPOSE_0", "freq", "new_OSC_BLIT_0", "freq" ],
+          [ "inBus", "gate", "new_OSC_BLIT_0", "reset" ],
+          [ "inBus", "gate", "new_ADSR_0", "gate" ],
+          [ "new_TANH_0", "out", "outBus", "left" ],
+          [ "new_TANH_0", "out", "outBus", "right" ],
+          [ "inBus", "pitch_hz", "new_INTEGRATOR_0", "freq" ],
+          [ "new_MUL_2", "out", "new_INTEGRATOR_0", "in" ],
+          [ "new_ADSR_0", "out", "new_MUL_2", "in2" ],
+          [ "inBus", "pitch_hz", "new_TRANSPOSE_1", "freq" ],
+          [ "new_ADSR_0", "out", "new_MUL_0", "in" ],
+          [ "new_MUL_0", "out", "new_TRANSPOSE_1", "octave" ],
+          [ "new_INTEGRATOR_0", "out", "new_TANH_0", "in" ],
+          [ "new_TRANSPOSE_1", "freq", "new_OSVF_0", "fc" ],
+          [ "new_OSC_BLIT_0", "derivative", "new_OSVF_0", "in" ],
+          [ "new_OSVF_0", "low", "new_MUL_2", "in" ],
+          [ "new_OSVF_0", "band", "new_OSVF_0", "band" ],
+          [ "new_OSVF_0", "low", "new_NTANH_0", "in" ],
+          [ "new_NTANH_0", "out", "new_MUL_3", "in" ],
+          [ "new_MUL_3", "out", "new_OSVF_0", "low" ],
+          [ "inBus", "slide_y", "new_MUL_1", "in" ],
+          [ "inBus", "press_z", "new_ADSR_0", "S" ],
+          [ "inBus", "strike_z", "new_ADSR_0", "S" ]
+        ],
+        "modules": [
+          [ "new_ADSR_0", "@FACTORY.ADSR" ],
+          [ "new_INTEGRATOR_0", "INTEGRATOR" ],
+          [ "new_MUL_0", "MUL" ],
+          [ "new_MUL_1", "MUL" ],
+          [ "new_MUL_2", "MUL" ],
+          [ "new_MUL_3", "MUL" ],
+          [ "new_NTANH_0", "NTANH" ],
+          [ "new_OSC_BLIT_0", "OSC_BLIT" ],
+          [ "new_OSVF_0", "ZDF_OSVF" ],
+          [ "new_TANH_0", "TANH" ],
+          [ "new_TRANSPOSE_0", "TRANSPOSE" ],
+          [ "new_TRANSPOSE_1", "TRANSPOSE" ]
+        ],
+        "values": [
+          [ "new_OSVF_0", "res", 0.899999976158142 ],
+          [ "new_OSC_BLIT_0", "sync", 1.0 ],
+          [ "new_OSC_BLIT_0", "pwm", 0.899999976158142 ],
+          [ "new_NTANH_0", "prescaler", 0.0500000007450581 ],
+          [ "new_MUL_3", "in2", 0.999000012874603 ],
+          [ "new_MUL_1", "in2", 4.0 ],
+          [ "new_MUL_0", "in2", 6.0 ],
+          [ "new_ADSR_0", "R", 4.0 ]
+        ]
+      },
+      "layout": {
+        "inBus": [ 472, 0 ],
+        "new_ADSR_0": [ 870, 511 ],
+        "new_INTEGRATOR_0": [ 696, 929 ],
+        "new_MUL_0": [ 1264, 738 ],
+        "new_MUL_1": [ 1303, 212 ],
+        "new_MUL_2": [ 485, 801 ],
+        "new_MUL_3": [ 612, 619 ],
+        "new_NTANH_0": [ 447, 536 ],
+        "new_OSC_BLIT_0": [ 224, 341 ],
+        "new_OSVF_0": [ 73, 739 ],
+        "new_TANH_0": [ 628, 1185 ],
+        "new_TRANSPOSE_0": [ 913, 246 ],
+        "new_TRANSPOSE_1": [ 884, 816 ],
+        "outBus": [ 549, 1477 ]
+      }
+    }
+  }
+}

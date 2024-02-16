@@ -1,0 +1,68 @@
+{
+  "graph": {
+    "connections": [
+      [ "vca", "left", "outBus", "left" ],
+      [ "vca", "right", "outBus", "right" ],
+      [ "inBus", "low", "vca", "left" ],
+      [ "right_lfo", "phase", "right_abs", "in" ],
+      [ "right_abs", "out", "right_time_scale", "in2" ],
+      [ "inBus", "low", "right_delay", "in" ],
+      [ "right_time_scale", "out", "right_delay", "time" ],
+      [ "inBus", "low", "vca", "right" ],
+      [ "inBus", "low", "left_delay", "in" ],
+      [ "left_time_scale", "out", "left_delay", "time" ],
+      [ "left_abs", "out", "left_time_scale", "in2" ],
+      [ "left_lfo", "phase", "left_abs", "in" ],
+      [ "left_delay", "out", "vca", "left" ],
+      [ "right_delay", "out", "vca", "right" ]
+    ],
+    "layout": {
+      "inBus": [ 286, 0 ],
+      "left_abs": [ 71, 408 ],
+      "left_delay": [ 116, 826 ],
+      "left_lfo": [ 0, 217 ],
+      "left_time_scale": [ 3, 605 ],
+      "new_ABS_0": [ 713, 255 ],
+      "new_ABS_1": [ 71, 408 ],
+      "new_DELAY_LOW_Q_0": [ 646, 615 ],
+      "new_DELAY_LOW_Q_1": [ 116, 826 ],
+      "new_MUL_0": [ 806, 431 ],
+      "new_MUL_1": [ 3, 605 ],
+      "new_PHASE_0": [ 612, 93 ],
+      "new_PHASE_1": [ 0, 217 ],
+      "outBus": [ 356, 1392 ],
+      "right_abs": [ 713, 255 ],
+      "right_delay": [ 646, 615 ],
+      "right_lfo": [ 612, 93 ],
+      "right_time_scale": [ 806, 431 ],
+      "vca": [ 545, 1076 ]
+    },
+    "modules": [
+      [ "inBus", "_INBUS" ],
+      [ "left_abs", "ABS" ],
+      [ "left_delay", "DELAY_LOW_Q" ],
+      [ "left_lfo", "PHASE" ],
+      [ "left_time_scale", "MUL" ],
+      [ "outBus", "_OUTBUS" ],
+      [ "right_abs", "ABS" ],
+      [ "right_delay", "DELAY_LOW_Q" ],
+      [ "right_lfo", "PHASE" ],
+      [ "right_time_scale", "MUL" ],
+      [ "vca", "GAIN" ]
+    ],
+    "values": [
+      [ "left_lfo", "freq", 0.5 ],
+      [ "left_time_scale", "in", 0.00999999977648258 ],
+      [ "right_lfo", "freq", 0.400000005960464 ],
+      [ "right_time_scale", "in", 0.00999999977648258 ],
+      [ "vca", "gain", 0.25 ]
+    ]
+  },
+  "inBus": [
+    [ "low", "", 0.0 ]
+  ],
+  "outBus": [
+    [ "left", "", 0.0 ],
+    [ "right", "", 0.0 ]
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "effect": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "delayGain", "left", "stereoTape", "left" ],
+          [ "delayGain", "right", "stereoTape", "right" ],
+          [ "stereoTape", "left", "outPreGain", "left" ],
+          [ "stereoTape", "right", "outPreGain", "right" ],
+          [ "outPreGain", "left", "outSaturation", "left" ],
+          [ "outPreGain", "right", "outSaturation", "right" ],
+          [ "outSaturation", "left", "outPostGain", "left" ],
+          [ "outSaturation", "right", "outPostGain", "right" ],
+          [ "outPostGain", "left", "outBus", "left" ],
+          [ "outPostGain", "right", "outBus", "right" ],
+          [ "inBus", "left", "newDELAY0", "in" ],
+          [ "inBus", "right", "newDELAY1", "in" ],
+          [ "newDELAY0", "out", "newGAIN0", "left" ],
+          [ "newGAIN0", "left", "outPreGain", "left" ],
+          [ "newGAIN0", "right", "outPreGain", "right" ],
+          [ "newGAIN0", "left", "delayGain", "left" ],
+          [ "newGAIN0", "right", "delayGain", "right" ],
+          [ "newDELAY0", "out", "newGAIN0", "right" ],
+          [ "newDELAY1", "out", "newGAIN0", "left" ],
+          [ "newSCLSHFT0", "out", "newMUL0", "in" ],
+          [ "newMUL0", "out", "newDELAY1", "time" ],
+          [ "newSINE0", "sine", "newSCLSHFT0", "in" ],
+          [ "newPHASE0", "phase", "newSINE0", "phase" ],
+          [ "newDELAY1", "out", "newGAIN0", "right" ],
+          [ "newDELAY1", "out", "feedback", "in" ],
+          [ "feedback", "out", "newDELAY1", "in" ]
+        ],
+        "modules": [
+          [ "delayGain", "GAIN" ],
+          [ "feedback", "MUL" ],
+          [ "newDELAY0", "DELAY" ],
+          [ "newDELAY1", "DELAY" ],
+          [ "newGAIN0", "GAIN" ],
+          [ "newMUL0", "MUL" ],
+          [ "newPHASE0", "PHASE" ],
+          [ "newSCLSHFT0", "MULADD" ],
+          [ "newSINE0", "SINE" ],
+          [ "outPostGain", "GAIN" ],
+          [ "outPreGain", "GAIN" ],
+          [ "outSaturation", "SNATAN" ],
+          [ "stereoTape", "@FACTORY.STEREOTAPE" ]
+        ],
+        "values": [
+          [ "outPreGain", "gain", 0.5 ],
+          [ "outPostGain", "gain", 1.0 ],
+          [ "newSCLSHFT0", "mul", 0.5 ],
+          [ "newSCLSHFT0", "add", 1.0 ],
+          [ "newPHASE0", "freq", 0.100000001490116 ],
+          [ "newMUL0", "in2", 0.0149999996647239 ],
+          [ "newGAIN0", "gain", 1.0 ],
+          [ "newDELAY1", "gain", 0.5 ],
+          [ "newDELAY0", "time", 0.0 ],
+          [ "feedback", "in2", 0.75 ],
+          [ "delayGain", "gain", 0.25 ]
+        ]
+      }
+    }
+  },
+  "parameters": [
+    {
+      "id": "res",
+      "index": 0,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.0
+    },
+    {
+      "id": "filtdist",
+      "index": 1,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.584269225597382
+    },
+    {
+      "id": "cutoff",
+      "index": 4,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.0866141766309738
+    }
+  ],
+  "settings": { "legatoMode": 1, "multicore": true, "polyphony": 1 },
+  "voice": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "gate", "new_OSC_BLIT_0", "reset" ],
+          [ "inBus", "gate", "new_ADSR_0", "gate" ],
+          [ "new_TANH_0", "out", "outBus", "left" ],
+          [ "new_TANH_0", "out", "outBus", "right" ],
+          [ "inBus", "pitch_hz", "new_INTEGRATOR_0", "freq" ],
+          [ "new_ADSR_0", "out", "new_MUL_2", "in2" ],
+          [ "new_MUL_0", "out", "new_TRANSPOSE_1", "octave" ],
+          [ "new_INTEGRATOR_0", "out", "new_TANH_0", "in" ],
+          [ "new_NTANH_0", "out", "new_MUL_3", "in" ],
+          [ "inBus", "pitch_hz", "new_MUL_4", "in" ],
+          [ "new_MUL_4", "out", "new_TRANSPOSE_1", "freq" ],
+          [ "new_OSC_BLIT_0", "derivative", "new_MUL_2", "in" ],
+          [ "new_MUL_2", "out", "new_ZDF_OSVF2_0", "in" ],
+          [ "new_ZDF_OSVF2_0", "low", "new_INTEGRATOR_0", "in" ],
+          [ "new_TRANSPOSE_1", "freq", "new_ZDF_OSVF2_0", "fc" ],
+          [ "new_ZDF_OSVF2_0", "ic2eq", "new_ZDF_OSVF2_0", "ic2eq" ],
+          [ "new_ZDF_OSVF2_0", "ic1eq", "new_NTANH_0", "in" ],
+          [ "new_MUL_3", "out", "new_ZDF_OSVF2_0", "ic1eq" ],
+          [ "inBus", "press_z", "new_MUL_0", "in" ],
+          [ "inBus", "slide_y", "new_OSC_BLIT_0", "shape" ],
+          [ "filtdist", "value", "new_MUL_1", "in" ],
+          [ "res", "value", "new_ZDF_OSVF2_0", "res" ],
+          [ "new_MUL_1", "out", "new_NTANH_0", "prescaler" ],
+          [ "inBus", "pitch_hz", "new_TRANSPOSE_0", "freq" ],
+          [ "new_TRANSPOSE_0", "freq", "new_OSC_BLIT_0", "freq" ],
+          [ "inBus", "pitch_hz", "new_OSC_BLIT_0", "syncFreq" ],
+          [ "new_MUL_5", "out", "new_TRANSPOSE_0", "octave" ],
+          [ "cutoff", "value", "new_MUL_0", "in" ],
+          [ "inBus", "exp", "new_MUL_5", "in" ],
+          [ "new_MOD_0", "rem", "new_OSC_BLIT_0", "sync" ],
+          [ "inBus", "barPos", "new_MUL_6", "in" ],
+          [ "new_MUL_6", "out", "new_MOD_0", "nom" ]
+        ],
+        "modules": [
+          [ "cutoff", "=KNOB" ],
+          [ "filtdist", "=KNOB" ],
+          [ "new_ADSR_0", "@FACTORY.ADSR" ],
+          [ "new_INTEGRATOR_0", "INTEGRATOR" ],
+          [ "new_MOD_0", "MOD" ],
+          [ "new_MUL_0", "MUL" ],
+          [ "new_MUL_1", "MUL" ],
+          [ "new_MUL_2", "MUL" ],
+          [ "new_MUL_3", "MUL" ],
+          [ "new_MUL_4", "MUL" ],
+          [ "new_MUL_5", "MUL" ],
+          [ "new_MUL_6", "MUL" ],
+          [ "new_NTANH_0", "NTANH" ],
+          [ "new_OSC_BLIT_0", "OSC_BLIT" ],
+          [ "new_TANH_0", "TANH" ],
+          [ "new_TRANSPOSE_0", "TRANSPOSE" ],
+          [ "new_TRANSPOSE_1", "TRANSPOSE" ],
+          [ "new_ZDF_OSVF2_0", "ZDF_OSVF2" ],
+          [ "res", "=KNOB" ]
+        ],
+        "values": [
+          [ "new_OSC_BLIT_0", "sync", 1.0 ],
+          [ "new_OSC_BLIT_0", "pwm", 0.899999976158142 ],
+          [ "new_NTANH_0", "prescaler", 0.5 ],
+          [ "new_MUL_6", "in2", 4.0 ],
+          [ "new_MUL_5", "in2", 3.0 ],
+          [ "new_MUL_4", "in2", 2.0 ],
+          [ "new_MUL_3", "in2", 0.910000026226044 ],
+          [ "new_MUL_1", "in2", 0.5 ],
+          [ "new_MUL_0", "in2", 6.0 ],
+          [ "new_ADSR_0", "R", 1.0 ]
+        ]
+      },
+      "layout": {
+        "cutoff": [ 227, 0 ],
+        "filtdist": [ 783, 684 ],
+        "inBus": [ 609, 14 ],
+        "new_ADSR_0": [ 1014, 453 ],
+        "new_INTEGRATOR_0": [ 858, 1254 ],
+        "new_MOD_0": [ 1413, 257 ],
+        "new_MUL_0": [ 251, 228 ],
+        "new_MUL_1": [ 835, 876 ],
+        "new_MUL_2": [ 265, 598 ],
+        "new_MUL_3": [ 599, 659 ],
+        "new_MUL_4": [ 78, 211 ],
+        "new_MUL_5": [ 929, 243 ],
+        "new_MUL_6": [ 1590, 239 ],
+        "new_NTANH_0": [ 438, 640 ],
+        "new_OSC_BLIT_0": [ 328, 499 ],
+        "new_TANH_0": [ 693, 1390 ],
+        "new_TRANSPOSE_0": [ 482, 291 ],
+        "new_TRANSPOSE_1": [ 28, 468 ],
+        "new_ZDF_OSVF2_0": [ 273, 1082 ],
+        "outBus": [ 878, 1598 ],
+        "res": [ 426, 869 ]
+      }
+    }
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "effect": {
+    "components": {
+      "@PHASER": {
+        "graph": {
+          "connections": [
+            [ "new_HASE_0", "phase", "new_INE_0", "phase" ],
+            [ "new_HASE_1", "phase", "new_INE_1", "phase" ],
+            [ "new_INE_0", "sine", "new_CLSHFT_0", "in" ],
+            [ "new_INE_1", "sine", "new_CLSHFT_1", "in" ],
+            [ "new_CLSHFT_1", "out", "new_ALLPASSDELAY_1", "time" ],
+            [ "new_CLSHFT_0", "out", "new_ALLPASSDELAY_0", "time" ],
+            [ "new_ALLPASSDELAY_1", "output", "outBus", "left" ],
+            [ "inBus", "left", "new_CHP_0", "in" ],
+            [ "new_CHP_0", "out", "new_ALLPASSDELAY_0", "input" ],
+            [ "new_ALLPASSDELAY_0", "output", "new_ALLPASSDELAY_1", "input" ],
+            [ "inBus", "left", "outBus", "left" ],
+            [ "inBus", "thingy", "new_CLSHFT_2", "in" ],
+            [ "new_CLSHFT_2", "out", "new_HASE_1", "freq" ]
+          ],
+          "layout": {
+            "inBus": [ 461, 0 ],
+            "new_ALLPASSDELAY_0": [ 261, 800 ],
+            "new_ALLPASSDELAY_1": [ 461, 1000 ],
+            "new_CHP_0": [ 0, 204 ],
+            "new_CLSHFT_0": [ 261, 600 ],
+            "new_CLSHFT_1": [ 532, 789 ],
+            "new_CLSHFT_2": [ 515, 179 ],
+            "new_HASE_0": [ 242, 209 ],
+            "new_HASE_1": [ 539, 367 ],
+            "new_INE_0": [ 261, 400 ],
+            "new_INE_1": [ 551, 548 ],
+            "outBus": [ 330, 1249 ]
+          },
+          "modules": [
+            [ "new_ALLPASSDELAY_0", "@ALLPASSDELAY" ],
+            [ "new_ALLPASSDELAY_1", "@ALLPASSDELAY" ],
+            [ "new_CHP_0", "D_HP" ],
+            [ "new_CLSHFT_0", "MULADD" ],
+            [ "new_CLSHFT_1", "MULADD" ],
+            [ "new_CLSHFT_2", "MULADD" ],
+            [ "new_HASE_0", "PHASE" ],
+            [ "new_HASE_1", "PHASE" ],
+            [ "new_INE_0", "SINE" ],
+            [ "new_INE_1", "SINE" ]
+          ],
+          "values": [
+            [ "new_ALLPASSDELAY_0", "gain", 0.699999988079071 ],
+            [ "new_ALLPASSDELAY_1", "gain", 0.699999988079071 ],
+            [ "new_CHP_0", "wc", 200.0 ],
+            [ "new_CLSHFT_0", "add", 0.00109999999403954 ],
+            [ "new_CLSHFT_0", "mul", 0.00100000004749745 ],
+            [ "new_CLSHFT_1", "add", 0.00130000000353903 ],
+            [ "new_CLSHFT_1", "mul", 0.00150000001303852 ],
+            [ "new_CLSHFT_2", "add", 0.333299994468689 ],
+            [ "new_CLSHFT_2", "mul", 0.200000002980232 ],
+            [ "new_HASE_0", "freq", 0.100000001490116 ]
+          ]
+        },
+        "inBus": [
+          [ "left", "", 0.0 ],
+          [ "thingy", "", 0.0 ]
+        ],
+        "outBus": [
+          [ "left", "", 0.0 ]
+        ]
+      }
+    },
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "left", "new_CMP0_0", "left" ],
+          [ "inBus", "right", "new_PHASER_0", "left" ],
+          [ "new_CMP0_0", "left", "outBus", "left" ],
+          [ "new_PHASER_0", "left", "outBus", "right" ]
+        ],
+        "layout": {
+          "inBus": [ 400, 0 ],
+          "new_CMP0_0": [ 193, 277 ],
+          "new_PHASER_0": [ 517, 280 ],
+          "outBus": [ 311, 609 ]
+        },
+        "modules": [
+          [ "new_CMP0_0", "@PHASER" ],
+          [ "new_PHASER_0", "@PHASER" ]
+        ],
+        "values": [
+          [ "new_CMP0_0", "thingy", -3.0 ],
+          [ "new_PHASER_0", "thingy", 3.0 ]
+        ]
+      }
+    }
+  },
+  "settings": { "legatoMode": 1, "multicore": true, "polyphony": 1 },
+  "voice": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "pitch_hz", "period", "den" ],
+          [ "period", "div", "new_ELAY_LOWEST_Q_0", "time" ],
+          [ "inBus", "gate", "new_AG_0", "in" ],
+          [ "new_AG_0", "out", "muter", "in" ],
+          [ "muter", "out", "new_ELAY_LOWEST_Q_0", "gain" ],
+          [ "inBus", "strike_z", "newENV0", "onBumpHeight" ],
+          [ "newENV0", "out", "new_POW_0", "base" ],
+          [ "new_POW_0", "out", "bobbo", "in" ],
+          [ "bobbo", "out", "new_VF_0", "fc" ],
+          [ "new_ELAY_LOWEST_Q_0", "out", "new_VF_1", "in" ],
+          [ "dampFollow", "freq", "new_VF_1", "fc" ],
+          [ "inBus", "pitch_hz", "dampFollow", "freq" ],
+          [ "inBus", "gate", "newENV0", "gate" ],
+          [ "new_VF_1", "low", "new_ELAY_LOWEST_Q_0", "in" ],
+          [ "new_SC_BLIT_0", "out", "new_UL_0", "in" ],
+          [ "newENV0", "out", "new_UL_0", "in2" ],
+          [ "new_VF_0", "low", "new_ELAY_LOWEST_Q_0", "in" ],
+          [ "new_UL_0", "out", "new_VF_0", "in" ],
+          [ "inBus", "pitch_hz", "new_SC_BLIT_0", "syncFreq" ],
+          [ "inBus", "pitch_hz", "new_RANSPOSE_0", "freq" ],
+          [ "new_RANSPOSE_0", "freq", "new_SC_BLIT_0", "freq" ],
+          [ "new_UL_1", "out", "new_RANSPOSE_0", "octave" ],
+          [ "inBus", "press_z", "new_UL_1", "in" ],
+          [ "new_ELAY_LOWEST_Q_0", "out", "new_CHP_0", "in" ],
+          [ "new_CHP_0", "out", "new_TANH_0", "in" ],
+          [ "pan", "a", "outBus", "left" ],
+          [ "pan", "b", "outBus", "right" ],
+          [ "inBus", "noteIndex", "remap", "in" ],
+          [ "remap", "out", "pan", "mix" ],
+          [ "new_TANH_0", "out", "gain", "in" ],
+          [ "gain", "out", "pan", "in" ]
+        ],
+        "layout": {
+          "bobbo": [ 933, 595 ],
+          "dampFollow": [ 80, 484 ],
+          "gain": [ 642, 1288 ],
+          "inBus": [ 334, 0 ],
+          "muter": [ 332, 639 ],
+          "newENV0": [ 455, 256 ],
+          "new_AG_0": [ 389, 415 ],
+          "new_CHP_0": [ 942, 1051 ],
+          "new_ELAY_LOWEST_Q_0": [ 444, 923 ],
+          "new_POW_0": [ 899, 403 ],
+          "new_RANSPOSE_0": [ 1216, 237 ],
+          "new_SC_BLIT_0": [ 1191, 419 ],
+          "new_TANH_0": [ 767, 1128 ],
+          "new_UL_0": [ 1190, 689 ],
+          "new_UL_1": [ 1652, 276 ],
+          "new_VF_0": [ 739, 777 ],
+          "new_VF_1": [ 12, 816 ],
+          "outBus": [ 708, 1641 ],
+          "pan": [ 752, 1440 ],
+          "period": [ 498, 686 ],
+          "remap": [ 1046, 1257 ]
+        },
+        "modules": [
+          [ "bobbo", "MULADD" ],
+          [ "dampFollow", "TRANSPOSE" ],
+          [ "gain", "MUL" ],
+          [ "muter", "MUL" ],
+          [ "newENV0", "CAMELENV" ],
+          [ "new_AG_0", "LAG" ],
+          [ "new_CHP_0", "D_HP" ],
+          [ "new_ELAY_LOWEST_Q_0", "DELAY_LOWEST_Q" ],
+          [ "new_POW_0", "SPOW" ],
+          [ "new_RANSPOSE_0", "TRANSPOSE" ],
+          [ "new_SC_BLIT_0", "OSC_BLIT" ],
+          [ "new_TANH_0", "NTANH" ],
+          [ "new_UL_0", "MUL" ],
+          [ "new_UL_1", "MUL" ],
+          [ "new_VF_0", "ZDF_SVF" ],
+          [ "new_VF_1", "ZDF_SVF" ],
+          [ "pan", "FADEX" ],
+          [ "period", "DIV" ],
+          [ "remap", "MAP" ]
+        ],
+        "values": [
+          [ "bobbo", "add", 10.0 ],
+          [ "bobbo", "mul", 10000.0 ],
+          [ "dampFollow", "octave", 4.0 ],
+          [ "gain", "in2", 0.75 ],
+          [ "muter", "in2", -0.990000009536743 ],
+          [ "newENV0", "offAttackSpeed", 0.0 ],
+          [ "newENV0", "offBumpHeight", 0.0 ],
+          [ "newENV0", "offDecaySpeed", 0.00999999977648258 ],
+          [ "newENV0", "onAttackSpeed", 0.00999999977648258 ],
+          [ "newENV0", "onDecaySpeed", 0.00999999977648258 ],
+          [ "newENV0", "sustainHeight", 0.400000005960464 ],
+          [ "new_AG_0", "wc_down", 0.00999999977648258 ],
+          [ "new_AG_0", "wc_up", 100.0 ],
+          [ "new_ELAY_LOWEST_Q_0", "compensation", -4.0 ],
+          [ "new_ELAY_LOWEST_Q_0", "timeSlewWc", 1000.0 ],
+          [ "new_POW_0", "exp", 3.0 ],
+          [ "new_SC_BLIT_0", "shape", 0.5 ],
+          [ "new_SC_BLIT_0", "sync", 1.0 ],
+          [ "new_TANH_0", "prescaler", 4.0 ],
+          [ "new_UL_1", "in2", 3.0 ],
+          [ "new_VF_0", "res", 0.5 ],
+          [ "remap", "outA", 0.400000005960464 ],
+          [ "remap", "outB", 0.600000023841858 ]
+        ]
+      }
+    }
+  }
+}

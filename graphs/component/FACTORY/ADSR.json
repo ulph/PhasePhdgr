@@ -1,0 +1,37 @@
+{
+  "docString": "ADSR envelope with shape control.\n(Simplification of ENV module)",
+  "graph": {
+    "connections": [
+      [ "inBus", "gate", "env", "gate" ],
+      [ "inBus", "A", "env", "onAttackSpeed" ],
+      [ "inBus", "D", "env", "onDecaySpeed" ],
+      [ "inBus", "S", "env", "sustainHeight" ],
+      [ "inBus", "R", "env", "offDecaySpeed" ],
+      [ "inBus", "APow", "env", "onAttackPow" ],
+      [ "inBus", "DPow", "env", "onDecayPow" ],
+      [ "inBus", "RPow", "env", "offDecayPow" ],
+      [ "env", "out", "outBus", "out" ]
+    ],
+    "modules": [
+      [ "env", "CAMELENV" ]
+    ],
+    "values": [
+      [ "env", "offAttackSpeed", 0.0 ],
+      [ "env", "offBumpHeight", 0.0 ],
+      [ "env", "onBumpHeight", 1.0 ]
+    ]
+  },
+  "inBus": [
+    [ "gate", "", 0.0 ],
+    [ "A", "", 0.025000000372529 ],
+    [ "D", "", 0.100000001490116 ],
+    [ "S", "", 0.5 ],
+    [ "R", "", 0.25 ],
+    [ "APow", "", 0.5 ],
+    [ "DPow", "", 2.0 ],
+    [ "RPow", "", 4.0 ]
+  ],
+  "outBus": [
+    [ "out", "", 0.0 ]
+  ]
+}

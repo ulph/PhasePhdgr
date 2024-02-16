@@ -1,0 +1,40 @@
+{
+  "root": {
+    "graph": {
+      "connections": [
+        [ "inBus", "left", "outPreGain", "left" ],
+        [ "inBus", "right", "outPreGain", "right" ],
+        [ "inBus", "left", "delayGain", "left" ],
+        [ "inBus", "right", "delayGain", "right" ],
+        [ "delayGain", "left", "stereoTape", "left" ],
+        [ "delayGain", "right", "stereoTape", "right" ],
+        [ "stereoTape", "left", "outPreGain", "left" ],
+        [ "stereoTape", "right", "outPreGain", "right" ],
+        [ "inBus", "mod", "delayAmount", "in" ],
+        [ "delayAmount", "out", "delayGain", "gain" ],
+        [ "outPreGain", "left", "outSaturation", "left" ],
+        [ "outPreGain", "right", "outSaturation", "right" ],
+        [ "outSaturation", "left", "outPostGain", "left" ],
+        [ "outSaturation", "right", "outPostGain", "right" ],
+        [ "outPostGain", "left", "outBus", "left" ],
+        [ "outPostGain", "right", "outBus", "right" ]
+      ],
+      "modules": [
+        [ "delayAmount", "CLAMPINV" ],
+        [ "delayGain", "GAIN" ],
+        [ "outPostGain", "GAIN" ],
+        [ "outPreGain", "GAIN" ],
+        [ "outSaturation", "SNATAN" ],
+        [ "stereoTape", "@FACTORY.STEREOTAPE" ]
+      ],
+      "values": [
+        [ "outPostGain", "gain", 1.0 ],
+        [ "outPreGain", "gain", 0.5 ],
+        [ "stereoTape", "feedback", 0.75 ],
+        [ "stereoTape", "leftModDepth", 0.0020000000949949 ],
+        [ "stereoTape", "rightModDepth", 0.0020000000949949 ],
+        [ "stereoTape", "saturation", 1.0 ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "docString": "Time modulated stereo cross feedback delay with saturating filter stages.",
+  "graph": {
+    "connections": [
+      [ "inBus", "left", "leftDelay", "in" ],
+      [ "inBus", "right", "rightDelay", "in" ],
+      [ "inBus", "leftTime", "delayLeftTime", "add" ],
+      [ "inBus", "rightTime", "delayRightTime", "add" ],
+      [ "inBus", "leftModDepth", "delayLeftTime", "mul" ],
+      [ "inBus", "rightModDepth", "delayRightTime", "mul" ],
+      [ "inBus", "leftHpHz", "leftDelayHP", "wc" ],
+      [ "inBus", "rightHpHz", "rightDelayHP", "wc" ],
+      [ "inBus", "leftLpHz", "leftDelayLP", "wc" ],
+      [ "inBus", "rightLpHz", "rightDelayLP", "wc" ],
+      [ "inBus", "feedback", "feedbackGain", "gain" ],
+      [ "inBus", "modHz", "lfoPhase", "freq" ],
+      [ "inBus", "saturation", "saturation", "prescaler" ],
+      [ "leftDelay", "out", "saturation", "left" ],
+      [ "rightDelay", "out", "saturation", "right" ],
+      [ "saturation", "left", "leftDelayHP", "in" ],
+      [ "saturation", "right", "rightDelayHP", "in" ],
+      [ "leftDelayHP", "out", "leftDelayLP", "in" ],
+      [ "rightDelayHP", "out", "rightDelayLP", "in" ],
+      [ "leftDelayLP", "out", "feedbackGain", "left" ],
+      [ "rightDelayLP", "out", "feedbackGain", "right" ],
+      [ "feedbackGain", "left", "rightDelay", "in" ],
+      [ "feedbackGain", "right", "leftDelay", "in" ],
+      [ "lfoPhase", "phase", "lfo", "phase" ],
+      [ "lfo", "sine", "delayLeftTime", "in" ],
+      [ "lfo", "sine", "delayRightTime", "in" ],
+      [ "delayLeftTime", "out", "leftDelay", "time" ],
+      [ "delayRightTime", "out", "rightDelay", "time" ],
+      [ "leftDelayLP", "out", "outBus", "left" ],
+      [ "rightDelayLP", "out", "outBus", "right" ]
+    ],
+    "modules": [
+      [ "delayLeftTime", "MULADD" ],
+      [ "delayRightTime", "MULADD" ],
+      [ "feedbackGain", "GAIN" ],
+      [ "leftDelay", "DELAY" ],
+      [ "leftDelayHP", "D_HP" ],
+      [ "leftDelayLP", "D_LP" ],
+      [ "lfo", "SINE" ],
+      [ "lfoPhase", "PHASE" ],
+      [ "rightDelay", "DELAY" ],
+      [ "rightDelayHP", "D_HP" ],
+      [ "rightDelayLP", "D_LP" ],
+      [ "saturation", "SNATAN" ]
+    ]
+  },
+  "inBus": [
+    [ "left", "", 0.0 ],
+    [ "right", "", 0.0 ],
+    [ "leftTime", "", 0.219999998807907 ],
+    [ "rightTime", "", 0.449999988079071 ],
+    [ "leftModDepth", "", 0.00100000004749745 ],
+    [ "rightModDepth", "", 0.00100000004749745 ],
+    [ "feedback", "", 0.5 ],
+    [ "leftHpHz", "", 350.0 ],
+    [ "rightHpHz", "", 450.0 ],
+    [ "leftLpHz", "", 8500.0 ],
+    [ "rightLpHz", "", 7500.0 ],
+    [ "modHz", "", 2.0 ],
+    [ "saturation", "", 1.0 ]
+  ],
+  "outBus": [
+    [ "left", "", 0.0 ],
+    [ "right", "", 0.0 ]
+  ]
+}

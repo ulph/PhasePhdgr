@@ -1,0 +1,39 @@
+{
+  "graph": {
+    "connections": [
+      [ "pluck_lp", "out", "reso", "in" ],
+      [ "reso", "low", "reso", "low" ],
+      [ "reso", "band", "reso", "band" ],
+      [ "overtoner", "out", "outBus", "in" ],
+      [ "reso", "high", "overtoner", "in" ],
+      [ "inBus", "pitch_hz", "reso", "fc" ],
+      [ "inBus", "gate", "pluck_lp", "in" ],
+      [ "inBus", "pluck_wc", "pluck_lp", "wc" ],
+      [ "inBus", "overdrive", "overtoner", "prescaler" ]
+    ],
+    "layout": {
+      "inBus": [ 256, 0 ],
+      "outBus": [ 256, 800 ],
+      "overtoner": [ 359, 631 ],
+      "pluck_lp": [ 288, 208 ],
+      "reso": [ 26, 418 ]
+    },
+    "modules": [
+      [ "overtoner", "NATAN" ],
+      [ "pluck_lp", "D_LP" ],
+      [ "reso", "ZDF_OSVF" ]
+    ],
+    "values": [
+      [ "reso", "res", 0.994000017642975 ]
+    ]
+  },
+  "inBus": [
+    [ "pitch_hz", "Hz", 0.0 ],
+    [ "gate", "", 0.0 ],
+    [ "pluck_wc", "Hz", 10000.0 ],
+    [ "overdrive", "", 2.0 ]
+  ],
+  "outBus": [
+    [ "in", "", 0.0 ]
+  ]
+}

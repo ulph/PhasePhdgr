@@ -1,0 +1,125 @@
+{
+  "components": {
+    "@FACTORY.ADSR": {
+      "docString": "ADSR envelope with shape control.\n(Simplification of ENV module)",
+      "graph": {
+        "connections": [
+          [ "inBus", "gate", "env", "gate" ],
+          [ "inBus", "A", "env", "onAttackSpeed" ],
+          [ "inBus", "D", "env", "onDecaySpeed" ],
+          [ "inBus", "S", "env", "sustainHeight" ],
+          [ "inBus", "R", "env", "offDecaySpeed" ],
+          [ "inBus", "APow", "env", "onAttackPow" ],
+          [ "inBus", "DPow", "env", "onDecayPow" ],
+          [ "inBus", "RPow", "env", "offDecayPow" ],
+          [ "env", "out", "outBus", "out" ]
+        ],
+        "modules": [
+          [ "env", "CAMELENV" ]
+        ],
+        "values": [
+          [ "env", "offAttackSpeed", 0.0 ],
+          [ "env", "offBumpHeight", 0.0 ],
+          [ "env", "onBumpHeight", 1.0 ]
+        ]
+      },
+      "inBus": [
+        [ "gate", "", 0.0 ],
+        [ "A", "", 0.025000000372529 ],
+        [ "D", "", 0.100000001490116 ],
+        [ "S", "", 0.5 ],
+        [ "R", "", 0.25 ],
+        [ "APow", "", 0.5 ],
+        [ "DPow", "", 2.0 ],
+        [ "RPow", "", 4.0 ]
+      ],
+      "outBus": [
+        [ "out", "", 0.0 ]
+      ]
+    }
+  },
+  "parameters": [
+    { "id": "new_KNOB_0", "max": 1.0, "min": 0.0, "value": 0.899999976158142 },
+    { "id": "new_KNOB_1", "max": 1.0, "min": 0.0, "value": 0.610000014305115 },
+    { "id": "new_KNOB_2", "max": 1.0, "min": 0.0, "value": 0.889999985694885 }
+  ],
+  "root": {
+    "graph": {
+      "connections": [
+        [ "inBus", "pitch_hz", "new_TRANSPOSE_0", "freq" ],
+        [ "new_MUL_1", "out", "new_TRANSPOSE_0", "octave" ],
+        [ "inBus", "pitch_hz", "new_OSC_BLIT_0", "syncFreq" ],
+        [ "new_TRANSPOSE_0", "freq", "new_OSC_BLIT_0", "freq" ],
+        [ "inBus", "gate", "new_OSC_BLIT_0", "reset" ],
+        [ "inBus", "gate", "new_ADSR_0", "gate" ],
+        [ "new_TANH_0", "out", "outBus", "left" ],
+        [ "new_TANH_0", "out", "outBus", "right" ],
+        [ "inBus", "pitch_hz", "new_INTEGRATOR_0", "freq" ],
+        [ "new_MUL_2", "out", "new_INTEGRATOR_0", "in" ],
+        [ "new_ADSR_0", "out", "new_MUL_2", "in2" ],
+        [ "inBus", "pitch_hz", "new_TRANSPOSE_1", "freq" ],
+        [ "new_ADSR_0", "out", "new_MUL_0", "in" ],
+        [ "new_MUL_0", "out", "new_TRANSPOSE_1", "octave" ],
+        [ "new_INTEGRATOR_0", "out", "new_TANH_0", "in" ],
+        [ "new_TRANSPOSE_1", "freq", "new_OSVF_0", "fc" ],
+        [ "new_OSVF_0", "low", "new_MUL_2", "in" ],
+        [ "new_OSVF_0", "band", "new_OSVF_0", "band" ],
+        [ "new_OSVF_0", "low", "new_NTANH_0", "in" ],
+        [ "new_NTANH_0", "out", "new_MUL_3", "in" ],
+        [ "new_MUL_3", "out", "new_OSVF_0", "low" ],
+        [ "inBus", "slide_y", "new_MUL_1", "in" ],
+        [ "inBus", "press_z", "new_ADSR_0", "S" ],
+        [ "inBus", "strike_z", "new_ADSR_0", "S" ],
+        [ "new_KNOB_0", "value", "new_MUL_3", "in2" ],
+        [ "new_KNOB_1", "value", "new_NTANH_0", "prescaler" ],
+        [ "new_KNOB_2", "value", "new_OSVF_0", "res" ],
+        [ "new_OSC_BLIT_0", "derivative", "new_OSVF_0", "in" ]
+      ],
+      "layout": {
+        "inBus": [ 472, 0 ],
+        "new_ADSR_0": [ 870, 511 ],
+        "new_INTEGRATOR_0": [ 696, 929 ],
+        "new_KNOB_0": [ 652, 457 ],
+        "new_KNOB_1": [ 241, 518 ],
+        "new_KNOB_2": [ 238, 900 ],
+        "new_MUL_0": [ 1264, 738 ],
+        "new_MUL_1": [ 1303, 212 ],
+        "new_MUL_2": [ 485, 801 ],
+        "new_MUL_3": [ 612, 619 ],
+        "new_NTANH_0": [ 447, 536 ],
+        "new_OSC_BLIT_0": [ 224, 341 ],
+        "new_OSVF_0": [ 73, 739 ],
+        "new_TANH_0": [ 628, 1185 ],
+        "new_TRANSPOSE_0": [ 913, 246 ],
+        "new_TRANSPOSE_1": [ 884, 816 ],
+        "outBus": [ 549, 1477 ]
+      },
+      "modules": [
+        [ "new_ADSR_0", "@FACTORY.ADSR" ],
+        [ "new_INTEGRATOR_0", "INTEGRATOR" ],
+        [ "new_KNOB_0", "=KNOB" ],
+        [ "new_KNOB_1", "=KNOB" ],
+        [ "new_KNOB_2", "=KNOB" ],
+        [ "new_MUL_0", "MUL" ],
+        [ "new_MUL_1", "MUL" ],
+        [ "new_MUL_2", "MUL" ],
+        [ "new_MUL_3", "MUL" ],
+        [ "new_NTANH_0", "NTANH" ],
+        [ "new_OSC_BLIT_0", "OSC_BLIT" ],
+        [ "new_OSVF_0", "ZDF_OSVF" ],
+        [ "new_TANH_0", "TANH" ],
+        [ "new_TRANSPOSE_0", "TRANSPOSE" ],
+        [ "new_TRANSPOSE_1", "TRANSPOSE" ]
+      ],
+      "values": [
+        [ "new_ADSR_0", "R", 4.0 ],
+        [ "new_MUL_0", "in2", 6.0 ],
+        [ "new_MUL_1", "in2", 4.0 ],
+        [ "new_MUL_3", "in2", 0.999000012874603 ],
+        [ "new_OSC_BLIT_0", "pwm", 0.899999976158142 ],
+        [ "new_OSC_BLIT_0", "sync", 1.0 ],
+        [ "new_OSVF_0", "res", 0.899999976158142 ]
+      ]
+    }
+  }
+}

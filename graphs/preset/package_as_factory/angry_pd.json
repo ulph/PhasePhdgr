@@ -1,0 +1,213 @@
+{
+  "effect": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "left", "outBus", "left" ],
+          [ "inBus", "right", "outBus", "right" ]
+        ],
+        "layout": {
+          "inBus": [ 400, 0 ],
+          "outBus": [ 385, 189 ]
+        },
+        "modules": []
+      }
+    }
+  },
+  "parameters": [
+    {
+      "id": "mix",
+      "index": 0,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.240000709891319
+    },
+    {
+      "id": "foldP",
+      "index": 1,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.0199999995529652
+    },
+    {
+      "id": "foldA",
+      "index": 2,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.470000505447388
+    },
+    {
+      "id": "pow",
+      "index": 3,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.539999783039093
+    },
+    {
+      "id": "noise",
+      "index": 4,
+      "max": 1.0,
+      "min": 0.0,
+      "type": 1,
+      "value": 0.0100006703287363
+    }
+  ],
+  "settings": { "legatoMode": 1, "multicore": true, "polyphony": 1 },
+  "voice": {
+    "components": {
+      "@FACTORY.ADSR": {
+        "docString": "ADSR envelope with shape control.\n(Simplification of ENV module)",
+        "graph": {
+          "connections": [
+            [ "inBus", "gate", "env", "gate" ],
+            [ "inBus", "A", "env", "onAttackSpeed" ],
+            [ "inBus", "D", "env", "onDecaySpeed" ],
+            [ "inBus", "S", "env", "sustainHeight" ],
+            [ "inBus", "R", "env", "offDecaySpeed" ],
+            [ "inBus", "APow", "env", "onAttackPow" ],
+            [ "inBus", "DPow", "env", "onDecayPow" ],
+            [ "inBus", "RPow", "env", "offDecayPow" ],
+            [ "env", "out", "outBus", "out" ]
+          ],
+          "modules": [
+            [ "env", "CAMELENV" ]
+          ],
+          "values": [
+            [ "env", "offAttackSpeed", 0.0 ],
+            [ "env", "offBumpHeight", 0.0 ],
+            [ "env", "onBumpHeight", 1.0 ]
+          ]
+        },
+        "inBus": [
+          [ "gate", "", 0.0 ],
+          [ "A", "", 0.025000000372529 ],
+          [ "D", "", 0.100000001490116 ],
+          [ "S", "", 0.5 ],
+          [ "R", "", 0.25 ],
+          [ "APow", "", 0.5 ],
+          [ "DPow", "", 2.0 ],
+          [ "RPow", "", 4.0 ]
+        ],
+        "outBus": [
+          [ "out", "", 0.0 ]
+        ]
+      }
+    },
+    "root": {
+      "graph": {
+        "connections": [
+          [ "vca", "left", "outBus", "left" ],
+          [ "vca", "right", "outBus", "right" ],
+          [ "inBus", "gate", "amp", "gate" ],
+          [ "amp", "out", "vca", "gain" ],
+          [ "inBus", "gate", "pm", "gate" ],
+          [ "pm", "out", "new_MULADD_0", "in" ],
+          [ "new_PHASE_0", "phase", "new_SINE_2", "phase" ],
+          [ "new_SINE_2", "sine", "new_MUL_0", "in" ],
+          [ "new_MULADD_0", "out", "new_NATAN_0", "prescaler" ],
+          [ "new_NATAN_0", "out", "new_XFADE_0", "b" ],
+          [ "mix", "value", "new_XFADE_0", "mix" ],
+          [ "new_SINE_2", "sine", "new_NATAN_0", "in" ],
+          [ "new_XFADE_0", "out", "new_FOLD_0", "in" ],
+          [ "foldA", "value", "new_FOLD_0", "amount" ],
+          [ "foldP", "value", "new_MULADD_1", "in" ],
+          [ "new_MULADD_1", "out", "new_FOLD_0", "prescalar" ],
+          [ "new_SPOW_0", "out", "new_SINE_3", "phase" ],
+          [ "new_SINE_3", "sine", "vca", "left" ],
+          [ "new_SINE_3", "sine", "vca", "right" ],
+          [ "pm", "out", "new_MULADD_2", "in" ],
+          [ "new_MULADD_2", "out", "new_MUL_0", "in2" ],
+          [ "new_MUL_0", "out", "new_SINE_0", "phase" ],
+          [ "new_SINE_0", "sine", "new_XFADE_0", "a" ],
+          [ "new_FOLD_0", "out", "new_SPOW_0", "base" ],
+          [ "pow", "value", "new_MULADD_3", "in" ],
+          [ "new_MULADD_3", "out", "new_SPOW_0", "exp" ],
+          [ "inBus", "pitch_hz", "new_LAG_0", "in" ],
+          [ "new_LAG_0", "out", "new_PHASE_0", "freq" ],
+          [ "new_NOISE_0", "out", "new_ZDF_1P_0", "in" ],
+          [ "new_ZDF_1P_0", "low", "new_SINE_2", "phase" ],
+          [ "noise", "value", "new_NOISE_0", "scale" ]
+        ],
+        "layout": {
+          "amp": [ 448, 283 ],
+          "foldA": [ 1555, 772 ],
+          "foldP": [ 1779, 808 ],
+          "inBus": [ 667, 0 ],
+          "mix": [ 1325, 950 ],
+          "new_FOLD_0": [ 1664, 1177 ],
+          "new_LAG_0": [ 744, 487 ],
+          "new_MULADD_0": [ 1525, 476 ],
+          "new_MULADD_1": [ 1785, 1002 ],
+          "new_MULADD_2": [ 1244, 450 ],
+          "new_MULADD_3": [ 1797, 1363 ],
+          "new_MUL_0": [ 969, 678 ],
+          "new_NATAN_0": [ 1309, 677 ],
+          "new_NOISE_0": [ 1769, 475 ],
+          "new_PHASE_0": [ 1010, 262 ],
+          "new_SINE_0": [ 908, 842 ],
+          "new_SINE_2": [ 1004, 440 ],
+          "new_SINE_3": [ 1088, 1222 ],
+          "new_SPOW_0": [ 1455, 1404 ],
+          "new_XFADE_0": [ 1070, 964 ],
+          "new_ZDF_1P_0": [ 1669, 661 ],
+          "noise": [ 1780, 342 ],
+          "outBus": [ 761, 1346 ],
+          "pm": [ 1278, 249 ],
+          "pow": [ 1366, 1152 ],
+          "vca": [ 787, 1129 ]
+        },
+        "modules": [
+          [ "amp", "@FACTORY.ADSR" ],
+          [ "foldA", "=KNOB" ],
+          [ "foldP", "=KNOB" ],
+          [ "mix", "=KNOB" ],
+          [ "new_FOLD_0", "FOLD" ],
+          [ "new_LAG_0", "LAG" ],
+          [ "new_MULADD_0", "MULADD" ],
+          [ "new_MULADD_1", "MULADD" ],
+          [ "new_MULADD_2", "MULADD" ],
+          [ "new_MULADD_3", "MULADD" ],
+          [ "new_MUL_0", "MUL" ],
+          [ "new_NATAN_0", "NATAN" ],
+          [ "new_NOISE_0", "NOISE" ],
+          [ "new_PHASE_0", "PHASE" ],
+          [ "new_SINE_0", "SINE" ],
+          [ "new_SINE_2", "SINE" ],
+          [ "new_SINE_3", "SINE" ],
+          [ "new_SPOW_0", "SPOW" ],
+          [ "new_XFADE_0", "XFADE" ],
+          [ "new_ZDF_1P_0", "ZDF_1P" ],
+          [ "noise", "=KNOB" ],
+          [ "pm", "@FACTORY.ADSR" ],
+          [ "pow", "=KNOB" ],
+          [ "vca", "GAIN" ]
+        ],
+        "values": [
+          [ "amp", "R", 0.800000011920929 ],
+          [ "new_LAG_0", "wc_down", 5.0 ],
+          [ "new_LAG_0", "wc_up", 5.0 ],
+          [ "new_MULADD_0", "add", 0.00999999977648258 ],
+          [ "new_MULADD_0", "mul", 50.0 ],
+          [ "new_MULADD_1", "add", 1.0 ],
+          [ "new_MULADD_1", "mul", 0.5 ],
+          [ "new_MULADD_2", "add", 1.0 ],
+          [ "new_MULADD_2", "mul", 5.0 ],
+          [ "new_MULADD_3", "add", 1.0 ],
+          [ "new_MULADD_3", "mul", 10.0 ],
+          [ "new_NATAN_0", "prescaler", 0.00999999977648258 ],
+          [ "new_NOISE_0", "scale", 0.100000001490116 ],
+          [ "new_ZDF_1P_0", "fc", 200.0 ],
+          [ "pm", "A", 0.699999988079071 ],
+          [ "pm", "D", 2.0 ],
+          [ "pm", "R", 0.600000023841858 ],
+          [ "pm", "S", 0.0 ],
+          [ "vca", "gain", 0.25 ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "effect": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "delayGain", "left", "stereoTape", "left" ],
+          [ "delayGain", "right", "stereoTape", "right" ],
+          [ "stereoTape", "left", "outPreGain", "left" ],
+          [ "stereoTape", "right", "outPreGain", "right" ],
+          [ "outPreGain", "left", "outSaturation", "left" ],
+          [ "outPreGain", "right", "outSaturation", "right" ],
+          [ "outSaturation", "left", "outPostGain", "left" ],
+          [ "outSaturation", "right", "outPostGain", "right" ],
+          [ "outPostGain", "left", "outBus", "left" ],
+          [ "outPostGain", "right", "outBus", "right" ],
+          [ "newTEMPO2TIME0", "period", "stereoTape", "leftTime" ],
+          [ "newTEMPO2TIME1", "period", "stereoTape", "rightTime" ],
+          [ "inBus", "bpm", "newTEMPO2TIME1", "bpm" ],
+          [ "inBus", "bpm", "newTEMPO2TIME0", "bpm" ],
+          [ "inBus", "left", "delayGain", "left" ],
+          [ "inBus", "right", "delayGain", "right" ],
+          [ "inBus", "left", "outPreGain", "left" ],
+          [ "inBus", "right", "outPreGain", "right" ]
+        ],
+        "modules": [
+          [ "delayGain", "GAIN" ],
+          [ "newTEMPO2TIME0", "TEMPO2TIME" ],
+          [ "newTEMPO2TIME1", "TEMPO2TIME" ],
+          [ "outPostGain", "GAIN" ],
+          [ "outPreGain", "GAIN" ],
+          [ "outSaturation", "SNATAN" ],
+          [ "stereoTape", "@FACTORY.STEREOTAPE" ]
+        ],
+        "values": [
+          [ "outPreGain", "gain", 0.5 ],
+          [ "outPostGain", "gain", 1.0 ],
+          [ "newTEMPO2TIME1", "beats", 0.25 ],
+          [ "newTEMPO2TIME0", "beats", 0.75 ],
+          [ "delayGain", "gain", 0.125 ]
+        ]
+      }
+    }
+  },
+  "settings": { "multicore": true, "polyphony": 16 },
+  "voice": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "vca", "left", "outBus", "left" ],
+          [ "vca", "right", "outBus", "right" ],
+          [ "newRCLP0", "out", "reso", "in" ],
+          [ "new_ZDF_SVF_0", "low", "vca", "left" ],
+          [ "reso", "low", "reso", "low" ],
+          [ "reso", "band", "reso", "band" ],
+          [ "inBus", "pitch_hz", "new_MUL_TRI_0", "in2" ],
+          [ "new_MUL_TRI_0", "out", "new_ZDF_SVF_0", "fc" ],
+          [ "new_SPOW_0", "out", "new_MUL_TRI_0", "in" ],
+          [ "new_NATAN_0", "out", "new_ZDF_SVF_0", "in" ],
+          [ "new_PHASE_0", "phase", "new_ABS_0", "in" ],
+          [ "new_ABS_0", "out", "new_MUL_0", "in2" ],
+          [ "new_ZDF_SVF_0", "low", "new_DELAY_LOW_Q_0", "in" ],
+          [ "new_MUL_0", "out", "new_DELAY_LOW_Q_0", "time" ],
+          [ "new_ZDF_SVF_0", "low", "vca", "right" ],
+          [ "new_ZDF_SVF_0", "low", "new_DELAY_LOW_Q_1", "in" ],
+          [ "new_MUL_1", "out", "new_DELAY_LOW_Q_1", "time" ],
+          [ "new_ABS_1", "out", "new_MUL_1", "in2" ],
+          [ "new_PHASE_1", "phase", "new_ABS_1", "in" ],
+          [ "new_DELAY_LOW_Q_1", "out", "vca", "left" ],
+          [ "new_DELAY_LOW_Q_0", "out", "vca", "right" ],
+          [ "reso", "high", "new_NATAN_0", "in" ],
+          [ "inBus", "pitch_hz", "reso", "fc" ],
+          [ "inBus", "strike_z", "new_SPOW_0", "base" ],
+          [ "inBus", "gate", "newRCLP0", "in" ]
+        ],
+        "modules": [
+          [ "newRCLP0", "D_LP" ],
+          [ "new_ABS_0", "ABS" ],
+          [ "new_ABS_1", "ABS" ],
+          [ "new_DELAY_LOW_Q_0", "DELAY_LOW_Q" ],
+          [ "new_DELAY_LOW_Q_1", "DELAY_LOW_Q" ],
+          [ "new_MUL_0", "MUL" ],
+          [ "new_MUL_1", "MUL" ],
+          [ "new_MUL_TRI_0", "MUL_TRI" ],
+          [ "new_NATAN_0", "NATAN" ],
+          [ "new_PHASE_0", "PHASE" ],
+          [ "new_PHASE_1", "PHASE" ],
+          [ "new_SPOW_0", "SPOW" ],
+          [ "new_ZDF_SVF_0", "ZDF_SVF" ],
+          [ "reso", "ZDF_OSVF" ],
+          [ "vca", "GAIN" ]
+        ],
+        "values": [
+          [ "vca", "gain", 0.25 ],
+          [ "reso", "res", 0.994000017642975 ],
+          [ "new_ZDF_SVF_0", "res", 0.5 ],
+          [ "new_SPOW_0", "exp", 3.0 ],
+          [ "new_PHASE_1", "freq", 0.5 ],
+          [ "new_PHASE_0", "freq", 0.400000005960464 ],
+          [ "new_NATAN_0", "prescaler", 4.0 ],
+          [ "new_MUL_TRI_0", "in3", 8.0 ],
+          [ "new_MUL_1", "in", 0.00999999977648258 ],
+          [ "new_MUL_0", "in", 0.00999999977648258 ],
+          [ "newRCLP0", "wc", 10000.0 ]
+        ]
+      },
+      "layout": {
+        "inBus": [ 667, 0 ],
+        "newRCLP0": [ 304, 427 ],
+        "new_ABS_0": [ 1519, 828 ],
+        "new_ABS_1": [ 102, 872 ],
+        "new_DELAY_LOW_Q_0": [ 1115, 1108 ],
+        "new_DELAY_LOW_Q_1": [ 440, 1132 ],
+        "new_MUL_0": [ 1287, 932 ],
+        "new_MUL_1": [ 292, 960 ],
+        "new_MUL_TRI_0": [ 929, 644 ],
+        "new_NATAN_0": [ 599, 855 ],
+        "new_PHASE_0": [ 1443, 638 ],
+        "new_PHASE_1": [ 0, 700 ],
+        "new_SPOW_0": [ 790, 470 ],
+        "new_ZDF_SVF_0": [ 823, 904 ],
+        "outBus": [ 831, 1490 ],
+        "reso": [ 401, 630 ],
+        "vca": [ 803, 1294 ]
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "effect": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "left", "new_GAIN_0", "left" ],
+          [ "inBus", "right", "new_GAIN_0", "right" ],
+          [ "new_GAIN_0", "left", "outBus", "left" ],
+          [ "new_GAIN_0", "right", "outBus", "right" ]
+        ],
+        "layout": {
+          "inBus": [ 400, 0 ],
+          "new_GAIN_0": [ 499, 220 ],
+          "outBus": [ 569, 455 ]
+        },
+        "modules": [
+          [ "new_GAIN_0", "GAIN" ]
+        ],
+        "values": [
+          [ "new_GAIN_0", "gain", 0.400000005960464 ]
+        ]
+      }
+    }
+  },
+  "settings": { "multicore": true, "polyphony": 16 },
+  "voice": {
+    "root": {
+      "graph": {
+        "connections": [
+          [ "inBus", "gate", "ampEnv", "gate" ],
+          [ "inBus", "gate", "filtEnv", "gate" ],
+          [ "inBus", "strike_z", "snap", "in" ],
+          [ "wc", "out", "new_ZDF_4PLADDER_0", "fc" ],
+          [ "wc", "out", "new_ZDF_4PLADDER_1", "fc" ],
+          [ "ampEnv", "out", "vca", "gain" ],
+          [ "snap", "out", "filtEnv", "onDecaySpeed" ],
+          [ "vca", "left", "outBus", "left" ],
+          [ "vca", "right", "outBus", "right" ],
+          [ "filtEnv", "out", "wc", "in" ],
+          [ "new_ZDF_4PLADDER_0", "out4p", "vca", "right" ],
+          [ "new_NOISE_0", "out", "new_ZDF_4PLADDER_0", "in" ],
+          [ "new_NOISE_0", "out", "new_ZDF_4PLADDER_1", "in" ],
+          [ "inBus", "strike_z", "filtEnv", "onBumpHeight" ],
+          [ "inBus", "strike_z", "new_MUL_0", "in" ],
+          [ "new_MUL_0", "out", "ampEnv", "sustainHeight" ],
+          [ "inBus", "strike_z", "ampEnv", "onBumpHeight" ],
+          [ "new_MUL_0", "out", "filtEnv", "sustainHeight" ],
+          [ "inBus", "pitch_hz", "sq1", "freq" ],
+          [ "inBus", "pitch_hz", "sq2", "freq" ],
+          [ "new_NOISE_2", "out", "new_D_LP_0", "in" ],
+          [ "new_D_LP_0", "out", "sq1", "freq" ],
+          [ "new_NOISE_1", "out", "new_D_LP_1", "in" ],
+          [ "new_D_LP_1", "out", "sq2", "freq" ],
+          [ "new_ZDF_4PLADDER_1", "out4p", "vca", "left" ],
+          [ "sq2", "out", "new_ZDF_4PLADDER_1", "in" ],
+          [ "sq1", "out", "new_ZDF_4PLADDER_0", "in" ],
+          [ "new_MOD_0", "rem", "new_MUX4_0", "select" ],
+          [ "inBus", "barPos", "new_MOD_0", "nom" ],
+          [ "new_LAG_0", "out", "sq2", "shape" ],
+          [ "new_MUX4_0", "c", "new_LAG_0", "in" ],
+          [ "new_LAG_1", "out", "sq1", "shape" ],
+          [ "new_MUX4_0", "a", "new_LAG_1", "in" ],
+          [ "inBus", "barPos", "new_DIV_0", "nom" ],
+          [ "inBus", "barLen", "new_DIV_0", "den" ],
+          [ "new_DIV_0", "div", "new_SINE_0", "phase" ],
+          [ "new_SINE_0", "sine", "new_MUL_1", "in" ],
+          [ "new_MUL_1", "out", "sq1", "pwm" ],
+          [ "new_MUL_1", "out", "sq2", "pwm" ]
+        ],
+        "layout": {
+          "ampEnv": [ 286, 734 ],
+          "filtEnv": [ 1124, 508 ],
+          "inBus": [ 680, 0 ],
+          "new_DIV_0": [ 1010, 250 ],
+          "new_D_LP_0": [ 941, 914 ],
+          "new_D_LP_1": [ 591, 939 ],
+          "new_LAG_0": [ 1651, 1659 ],
+          "new_LAG_1": [ 1456, 1580 ],
+          "new_MOD_0": [ 1804, 1305 ],
+          "new_MUL_0": [ 1207, 222 ],
+          "new_MUL_1": [ 800, 573 ],
+          "new_MUX4_0": [ 1488, 1391 ],
+          "new_NOISE_0": [ 771, 959 ],
+          "new_NOISE_1": [ 447, 883 ],
+          "new_NOISE_2": [ 1071, 778 ],
+          "new_SINE_0": [ 806, 396 ],
+          "new_ZDF_4PLADDER_0": [ 902, 1234 ],
+          "new_ZDF_4PLADDER_1": [ 492, 1362 ],
+          "outBus": [ 847, 1763 ],
+          "snap": [ 80, 200 ],
+          "sq1": [ 1094, 1003 ],
+          "sq2": [ 126, 1123 ],
+          "vca": [ 861, 1584 ],
+          "wc": [ 1279, 1198 ]
+        },
+        "modules": [
+          [ "ampEnv", "CAMELENV" ],
+          [ "filtEnv", "CAMELENV" ],
+          [ "new_DIV_0", "DIV" ],
+          [ "new_D_LP_0", "D_LP" ],
+          [ "new_D_LP_1", "D_LP" ],
+          [ "new_LAG_0", "LAG" ],
+          [ "new_LAG_1", "LAG" ],
+          [ "new_MOD_0", "MOD" ],
+          [ "new_MUL_0", "MUL" ],
+          [ "new_MUL_1", "MUL" ],
+          [ "new_MUX4_0", "MUX4" ],
+          [ "new_NOISE_0", "NOISE" ],
+          [ "new_NOISE_1", "NOISE" ],
+          [ "new_NOISE_2", "NOISE" ],
+          [ "new_SINE_0", "SINE" ],
+          [ "new_ZDF_4PLADDER_0", "ZDF_4PLADDER" ],
+          [ "new_ZDF_4PLADDER_1", "ZDF_4PLADDER" ],
+          [ "snap", "MULADD" ],
+          [ "sq1", "OSC_BLIT" ],
+          [ "sq2", "OSC_BLIT" ],
+          [ "vca", "GAIN" ],
+          [ "wc", "MULADD" ]
+        ],
+        "values": [
+          [ "ampEnv", "offAttackSpeed", 0.0 ],
+          [ "ampEnv", "offBumpHeight", 0.0 ],
+          [ "ampEnv", "offDecaySpeed", 0.5 ],
+          [ "ampEnv", "onBumpHeight", 1.0 ],
+          [ "ampEnv", "onDecaySpeed", 0.5 ],
+          [ "filtEnv", "offAttackSpeed", 0.0 ],
+          [ "filtEnv", "offBumpHeight", 0.0 ],
+          [ "filtEnv", "offDecaySpeed", 0.25 ],
+          [ "filtEnv", "onAttackSpeed", 0.100000001490116 ],
+          [ "filtEnv", "onBumpHeight", 1.0 ],
+          [ "filtEnv", "sustainHeight", 0.100000001490116 ],
+          [ "new_D_LP_0", "wc", 100.0 ],
+          [ "new_D_LP_1", "wc", 100.0 ],
+          [ "new_LAG_0", "wc_down", 5.0 ],
+          [ "new_LAG_0", "wc_up", 10.0 ],
+          [ "new_LAG_1", "wc_down", 5.0 ],
+          [ "new_LAG_1", "wc_up", 10.0 ],
+          [ "new_MOD_0", "den", 1.0 ],
+          [ "new_MUL_0", "in2", 0.5 ],
+          [ "new_MUL_1", "in2", 0.899999976158142 ],
+          [ "new_MUX4_0", "in", 0.899999976158142 ],
+          [ "new_NOISE_0", "scale", 0.00999999977648258 ],
+          [ "new_NOISE_1", "scale", 10.0 ],
+          [ "new_NOISE_2", "scale", 10.0 ],
+          [ "new_ZDF_4PLADDER_0", "overdrive", 5.0 ],
+          [ "new_ZDF_4PLADDER_0", "res", 0.5 ],
+          [ "new_ZDF_4PLADDER_1", "overdrive", 4.94999980926514 ],
+          [ "new_ZDF_4PLADDER_1", "res", 0.499000012874603 ],
+          [ "snap", "add", 0.0500000007450581 ],
+          [ "snap", "mul", 0.200000002980232 ],
+          [ "wc", "mul", 12000.0 ]
+        ]
+      }
+    }
+  }
+}

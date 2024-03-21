@@ -1,6 +1,6 @@
 # 2024 update - open source! #
 
-This project is now open source under MIT license. Some disclaimers; this is an old hobby project of mine. It does NOT represent a sensible software project. The UI bits are partly broken and horribly implemented. There are ZERO unit tests. There are however some DSP nuggets, and the graphing engine is quite clever and useful.
+This project is now open source under MIT license. Some disclaimers; this is an old hobby project of mine (and some friends). It does NOT represent a sensible software project. The UI bits are partly broken and horribly implemented. There are ZERO unit tests. There are however some DSP nuggets, and the graphing engine is quite clever and useful.
 
 # README #
 

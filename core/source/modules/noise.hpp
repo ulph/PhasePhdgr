@@ -1,6 +1,7 @@
 #ifndef NOISE_HPP
 #define NOISE_HPP
 
+#include <cstdint>
 #include "module.hpp"
 
 class Noise : public ModuleCRTP<Noise>

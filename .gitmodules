@@ -1,9 +1,9 @@
 [submodule "submodules/json"]
 	path = submodules/json
-	url = git@github.com:ulph/json.git
+	url = https://github.com/ulph/json.git
 [submodule "submodules/ThreadPool"]
 	path = submodules/ThreadPool
-	url = git@github.com:ulph/ThreadPool.git
+	url = https://github.com/ulph/ThreadPool.git
 [submodule "submodules/JUCE"]
 	path = submodules/JUCE
-	url = git@github.com:WeAreROLI/JUCE.git
+	url = https://github.com/WeAreROLI/JUCE.git

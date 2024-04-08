@@ -1,12 +1,11 @@
-# 2024 update - open source! #
-
-This project is now open source under MIT license. Some disclaimers; this is an old hobby project of mine (and some friends). It does NOT represent a sensible software project. The UI bits are partly broken and horribly implemented. There are ZERO unit tests. There are however some DSP nuggets, and the graphing engine is quite clever and useful.
-
 # README #
 
 PhasePhckr is an (extendable) MPE capabable software module synthesizer. It comes both as a headless CLI (jack) synth, and wrapped inside an elaborate VST/GUI (JUCE) in two flavours (instrument and effect).
 
 Under the hood, all connections and states are described via hiarchies in JSON. A user can create subgraphs, optionally storing it to disk, and reference it from other (sub)graphs. Advanced users can extend the synth by using the minimal sdk provided.
+
+## Disiclaimers ##
+This is an old hobby project of mine (and some friends). It does NOT represent a sensible software project. The UI bits are partly broken and horribly implemented. There are few unit tests. There are however some DSP nuggets, and the graphing engine is quite clever and useful. There are also plans to polish the quality of testing and  a complete rewrite of the UI (not using JUCE).
 
 ## build targets ##
 

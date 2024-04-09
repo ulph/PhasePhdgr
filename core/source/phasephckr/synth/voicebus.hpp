@@ -5,7 +5,7 @@
 #include <stack>
 #include <vector>
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 enum NoteState {
     ON = 0b00,

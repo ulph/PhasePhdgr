@@ -1,5 +1,5 @@
-#include "phasephckr/components.hpp"
-#include "phasephckr/design.hpp"
+#include "phasephdgr/components.hpp"
+#include "phasephdgr/design.hpp"
 
 #include "connectiongraph.hpp"
 #include <set>
@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 void designChain(
     ConnectionGraph &g,

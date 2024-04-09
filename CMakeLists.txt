@@ -1,5 +1,5 @@
 cmake_policy(SET CMP0048 NEW)
-project(phasephckr VERSION 0.1.1)
+project(phasephdgr VERSION 0.1.1)
 
 cmake_minimum_required(VERSION 3.0)
 set (CMAKE_CXX_STANDARD 17)
@@ -32,17 +32,17 @@ endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/python)
 
-set( PHASEPHCKR_SRC
+set( PHASEPHDGR_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>
     $<TARGET_OBJECTS:dsp_obj>
     $<TARGET_OBJECTS:modules_obj>
-    $<TARGET_OBJECTS:phasephckr_obj>
+    $<TARGET_OBJECTS:phasephdgr_obj>
     $<TARGET_OBJECTS:threading_obj>
 )
 
 if(${SUPPORT_PLUGIN_LOADING})
-    set( PHASEPHCKR_SRC
-        ${PHASEPHCKR_SRC}
+    set( PHASEPHDGR_SRC
+        ${PHASEPHDGR_SRC}
         $<TARGET_OBJECTS:plugin_obj>
     )
 endif()

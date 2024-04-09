@@ -1,6 +1,6 @@
 #pragma once
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     class Scope {
     private:

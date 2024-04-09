@@ -5,7 +5,7 @@
 
 #include <limits>
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 bool inline noteIsNotStolen(const NoteDataValue &n) {
     return (n.state & NoteState::STOLEN) == 0;

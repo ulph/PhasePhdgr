@@ -4,12 +4,12 @@
 #include <vector>
 #include <string>
 
-#include "phasephckr.hpp"
+#include "phasephdgr.hpp"
 
 #include "PPGrid.h"
 
 using namespace std;
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 typedef function<void(const string&, const MouseEvent &me)> ComponentClickedCallback;
 

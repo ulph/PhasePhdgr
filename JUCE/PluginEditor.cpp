@@ -1,8 +1,8 @@
 #include <cstring>
 #include <typeinfo>
 
-#include <phasephckr.hpp>
-#include <phasephckr_json.hpp>
+#include <phasephdgr.hpp>
+#include <phasephdgr_json.hpp>
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -10,11 +10,11 @@
 
 #include "FileIO.hpp"
 
-using namespace PhasePhckrFileStuff;
+using namespace PhasePhdgrFileStuff;
 
 using namespace std;
 
-PhasePhckrEditorBase::PhasePhckrEditorBase(PhasePhckrProcessorBase& p)
+PhasePhdgrEditorBase::PhasePhdgrEditorBase(PhasePhdgrProcessorBase& p)
     : AudioProcessorEditor (&p), processor (p)
     , mainFrame(
         [this](int i, const string& n) {
@@ -126,7 +126,7 @@ PhasePhckrEditorBase::PhasePhckrEditorBase(PhasePhckrProcessorBase& p)
 
 }
 
-PhasePhckrEditorBase::~PhasePhckrEditorBase() {
+PhasePhdgrEditorBase::~PhasePhdgrEditorBase() {
     guiUpdateTimer.stopTimer();
 #if INTERCEPT_STD_STREAMS
     debugViewUpdateTimer->stopTimer();
@@ -135,17 +135,17 @@ PhasePhckrEditorBase::~PhasePhckrEditorBase() {
     for(auto s: scopes) delete s;
 }
 
-void PhasePhckrEditorBase::paint(Graphics& g) {
+void PhasePhdgrEditorBase::paint(Graphics& g) {
     g.fillAll(Colour(0xff111111));
 }
 
-void PhasePhckrEditorBase::resized() {
+void PhasePhdgrEditorBase::resized() {
     mainFrame.setBoundsRelative(0.f, 0.f, 1.f, 1.f);
     repaint();
     processor.forceStateBump();
 }
 
-PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p) : PhasePhckrEditorBase(p) {
+PhasePhdgrEditor::PhasePhdgrEditor(PhasePhdgrProcessorBase& p) : PhasePhdgrEditorBase(p) {
     voiceScopeGrid.setText("voice");
     scopePPGrid.addComponent(&voiceScopeGrid);
     synthScopeOutGrid.setText("synth");
@@ -190,7 +190,7 @@ PhasePhckrEditor::PhasePhckrEditor(PhasePhckrProcessorBase& p) : PhasePhckrEdito
 
 }
 
-PhasePhckrEditorFX::PhasePhckrEditorFX(PhasePhckrProcessorBase& p) : PhasePhckrEditorBase(p) {
+PhasePhdgrEditorFX::PhasePhdgrEditorFX(PhasePhdgrProcessorBase& p) : PhasePhdgrEditorBase(p) {
     effectScopeInGrid.setText("input");
     scopePPGrid.addComponent(&effectScopeInGrid);
 

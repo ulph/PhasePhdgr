@@ -1,12 +1,12 @@
-#include "phasephckr/components.hpp"
-#include "phasephckr/design.hpp"
+#include "phasephdgr/components.hpp"
+#include "phasephdgr/design.hpp"
 
 #include "effectchain.hpp"
 #include "busmodules.hpp"
 #include "moduleregister.hpp"
 #include "parameters.hpp"
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 EffectChain::EffectChain(const PatchDescriptor& fxChain, const ComponentRegister & cp, const PluginsRegister * sdkReg) {
     ModuleRegister::registerAllModules(connectionGraph);

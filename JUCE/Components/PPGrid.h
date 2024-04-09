@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 #include <juce_audio_plugin_client/juce_audio_plugin_client.h>
 
 using namespace std;

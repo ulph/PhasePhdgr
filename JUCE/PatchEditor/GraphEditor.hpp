@@ -11,7 +11,7 @@
 #include <climits>
 #include <functional>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include "GraphEditorModel.hpp"
 #include "GraphEditorPositions.hpp"

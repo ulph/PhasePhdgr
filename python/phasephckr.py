@@ -112,7 +112,7 @@ def only_components(arg):
 if __name__ == "__main__":
     import sys 
 
-    p = argparse.ArgumentParser(description="PhasePhckr tool - analyse, fix and manipulate user data")
+    p = argparse.ArgumentParser(description="PhasePhdgr tool - analyse, fix and manipulate user data")
     p.add_argument('--overview', help="overview", action="store_const", const=1, default=0)
     p.add_argument('--list', choices=ALL)
     p.add_argument('--doff', help="list dependecies of")

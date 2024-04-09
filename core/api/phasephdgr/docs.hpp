@@ -8,7 +8,7 @@
 
 class Module;
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     struct ModuleDoc {
         string type;

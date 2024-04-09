@@ -1,6 +1,6 @@
 #include "synthvoice.hpp"
 
-namespace PhasePhckr
+namespace PhasePhdgr
 {
 
 SynthVoice::SynthVoice(const PatchDescriptor& voiceChain, const ComponentRegister & cp, const PluginsRegister * sdkReg)

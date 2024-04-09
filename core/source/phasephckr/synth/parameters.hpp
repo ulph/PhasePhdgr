@@ -4,7 +4,7 @@
 #include <math.h>
 #include <limits.h>
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     const float c_slewFactor = 0.995f;
 

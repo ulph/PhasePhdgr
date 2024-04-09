@@ -1,6 +1,6 @@
-#include "phasephckr/examples.hpp"
+#include "phasephdgr/examples.hpp"
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     const ConnectionGraphDescriptor exFxChain = {
         std::map<string, string>{

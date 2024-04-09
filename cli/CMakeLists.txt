@@ -12,7 +12,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_executable(phasephckr_cli main.cpp ${PHASEPHCKR_SRC})
-set_property(TARGET phasephckr_cli PROPERTY FOLDER cli)
+add_executable(phasephdgr_cli main.cpp ${PHASEPHDGR_SRC})
+set_property(TARGET phasephdgr_cli PROPERTY FOLDER cli)
 
-target_link_libraries(phasephckr_cli ${CMAKE_THREAD_LIBS_INIT} ${JACK_LIBRARY} ${CMAKE_DL_LIBS})
+target_link_libraries(phasephdgr_cli ${CMAKE_THREAD_LIBS_INIT} ${JACK_LIBRARY} ${CMAKE_DL_LIBS})

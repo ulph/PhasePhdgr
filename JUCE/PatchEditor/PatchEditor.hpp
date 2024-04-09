@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include "PPGrid.h"
 #include "Utils.hpp"
@@ -11,7 +11,7 @@
 
 #include "DocView.hpp"
 
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 using namespace std;
 
 class GraphEditorTabbedComponent : public TabbedComponent {
@@ -48,8 +48,8 @@ class PatchEditor : public Component
     int patchHandle;
 
     set<string> globalComponents;
-    PhasePhckr::ComponentRegister cmpReg;
-    SubValue<PhasePhckr::ComponentRegister> &subCmpReg;
+    PhasePhdgr::ComponentRegister cmpReg;
+    SubValue<PhasePhdgr::ComponentRegister> &subCmpReg;
     int cmpRegHandle;
 
     PPGrid ppgrid;
@@ -72,7 +72,7 @@ public:
     PatchEditor(
         std::function<Doc()> docFactory,
         SubValue<PatchDescriptor> &subPatch,
-        SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
+        SubValue<PhasePhdgr::ComponentRegister> &subCmpReg,
         const vector<PadDescription> &inBus,
         const vector<PadDescription> &outBus,
         LayoutUpdateCallback layoutUpdateCb

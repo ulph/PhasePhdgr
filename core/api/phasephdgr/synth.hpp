@@ -9,7 +9,7 @@
 #include "design.hpp"
 #include "scope.hpp"
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
     class GlobalData;
     class SynthVoice;
     class EffectChain;

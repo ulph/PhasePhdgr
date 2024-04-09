@@ -2,7 +2,7 @@
 
 #include "design.hpp"
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
     PatchDescriptor getExampleEffectChain();
     PatchDescriptor getExampleVoiceChain();
     PatchDescriptor getPassthroughEffectChain();

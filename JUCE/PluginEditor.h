@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include "PluginProcessor.h"
 #include "ScopeView.h"
@@ -22,11 +22,11 @@
 
 using namespace juce;
 
-class PhasePhckrEditorBase  : public AudioProcessorEditor, public DragAndDropContainer
+class PhasePhdgrEditorBase  : public AudioProcessorEditor, public DragAndDropContainer
 {
 public:
-    PhasePhckrEditorBase ( PhasePhckrProcessorBase& );
-    virtual ~PhasePhckrEditorBase();
+    PhasePhdgrEditorBase ( PhasePhdgrProcessorBase& );
+    virtual ~PhasePhdgrEditorBase();
 
     void paint (Graphics&) override;
     void resized() override;
@@ -38,7 +38,7 @@ protected:
     PPGrid scopePPGrid;
     PPTabbedComponent mainFrame;
 
-    PhasePhckrProcessorBase& processor;
+    PhasePhdgrProcessorBase& processor;
 
     ParameterEditor parameterEditor;
 
@@ -64,23 +64,23 @@ private:
 
     LambdaTimer guiUpdateTimer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditorBase)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhdgrEditorBase)
 };
 
-class PhasePhckrEditor: public PhasePhckrEditorBase {
+class PhasePhdgrEditor: public PhasePhdgrEditorBase {
 public:
-    PhasePhckrEditor ( PhasePhckrProcessorBase& p);
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditor)
+    PhasePhdgrEditor ( PhasePhdgrProcessorBase& p);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhdgrEditor)
 private:
     PPGGrid voiceScopeGrid;
     PPGGrid synthScopeOutGrid;
     PPGGrid effectScopeOutGrid;
 };
 
-class PhasePhckrEditorFX: public PhasePhckrEditorBase {
+class PhasePhdgrEditorFX: public PhasePhdgrEditorBase {
 public:
-    PhasePhckrEditorFX ( PhasePhckrProcessorBase& p);
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhckrEditorFX)
+    PhasePhdgrEditorFX ( PhasePhdgrProcessorBase& p);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhasePhdgrEditorFX)
 private:
     PPGGrid effectScopeInGrid;
     PPGGrid effectScopeOutGrid;

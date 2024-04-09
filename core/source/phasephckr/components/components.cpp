@@ -1,10 +1,10 @@
-#include "phasephckr/components.hpp"
+#include "phasephdgr/components.hpp"
 
 #include <assert.h>
 
 using namespace std;
 
-namespace PhasePhckr{
+namespace PhasePhdgr{
 
 const ComponentDescriptor stereoTape = {
     vector<PadDescription>{

@@ -1,12 +1,12 @@
 #include <cstdio>
 #include <cstdint>
 
-#include "phasephckr/synth.hpp"
-#include "phasephckr/examples.hpp"
+#include "phasephdgr/synth.hpp"
+#include "phasephdgr/examples.hpp"
 
 #include "synthvoice.hpp"
 
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
     float bufferL[SYNTH_VOICE_BUFFER_LENGTH];
     float bufferR[SYNTH_VOICE_BUFFER_LENGTH];
 
-    SynthVoice v(PhasePhckr::getExampleVoiceChain(), PhasePhckr::ComponentRegister(), nullptr);
+    SynthVoice v(PhasePhdgr::getExampleVoiceChain(), PhasePhdgr::ComponentRegister(), nullptr);
     GlobalData g;
 
     v.mpe.on(48, 0.5f);

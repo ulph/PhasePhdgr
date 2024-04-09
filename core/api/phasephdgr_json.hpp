@@ -1,11 +1,11 @@
 #pragma once
 
-#include "phasephckr/design.hpp"
+#include "phasephdgr/design.hpp"
 
 #include "json.hpp"
 using nlohmann::json;
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
     void to_json(json& j, const ModuleVariable& mv);
     void from_json(const json& j, ModuleVariable& mv);
 

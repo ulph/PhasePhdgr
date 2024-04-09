@@ -15,7 +15,7 @@ class ConnectionGraph;
 
 using namespace std;
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 class ComponentRegister;
 

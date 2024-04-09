@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "phasephckr/scope.hpp"
+#include "phasephdgr/scope.hpp"
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 Scope::Scope()
     : scopeBufferSize(sizeof(scopeBuffer) / sizeof(float))

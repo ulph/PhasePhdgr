@@ -1,18 +1,18 @@
 #pragma once
 
-#include <phasephckr.hpp>
-#include <phasephckr_json.hpp>
+#include <phasephdgr.hpp>
+#include <phasephdgr_json.hpp>
 
 #include "Utils.hpp"
 
 #include <regex>
 #include <string>
 
-namespace PhasePhckrFileStuff {
+namespace PhasePhdgrFileStuff {
     nlohmann::json loadJson(const File & f);
     void storeJson(File &f, const nlohmann::json& j);
 
-    const std::string phasePhckrDirName = "phasephckr";
+    const std::string phasePhdgrDirName = "phasephdgr";
     const std::string effectsDirName = "effect";
     const std::string voiceDirName = "voice";
     const std::string componentsDirName = "component";
@@ -23,7 +23,7 @@ namespace PhasePhckrFileStuff {
     const File rootDir = File(
         File::getSpecialLocation(
             File::SpecialLocationType::userApplicationDataDirectory
-        ).getFullPathName() + File::getSeparatorString() + phasePhckrDirName
+        ).getFullPathName() + File::getSeparatorString() + phasePhdgrDirName
     );
 
     const File effectsDir = File(rootDir.getFullPathName() + File::getSeparatorString() + effectsDirName);
@@ -41,17 +41,17 @@ namespace PhasePhckrFileStuff {
 
     File getInitialEffectFile();
 
-    void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr);
+    void createInitialUserLibrary(const PhasePhdgr::ComponentRegister& cr);
 
     string make_path_agnostic(string& path);
 
     string make_path_specific(string& path);
 
     struct ComponentFileLoader {
-        PhasePhckr::ComponentRegister componentRegister;
-        SubValue<PhasePhckr::ComponentRegister>& subComponentRegister;
+        PhasePhdgr::ComponentRegister componentRegister;
+        SubValue<PhasePhdgr::ComponentRegister>& subComponentRegister;
 
-        ComponentFileLoader(SubValue<PhasePhckr::ComponentRegister>& subComponentRegister_)
+        ComponentFileLoader(SubValue<PhasePhdgr::ComponentRegister>& subComponentRegister_)
             : subComponentRegister(subComponentRegister_)
         {
         }
@@ -63,12 +63,12 @@ namespace PhasePhckrFileStuff {
             for (int i = 0; i < initialFiles.size(); i++) {
                 const auto &f = initialFiles[i];
                 String p = f.getRelativePathFrom(componentsDir);
-                string n = string(&PhasePhckr::componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
+                string n = string(&PhasePhdgr::componentMarker, 1) + p.dropLastCharacters(5).toUpperCase().toStdString(); // remove .json
                 n = make_path_agnostic(n);
                 string s = f.loadFileAsString().toStdString();
                 try {
                     json j = json::parse(s.c_str());
-                    PhasePhckr::ComponentDescriptor cd = j;
+                    PhasePhdgr::ComponentDescriptor cd = j;
                     cd.cleanUp();
                     componentRegister.registerComponent(n, cd);
                 }

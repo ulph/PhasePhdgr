@@ -8,12 +8,12 @@
 
 #include "PatchEditor.hpp"
 
-class PhasePhckrEditor;
+class PhasePhdgrEditor;
 
 typedef std::function<void(const string& name, const nlohmann::json&)> ProvideJsonCallBack;
 typedef std::function<nlohmann::json(void)> GetJsonCallBack;
 
-using namespace PhasePhckrFileStuff;
+using namespace PhasePhdgrFileStuff;
 
 class FileEditorBundle : public GroupComponent, public Button::Listener, public FileBrowserListener
 {

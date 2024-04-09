@@ -19,7 +19,7 @@ int main(int argc, const char* argv[])
     std::string p = BuildDylibName("plugin_example"); // see example.cpp
 
     {
-        PhasePhckr::PluginLoader ex(p.c_str());
+        PhasePhdgr::PluginLoader ex(p.c_str());
         auto d = ex.getData();
         TEST(d, p << " failed to load");
 
@@ -59,7 +59,7 @@ int main(int argc, const char* argv[])
     }
 
     {
-        PhasePhckr::PluginsRegister pr;
+        PhasePhdgr::PluginsRegister pr;
         TEST(pr.loadPlugin(p.c_str()), "Failed to load plugin into PluginRegister.");
         
         ConnectionGraph cg;

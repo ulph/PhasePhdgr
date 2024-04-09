@@ -1,6 +1,6 @@
 #pragma once
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include "DirectoryWatcher.hpp"
 #include "FileIO.hpp"
@@ -12,8 +12,8 @@
 #include <functional>
 #include <memory>
 
-using namespace PhasePhckrFileStuff;
-using namespace PhasePhckr;
+using namespace PhasePhdgrFileStuff;
+using namespace PhasePhdgr;
 using namespace std;
 
 void storeState(const PresetDescriptor& preset, MemoryBlock& destData, const nlohmann::json& extra);

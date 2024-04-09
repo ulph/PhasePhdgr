@@ -56,7 +56,7 @@ SettingsEditor::SettingsEditor(SubValue<PresetSettings>& subSettings_)
     : subSettings(subSettings_)
 {
     addAndMakeVisible(&grid, false);
-    subSettingsHandle = subSettings.subscribe([this](const PhasePhckr::PresetSettings& s) {
+    subSettingsHandle = subSettings.subscribe([this](const PhasePhdgr::PresetSettings& s) {
         settings = s;
         applySettings();
     });

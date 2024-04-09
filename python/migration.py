@@ -1,4 +1,4 @@
-import phasephckr as ph
+import phasephdgr as ph
 
 module_renames = { # straight forward rename / replace
     "RCHP" : "D_HP",

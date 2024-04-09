@@ -1,6 +1,6 @@
 #pragma once
 
-#include "phasephckr/components.hpp"
+#include "phasephdgr/components.hpp"
 
 #include "connectiongraph.hpp"
 #include "voicebus.hpp"
@@ -10,12 +10,12 @@ using namespace std;
 #if SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
 #else
-namespace PhasePhckr {
+namespace PhasePhdgr {
     class PluginsRegister;
 }
 #endif
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 class EffectChain {
 private:

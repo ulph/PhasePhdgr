@@ -22,6 +22,6 @@ set(SRC
     utilities/scope.cpp
 )
 
-add_library(phasephckr_obj OBJECT ${SRC})
-set_target_properties(phasephckr_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(phasephckr_obj PROPERTIES FOLDER core)
+add_library(phasephdgr_obj OBJECT ${SRC})
+set_target_properties(phasephdgr_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(phasephdgr_obj PROPERTIES FOLDER core)

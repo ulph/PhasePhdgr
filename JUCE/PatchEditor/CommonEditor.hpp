@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <phasephckr.hpp>
-using namespace PhasePhckr;
+#include <phasephdgr.hpp>
+using namespace PhasePhdgr;
 
 const string rootMarker = "root";
 

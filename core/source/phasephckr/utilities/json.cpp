@@ -1,9 +1,9 @@
-#include <phasephckr.hpp>
-#include <phasephckr_json.hpp>
+#include <phasephdgr.hpp>
+#include <phasephdgr_json.hpp>
 
 #include <sstream>
 
-namespace PhasePhckr{
+namespace PhasePhdgr{
 
 void to_json(json& j, const PadDescription& p) {
     j[0] = p.name;

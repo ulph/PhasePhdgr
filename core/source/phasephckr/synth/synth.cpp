@@ -1,4 +1,4 @@
-#include <phasephckr/synth.hpp>
+#include <phasephdgr/synth.hpp>
 
 #include "synthvoice.hpp"
 #include "effectchain.hpp"
@@ -7,7 +7,7 @@
 #include "pluginsregister.hpp"
 #endif
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 const float c_maxSaneValue = 5.f;
 const float c_numSecondsBetweenResetAttempts = 1.0f;

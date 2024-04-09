@@ -1,24 +1,24 @@
-#include "phasephckr/docs.hpp"
+#include "phasephdgr/docs.hpp"
 
 #include "moduleregister.hpp"
 #include "connectiongraph.hpp"
 #include "moduleaccessor.hpp"
 #include "busmodules.hpp"
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     void ModuleDoc::fromModule(const Module* module) {
         type = ModuleAccessor::getName(*module);
         docString = module->docString();
         for (const auto p : ModuleAccessor::getInputs(*module)) {
-            PhasePhckr::PadDescription pd;
+            PhasePhdgr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
             pd.defaultValue = p.value;
             inputs.push_back(pd);  
         }
         for (const auto p : ModuleAccessor::getOutputs(*module)) {
-            PhasePhckr::PadDescription pd;
+            PhasePhdgr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
             pd.defaultValue = p.value;

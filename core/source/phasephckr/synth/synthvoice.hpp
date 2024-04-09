@@ -3,8 +3,8 @@
 #include <thread>
 #include <atomic>
 
-#include "phasephckr/components.hpp"
-#include "phasephckr/design.hpp"
+#include "phasephdgr/components.hpp"
+#include "phasephdgr/design.hpp"
 
 #include "parameters.hpp"
 #include "module.hpp"
@@ -15,14 +15,14 @@
 #if SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
 #else
-namespace PhasePhckr {
+namespace PhasePhdgr {
     class PluginsRegister;
 };
 #endif
 
 #define SYNTH_VOICE_BUFFER_LENGTH 1024
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
 class SynthVoiceThreading {
     // fragmentary remain of the threading

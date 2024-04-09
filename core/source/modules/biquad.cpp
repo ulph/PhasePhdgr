@@ -28,19 +28,19 @@ void Biquad::init_state()
  *
  * a0 is assumed to be equal to 1. If not, all coefficients should be normalized by a0
  */
-void Biquad::process() {
+void Biquad::processSample(int sample) {
   float a1, a2, b0, b1, b2;
-  a1 = inputs[1].value;
-  a2 = inputs[2].value;
-  b0 = inputs[3].value;
-  b1 = inputs[4].value;
-  b2 = inputs[5].value;
+  a1 = inputs[1].values[sample];
+  a2 = inputs[2].values[sample];
+  b0 = inputs[3].values[sample];
+  b1 = inputs[4].values[sample];
+  b2 = inputs[5].values[sample];
 
-  outputs[0].value = b0 * inputs[0].value + b1 * x1 + b2 * x2 - a1 * y1 - a2 *y2;
+  outputs[0].values[sample] = b0 * inputs[0].values[sample] + b1 * x1 + b2 * x2 - a1 * y1 - a2 *y2;
   x2 = x1;
-  x1 = inputs[0].value;
+  x1 = inputs[0].values[sample];
   y2 = y1;
-  y1 = outputs[0].value;
+  y1 = outputs[0].values[sample];
 }
 
 LowPass::LowPass()
@@ -67,21 +67,21 @@ LowPass::LowPass()
  *        a1 =  -2*cos(w0)
  *        a2 =   1 - alpha
  */
-void LowPass::process()
+void LowPass::processSample(int sample)
 {
-  float f0 = inputs[0].value * fsInv;
+  float f0 = inputs[0].values[sample] * fsInv;
   f0 = f0>0.49f?0.49f:f0;
 
   float w0 = 2.f * (float)M_PI * f0;
-  float alpha = sinf(w0) / (2.0f * inputs[1].value);
+  float alpha = sinf(w0) / (2.0f * inputs[1].values[sample]);
 
   float a0 = 1.f + alpha;
 
-  outputs[0].value = -2.f * cosf(w0) / a0;
-  outputs[1].value = (1.f - alpha) / a0;
-  outputs[2].value = (1.f - cosf(w0)) / (2.f * a0);
-  outputs[3].value = 2.f * outputs[2].value;
-  outputs[4].value = outputs[2].value;
+  outputs[0].values[sample] = -2.f * cosf(w0) / a0;
+  outputs[1].values[sample] = (1.f - alpha) / a0;
+  outputs[2].values[sample] = (1.f - cosf(w0)) / (2.f * a0);
+  outputs[3].values[sample] = 2.f * outputs[2].values[sample];
+  outputs[4].values[sample] = outputs[2].values[sample];
 
 }
 
@@ -110,23 +110,23 @@ PeakingEQ::PeakingEQ()
  *   a1 =  -2*cos(w0)
  *   a2 =   1 - alpha/A
  */
-void PeakingEQ::process()
+void PeakingEQ::processSample(int sample)
 {
-    float w0 = 2.f * (float)M_PI * inputs[0].value * fsInv;
-    float alpha = sinf(w0) / (2.0f * inputs[2].value);
-    float A = powf(10.f, inputs[1].value/40.f);
+    float w0 = 2.f * (float)M_PI * inputs[0].values[sample] * fsInv;
+    float alpha = sinf(w0) / (2.0f * inputs[2].values[sample]);
+    float A = powf(10.f, inputs[1].values[sample]/40.f);
 
     float a0 = (1.f + alpha)/A;
-    outputs[0].value = -2.f * cosf(w0);
-    outputs[1].value = (1.f - alpha/A);
+    outputs[0].values[sample] = -2.f * cosf(w0);
+    outputs[1].values[sample] = (1.f - alpha/A);
 
-    outputs[2].value = 1.f + alpha * A;
-    outputs[3].value = -2.0f * cosf(w0);
-    outputs[4].value = 1.f - alpha * A;
+    outputs[2].values[sample] = 1.f + alpha * A;
+    outputs[3].values[sample] = -2.0f * cosf(w0);
+    outputs[4].values[sample] = 1.f - alpha * A;
 
     // Normalization by a0
     for(auto &out: outputs)
     {
-        out.value /= a0;
+        out.values[sample] /= a0;
     }
 }

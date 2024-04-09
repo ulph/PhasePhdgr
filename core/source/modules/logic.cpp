@@ -7,8 +7,8 @@ Threshold::Threshold() {
     outputs.push_back(Pad("out"));
 }
 
-void Threshold::process() {
-    outputs[0].value = inputs[0].value >= inputs[1].value;
+void Threshold::processSample(int sample) {
+    outputs[0].values[sample] = inputs[0].values[sample] >= inputs[1].values[sample];
 }
 
 Counter::Counter() {
@@ -17,12 +17,12 @@ Counter::Counter() {
     outputs.push_back(Pad("out"));
 }
 
-void Counter::process() {
-    auto trigger = inputs[0].value;
-    auto reset = inputs[1].value;
+void Counter::processSample(int sample) {
+    auto trigger = inputs[0].values[sample];
+    auto reset = inputs[1].values[sample];
     if(isHigh(reset) && !isHigh(lastReset)) counter = 0.0f;
     if(isHigh(trigger) && !isHigh(lastTrigger)) counter += 1.0f;
     lastTrigger = trigger;
     lastReset = reset;
-    outputs[0].value = counter;
+    outputs[0].values[sample] = counter;
 }

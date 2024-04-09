@@ -48,11 +48,11 @@ static inline void TrapezoidalTanSVFInitPads(std::vector<Pad>& inputs, std::vect
     outputs.push_back(Pad("all"));
 }
 
-static inline void TrapezoidalTanSVFProcess(const std::vector<Pad>& inputs, std::vector<Pad>& outputs, float fs, float fsInv, float ic1eq, float ic2eq, float &v1, float &v2) {
+static inline void TrapezoidalTanSVFProcess(const std::vector<Pad>& inputs, std::vector<Pad>& outputs, float fs, float fsInv, float ic1eq, float ic2eq, float &v1, float &v2, int sample) {
     // get inputs from pads
-    float v0 = inputs[0].value;
-    float fc = limit(inputs[1].value, 0.0f, 0.5f*fs);
-    float res = limit(inputs[2].value, 0.0f, 1.0f);
+    float v0 = inputs[0].values[sample];
+    float fc = limit(inputs[1].values[sample], 0.0f, 0.5f*fs);
+    float res = limit(inputs[2].values[sample], 0.0f, 1.0f);
     float k = TrapezoidalTanSVFGetK(res);
 
     // design
@@ -67,12 +67,12 @@ static inline void TrapezoidalTanSVFProcess(const std::vector<Pad>& inputs, std:
     TrapezoidalTanSVFGetOutput(v0, v1, v2, k, low, band, high, notch, peak, all);
 
     // store outputs on pads
-    outputs[0].value = low;
-    outputs[1].value = high;
-    outputs[2].value = band;
-    outputs[3].value = peak;
-    outputs[4].value = notch;
-    outputs[5].value = all;
+    outputs[0].values[sample] = low;
+    outputs[1].values[sample] = high;
+    outputs[2].values[sample] = band;
+    outputs[3].values[sample] = peak;
+    outputs[4].values[sample] = notch;
+    outputs[5].values[sample] = all;
 }
 
 TrapezoidalTanSVF::TrapezoidalTanSVF()
@@ -80,9 +80,9 @@ TrapezoidalTanSVF::TrapezoidalTanSVF()
     TrapezoidalTanSVFInitPads(inputs, outputs);
 }
 
-void TrapezoidalTanSVF::process() {
+void TrapezoidalTanSVF::processSample(int sample) {
     float band, low;
-    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low);
+    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low, sample);
     TrapezoidalTanSVFUpdateState(band, low, ic1eq, ic2eq);
 }
 
@@ -93,12 +93,12 @@ OpenTrapezoidalTanSVF::OpenTrapezoidalTanSVF()
     inputs.push_back(Pad("band"));
 }
 
-void OpenTrapezoidalTanSVF::process() 
+void OpenTrapezoidalTanSVF::processSample(int sample) 
 {
-    float low  = inputs[inPadOffset+0].value;
-    float band = inputs[inPadOffset+1].value;
+    float low  = inputs[inPadOffset+0].values[sample];
+    float band = inputs[inPadOffset+1].values[sample];
     TrapezoidalTanSVFUpdateState(band, low, ic1eq, ic2eq);
-    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low);
+    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low, sample);
 }
 
 OpenTrapezoidalTanSVF2::OpenTrapezoidalTanSVF2()
@@ -114,12 +114,12 @@ OpenTrapezoidalTanSVF2::OpenTrapezoidalTanSVF2()
     outputs.push_back(Pad("ic2eq"));
 }
 
-void OpenTrapezoidalTanSVF2::process() {
-    float ic1eq = inputs[inPadOffset + 0].value;
-    float ic2eq = inputs[inPadOffset + 1].value;
+void OpenTrapezoidalTanSVF2::processSample(int sample) {
+    float ic1eq = inputs[inPadOffset + 0].values[sample];
+    float ic2eq = inputs[inPadOffset + 1].values[sample];
     float band, low;
-    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low);
+    TrapezoidalTanSVFProcess(inputs, outputs, fs, fsInv, ic1eq, ic2eq, band, low, sample);
     TrapezoidalTanSVFUpdateState(band, low, ic1eq, ic2eq);
-    outputs[outPadOffset + 0].value = ic1eq;
-    outputs[outPadOffset + 1].value = ic2eq;
+    outputs[outPadOffset + 0].values[sample] = ic1eq;
+    outputs[outPadOffset + 1].values[sample] = ic2eq;
 }

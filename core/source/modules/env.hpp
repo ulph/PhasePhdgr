@@ -8,7 +8,7 @@ class CamelEnvelope : public ModuleCRTP<CamelEnvelope>
 {
 public:
     CamelEnvelope();
-    void process() override;
+    void processSample(int sample) override;
     static Module* factory() { return new CamelEnvelope(); }
     virtual std::string docString() const override {
         return "Trigger attack/release stages on gate flank. Can behave like a traditional ADSR, but also has a 'release' bump. The shapes are controllable from convex, through linear to concave via a power law."; 

@@ -9,9 +9,9 @@ Noise::Noise() {
     val = rand() % UINT32_MAX;
 }
 
-void Noise::process() {
+void Noise::processSample(int sample) {
     float rand = ((float)((val & 0x7fffffff) - 0x40000000)) * (float)(1.0 / 0x40000000);
     float value = rand*0.5f - 1.f;
-    outputs[0].value = value*inputs[1].value + inputs[0].value;;
+    outputs[0].values[sample] = value*inputs[1].values[sample] + inputs[0].values[sample];
     val = val * 435898247 + 382842987;
 }

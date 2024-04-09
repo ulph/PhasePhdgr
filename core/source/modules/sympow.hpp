@@ -7,7 +7,7 @@ class SymPow : public ModuleCRTP<SymPow>
 {
 public:
     SymPow();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new SymPow(); }
 };
 
@@ -15,7 +15,7 @@ class SymLog2 : public ModuleCRTP<SymLog2>
 {
 public:
     SymLog2();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new SymLog2(); }
 };
 

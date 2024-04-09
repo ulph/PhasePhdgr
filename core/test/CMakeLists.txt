@@ -8,6 +8,8 @@ include_directories(../source/plugin)
 include_directories(../source/phasephdgr/synth)
 include_directories(../source/phasephdgr/design)
 
+include(CTest)
+
 set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>
     $<TARGET_OBJECTS:dsp_obj>

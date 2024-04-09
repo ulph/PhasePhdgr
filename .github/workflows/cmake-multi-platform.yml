@@ -65,8 +65,8 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
-        -DBUILD_JUCE=ON
-        -DBUILD_CLI=ON
+        -DBUILD_JUCE=OFF # TODO - fix by getting all deps in place
+        -DBUILD_CLI=OFF # ...
         -DSUPPORT_PLUGIN_LOADING=ON
         -DBUILD_PLUGIN_SDK=ON
         

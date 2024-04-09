@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include "Utils.hpp"
 #include "PatchEditor.hpp"
@@ -18,10 +18,10 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 
 using namespace std;
-using namespace PhasePhckrFileStuff;
+using namespace PhasePhdgrFileStuff;
 using namespace juce;
 
-class PhasePhckrProcessorBase : public AudioProcessor {
+class PhasePhdgrProcessorBase : public AudioProcessor {
 public:
     struct InstanceSpecificPeristantState {
         // slightly less than 720p
@@ -29,7 +29,7 @@ public:
         int height = 700;
     };
 
-    PhasePhckrProcessorBase(const BusesProperties& ioConfig)
+    PhasePhdgrProcessorBase(const BusesProperties& ioConfig)
         : AudioProcessor(ioConfig)
         , componentLoader(subComponentRegister)
     {}
@@ -52,10 +52,10 @@ public:
 protected:
     ComponentFileLoader componentLoader;
 
-    PhasePhckr::PresetSettings activeSettings;
+    PhasePhdgr::PresetSettings activeSettings;
     int activeSettingsHandle;
 
-    PhasePhckr::ComponentRegister componentRegister;
+    PhasePhdgr::ComponentRegister componentRegister;
     int componentRegisterHandle;
 
     InstanceSpecificPeristantState extra;
@@ -63,8 +63,8 @@ protected:
     simple_lock synthUpdateLock;
 
     struct processor_bundle {
-        PhasePhckr::Base* processor = nullptr;
-        PhasePhckr::PatchDescriptor patch;
+        PhasePhdgr::Base* processor = nullptr;
+        PhasePhdgr::PatchDescriptor patch;
         size_t hash = 0;
         int handle = std::numeric_limits<int>::max();
         SubValue<PatchDescriptor> propagator;
@@ -89,14 +89,14 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     SubValue<PresetSettings> subSettings;
-    SubValue<PhasePhckr::ComponentRegister> subComponentRegister;
+    SubValue<PhasePhdgr::ComponentRegister> subComponentRegister;
 
     SubValue<PatchDescriptor> nullPatchPropagator;
 
     void setPreset(const PresetDescriptor& preset);
     PresetDescriptor getPreset();
 
-    virtual void setSettings(const PhasePhckr::PresetSettings &settings);
+    virtual void setSettings(const PhasePhdgr::PresetSettings &settings);
 
     Parameters parameters;
 
@@ -119,25 +119,25 @@ public:
 
     PPLookAndFeel lookAndFeel;
 
-    const PhasePhckr::Base* getProcessor(SynthGraphType type) const;
+    const PhasePhdgr::Base* getProcessor(SynthGraphType type) const;
 
 };
 
-class PhasePhckrProcessor: public PhasePhckrProcessorBase
+class PhasePhdgrProcessor: public PhasePhdgrProcessorBase
 {
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrProcessor)
-    PhasePhckr::Synth* synth;
-    PhasePhckr::Effect* effect;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhdgrProcessor)
+    PhasePhdgr::Synth* synth;
+    PhasePhdgr::Effect* effect;
 
     GeneratingBufferingProcessor bufferingProcessor;
 
     vector<PPMidiMessage> midiMessageQueue;
 
 public:
-    PhasePhckrProcessor();
-    ~PhasePhckrProcessor();
+    PhasePhdgrProcessor();
+    ~PhasePhdgrProcessor();
 
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 
@@ -150,18 +150,18 @@ public:
 };
 
 
-class PhasePhckrProcessorFx : public PhasePhckrProcessorBase
+class PhasePhdgrProcessorFx : public PhasePhdgrProcessorBase
 {
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhckrProcessorFx)
-    PhasePhckr::Effect* effect;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasePhdgrProcessorFx)
+    PhasePhdgr::Effect* effect;
 
     InputBufferingProcessor bufferingProcessor;
 
 public:
-    PhasePhckrProcessorFx();
-    ~PhasePhckrProcessorFx();
+    PhasePhdgrProcessorFx();
+    ~PhasePhdgrProcessorFx();
 
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 

@@ -4,14 +4,14 @@
 #include <utility>
 #include <functional>
 
-#include "phasephckr_json.hpp"
+#include "phasephdgr_json.hpp"
 
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
 using namespace juce;
 
-namespace PhasePhckrFileStuff {
+namespace PhasePhdgrFileStuff {
 
     class StupidFileFilter : public FileFilter {
     public:

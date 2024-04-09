@@ -187,7 +187,7 @@ void Parameters::setParametersHandleMap(SynthGraphType type, const ParameterHand
     }
 }
 
-void Parameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
+void Parameters::visitHandleParameterValues(PhasePhdgr::Effect* effect) {
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {
@@ -206,7 +206,7 @@ void Parameters::visitHandleParameterValues(PhasePhckr::Effect* effect) {
     }
 }
 
-void Parameters::visitHandleParameterValues(PhasePhckr::Synth* synth, PhasePhckr::Effect* effect) {
+void Parameters::visitHandleParameterValues(PhasePhdgr::Synth* synth, PhasePhdgr::Effect* effect) {
     auto scoped_lock = parameterLock.make_scoped_lock();
 
     for (const auto kv : parameterRouting) {

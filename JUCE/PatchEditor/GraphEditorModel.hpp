@@ -9,12 +9,12 @@
 #include <assert.h>
 #include <set>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include <juce_graphics/juce_graphics.h>
 
 using namespace juce;
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 using namespace std;
 
 const float c_PPGridSize = 200;

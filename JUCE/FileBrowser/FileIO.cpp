@@ -1,4 +1,4 @@
-#include "phasephckr_json.hpp"
+#include "phasephdgr_json.hpp"
 #include "FileIO.hpp"
 
 #include <algorithm>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace PhasePhckrFileStuff {
+namespace PhasePhdgrFileStuff {
 
     nlohmann::json loadJson(const File & f) {
         String s = f.loadFileAsString();
@@ -76,7 +76,7 @@ namespace PhasePhckrFileStuff {
 
     File storeScoped(const File& path, const string& bare_type, const json& body, bool dry_run) {
         // split prefix and name apart
-        size_t found = bare_type.find_last_of(PhasePhckr::scopeSeparator);
+        size_t found = bare_type.find_last_of(PhasePhdgr::scopeSeparator);
         string prefix = "";
         if (found != string::npos) {
             prefix = bare_type.substr(0, found);
@@ -87,7 +87,7 @@ namespace PhasePhckrFileStuff {
         size_t start = 0;
         File exandedPath = path;
         while (start < prefix.size() && start != std::string::npos) {
-            size_t stop = prefix.substr(start).find_first_of(PhasePhckr::scopeSeparator);
+            size_t stop = prefix.substr(start).find_first_of(PhasePhdgr::scopeSeparator);
 
             if (stop == std::string::npos) {
                 exandedPath = exandedPath.getFullPathName() + sep + prefix.substr(start);
@@ -108,7 +108,7 @@ namespace PhasePhckrFileStuff {
         return full_filename;
     }
 
-    void createInitialUserLibrary(const PhasePhckr::ComponentRegister& cr) {
+    void createInitialUserLibrary(const PhasePhdgr::ComponentRegister& cr) {
         // TODO, control this
 
         createLibraryDirectoriesIfNeeded();
@@ -116,8 +116,8 @@ namespace PhasePhckrFileStuff {
         // load init patches and dump to disk
         auto vf = getInitialVoiceFile();
         auto ef = getInitialEffectFile();
-        const auto& vp = PhasePhckr::getExampleVoiceChain();
-        const auto& ep = PhasePhckr::getExampleEffectChain();
+        const auto& vp = PhasePhdgr::getExampleVoiceChain();
+        const auto& ep = PhasePhdgr::getExampleEffectChain();
         createFileIfNeeded(vf, vp);
         createFileIfNeeded(ef, ep);
 
@@ -125,7 +125,7 @@ namespace PhasePhckrFileStuff {
         for (const auto &kv : cr.all()) {
             const auto &type = kv.first;
             const auto &body = kv.second;
-            if (!PhasePhckr::componentTypeIsValid(type, true)) continue;
+            if (!PhasePhdgr::componentTypeIsValid(type, true)) continue;
             storeScoped(componentsDir.getFullPathName(), type.substr(1), body, false);
         }
     }
@@ -133,13 +133,13 @@ namespace PhasePhckrFileStuff {
     string make_path_agnostic(string& path) {
         string fromSep = String(File::getSeparatorString()).toStdString();
         auto re = regex("\\" + fromSep);
-        auto newStr = regex_replace(path, re, string(1, PhasePhckr::scopeSeparator));
+        auto newStr = regex_replace(path, re, string(1, PhasePhdgr::scopeSeparator));
         return newStr;
     }
 
     string make_path_specific(string& path) {
         string toSep = String(File::getSeparatorString()).toStdString();
-        auto re = regex("\\" + string(1, PhasePhckr::scopeSeparator));
+        auto re = regex("\\" + string(1, PhasePhdgr::scopeSeparator));
         auto newStr = regex_replace(path, re, toSep);
         return newStr;
     }

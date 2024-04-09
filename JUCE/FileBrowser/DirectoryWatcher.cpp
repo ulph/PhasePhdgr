@@ -1,6 +1,6 @@
 #include "DirectoryWatcher.hpp"
 
-namespace PhasePhckrFileStuff {
+namespace PhasePhdgrFileStuff {
 
     StupidFileFilter g_fileFilter("json file");
     const FileFilter * getFilter() { 

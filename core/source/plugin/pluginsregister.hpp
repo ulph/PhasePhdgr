@@ -8,7 +8,7 @@
 
 class ConnectionGraph;
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
     class PluginLoader;
 
     class PluginsRegister {

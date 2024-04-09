@@ -5,14 +5,14 @@
 #include <string>
 #include <list>
 
-#include "phasephckr.hpp"
+#include "phasephdgr.hpp"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
 using namespace juce;
 
 using namespace std;
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 class Parameter : public AudioParameterFloat {
 private:

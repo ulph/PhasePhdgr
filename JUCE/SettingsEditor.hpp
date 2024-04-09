@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Utils.hpp"
-#include "phasephckr.hpp"
+#include "phasephdgr.hpp"
 #include "PPGrid.h"
 
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 #define shutup NotificationType::dontSendNotification
 

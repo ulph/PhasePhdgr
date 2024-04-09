@@ -7,17 +7,17 @@
 #include <vector>
 #include <utility>
 
-#include <phasephckr.hpp>
-#include <phasephckr_json.hpp>
+#include <phasephdgr.hpp>
+#include <phasephdgr_json.hpp>
 
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
 #include <iostream>
 
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
-class PhasePhckrJackApp {
+class PhasePhdgrJackApp {
   public:
     Synth synth;
     ComponentRegister comp;
@@ -158,14 +158,14 @@ class PhasePhckrJackApp {
 
 
 int sample_rate_changed(jack_nframes_t nframes, void *arg) {
-  auto app = static_cast<PhasePhckrJackApp *>(arg);
+  auto app = static_cast<PhasePhdgrJackApp *>(arg);
   app->fs = (jack_default_audio_sample_t)nframes;
   return 0;
 }
 
 
 int process (jack_nframes_t nframes, void *arg) {
-  auto app = static_cast<PhasePhckrJackApp *>(arg);
+  auto app = static_cast<PhasePhdgrJackApp *>(arg);
   return app->process(nframes);
 }
 
@@ -181,10 +181,10 @@ static void shutdown(void *arg) {
 
 
 int main(int argc, char **argv) {
-  // setup PhasePhckr
-  PhasePhckrJackApp app;
+  // setup PhasePhdgr
+  PhasePhdgrJackApp app;
 
-  app.jc = jack_client_open("PhasePhckr", app.jo, &app.js);
+  app.jc = jack_client_open("PhasePhdgr", app.jo, &app.js);
   if(!app.jc) return -1;
 
   app.synth.setPatch(getExampleSimpleVoiceChain(), app.comp);

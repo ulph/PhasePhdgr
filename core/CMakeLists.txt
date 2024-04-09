@@ -37,20 +37,20 @@ if( WIN32 )
 endif()
 
 set(API_INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr_json.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr_json.hpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/components.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/design.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/docs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/examples.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/scope.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/synth.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephckr/locks.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/components.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/design.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/docs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/examples.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/scope.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/synth.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/phasephdgr/locks.hpp
 )
 
-add_custom_target(phasephckr_api SOURCES ${API_INC}) # hack
-set_target_properties(phasephckr_api PROPERTIES FOLDER core)
+add_custom_target(phasephdgr_api SOURCES ${API_INC}) # hack
+set_target_properties(phasephdgr_api PROPERTIES FOLDER core)
 
 include_directories(api)
 add_subdirectory(source)

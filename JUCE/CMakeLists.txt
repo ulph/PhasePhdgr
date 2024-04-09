@@ -87,27 +87,27 @@ set( USED_JUCE_COMPILE_DEFINITIONS
     JUCE_MODAL_LOOPS_PERMITTED=1 # workaround, should really redo the pop up menus... see https://forum.juce.com/t/6-1-issue-with-show-is-not-a-member-of-juce-popupmenu/47511
 )
 
-juce_add_plugin(PhasePhckr
+juce_add_plugin(PhasePhdgr
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     PLUGIN_MANUFACTURER_CODE "Ulha"
     PLUGIN_CODE Ulh0
     FORMATS AU VST3 Standalone
-    PRODUCT_NAME "PhasePhckr"
+    PRODUCT_NAME "PhasePhdgr"
 )
-target_sources(PhasePhckr PRIVATE exportSynth.cpp ${PH_COMMON_SRC} ${PHASEPHCKR_SRC})
-target_link_libraries(PhasePhckr PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
-target_compile_definitions(PhasePhckr PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
-set_target_properties(PhasePhckr PROPERTIES FOLDER JUCE/VST)
+target_sources(PhasePhdgr PRIVATE exportSynth.cpp ${PH_COMMON_SRC} ${PHASEPHDGR_SRC})
+target_link_libraries(PhasePhdgr PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
+target_compile_definitions(PhasePhdgr PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
+set_target_properties(PhasePhdgr PROPERTIES FOLDER JUCE/VST)
 
-juce_add_plugin(PhasePhckrFx
+juce_add_plugin(PhasePhdgrFx
     IS_SYNTH FALSE
     PLUGIN_MANUFACTURER_CODE "Ulha"
     PLUGIN_CODE Ulh1
     FORMATS AU VST3 Standalone
-    PRODUCT_NAME "PhasePhckrFx"
+    PRODUCT_NAME "PhasePhdgrFx"
 )
-target_sources(PhasePhckrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC} ${PHASEPHCKR_SRC})
-target_link_libraries(PhasePhckrFx PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
-target_compile_definitions(PhasePhckrFx PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
-set_target_properties(PhasePhckrFx PROPERTIES FOLDER JUCE/VST)
+target_sources(PhasePhdgrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC} ${PHASEPHDGR_SRC})
+target_link_libraries(PhasePhdgrFx PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
+target_compile_definitions(PhasePhdgrFx PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
+set_target_properties(PhasePhdgrFx PROPERTIES FOLDER JUCE/VST)

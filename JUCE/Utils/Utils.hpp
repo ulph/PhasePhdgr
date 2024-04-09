@@ -3,7 +3,7 @@
 #include <sstream>
 #include <atomic>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 #include <juce_events/juce_events.h>
 
 using namespace juce;

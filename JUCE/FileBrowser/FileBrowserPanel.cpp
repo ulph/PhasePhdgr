@@ -1,6 +1,6 @@
 #include "FileBrowserPanel.hpp"
 
-FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
+FileBrowserPanel::FileBrowserPanel(PhasePhdgrProcessorBase& p)
     : fileWatchThread("editorFileWatchThread")
     , processor(p)
     , subEffectHandle(
@@ -21,7 +21,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
     )
     , voiceFiles(
         "voice files",
-        PhasePhckrFileStuff::voicesDir,
+        PhasePhdgrFileStuff::voicesDir,
         fileWatchThread,
         [this](const string& n, const json& j) {
             processor.setPatch(SynthGraphType::VOICE, j, true);
@@ -32,7 +32,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
     )
     , effectFiles(
         "effect files",
-        PhasePhckrFileStuff::effectsDir,
+        PhasePhdgrFileStuff::effectsDir,
         fileWatchThread,
         [this](const string& n, const json& j) {
             processor.setPatch(SynthGraphType::EFFECT, j, true);
@@ -43,7 +43,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
     )
     , presetFiles(
         "preset files",
-        PhasePhckrFileStuff::presetsDir,
+        PhasePhdgrFileStuff::presetsDir,
         fileWatchThread,
         [this](const string& n, const json& j){
             processor.setPreset(j);
@@ -54,7 +54,7 @@ FileBrowserPanel::FileBrowserPanel(PhasePhckrProcessorBase& p)
     )
     , componentFiles(
         "component files",
-        PhasePhckrFileStuff::componentsDir,
+        PhasePhdgrFileStuff::componentsDir,
         fileWatchThread,
         [this](const string& n, const json& j) {},
         [this](void) -> json {

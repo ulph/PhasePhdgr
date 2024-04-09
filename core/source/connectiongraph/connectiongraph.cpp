@@ -616,10 +616,10 @@ void ConnectionGraph::setSamplerate(float fs_) {
     }
 }
 
-void ConnectionGraph::makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList) {
+void ConnectionGraph::makeModuleDocs(std::vector<PhasePhdgr::ModuleDoc> &docList) {
     for (const auto & p : moduleRegister) {
         auto m = p.second();
-        auto d = PhasePhckr::ModuleDoc();
+        auto d = PhasePhdgr::ModuleDoc();
         ModuleAccessor::setName(*m, p.first);
         d.fromModule(m);
         docList.emplace_back(d);

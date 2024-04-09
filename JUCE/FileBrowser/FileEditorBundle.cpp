@@ -2,7 +2,7 @@
 #include "FileIO.hpp"
 #include "PluginEditor.h"
 
-using namespace PhasePhckrFileStuff;
+using namespace PhasePhdgrFileStuff;
 
 const String bannedCharacters = " @!?=-"; // TODO, reuse stuff from core/design
 
@@ -18,7 +18,7 @@ bool FileEditorBundle::isValidFilename() {
 }
 
 FileEditorBundle::FileEditorBundle(const string& name, const File& directory, TimeSliceThread& watchThread, ProvideJsonCallBack fileLoadedCallback, GetJsonCallBack fetchJsonCallback)
-    : watcher(PhasePhckrFileStuff::getFilter(), watchThread)
+    : watcher(PhasePhdgrFileStuff::getFilter(), watchThread)
     , list(watcher)
     , fileLoadedCallback(fileLoadedCallback)
     , fetchJsonCallback(fetchJsonCallback)

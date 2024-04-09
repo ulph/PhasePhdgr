@@ -6,7 +6,7 @@
 #include <set>
 #include <functional>
 
-#include "phasephckr/docs.hpp"
+#include "phasephdgr/docs.hpp"
 
 #include "module.hpp"
 
@@ -69,7 +69,7 @@ public:
     void processBlock(int module, float sampleRate);
     void compileProgram(int module);
     void setSamplerate(float fs);
-    void makeModuleDocs(std::vector<PhasePhckr::ModuleDoc> &docList);
+    void makeModuleDocs(std::vector<PhasePhdgr::ModuleDoc> &docList);
     void reset();
     void troubleshoot();
 };

@@ -43,7 +43,7 @@ static inline std::string BuildDylibName(const std::string& name) {
     return str;
 }
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     class PluginLoader {
     public:

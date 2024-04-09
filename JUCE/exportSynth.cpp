@@ -2,5 +2,5 @@
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new PhasePhckrProcessor();
+    return new PhasePhdgrProcessor();
 }

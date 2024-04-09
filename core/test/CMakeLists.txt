@@ -1,18 +1,18 @@
 include_directories(../source)
 include_directories(../api)
-include_directories(../api/phasephckr)
+include_directories(../api/phasephdgr)
 include_directories(../source/connectiongraph)
 include_directories(../source/modules)
 include_directories(../source/dsp)
 include_directories(../source/plugin)
-include_directories(../source/phasephckr/synth)
-include_directories(../source/phasephckr/design)
+include_directories(../source/phasephdgr/synth)
+include_directories(../source/phasephdgr/design)
 
 set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>
     $<TARGET_OBJECTS:dsp_obj>
     $<TARGET_OBJECTS:modules_obj>
-    $<TARGET_OBJECTS:phasephckr_obj>
+    $<TARGET_OBJECTS:phasephdgr_obj>
 )
 
 if(${SUPPORT_PLUGIN_LOADING})

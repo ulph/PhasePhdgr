@@ -2,14 +2,14 @@
 #include "pluginloader.hpp"
 #include "connectiongraph.hpp"
 
-#include "phasephckr/design.hpp"
+#include "phasephdgr/design.hpp"
 
 #include <iostream>
 #include <algorithm>
 
 #include <string>
 
-namespace PhasePhckr {
+namespace PhasePhdgr {
 
     bool pluginNameIsValid(const std::string& n) {
         return typeIsValid(n, true); // same as a scope type to allow building prefixes

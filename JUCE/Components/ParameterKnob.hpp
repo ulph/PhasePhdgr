@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include <phasephckr/locks.hpp>
+#include <phasephdgr/locks.hpp>
 #include "Parameter.hpp"
 
 class ParameterKnob : public Component, public Slider::Listener, public DragAndDropTarget {

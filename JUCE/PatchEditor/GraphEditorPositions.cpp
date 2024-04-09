@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include "GraphEditorPositions.hpp"
 

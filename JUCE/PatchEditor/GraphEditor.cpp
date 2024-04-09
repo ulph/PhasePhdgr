@@ -6,7 +6,7 @@
 
 #include "PatchEditor.hpp"
 
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 ComponentDescriptor* GraphEditor::rootComponent() {
     // lock before call
@@ -43,7 +43,7 @@ GraphEditor::GraphEditor(
     setGraph(initialPatch);
 
     subPatchHandle = subPatch.subscribe(
-        [this](const PhasePhckr::PatchDescriptor& g){
+        [this](const PhasePhdgr::PatchDescriptor& g){
             setGraph(g);
         }
     );

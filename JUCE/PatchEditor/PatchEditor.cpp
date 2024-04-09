@@ -1,10 +1,10 @@
-#include <phasephckr.hpp>
-#include <phasephckr_json.hpp>
+#include <phasephdgr.hpp>
+#include <phasephdgr_json.hpp>
 
 #include "PatchEditor.hpp"
 
 using namespace std;
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 void makeComponentPopupMenu(PopupMenu & poop,
     int& ctr,
@@ -96,7 +96,7 @@ void PatchEditor::refreshAndBroadcastDoc(){
     // local docs
     for (const auto & c : patchCopy.componentBundle.getAll()) {
         ModuleDoc d;
-        PhasePhckr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
+        PhasePhdgr::ComponentRegister::makeComponentDoc(c.first, c.second, d);
         doc.add(d);
     }
 
@@ -126,7 +126,7 @@ void PatchEditor::refreshAndBroadcastDoc(){
 PatchEditor::PatchEditor(
     std::function<Doc()> docFactory_,
     SubValue<PatchDescriptor> &subPatch_,
-    SubValue<PhasePhckr::ComponentRegister> &subCmpReg,
+    SubValue<PhasePhdgr::ComponentRegister> &subCmpReg,
     const vector<PadDescription> &inBus,
     const vector<PadDescription> &outBus,
     LayoutUpdateCallback layoutUpdateCb_
@@ -189,7 +189,7 @@ PatchEditor::PatchEditor(
     );
 
     cmpRegHandle = subCmpReg.subscribe(
-        [this](const PhasePhckr::ComponentRegister& cmpReg_){
+        [this](const PhasePhdgr::ComponentRegister& cmpReg_){
             cmpReg = cmpReg_;
             applyComponentRegister();
         }

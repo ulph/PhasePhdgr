@@ -2,7 +2,7 @@
 
 // TODO, this is a hot pile of garbage
 
-#include <phasephckr.hpp>
+#include <phasephdgr.hpp>
 
 #include <juce_audio_plugin_client/juce_audio_plugin_client.h>
 
@@ -10,7 +10,7 @@
 
 using namespace juce;
 using namespace std;
-using namespace PhasePhckr;
+using namespace PhasePhdgr;
 
 class TextLabelMenuEntry : public Component {
 public:

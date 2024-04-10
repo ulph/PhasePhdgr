@@ -10,6 +10,8 @@ include_directories(../source/phasephdgr/design)
 
 include(CTest)
 
+enable_testing()
+
 set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>
     $<TARGET_OBJECTS:dsp_obj>

@@ -8,8 +8,8 @@ public:
         inputs.push_back(Pad("in"));
         outputs.push_back(Pad("out"));
     }
-    virtual void process() override {
-        outputs[0].value = inputs[0].value;
+    virtual void processSample(int sample) override {
+        outputs[0].values[sample] = inputs[0].values[sample];
     }
     virtual std::string docString() const override {
         return "An example module from a plugin!";

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h> 
+#include <cmath>
 
 #include "pluginloader.hpp"
 #include "pluginsregister.hpp"
@@ -42,19 +43,20 @@ int main(int argc, const char* argv[])
 
         ConnectionGraph cg;
 
+        auto outputBlock = std::vector<float>(Pad::k_blockSize, 13);
+
         for (const auto& kv : m) {
             cg.registerModule(kv.first, kv.second);
             int handle = cg.addModule(kv.first);
-            std::cout << "added " << kv.first << " -> " << handle << std::endl;
 
-            auto out = cg.getOutput(handle, 0);
-            std::cout << "output (pad 0): " << out << std::endl;
+            cg.processBlock(handle, 48000.0f);
+            cg.getOutputBlock(handle, 0, outputBlock.data());
+            TEST(std::all_of(outputBlock.begin(), outputBlock.end(), [](const auto& v){ return std::round(v) == 0; }), "Not all values where 0");
+
             cg.setInput(handle, 0, 42.0f);
-            std::cout << "set 42 (pad 0)" << std::endl;
-            cg.processSample(handle, 48000.0f);
-            std::cout << "process" << std::endl;
-            out = cg.getOutput(handle, 0);
-            std::cout << "output (pad 0): " << out << std::endl;
+            cg.processBlock(handle, 48000.0f);
+            cg.getOutputBlock(handle, 0, outputBlock.data());
+            TEST(std::all_of(outputBlock.begin(), outputBlock.end(), [](const auto& v){ return std::round(v) == 42; }), "Not all values where 42");
         }
     }
 

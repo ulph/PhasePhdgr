@@ -30,6 +30,8 @@ add_executable(run_module run_module.cpp ${TEST_COMMON_SRC})
 set_property(TARGET run_module PROPERTY FOLDER core/test)
 target_link_libraries( run_module ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
+set(ENV{<variable>} <value>...)
+
 if(${BUILD_PLUGIN_SDK})
     if(${SUPPORT_PLUGIN_LOADING})
         add_executable(test_plugin_loader test_plugin_loader.cpp ${TEST_COMMON_SRC})

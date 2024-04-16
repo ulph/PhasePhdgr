@@ -55,5 +55,4 @@ set_target_properties(phasephdgr_api PROPERTIES FOLDER core)
 include_directories(api)
 add_subdirectory(source)
 
-enable_testing()
 add_subdirectory(test)

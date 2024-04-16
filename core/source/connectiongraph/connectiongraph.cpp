@@ -263,7 +263,7 @@ void ConnectionGraph::compileModule(int module,
 }
 
 void ConnectionGraph::processBlock(int module, float sampleRate) {
-    if (module != *compilationStatus)
+    if (!compilationStatus.has_value() || module != *compilationStatus)
         compileProgram(module);
     if (sampleRate != fs)
         setSamplerate(sampleRate);

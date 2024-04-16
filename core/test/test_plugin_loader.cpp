@@ -43,19 +43,23 @@ int main(int argc, const char* argv[])
 
         ConnectionGraph cg;
 
-        auto outputBlock = std::vector<float>(Pad::k_blockSize, 13);
+        auto outputBlock = std::vector<float>();
 
         for (const auto& kv : m) {
             cg.registerModule(kv.first, kv.second);
             int handle = cg.addModule(kv.first);
+            TEST((handle != -1), "failed to add module");
 
             cg.processBlock(handle, 48000.0f);
+            outputBlock.assign(Pad::k_blockSize, 13);
             cg.getOutputBlock(handle, 0, outputBlock.data());
             TEST(std::all_of(outputBlock.begin(), outputBlock.end(), [](const auto& v){ return std::round(v) == 0; }), "Not all values where 0");
 
             cg.setInput(handle, 0, 42.0f);
             cg.processBlock(handle, 48000.0f);
+            outputBlock.assign(Pad::k_blockSize, 13);
             cg.getOutputBlock(handle, 0, outputBlock.data());
+
             TEST(std::all_of(outputBlock.begin(), outputBlock.end(), [](const auto& v){ return std::round(v) == 42; }), "Not all values where 42");
         }
     }

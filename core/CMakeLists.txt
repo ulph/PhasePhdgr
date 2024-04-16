@@ -11,7 +11,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../submodules/json/src)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
-option(OPT_SSE2 ON)
+option(OPT_SSE2 "build with sse2 optimisations" ON)
 if(${OPT_SSE2})
     if( WIN32 )
         add_definitions(/arch:SSE2)
@@ -20,7 +20,7 @@ if(${OPT_SSE2})
     endif()
 endif()
 
-option(OPT_FAST_MATH ON)
+option(OPT_FAST_MATH "build with fast math" ON)
 if(${OPT_FAST_MATH})
     if( WIN32 )
         add_definitions(/fp:fast)
@@ -55,5 +55,4 @@ set_target_properties(phasephdgr_api PROPERTIES FOLDER core)
 include_directories(api)
 add_subdirectory(source)
 
-enable_testing()
 add_subdirectory(test)

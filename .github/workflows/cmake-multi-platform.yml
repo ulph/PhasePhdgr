@@ -67,9 +67,6 @@ jobs:
         -S ${{ github.workspace }}
         -DBUILD_JUCE=OFF # TODO - fix by getting all deps in place
         -DBUILD_CLI=OFF # ...
-        -DSUPPORT_PLUGIN_LOADING=ON
-        -DBUILD_PLUGIN_SDK=ON
-        
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
@@ -79,4 +76,4 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }}
+      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure

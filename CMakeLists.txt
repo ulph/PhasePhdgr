@@ -14,7 +14,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_BUILD_RPATH ${CMAKE_BINARY_DIR})
 
-option(BUILD_JUCE "Build JUCE based artifacts (VST, standalone apps)" OFF)
+option(BUILD_JUCE "Build JUCE based artifacts (VST, standalone apps)" ON)
 option(BUILD_CLI "Build some CLIs" OFF)
 option(SUPPORT_PLUGIN_LOADING "Build in support for loading (sub)plugins" ON)
 option(BUILD_PLUGIN_SDK "Export the (sub)plugin SDK" ON)

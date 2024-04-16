@@ -15,7 +15,3 @@ void Noise::process() {
     outputs[0].value = value*inputs[1].value + inputs[0].value;;
     val = val * 435898247 + 382842987;
 }
-
-Module * Noise::clone() const {
-    return new Noise(*this);
-}

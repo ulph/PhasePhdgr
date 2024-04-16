@@ -8,7 +8,7 @@ class TrapezoidalTanSVF :  public ModuleCRTP<TrapezoidalTanSVF>
 {
     // SvfLinearTrapOptimised2.pdf
     // TODO: SvfLinearTrapezoidalSin.pdf instead
-protected:
+private:
     float ic1eq = 0.0f;
     float ic2eq = 0.0f;
 public:
@@ -17,15 +17,16 @@ public:
     static Module* factory() { return new TrapezoidalTanSVF(); }
 };
 
-class OpenTrapezoidalTanSVF : public TrapezoidalTanSVF
+class OpenTrapezoidalTanSVF : public ModuleCRTP<OpenTrapezoidalTanSVF>
 {
 private:
     size_t inPadOffset = 0;
+    float ic1eq = 0.0f;
+    float ic2eq = 0.0f;
 public:
     OpenTrapezoidalTanSVF();
     virtual void process();
     static Module* factory() { return new OpenTrapezoidalTanSVF(); }
-    virtual Module *clone() const { return new OpenTrapezoidalTanSVF(*this); }
 };
 
 class OpenTrapezoidalTanSVF2 : public ModuleCRTP<OpenTrapezoidalTanSVF2>
@@ -43,7 +44,7 @@ public:
 // OnePoleLinearLowPass.pdf
 
 passive:
-y[n] = (g x[n] + ic1eq[n-1] )ê / (1 + g)
+y[n] = (g x[n] + ic1eq[n-1] ) / (1 + g)
 ic1eq[n] = 2 y[n] - ic1eq[n-1]
 
 vs

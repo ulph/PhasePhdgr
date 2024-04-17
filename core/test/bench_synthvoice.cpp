@@ -1,15 +1,15 @@
 #include <cstdio>
 #include <cstdint>
 
-#include "phasephdgr/synth.hpp"
-#include "phasephdgr/examples.hpp"
-
+#include "phasephdgr.hpp"
 #include "synthvoice.hpp"
 
 using namespace PhasePhdgr;
 
 int main()
 {
+    std::cout << "version: " << version() << "\n";
+
     const int s = 60 * 30; // ~30 minutes
     const float fs = 48000;
     float bufferL[SYNTH_VOICE_BUFFER_LENGTH];

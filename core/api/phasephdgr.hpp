@@ -7,3 +7,7 @@
 #include "phasephdgr/scope.hpp"
 #include "phasephdgr/synth.hpp"
 #include "phasephdgr/locks.hpp"
+
+namespace PhasePhdgr {
+    const char * version();
+}

@@ -1,6 +1,9 @@
 cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.5)
-project(phasephdgr VERSION 0.1.1)
+
+# best matching annotated tag will be used. ie, it needs to conform to x.y.z version format
+execute_process(COMMAND git describe --tags OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PHASEPHDGR_VERSION)
+project(phasephdgr VERSION ${PHASEPHDGR_VERSION})
 
 set (CMAKE_CXX_STANDARD 17)
 
@@ -8,7 +11,7 @@ include(CTest)
 enable_testing()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-														 
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

@@ -1,6 +1,10 @@
 include_directories(components design docs synth utilities)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phasephdgr_version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/phasephdgr_version.cpp @ONLY)
+
 set(SRC
+    ${CMAKE_CURRENT_BINARY_DIR}/phasephdgr_version.cpp
+
     components/components.cpp
 
     design/busmodules.hpp

@@ -52,7 +52,7 @@ set(API_INC
 add_custom_target(phasephdgr_api SOURCES ${API_INC}) # hack
 set_target_properties(phasephdgr_api PROPERTIES FOLDER core)
 
-include_directories(api)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}api)
 add_subdirectory(source)
 
 add_subdirectory(test)

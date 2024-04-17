@@ -10,7 +10,7 @@ using namespace PhasePhdgr;
 
 int main()
 {
-    const int s = 60 * 30; // ~30 minutes
+    const int s = 60; // ~1 minutes
     const float fs = 48000;
     float bufferL[SYNTH_VOICE_BUFFER_LENGTH];
     float bufferR[SYNTH_VOICE_BUFFER_LENGTH];

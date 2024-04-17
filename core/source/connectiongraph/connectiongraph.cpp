@@ -232,7 +232,7 @@ void ConnectionGraph::compileModule(int module,
                         from_module, from_pad, module, to_pad));
                 }
             } else {
-                if (recursive_dependency && !is_recursive) {
+                if (recursive_dependency && !is_recursive && loop_start) {
                     // Terminate loop if moving from sample to block processing.
                     program.push_back(Instruction(OP_LOOP, *loop_start));
                     loop_start.reset();
@@ -263,7 +263,7 @@ void ConnectionGraph::compileModule(int module,
 }
 
 void ConnectionGraph::processBlock(int module, float sampleRate) {
-    if (!compilationStatus.has_value() || module != *compilationStatus)
+    if (!compilationStatus || module != *compilationStatus)
         compileProgram(module);
     if (sampleRate != fs)
         setSamplerate(sampleRate);

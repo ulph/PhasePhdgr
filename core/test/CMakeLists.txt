@@ -26,6 +26,10 @@ add_executable(bench_synthvoice bench_synthvoice.cpp ${TEST_COMMON_SRC})
 set_property(TARGET bench_synthvoice PROPERTY FOLDER core/test)
 target_link_libraries( bench_synthvoice ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
+add_executable(bench_effectchain bench_effectchain.cpp ${TEST_COMMON_SRC})
+set_property(TARGET bench_effectchain PROPERTY FOLDER core/test)
+target_link_libraries( bench_effectchain ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+
 add_executable(run_module run_module.cpp ${TEST_COMMON_SRC})
 set_property(TARGET run_module PROPERTY FOLDER core/test)
 target_link_libraries( run_module ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})

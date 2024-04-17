@@ -2,8 +2,12 @@ cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.5)
 
 # best matching annotated tag will be used. ie, it needs to conform to x.y.z version format
-execute_process(COMMAND git describe --tags OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PHASEPHDGR_VERSION)
-project(phasephdgr VERSION ${PHASEPHDGR_VERSION})
+execute_process(COMMAND git describe --tags --abbrev=0 OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PHASEPHDGR_VERSION_SHORT)
+execute_process(COMMAND git describe --tags --dirty --broken OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE PHASEPHDGR_VERSION)
+project(phasephdgr VERSION ${PHASEPHDGR_VERSION_SHORT})
+
+message("PHASEPHDGR_VERSION_SHORT: " ${PHASEPHDGR_VERSION_SHORT})
+message("PHASEPHDGR_VERSION: " ${PHASEPHDGR_VERSION})
 
 set (CMAKE_CXX_STANDARD 17)
 

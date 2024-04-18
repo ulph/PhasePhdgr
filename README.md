@@ -9,7 +9,7 @@ Under the hood, all connections and states are described via hiarchies in JSON. 
 - Sample-by-sample feedback processing in the modular compute graph
 - MPE support
 - Graph descriptions stored on disk as JSON, ie editable by external means!
-- Building blocks like ZDFs (zero delay filters) and an oscillator that handles (partial sync).
+- Building blocks like ZDFs (zero delay filters) and an oscillator that handles (partial sync). Delay lines with support for fractional (subsample precision) and modulated delay.
 - Experiment oriented versions of graph components where the state is an output/input set. Allows for quick experimentation with nonlinearities in filter (internal) feedback paths, for instance.
 
 ## Disiclaimers ##

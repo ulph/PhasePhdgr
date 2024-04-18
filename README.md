@@ -25,7 +25,7 @@ plugin host (midi, transport info) -> [voice graph(s)] -> [effect graph] -> plug
 
 The effect only has one graph.
 ```
-plugin host (midi, transport info) ->  [effect graph] -> plugin host (audio)
+plugin host (audio, transport info) -> [effect graph] -> plugin host (audio)
 ```
 
 Note, adding support for audio input to the synth, as similairly midi input for the effect should fairly straight forward technically.

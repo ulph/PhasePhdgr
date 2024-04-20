@@ -10,12 +10,12 @@ Clamp::Clamp()
     outputs.push_back(Pad("out"));
 }
 
-void Clamp::process()
+void Clamp::processSample(int sample)
 {
-    auto v = inputs[0].value;
-    auto lo = inputs[1].value;
-    auto hi = inputs[2].value;
-    outputs[0].value = limit(v, lo, hi);
+    auto v = inputs[0].values[sample];
+    auto lo = inputs[1].values[sample];
+    auto hi = inputs[2].values[sample];
+    outputs[0].values[sample] = limit(v, lo, hi);
 }
 
 RangeMap::RangeMap() {
@@ -27,14 +27,14 @@ RangeMap::RangeMap() {
     outputs.push_back(Pad("out"));
 }
 
-void RangeMap::process() {
-    float x = inputs[0].value;
-    float inA = inputs[1].value;
-    float inB = inputs[2].value;
-    float outA = inputs[3].value;
-    float outB = inputs[4].value;
+void RangeMap::processSample(int sample) {
+    float x = inputs[0].values[sample];
+    float inA = inputs[1].values[sample];
+    float inB = inputs[2].values[sample];
+    float outA = inputs[3].values[sample];
+    float outB = inputs[4].values[sample];
     float y = outA + ((outB - outA) / (inB - inA)) * (x - inA);
-    outputs[0].value = y;
+    outputs[0].values[sample] = y;
 }
 
 ScaleShift::ScaleShift() {
@@ -44,11 +44,11 @@ ScaleShift::ScaleShift() {
     outputs.push_back(Pad("out"));
 }
 
-void ScaleShift::process() {
-    auto a = inputs[0].value;
-    auto b = inputs[1].value;
-    auto c = inputs[2].value;
-    outputs[0].value = a * b + c;    
+void ScaleShift::processSample(int sample) {
+    auto a = inputs[0].values[sample];
+    auto b = inputs[1].values[sample];
+    auto c = inputs[2].values[sample];
+    outputs[0].values[sample] = a * b + c;
 }
 
 ClampInv::ClampInv() {
@@ -59,16 +59,16 @@ ClampInv::ClampInv() {
     
 }
 
-void ClampInv::process() {
-    float v = inputs[0].value;
-    float lo = inputs[1].value;
-    float hi = inputs[2].value;
+void ClampInv::processSample(int sample) {
+    float v = inputs[0].values[sample];
+    float lo = inputs[1].values[sample];
+    float hi = inputs[2].values[sample];
     if (hi >= lo) {
         v = limit(v, lo, hi); // clamp
-        outputs[0].value = hi - (v - lo); // invert
+        outputs[0].values[sample] = hi - (v - lo); // invert
     }
     else {
         // nonsensical values
-        outputs[0].value = v;
+        outputs[0].values[sample] = v;
     }
 }

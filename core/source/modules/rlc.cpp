@@ -8,13 +8,13 @@ RcLp::RcLp()
     outputs.push_back(Pad("out"));
 }
 
-void RcLp::process()
+void RcLp::processSample(int sample)
 {
-    float x1 = inputs[0].value;
-    float y0 = outputs[0].value;
-    float wc = inputs[1].value;
+    float x1 = inputs[0].values[sample];
+    float y0 = outputs[0].values[sample];
+    float wc = inputs[1].values[sample];
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
-    outputs[0].value = y1;
+    outputs[0].values[sample] = y1;
 }
 
 
@@ -26,14 +26,14 @@ RcHp::RcHp()
     outputs.push_back(Pad("out"));
 }
 
-void RcHp::process()
+void RcHp::processSample(int sample)
 {
-    float x1 = inputs[0].value;
+    float x1 = inputs[0].values[sample];
     float x0 = x;
-    float y0 = outputs[0].value;
-    float wc = inputs[1].value;
+    float y0 = outputs[0].values[sample];
+    float wc = inputs[1].values[sample];
     float y1 = CalcRcHp(x1, x0, y0, wc, fsInv);
-    outputs[0].value = y1;
+    outputs[0].values[sample] = y1;
     x = x1;
 }
 
@@ -45,14 +45,14 @@ Lag::Lag()
     outputs.push_back(Pad("out"));
 }
 
-void Lag::process()
+void Lag::processSample(int sample)
 {
-    float x1 = inputs[0].value;
-    float y0 = outputs[0].value;
-    float wc = limitLow(inputs[1].value);
-    if (x1 < y0) wc = limitLow(inputs[2].value);
+    float x1 = inputs[0].values[sample];
+    float y0 = outputs[0].values[sample];
+    float wc = limitLow(inputs[1].values[sample]);
+    if (x1 < y0) wc = limitLow(inputs[2].values[sample]);
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
-    outputs[0].value = y1;
+    outputs[0].values[sample] = y1;
 }
 
 
@@ -64,20 +64,20 @@ LeakyIntegrator::LeakyIntegrator()
     outputs.push_back(Pad("out"));
 }
 
-void LeakyIntegrator::process()
+void LeakyIntegrator::processSample(int sample)
 {
-    float value = inputs[0].value;
-    float freq = limit(inputs[1].value, 1.f, fs*0.5f);
+    float value = inputs[0].values[sample];
+    float freq = limit(inputs[1].values[sample], 1.f, fs*0.5f);
     float nFreq = 2.f*freq * fsInv;
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
-    float dcBlockWc = freq*limitLow(inputs[2].value, 0.0078125f);
+    float dcBlockWc = freq*limitLow(inputs[2].values[sample], 0.0078125f);
 
     last_cumSum = cumSum;
-    last_output = outputs[0].value;
+    last_output = outputs[0].values[sample];
 
     cumSum = cumSum*leak + value;
-    outputs[0].value = CalcRcHp(cumSum, last_cumSum, last_output, dcBlockWc, fsInv);;
+    outputs[0].values[sample] = CalcRcHp(cumSum, last_cumSum, last_output, dcBlockWc, fsInv);;
 }
 
 
@@ -89,17 +89,17 @@ RateLimiter::RateLimiter()
     outputs.push_back(Pad("out"));
 }
 
-void RateLimiter::process()
+void RateLimiter::processSample(int sample)
 {
-    float x = inputs[0].value;
-    float y = outputs[0].value;
+    float x = inputs[0].values[sample];
+    float y = outputs[0].values[sample];
 
-    float rateLimitUp = limitLow(inputs[1].value) * fsInv;
-    float rateLimitDown = limitLow(inputs[2].value) * fsInv;
+    float rateLimitUp = limitLow(inputs[1].values[sample]) * fsInv;
+    float rateLimitDown = limitLow(inputs[2].values[sample]) * fsInv;
 
     if (x > y && (x - y) > rateLimitUp) y += rateLimitUp;
     else if( x < y && (y - x) > rateLimitDown) y -= rateLimitDown;
     else y = x;
 
-    outputs[0].value = y;
+    outputs[0].values[sample] = y;
 }

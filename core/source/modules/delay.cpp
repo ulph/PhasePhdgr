@@ -1,6 +1,4 @@
-#include <string.h>
 #include "delay.hpp"
-#include "sinc.hpp"
 #include <assert.h>
 
 namespace DelayFactory {

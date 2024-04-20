@@ -14,14 +14,14 @@ namespace PhasePhdgr {
             PhasePhdgr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
-            pd.defaultValue = p.value;
+            pd.defaultValue = p.values[0];
             inputs.push_back(pd);  
         }
         for (const auto p : ModuleAccessor::getOutputs(*module)) {
             PhasePhdgr::PadDescription pd;
             pd.name = p.name;
             pd.unit = p.unit;
-            pd.defaultValue = p.value;
+            pd.defaultValue = p.values[0];
             outputs.push_back(pd);
         }
     }

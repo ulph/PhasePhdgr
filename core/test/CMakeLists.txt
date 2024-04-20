@@ -36,6 +36,11 @@ target_link_libraries( run_module ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
 set(ENV{<variable>} <value>...)
 
+add_executable(test_connectiongraph test_connectiongraph.cpp ${TEST_COMMON_SRC})
+set_property(TARGET test_connectiongraph PROPERTY FOLDER core/test)
+target_link_libraries(test_connectiongraph ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+add_test(NAME test_connectiongraph COMMAND test_connectiongraph WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
 if(${BUILD_PLUGIN_SDK})
     if(${SUPPORT_PLUGIN_LOADING})
         add_executable(test_plugin_loader test_plugin_loader.cpp ${TEST_COMMON_SRC})

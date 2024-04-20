@@ -57,20 +57,20 @@ public:
         delete[] buffer;
     };
 
-    void process() {
+    void processSample(int sample) override {
         // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
 
-        if (clearFlag < 0.f && Module::inputs[3].value >= 0) {
+        if (clearFlag < 0.f && Module::inputs[3].values[sample] >= 0) {
             memset(buffer, 0, sizeof(float)*bufferSize);
         }
-        clearFlag = Module::inputs[3].value;
+        clearFlag = Module::inputs[3].values[sample];
 
-        float target_t = limit(Module::inputs[1].value, 0, c_max_delay_t);
-        float alphaTime = DesignRcLp(Module::inputs[5].value, Module::fsInv);
+        float target_t = limit(Module::inputs[1].values[sample], 0, c_max_delay_t);
+        float alphaTime = DesignRcLp(Module::inputs[5].values[sample], Module::fsInv);
         slewedTime = alphaTime*target_t + (1.0f - alphaTime)*slewedTime;
         float t = slewedTime;
-        float g = Module::inputs[2].value;
-        float s = Module::inputs[4].value;
+        float g = Module::inputs[2].values[sample];
+        float s = Module::inputs[4].values[sample];
 
         // account for filter delay
         float tapeSamples = (t*Module::fs) - (N-1) * 0.5f + s; // subtract nominal delay of filter and sample compensation
@@ -97,10 +97,10 @@ public:
 
         // apply it on to write buffer (running convolution)
         for (int n = 0; n < N; n++) {
-            buffer[(writePosition + n) % bufferSize] += coeffs[n] * g*Module::inputs[0].value;
+            buffer[(writePosition + n) % bufferSize] += coeffs[n] * g*Module::inputs[0].values[sample];
         }
 
-        Module::outputs[0].value = buffer[readPosition];
+        Module::outputs[0].values[sample] = buffer[readPosition];
         buffer[readPosition] = 0;
         readPosition++;
         readPosition %= bufferSize;
@@ -118,9 +118,9 @@ public:
         inputs.push_back(Pad("gain", 1.0f));
         outputs.push_back(Pad("out"));
     }
-    void process() {
-        outputs[0].value = last;
-        last = inputs[0].value * inputs[1].value;
+    void processSample(int sample) override {
+        outputs[0].values[sample] = last;
+        last = inputs[0].values[sample] * inputs[1].values[sample];
     }
     static Module* factory() { return new UnitDelay(); }
 };

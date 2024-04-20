@@ -6,7 +6,7 @@ class Zdf1p : public ModuleCRTP<Zdf1p> {
     float s = 0.0f;
 public:
     Zdf1p();
-    virtual void process() override;
+    virtual void processSample(int sample) override;
     static Module* factory() { return new Zdf1p(); }
 };
 
@@ -14,7 +14,7 @@ class Zdf1pLowShelf : public ModuleCRTP<Zdf1pLowShelf> {
     float s = 0.0f;
 public:
     Zdf1pLowShelf();
-    virtual void process() override;
+    virtual void processSample(int sample) override;
     static Module* factory() { return new Zdf1pLowShelf(); }
 };
 
@@ -22,7 +22,7 @@ class Zdf1pHighShelf : public ModuleCRTP<Zdf1pHighShelf> {
     float s = 0.0f;
 public:
     Zdf1pHighShelf();
-    virtual void process() override;
+    virtual void processSample(int sample) override;
     static Module* factory() { return new Zdf1pHighShelf(); }
 };
 
@@ -34,6 +34,6 @@ class Zdf4pLadder : public ModuleCRTP<Zdf4pLadder> {
     float S5 = 0.0f;
 public:
     Zdf4pLadder();
-    virtual void process() override;
+    virtual void processSample(int sample) override;
     static Module* factory() { return new Zdf4pLadder(); }
 };

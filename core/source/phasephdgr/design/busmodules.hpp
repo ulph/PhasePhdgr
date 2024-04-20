@@ -24,11 +24,11 @@ public:
         outputs = inputs;
     }
 
-    virtual void process() {
-        for(size_t i = 0; i < numPads; i++) outputs[i].value = inputs[i].value;
+    virtual void processSample(int sample) override {
+        for(size_t i = 0; i < numPads; i++) outputs[i].values[sample] = inputs[i].values[sample];
     }
 
-    virtual void block_process() {
+    virtual void processBlock() {
         for (size_t i = 0; i < numPads; i++) {
             memcpy(outputs[i].values, inputs[i].values, sizeof(float)*ConnectionGraph::k_blockSize);
         }

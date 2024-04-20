@@ -31,8 +31,8 @@ public:
         inputs.push_back(Pad("value"));
         outputs.push_back(Pad("value"));
     }
-    void process() {
-        outputs[0].value = inputs[0].value;
+    void processSample(int sample) override {
+        outputs[0].values[sample] = inputs[0].values[sample];
     }
     virtual std::string docString() { return "A 'constant' of questionable value."; }
     static Module* factory() { return new Constant(); }
@@ -47,8 +47,8 @@ class Knob : public ModuleCRTP<Knob> {
         inputs.push_back(Pad("max"));
         outputs.push_back(Pad("value"));
     }
-    void process() {
-        outputs[0].value = inputs[0].value;
+    void processSample(int sample) override {
+        outputs[0].values[sample] = inputs[0].values[sample];
     }
     static Module* factory() { return new Knob(); }
     virtual std::string docString() { return "A knob representing an automatable parameter. It will show up in the HOST as well as the parameters tab."; }

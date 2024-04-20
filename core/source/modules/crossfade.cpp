@@ -7,9 +7,9 @@ CrossFade::CrossFade() {
     inputs.push_back(Pad("mix", 0.5));
     outputs.push_back(Pad("out"));
 }
-void CrossFade::process() {
-    float mix = limit(inputs[2].value);
-    outputs[0].value = (1.0f - mix)*inputs[0].value + mix*inputs[1].value;
+void CrossFade::processSample(int sample) {
+    float mix = limit(inputs[2].values[sample]);
+    outputs[0].values[sample] = (1.0f - mix)*inputs[0].values[sample] + mix*inputs[1].values[sample];
 }
 
 FadeCross::FadeCross() {
@@ -18,18 +18,18 @@ FadeCross::FadeCross() {
     outputs.push_back(Pad("a"));
     outputs.push_back(Pad("b"));
 }
-void FadeCross::process() {
-    float mix = limit(inputs[1].value);
-    outputs[0].value = inputs[0].value*(1.0f - mix);
-    outputs[1].value = inputs[0].value*mix;
+void FadeCross::processSample(int sample) {
+    float mix = limit(inputs[1].values[sample]);
+    outputs[0].values[sample] = inputs[0].values[sample]*(1.0f - mix);
+    outputs[1].values[sample] = inputs[0].values[sample]*mix;
 }
 
-static inline void muxProcess(float in, float select, std::vector<Pad>& outputs) {
-    for (int i = 0; i < outputs.size(); i++) outputs[i].value = 0.0f;
+static inline void muxProcess(float in, float select, std::vector<Pad>& outputs, int sample) {
+    for (int i = 0; i < outputs.size(); i++) outputs[i].values[sample] = 0.0f;
     int idx = (int)(select * outputs.size());
     idx = idx >= outputs.size() ? (int)(outputs.size() - 1) : idx;
     idx = idx < 0 ? 0 : idx;
-    outputs[idx].value = in;
+    outputs[idx].values[sample] = in;
 }
 
 Mux8::Mux8() {
@@ -45,10 +45,10 @@ Mux8::Mux8() {
     outputs.push_back(Pad("h"));
 }
 
-void Mux8::process() {
-    float in = inputs[0].value;
-    float select = limit(inputs[1].value);
-    muxProcess(in, select, outputs);
+void Mux8::processSample(int sample) {
+    float in = inputs[0].values[sample];
+    float select = limit(inputs[1].values[sample]);
+    muxProcess(in, select, outputs, sample);
 }
 
 Mux4::Mux4() {
@@ -60,8 +60,8 @@ Mux4::Mux4() {
     outputs.push_back(Pad("d"));
 }
 
-void Mux4::process() {
-    float in = inputs[0].value;
-    float select = limit(inputs[1].value);
-    muxProcess(in, select, outputs);
+void Mux4::processSample(int sample) {
+    float in = inputs[0].values[sample];
+    float select = limit(inputs[1].values[sample]);
+    muxProcess(in, select, outputs, sample);
 }

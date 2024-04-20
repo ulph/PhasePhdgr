@@ -7,11 +7,11 @@ Mul::Mul()
     outputs.push_back(Pad("out"));
 }
 
-void Mul::process() {
-    outputs[0].value = inputs[0].value * inputs[1].value;
+void Mul::processSample(int sample) {
+    outputs[0].values[sample] = inputs[0].values[sample] * inputs[1].values[sample];
 }
 
-void Mul::block_process() {
+void Mul::processBlock() {
     for (int i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = inputs[0].values[i] * inputs[1].values[i];
     }
@@ -25,11 +25,11 @@ MulTri::MulTri()
     outputs.push_back(Pad("out"));
 }
 
-void MulTri::process() {
-    outputs[0].value = inputs[0].value * inputs[1].value * inputs[2].value;
+void MulTri::processSample(int sample) {
+    outputs[0].values[sample] = inputs[0].values[sample] * inputs[1].values[sample] * inputs[2].values[sample];
 }
 
-void MulTri::block_process() {
+void MulTri::processBlock() {
     for (int i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = inputs[0].values[i] * inputs[1].values[i] * inputs[2].values[i];
     }
@@ -44,11 +44,11 @@ MulQuad::MulQuad()
     outputs.push_back(Pad("out"));
 }
 
-void MulQuad::process() {
-    outputs[0].value = inputs[0].value * inputs[1].value * inputs[2].value * inputs[3].value;
+void MulQuad::processSample(int sample) {
+    outputs[0].values[sample] = inputs[0].values[sample] * inputs[1].values[sample] * inputs[2].values[sample] * inputs[3].values[sample];
 }
 
-void MulQuad::block_process() {
+void MulQuad::processBlock() {
     for (int i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = inputs[0].values[i] * inputs[1].values[i] * inputs[2].values[i] * inputs[3].values[i];
     }
@@ -63,12 +63,12 @@ Gain::Gain()
     outputs.push_back(Pad("right"));
 }
 
-void Gain::process() {
-    outputs[0].value = inputs[0].value * inputs[2].value;
-    outputs[1].value = inputs[1].value * inputs[2].value;
+void Gain::processSample(int sample) {
+    outputs[0].values[sample] = inputs[0].values[sample] * inputs[2].values[sample];
+    outputs[1].values[sample] = inputs[1].values[sample] * inputs[2].values[sample];
 }
 
-void Gain::block_process() {
+void Gain::processBlock() {
     for (int i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = inputs[0].values[i] * inputs[2].values[i];
         outputs[1].values[i] = inputs[1].values[i] * inputs[2].values[i];

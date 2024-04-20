@@ -9,12 +9,12 @@ Sine::Sine()
     outputs.push_back(Pad("sine"));
 }
 
-void Sine::process()
+void Sine::processSample(int sample)
 {
-    outputs[0].value = sinf(float(M_PI) * inputs[0].value);
+    outputs[0].values[sample] = sinf(float(M_PI) * inputs[0].values[sample]);
 }
 
-void Sine::block_process()
+void Sine::processBlock()
 {
     for (size_t i = 0; i < Pad::k_blockSize; ++i) {
         outputs[0].values[i] = sinf(float(M_PI) * inputs[0].values[i]);

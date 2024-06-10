@@ -7,6 +7,7 @@ Under the hood, all connections and states are described via hiarchies in JSON. 
 ## Highlights ##
 - Cross platform plugin (VST3, AU) and standalone. Courtesy of using JUCE.
 - Sample-by-sample feedback processing in the modular compute graph
+- Block-wise processing for the partitions of a graph that has no feedback paths. ie, graph is segmented on the fly.
 - MPE support
 - Graph descriptions stored on disk as JSON, ie editable by external means!
 - Building blocks like ZDFs (zero delay filters) and an oscillator that handles (partial sync). Delay lines with support for fractional (subsample precision) and modulated delay.

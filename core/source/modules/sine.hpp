@@ -7,8 +7,8 @@ class Sine : public ModuleCRTP<Sine>
 {
 public:
     Sine();
-    void process();
-    void block_process();
+    void processSample(int sample) override;
+    void processBlock() override;
     static Module* factory() { return new Sine(); }
 };
 

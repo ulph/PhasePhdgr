@@ -13,8 +13,8 @@ public: \
         outputs.push_back(Pad("out")); \
     } \
 \
-    virtual void process() override { \
-        outputs[0].value = OP(inputs[0].value); \
+    virtual void processSample(int sample) override { \
+        outputs[0].values[sample] = OP(inputs[0].values[sample]); \
     } \
 \
     static Module* factory() { return new CLASSNAME(); } \
@@ -30,10 +30,10 @@ public: \
         outputs.push_back(Pad("out")); \
     } \
 \
-    virtual void process() override { \
-        float s = inputs[1].value; \
+    virtual void processSample(int sample) override { \
+        float s = inputs[1].values[sample]; \
         float f = 1.0f / OP(s); \
-        outputs[0].value = OP(inputs[0].value * s) * f; \
+        outputs[0].values[sample] = OP(inputs[0].values[sample] * s) * f; \
     } \
 \
     static Module* factory() { return new CLASSNAME(); } \
@@ -51,11 +51,11 @@ public: \
         outputs.push_back(Pad("right")); \
     } \
 \
-    virtual void process() override { \
-        float s = inputs[2].value; \
+    virtual void processSample(int sample) override { \
+        float s = inputs[2].values[sample]; \
         float f = 1.0f / OP(s); \
-        outputs[0].value = OP(inputs[0].value * s) * f; \
-        outputs[1].value = OP(inputs[1].value * s) * f; \
+        outputs[0].values[sample] = OP(inputs[0].values[sample] * s) * f; \
+        outputs[1].values[sample] = OP(inputs[1].values[sample] * s) * f; \
     } \
 \
     static Module* factory() { return new CLASSNAME(); } \

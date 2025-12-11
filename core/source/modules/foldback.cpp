@@ -27,14 +27,14 @@ bool FoldBack::iterate(float *v, float scale, float th) {
     }
 }
 
-void FoldBack::process() {
-    float v = inputs[2].value*inputs[0].value;
-    float s = limit(inputs[1].value, 0.0f, 1.0f);
-    float t = limit(inputs[3].value, 0.01f, 1.0f);
+void FoldBack::processSample(int sample) {
+    float v = inputs[2].values[sample]*inputs[0].values[sample];
+    float s = limit(inputs[1].values[sample], 0.0f, 1.0f);
+    float t = limit(inputs[3].values[sample], 0.01f, 1.0f);
     for (int i = 0; i < 100; ++i) {
         if(iterate(&v, s, t)) break;
     }
-    outputs[0].value = v;
+    outputs[0].values[sample] = v;
 }
 
 
@@ -62,12 +62,12 @@ bool Wrap::iterate(float *v, float th) {
     }
 }
 
-void Wrap::process() {
-    float s = limitLow(inputs[1].value, 0.01f);
-    float t = limitLow(inputs[2].value, 0.01f);
-    float v = s*inputs[0].value;
+void Wrap::processSample(int sample) {
+    float s = limitLow(inputs[1].values[sample], 0.01f);
+    float t = limitLow(inputs[2].values[sample], 0.01f);
+    float v = s*inputs[0].values[sample];
     for (int i = 0; i < 100; ++i) {
         if (iterate(&v, t)) break;
     }
-    outputs[0].value = v;
+    outputs[0].values[sample] = v;
 }

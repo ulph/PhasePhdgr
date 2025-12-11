@@ -7,7 +7,7 @@ class Quantize : public ModuleCRTP<Quantize>
 {
 public:
     Quantize();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new Quantize(); }
 };
 

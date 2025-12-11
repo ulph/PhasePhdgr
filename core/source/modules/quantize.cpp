@@ -8,16 +8,16 @@ Quantize::Quantize()
     outputs.push_back(Pad("out"));
 }
 
-void Quantize::process()
+void Quantize::processSample(int sample)
 {
-    float bits = inputs[1].value*15.f; // one bit for sign
+    float bits = inputs[1].values[sample]*15.f; // one bit for sign
 
     const float invStepSize = powf(2.f, bits);
     const float stepSize = 1.0f / invStepSize;
 
-    float tmp = roundf(inputs[0].value * invStepSize); // and one less for positive max
+    float tmp = roundf(inputs[0].values[sample] * invStepSize); // and one less for positive max
 
     tmp = tmp * stepSize;
 
-    outputs[0].value = tmp;
+    outputs[0].values[sample] = tmp;
 }

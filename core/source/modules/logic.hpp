@@ -6,7 +6,7 @@ class Threshold : public ModuleCRTP<Threshold>
 {
 public:
     Threshold();
-    void process() override;
+    void processSample(int sample) override;
     static Module* factory() { return new Threshold(); }
 };
 
@@ -18,6 +18,6 @@ private:
     float counter = 0.0f;
 public:
     Counter();
-    void process() override;
+    void processSample(int sample) override;
     static Module* factory() { return new Counter(); }
 };

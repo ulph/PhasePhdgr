@@ -9,7 +9,7 @@ protected:
     bool iterate(float *v, float scale, float th);
 public:
     FoldBack();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new FoldBack(); }
 };
 
@@ -19,7 +19,7 @@ protected:
     bool iterate(float *v, float th);
 public:
     Wrap();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new Wrap(); }
 };
 

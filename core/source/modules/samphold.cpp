@@ -9,15 +9,15 @@ SampleAndHold::SampleAndHold() :
     outputs.push_back(Pad("out"));
 }
 
-void SampleAndHold::process()
+void SampleAndHold::processSample(int sample)
 {
-    float value = inputs[0].value;
-    float trigger = inputs[1].value;
+    float value = inputs[0].values[sample];
+    float trigger = inputs[1].values[sample];
     if(lastTrigger <= 0.f && trigger > 0.f){
         heldValue = value;
     }
     lastTrigger = trigger;
-    outputs[0].value = heldValue;
+    outputs[0].values[sample] = heldValue;
 }
 
 // TODO, docstring

@@ -1,56 +1,38 @@
 #ifndef CONNECTIONGRAPH_HPP
 #define CONNECTIONGRAPH_HPP
 
-#include <vector>
+#include <optional>
 #include <string>
-#include <set>
-#include <functional>
-
-#include "phasephdgr/docs.hpp"
-
-#include "module.hpp"
-
+#include <vector>
 #include "instruction.hpp"
+#include "module.hpp"
+#include "phasephdgr/docs.hpp"
 
 class Cable;
 
-class ConnectionGraph
-{
-protected:
+class ConnectionGraph {
+   protected:
     std::vector<std::pair<std::string, Module* (*)()>> moduleRegister;
     std::vector<Module*> modules;
     std::vector<Cable*> cables;
-    std::vector<Instruction> protoProgram;
     std::vector<Instruction> program;
-    int compilationStatus;
-    std::map<int, int> recursiveModuleGroups; // aka, colors
-    std::set<int> recursiveScannedModules;
-    std::set<std::pair<int,int>> recursiveTraversedConnections;
-    int modulesVisitedInFindRecursions = 0;
-    std::set<int> visitedModules;
-    std::set<int> processedModules;
-    std::map<int, std::set<int>> sampleWiseEntrypoints;
-    std::map<int, std::set<int>> sampleWiseExitpoints;
+    std::optional<int> compilationStatus;
 
-    const bool forceSampleWise;
     float fs = -1.0;
-    void findRecursions(int module, std::vector<int> processedModulesToHere);
-    void compileAllEntryPoints(int module);
-    void compileModule(int module);
-    void finalizeProgram();
-    void buildRepeatedSampleWiseSegment(int& i);
-    void addSampleWiseToBlockWise(const Instruction& instr);
-    void addBlockWiseToSampleWise(const Instruction& instr);
+    std::set<int> findRecursiveModules(int module);
+    std::set<int> findRecursiveModulesInternal(int module,
+                                               std::set<int>& recursive_modules,
+                                               std::set<int>& upstream_modules);
+    void compileModule(int module,
+                       const std::set<int>& recursive_modules,
+                       std::set<int>& visited_modules,
+                       std::set<int>& processed_modules,
+                       std::optional<int>& loop_start);
     Module* getModule(int id);
-    enum ProccesingType {
-        BlockWise,
-        SampleWise,
-    };
-    ProccesingType getProcessingType(int module);
 
-public:
+   public:
     static const int k_blockSize = Pad::k_blockSize;
-    ConnectionGraph(bool forceSampleWise=false);
+    ConnectionGraph();
     ConnectionGraph(const ConnectionGraph& other);
     virtual ~ConnectionGraph();
     int addModule(std::string type);
@@ -63,13 +45,11 @@ public:
     void setInputBlock(int module, int pad, const float* buffer);
     void setInput(int module, int pad, float value);
     void setInput(int module, std::string pad, float value);
-    float getOutput(int module, int pad);
     void getOutputBlock(int module, int pad, float* buffer);
-    void processSample(int module, float sampleRate);
     void processBlock(int module, float sampleRate);
     void compileProgram(int module);
     void setSamplerate(float fs);
-    void makeModuleDocs(std::vector<PhasePhdgr::ModuleDoc> &docList);
+    void makeModuleDocs(std::vector<PhasePhdgr::ModuleDoc>& docList);
     void reset();
     void troubleshoot();
 };

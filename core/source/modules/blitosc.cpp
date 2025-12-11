@@ -90,27 +90,27 @@ inline void BlitOsc::incrementClocks(float nFreq, float syncNFreq) {
     internalPhase += nFreq;
 }
 
-inline void BlitOsc::integrateAndStore(float nFreq, float shape, float freq, float dcRemoval) {
+inline void BlitOsc::integrateAndStore(float nFreq, float shape, float freq, float dcRemoval, int sample) {
     float prop_leak = nFreq * 0.01f;
     float leak = 1.f - prop_leak;
 
     float value = buf[bufPos] + (1.f - shape)*nFreq;
-    outputs[0].value = value;
+    outputs[0].values[sample] = value;
 
     last_cumSum = cumSum;
     cumSum = cumSum*leak + value;
-    outputs[1].value = CalcRcHp(cumSum, last_cumSum, outputs[1].value, freq*dcRemoval, fsInv);
+    outputs[1].values[sample] = CalcRcHp(cumSum, last_cumSum, outputs[1].values[sample], freq*dcRemoval, fsInv);
 
     last_cumCumSum = cumCumSum;
-    cumCumSum = cumCumSum*leak + (2 + 2*(1-shape))*nFreq*outputs[1].value;
-    outputs[2].value = CalcRcHp(cumCumSum, last_cumCumSum, outputs[2].value, freq*0.125f, fsInv);
+    cumCumSum = cumCumSum*leak + (2 + 2*(1-shape))*nFreq*outputs[1].values[sample];
+    outputs[2].values[sample] = CalcRcHp(cumCumSum, last_cumCumSum, outputs[2].values[sample], freq*0.125f, fsInv);
 
     buf[bufPos] = 0.f;
     bufPos++;
     bufPos %= c_blitN;
 }
 
-inline void BlitOsc::hardResetOnSignal(float resetSignal) {
+inline void BlitOsc::hardResetOnSignal(float resetSignal, int sample) {
     if (resetSignal > 0.f && last_resetSignal <= 0.f) {
         internalSyncPhase = -1.0f;
         internalPhase = -1.0f;
@@ -118,8 +118,8 @@ inline void BlitOsc::hardResetOnSignal(float resetSignal) {
         cumCumSum = 0.0f;
         last_cumSum = -1.0f;
         last_cumCumSum = 0.0f;
-        outputs[1].value = -1.0f;
-        outputs[2].value = 0.0f;
+        outputs[1].values[sample] = -1.0f;
+        outputs[2].values[sample] = 0.0f;
         for(int i=0; i<c_blitN; i++) buf[i] = 0.0f;
         bufPos = 0;
         stage = 0;
@@ -136,24 +136,24 @@ inline void BlitOsc::softResetOnSignal(float resetSignal, float syncAmount, floa
     last_softResetSignal = resetSignal;
 }
 
-void BlitOsc::process()
+void BlitOsc::processSample(int sample)
 {
-    float freq = limit(inputs[0].value, 1.f, fs*0.5f);
-    float shape = limit(inputs[1].value, 0.0f, 1.0f);
-    float pwm = limit(inputs[2].value);
-    float syncFreq = inputs[3].value;
-    float syncAmount = 2.f*(1.f-limit(inputs[4].value, 0.f, 1.f)) - 1.f;
+    float freq = limit(inputs[0].values[sample], 1.f, fs*0.5f);
+    float shape = limit(inputs[1].values[sample], 0.0f, 1.0f);
+    float pwm = limit(inputs[2].values[sample]);
+    float syncFreq = inputs[3].values[sample];
+    float syncAmount = 2.f*(1.f-limit(inputs[4].values[sample], 0.f, 1.f)) - 1.f;
 
-    float dcRemoval = limitLow(inputs[7].value, 0.0078125f);
+    float dcRemoval = limitLow(inputs[7].values[sample], 0.0078125f);
 
     float nFreq = 2.f*freq * fsInv;
     float syncNFreq = 2.f*syncFreq * fsInv;
 
     if(nFreq == 0) return; // nothing to do, just exit
 
-    hardResetOnSignal(inputs[5].value);
+    hardResetOnSignal(inputs[5].values[sample], sample);
 
-    softResetOnSignal(inputs[6].value, syncAmount, nFreq, shape);
+    softResetOnSignal(inputs[6].values[sample], syncAmount, nFreq, shape);
 
     incrementClocks(nFreq, syncNFreq);
 
@@ -161,6 +161,6 @@ void BlitOsc::process()
 
     blitForward(internalPhase, nFreq, shape, pwm);
 
-    integrateAndStore(nFreq, shape, freq, dcRemoval);
+    integrateAndStore(nFreq, shape, freq, dcRemoval, sample);
 
 }

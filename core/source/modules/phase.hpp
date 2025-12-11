@@ -10,8 +10,8 @@ private:
     float phase;
 public:
     Phase();
-    void process();
-    void block_process();
+    void processSample(int sample) override;
+    void processBlock() override;
     static Module* factory() { return new Phase(); }
 };
 

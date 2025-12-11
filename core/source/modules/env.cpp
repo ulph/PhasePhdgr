@@ -40,22 +40,22 @@ inline void CamelEnvelope::changeState(EnvelopeStage newState) {
     stageSamples = 0.f;
 }
 
-void CamelEnvelope::process() {
-    const float newGate = inputs[0].value;
+void CamelEnvelope::processSample(int sample) {
+    const float newGate = inputs[0].values[sample];
 
-    float onBumpHeight = limit(inputs[1].value, 0.0f, 1.0f);
-    onAttackSamples = limitLow(inputs[2].value, 0.f) * fs;
-    onDecaySamples = limitLow(inputs[3].value, 0.f) * fs;
-    float sustainHeight = limit(inputs[4].value, 0.0f, 1.0f);
-    float offBumpHeight = limit(inputs[5].value, 0.0f, 1.0f);
-    offAttackSamples = limitLow(inputs[6].value, 0.f) * fs;
-    offDecaySamples = limitLow(inputs[7].value, 0.f) * fs;
+    float onBumpHeight = limit(inputs[1].values[sample], 0.0f, 1.0f);
+    onAttackSamples = limitLow(inputs[2].values[sample], 0.f) * fs;
+    onDecaySamples = limitLow(inputs[3].values[sample], 0.f) * fs;
+    float sustainHeight = limit(inputs[4].values[sample], 0.0f, 1.0f);
+    float offBumpHeight = limit(inputs[5].values[sample], 0.0f, 1.0f);
+    offAttackSamples = limitLow(inputs[6].values[sample], 0.f) * fs;
+    offDecaySamples = limitLow(inputs[7].values[sample], 0.f) * fs;
 
-    float onAttackPow = limitLow(inputs[8].value, 0.f);
-    float onDecayPow = limitLow(inputs[9].value, 0.f);
+    float onAttackPow = limitLow(inputs[8].values[sample], 0.f);
+    float onDecayPow = limitLow(inputs[9].values[sample], 0.f);
 
-    float offAttackPow = limitLow(inputs[10].value, 0.f);
-    float offDecayPow = limitLow(inputs[11].value, 0.f);
+    float offAttackPow = limitLow(inputs[10].values[sample], 0.f);
+    float offDecayPow = limitLow(inputs[11].values[sample], 0.f);
 
     // no targets can be greater than 1
     onBumpHeight = (sustainHeight + onBumpHeight) > 1.0f ? 1.0f - sustainHeight : onBumpHeight;
@@ -109,6 +109,5 @@ void CamelEnvelope::process() {
     value = slew*targetValue + (1 - slew)*value;
 
     // limit, apply power law and slew
-    outputs[0].value = value;
-
+    outputs[0].values[sample] = value;
 }

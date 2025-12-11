@@ -18,21 +18,21 @@ static inline float incrementPhase(float p, float p0, float f, float t, float t_
     return p;
 }
 
-void Phase::process()
+void Phase::processSample(int sample)
 {
     auto f_fs = (float)fs;
 
-    float f = inputs[0].value;
-    float t = inputs[1].value;
-    float p0 = inputs[2].value;
+    float f = inputs[0].values[sample];
+    float t = inputs[1].values[sample];
+    float p0 = inputs[2].values[sample];
 
     phase = incrementPhase(phase, p0, f, t, trig, f_fs);
     trig = t;
 
-    outputs[0].value = phase;
+    outputs[0].values[sample] = phase;
 }
 
-void Phase::block_process()
+void Phase::processBlock()
 {
     auto f_fs = (float)fs;
     

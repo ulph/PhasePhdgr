@@ -6,7 +6,7 @@ class Div : public ModuleCRTP<Div>
 {
 public:
     Div();
-    void process();
+    void processSample(int sample);
     static Module* factory() { return new Div(); }
 };
 
@@ -14,6 +14,6 @@ class Mod : public ModuleCRTP<Mod>
 {
 public:
     Mod();
-    void process();
+    void processSample(int sample);
     static Module* factory() { return new Mod(); }
 };

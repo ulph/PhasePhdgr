@@ -10,7 +10,7 @@ private:
     float heldValue;
 public:
     SampleAndHold();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new SampleAndHold(); }
 };
 

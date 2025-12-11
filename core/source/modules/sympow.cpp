@@ -7,10 +7,10 @@ SymPow::SymPow() {
     outputs.push_back(Pad("out"));
 }
 
-void SymPow::process() {
-    float v = fabs(inputs[0].value);
-    float sign = inputs[0].value >= 0 ? 1.f : -1.f;
-    outputs[0].value = sign*powf(v, inputs[1].value);
+void SymPow::processSample(int sample) {
+    float v = fabs(inputs[0].values[sample]);
+    float sign = inputs[0].values[sample] >= 0 ? 1.f : -1.f;
+    outputs[0].values[sample] = sign*powf(v, inputs[1].values[sample]);
 }
 
 SymLog2::SymLog2() {
@@ -18,8 +18,8 @@ SymLog2::SymLog2() {
     outputs.push_back(Pad("out"));
 }
 
-void SymLog2::process() {
-    float v = fabs(inputs[0].value);
-    float sign = inputs[0].value >= 0 ? 1.f : -1.f;
-    outputs[0].value = sign*logf(v) / logf(2.0f);
+void SymLog2::processSample(int sample) {
+    float v = fabs(inputs[0].values[sample]);
+    float sign = inputs[0].values[sample] >= 0 ? 1.f : -1.f;
+    outputs[0].values[sample] = sign*logf(v) / logf(2.0f);
 }

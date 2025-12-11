@@ -35,7 +35,7 @@ class RcLp : public ModuleCRTP<RcLp>
 {
 public:
     RcLp();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new RcLp(); }
 };
 
@@ -45,7 +45,7 @@ private:
     float x;
 public:
     RcHp();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new RcHp(); }
 };
 
@@ -53,7 +53,7 @@ class Lag : public ModuleCRTP<Lag>
 {
 public:
     Lag();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new Lag(); }
 };
 
@@ -65,7 +65,7 @@ private:
     float last_output = 0.0f;
 public:
     LeakyIntegrator();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new LeakyIntegrator(); }
 };
 
@@ -73,7 +73,7 @@ class RateLimiter : public ModuleCRTP<RateLimiter>
 {
 public:
     RateLimiter();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new RateLimiter(); }
 };
 

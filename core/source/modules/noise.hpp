@@ -10,7 +10,7 @@ private:
     uint32_t val;
 public:
     Noise();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new Noise(); }
 };
 

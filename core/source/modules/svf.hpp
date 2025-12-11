@@ -13,7 +13,7 @@ private:
     float ic2eq = 0.0f;
 public:
     TrapezoidalTanSVF();
-    virtual void process();
+    virtual void processSample(int sample) override;
     static Module* factory() { return new TrapezoidalTanSVF(); }
 };
 
@@ -25,7 +25,7 @@ private:
     float ic2eq = 0.0f;
 public:
     OpenTrapezoidalTanSVF();
-    virtual void process();
+    virtual void processSample(int sample) override;
     static Module* factory() { return new OpenTrapezoidalTanSVF(); }
 };
 
@@ -36,7 +36,7 @@ private:
     size_t outPadOffset = 0;
 public:
     OpenTrapezoidalTanSVF2();
-    virtual void process();
+    virtual void processSample(int sample) override;
     static Module* factory() { return new OpenTrapezoidalTanSVF2(); }
 };
 

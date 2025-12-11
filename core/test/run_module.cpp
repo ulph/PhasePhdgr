@@ -1,8 +1,6 @@
 #include <cstdio>
 #include <cstdint>
-#include <iostream>
 #include "connectiongraph.hpp"
-#include "module.hpp"
 #include "moduleregister.hpp"
 
 int main(int argc, char *argv[])
@@ -37,9 +35,10 @@ int main(int argc, char *argv[])
     }
 
     for (uint32_t t = 0; t < 5.0f*(float(fs)/hz); t++) {
-        s.processSample(dut, (float)fs);
-        float output = s.getOutput(dut, 0);
-        fwrite(&output, sizeof(output), 1, outfile);
+        // FIXME: Use block processing.
+        //s.processSample(dut, (float)fs);
+        //float output = s.getOutput(dut, 0);
+        //fwrite(&output, sizeof(output), 1, outfile);
     }
 
     return 0;

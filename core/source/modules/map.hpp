@@ -7,7 +7,7 @@ class Clamp : public ModuleCRTP<Clamp>
 {
 public:
     Clamp();
-    void process();
+    void processSample(int sample);
     static Module* factory() { return new Clamp(); }
 };
 
@@ -15,7 +15,7 @@ class RangeMap : public ModuleCRTP<RangeMap>
 {
 public:
     RangeMap();
-    void process();
+    void processSample(int sample);
     static Module* factory() { return new RangeMap(); }
 };
 
@@ -23,7 +23,7 @@ class ScaleShift : public ModuleCRTP<ScaleShift>
 {
 public:
     ScaleShift();
-    void process();
+    void processSample(int sample);
     static Module* factory() { return new ScaleShift(); }
 };
 
@@ -31,7 +31,7 @@ class ClampInv : public ModuleCRTP<ClampInv>
 {
 public:
     ClampInv();
-    void process();
+    void processSample(int sample);
     static Module* factory() { return new ClampInv(); }
 };
 

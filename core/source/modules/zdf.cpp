@@ -54,9 +54,9 @@ Zdf1p::Zdf1p() {
     outputs.push_back(Pad("all"));
 }
 
-void Zdf1p::process() {
-    float x = inputs[0].value;
-    float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
+void Zdf1p::processSample(int sample) {
+    float x = inputs[0].values[sample];
+    float fc = limit(inputs[1].values[sample], 1.0f, fs*0.5f);
     float wc = normalizeFrequency(fc, fsInv);
     float g = designZdf1pLpGain(wc);
 
@@ -64,9 +64,9 @@ void Zdf1p::process() {
     float y = calculateZdf1pLp(x, s, g, v);
     s = updateZdf1pLpState(y, v);
 
-    outputs[0].value = y;
-    outputs[1].value = x - y;
-    outputs[2].value = y - (x - y);
+    outputs[0].values[sample] = y;
+    outputs[1].values[sample] = x - y;
+    outputs[2].values[sample] = y - (x - y);
 }
 
 // ...
@@ -78,10 +78,10 @@ Zdf1pLowShelf::Zdf1pLowShelf() {
     outputs.push_back(Pad("out"));
 }
 
-void Zdf1pLowShelf::process() {
-    float x = inputs[0].value;
-    float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
-    float drop = limit(inputs[2].value, 0.0f, 1.0f);
+void Zdf1pLowShelf::processSample(int sample) {
+    float x = inputs[0].values[sample];
+    float fc = limit(inputs[1].values[sample], 1.0f, fs*0.5f);
+    float drop = limit(inputs[2].values[sample], 0.0f, 1.0f);
     float k = -drop;
 
     float wm = normalizeFrequency(fc, fsInv);
@@ -94,7 +94,7 @@ void Zdf1pLowShelf::process() {
     float yl = calculateZdf1pLp(x, s, gl, vl);
     s = updateZdf1pLpState(yl, vl);
 
-    outputs[0].value = x + k * yl;
+    outputs[0].values[sample] = x + k * yl;
 }
 
 Zdf1pHighShelf::Zdf1pHighShelf() {
@@ -104,10 +104,10 @@ Zdf1pHighShelf::Zdf1pHighShelf() {
     outputs.push_back(Pad("out"));
 }
 
-void Zdf1pHighShelf::process() {
-    float x = inputs[0].value;
-    float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
-    float drop = limit(inputs[2].value, 0.0f, 1.0f);
+void Zdf1pHighShelf::processSample(int sample) {
+    float x = inputs[0].values[sample];
+    float fc = limit(inputs[1].values[sample], 1.0f, fs*0.5f);
+    float drop = limit(inputs[2].values[sample], 0.0f, 1.0f);
     float k = -drop;
 
     float wm = normalizeFrequency(fc, fsInv);
@@ -121,7 +121,7 @@ void Zdf1pHighShelf::process() {
     s = updateZdf1pLpState(yh, vh);
     float yh_lp = x - yh;
 
-    outputs[0].value = x + k * yh_lp;
+    outputs[0].values[sample] = x + k * yh_lp;
 }
 
 // ...
@@ -138,12 +138,12 @@ Zdf4pLadder::Zdf4pLadder() {
     outputs.push_back(Pad("out4p"));
 }
 
-void Zdf4pLadder::process() {
-    float gain = limitLow(inputs[4].value, 0.01f);
-    float x = inputs[0].value*gain;
-    float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
-    float k = limitLow(inputs[2].value, 0.0f) * 4.0f;
-    float fbHpFc = limit(inputs[3].value, 1.0f, fs*0.5f);
+void Zdf4pLadder::processSample(int sample) {
+    float gain = limitLow(inputs[4].values[sample], 0.01f);
+    float x = inputs[0].values[sample]*gain;
+    float fc = limit(inputs[1].values[sample], 1.0f, fs*0.5f);
+    float k = limitLow(inputs[2].values[sample], 0.0f) * 4.0f;
+    float fbHpFc = limit(inputs[3].values[sample], 1.0f, fs*0.5f);
 
     // low-pass gain
     float wc = normalizeFrequency(fc, fsInv);
@@ -176,21 +176,21 @@ void Zdf4pLadder::process() {
     float v1 = 0.0f;
     float y1 = calculateZdf1pLp(u, s1, g, v1);
     s1 = updateZdf1pLpState(y1, v1);
-    outputs[0].value = y1*gainInv;
+    outputs[0].values[sample] = y1*gainInv;
 
     float v2 = 0.0f;
     float y2 = calculateZdf1pLp(y1, s2, g, v2);
     s2 = updateZdf1pLpState(y2, v2);
-    outputs[1].value = y2*gainInv;
+    outputs[1].values[sample] = y2*gainInv;
 
     float v3 = 0.0f;
     float y3 = calculateZdf1pLp(y2, s3, g, v3);
     s3 = updateZdf1pLpState(y3, v3);
-    outputs[2].value = y3*gainInv;
+    outputs[2].values[sample] = y3*gainInv;
 
     float v4 = 0.0f;
     float y4 = calculateZdf1pLp(y3, s4, g, v4);
     s4 = updateZdf1pLpState(y4, v4);
-    outputs[3].value = y4*gainInv;
+    outputs[3].values[sample] = y4*gainInv;
 
 }

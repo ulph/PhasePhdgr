@@ -20,16 +20,16 @@ private:
     float last_cumCumSum = 0.0f;
     float last_resetSignal = 0.0f;
     float last_softResetSignal = 0.0f;
-    inline void hardResetOnSignal(float resetSignal);
+    inline void hardResetOnSignal(float resetSignal, int sample);
     inline void softResetOnSignal(float resetSignal, float syncAmount, float nFreq, float shape);
     inline void incrementClocks(float nFreq, float syncNFreq);
     inline void blitOnePulse(float fraction, float multiplier);
     inline void blitForward(float& phase, float nFreq, float shape, float pwm);
-    inline void integrateAndStore(float nFreq, float shape, float freq, float dcRemoval);
+    inline void integrateAndStore(float nFreq, float shape, float freq, float dcRemoval, int sample);
     inline void syncPhase(float& phase, float& syncPhase, float syncAmount, float syncNFreq, float nFreq, float shape);
 public:
     BlitOsc();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new BlitOsc(); }
 };
 

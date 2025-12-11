@@ -7,7 +7,7 @@ class TempoToTime : public ModuleCRTP<TempoToTime>
 {
 public:
     TempoToTime();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new TempoToTime(); }
 };
 
@@ -16,7 +16,7 @@ class Transpose : public ModuleCRTP<Transpose>
 {
 public:
     Transpose();
-    void process();
+    void processSample(int sample) override;
     static Module* factory() { return new Transpose(); }
 };
 

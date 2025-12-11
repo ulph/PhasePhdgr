@@ -9,16 +9,16 @@ Div::Div()
     outputs.push_back(Pad("NaN"));
 }
 
-void Div::process() {
-    auto n = inputs[0].value;
-    auto d = inputs[1].value;
+void Div::processSample(int sample) {
+    auto n = inputs[0].values[sample];
+    auto d = inputs[1].values[sample];
     if (d == 0.f) {
-        outputs[0].value = 0.f;
-        outputs[1].value = 1.f;
+        outputs[0].values[sample] = 0.f;
+        outputs[1].values[sample] = 1.f;
         return;
     }
-    outputs[0].value = n / d;
-    outputs[1].value = 0.f;
+    outputs[0].values[sample] = n / d;
+    outputs[1].values[sample] = 0.f;
 }
 
 
@@ -30,16 +30,16 @@ Mod::Mod()
     outputs.push_back(Pad("NaN"));
 }
 
-void Mod::process() {
-    auto n = inputs[0].value;
-    auto d = inputs[1].value;
+void Mod::processSample(int sample) {
+    auto n = inputs[0].values[sample];
+    auto d = inputs[1].values[sample];
     if (d == 0.f) {
-        outputs[0].value = 0.f;
-        outputs[1].value = 1.f;
+        outputs[0].values[sample] = 0.f;
+        outputs[1].values[sample] = 1.f;
         return;
     }
-    outputs[0].value = fmod(n, d);
-    outputs[1].value = 0.f;
+    outputs[0].values[sample] = fmod(n, d);
+    outputs[1].values[sample] = 0.f;
 }
 
 // TODO, floor, ceil and round (which all also return the remainder)

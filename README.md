@@ -20,7 +20,7 @@ Under the hood, all connections and states are described via hiarchies in JSON. 
 - Experiment oriented versions of graph components where the state is an output/input set. Allows for quick experimentation with nonlinearities in filter (internal) feedback paths, for instance.
 - Per-patch configurable settings for polyphony and note-stealing behaviour.
 
-## Disiclaimers ##
+## Disclaimers ##
 This is an old hobby project of mine (and some friends). It does NOT represent a sensible software project. The UI bits are partly broken and horribly implemented. There are few unit tests. There are however some DSP nuggets, and the graphing engine is quite clever and useful. There are also plans to polish the quality of testing and  a complete rewrite of the UI (not using JUCE).
 
 ## Graph overview ##

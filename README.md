@@ -1,3 +1,9 @@
+<img width="2221" height="1525" alt="Screenshot 2026-01-28 at 12 03 19" src="https://github.com/user-attachments/assets/266491b0-9766-4658-90b6-0eb97dcdb6d2" />
+
+
+https://github.com/user-attachments/assets/6c60d7f0-b3b9-46fe-81bf-4668501ec67f
+
+
 # README #
 
 PhasePhdgr is an (extendable) MPE capabable software modular synthesizer and effect processor. It comes both as a headless CLI (jack) synth, and wrapped inside an elaborate VST/GUI (JUCE) in two flavours (instrument and effect).

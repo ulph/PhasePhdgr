@@ -11,12 +11,29 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../submodules/json/src)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
+function(add_definition_if_supported option)
+    include(CheckCXXCompilerFlag)
+    # Sanitize the option name for use in variable naming
+    string(REPLACE "-" "_" OPTION_VAR ${option})
+    string(REPLACE "=" "_" OPTION_VAR ${OPTION_VAR})
+    set(FLAG_CHECK_VAR "COMPILER_SUPPORTS_${OPTION_VAR}")
+    # Check if this was already tested
+    if(NOT DEFINED ${FLAG_CHECK_VAR})
+        check_cxx_compiler_flag("${option}" ${FLAG_CHECK_VAR})
+    endif()
+    # Apply the option if supported
+    if(${FLAG_CHECK_VAR})
+        add_definitions(${option})
+    endif()
+endfunction()
+
 option(OPT_SSE2 "build with sse2 optimisations" ON)
 if(${OPT_SSE2})
     if( WIN32 )
         add_definitions(/arch:SSE2)
     else()
-        add_definitions(-msse2 -mfpmath=sse)
+        add_definition_if_supported(-msse2)
+        add_definition_if_supported(-mfpmath=sse)
     endif()
 endif()
 
@@ -25,7 +42,7 @@ if(${OPT_FAST_MATH})
     if( WIN32 )
         add_definitions(/fp:fast)
     else()
-        add_definitions(-ffast-math)
+        add_definition_if_supported(-ffast-math)
     endif()
 endif()
 

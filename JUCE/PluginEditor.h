@@ -12,13 +12,8 @@
 #include "GraphEditor.hpp"
 
 #include "Utils.hpp"
-#include "PatchEditor.hpp"
-
-#include "ParameterKnob.hpp"
 
 #include "SettingsEditor.hpp"
-
-#include <juce_audio_processors/juce_audio_processors.h>
 
 using namespace juce;
 

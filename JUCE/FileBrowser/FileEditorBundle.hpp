@@ -4,7 +4,6 @@
 
 #include "FileIO.hpp"
 #include "DirectoryWatcher.hpp"
-#include "PPGrid.h"
 
 #include "PatchEditor.hpp"
 

@@ -1,10 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
-
-#include <phasephdgr.hpp>
-#include <juce_audio_plugin_client/juce_audio_plugin_client.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
 using namespace std;
 using namespace juce;

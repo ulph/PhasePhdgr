@@ -71,7 +71,7 @@ endif()
 
 set( USED_JUCE_LIBS
     juce::juce_audio_utils
-    juce::juce_events
+#    juce::juce_events
 )
 
 set( USED_JUCE_FLAGS
@@ -99,6 +99,7 @@ target_sources(PhasePhdgr PRIVATE exportSynth.cpp ${PH_COMMON_SRC} ${PHASEPHDGR_
 target_link_libraries(PhasePhdgr PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
 target_compile_definitions(PhasePhdgr PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
 set_target_properties(PhasePhdgr PROPERTIES FOLDER JUCE/VST)
+target_include_directories(PhasePhdgr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 juce_add_plugin(PhasePhdgrFx
     IS_SYNTH FALSE
@@ -111,3 +112,4 @@ target_sources(PhasePhdgrFx PRIVATE exportFx.cpp ${PH_COMMON_SRC} ${PHASEPHDGR_S
 target_link_libraries(PhasePhdgrFx PRIVATE ${USED_JUCE_LIBS} PUBLIC ${USED_JUCE_FLAGS})
 target_compile_definitions(PhasePhdgrFx PUBLIC ${USED_JUCE_COMPILE_DEFINITIONS})
 set_target_properties(PhasePhdgrFx PROPERTIES FOLDER JUCE/VST)
+target_include_directories(PhasePhdgrFx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

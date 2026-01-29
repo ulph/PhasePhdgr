@@ -1,10 +1,11 @@
 #include "rlc.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
+#include "units.hpp"
 
 RcLp::RcLp()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc", 16000.f, "hz"));
+    inputs.push_back(Pad("wc", 16000.f, UNIT_HZ));
     outputs.push_back(Pad("out"));
 }
 
@@ -12,17 +13,16 @@ void RcLp::process()
 {
     float x1 = inputs[0].value;
     float y0 = outputs[0].value;
-    float wc = inputs[1].value;
+    float wc = limit(inputs[1].value, 0, nyquist);
     float y1 = CalcRcLp(x1, y0, wc, fsInv);
     outputs[0].value = y1;
 }
-
 
 RcHp::RcHp() 
     : x(0.0f)
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc", 40.f, "hz"));
+    inputs.push_back(Pad("wc", 40.f, UNIT_HZ));
     outputs.push_back(Pad("out"));
 }
 
@@ -31,7 +31,7 @@ void RcHp::process()
     float x1 = inputs[0].value;
     float x0 = x;
     float y0 = outputs[0].value;
-    float wc = inputs[1].value;
+    float wc = limit(inputs[1].value, 0, nyquist);
     float y1 = CalcRcHp(x1, x0, y0, wc, fsInv);
     outputs[0].value = y1;
     x = x1;
@@ -40,8 +40,8 @@ void RcHp::process()
 Lag::Lag()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc_up", "hz"));
-    inputs.push_back(Pad("wc_down", "hz"));
+    inputs.push_back(Pad("wc_up", UNIT_HZ));
+    inputs.push_back(Pad("wc_down", UNIT_HZ));
     outputs.push_back(Pad("out"));
 }
 
@@ -59,7 +59,7 @@ void Lag::process()
 LeakyIntegrator::LeakyIntegrator()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("freq", "hz"));
+    inputs.push_back(Pad("freq", UNIT_HZ));
     inputs.push_back(Pad("dcRemoval", 0.125f));
     outputs.push_back(Pad("out"));
 }
@@ -84,8 +84,8 @@ void LeakyIntegrator::process()
 RateLimiter::RateLimiter()
 {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("wc_up", "hz")); // TODO, not true frequencies
-    inputs.push_back(Pad("wc_down", "hz"));
+    inputs.push_back(Pad("wc_up", UNIT_HZ)); // TODO, not true frequencies
+    inputs.push_back(Pad("wc_down", UNIT_HZ));
     outputs.push_back(Pad("out"));
 }
 

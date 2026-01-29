@@ -1,5 +1,5 @@
 #include "logic.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
 
 Threshold::Threshold() {
     inputs.push_back(Pad("in"));

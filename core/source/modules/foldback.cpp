@@ -1,5 +1,5 @@
 #include "foldback.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
 #include <math.h>
 
 FoldBack::FoldBack()

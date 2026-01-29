@@ -1,7 +1,7 @@
 #include "blitosc.hpp"
 #include <string.h>
 #include "sinc.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
 #include "rlc.hpp"
 
 const auto c_blitTable = FractionalSincTable<BlitOsc::c_blitN>();

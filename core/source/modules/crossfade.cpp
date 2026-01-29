@@ -1,5 +1,5 @@
 #include "crossfade.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
 
 CrossFade::CrossFade() {
     inputs.push_back(Pad("a"));

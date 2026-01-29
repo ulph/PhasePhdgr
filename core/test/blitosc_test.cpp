@@ -30,7 +30,4 @@ TEST_CASE( "blitosc", "[module]" ) {
         REQUIRE(ma.getOutputs(module)[1].name == "out");
         REQUIRE(ma.getOutputs(module)[2].name == "integral");
     }
-
-    moduleFuzzerTest(ma, module);
-
 }

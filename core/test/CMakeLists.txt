@@ -44,3 +44,11 @@ if(${BUILD_PLUGIN_SDK})
         add_test(NAME test_plugin_loader COMMAND test_plugin_loader WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
     endif()
 endif()
+
+add_executable(core_catch2 
+    ${TEST_COMMON_SRC}
+    blitosc_test.cpp
+)
+set_property(TARGET core_catch2 PROPERTY FOLDER core/test)
+target_link_libraries( core_catch2 PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+target_link_libraries( core_catch2 PRIVATE Catch2::Catch2WithMain)

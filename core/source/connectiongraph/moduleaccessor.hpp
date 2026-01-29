@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "module.hpp"
 
 class ModuleAccessor
@@ -53,6 +54,10 @@ public:
     static void setInput(Module& m, int inputPad, float value) {
         sample_setInput(m, inputPad, value);
         block_fillInput(m, inputPad, value);
+    }
+
+    static float getOutput(Module& m, int outputPad) {
+        return sample_getOutput(m, outputPad);
     }
 
     // sample processing

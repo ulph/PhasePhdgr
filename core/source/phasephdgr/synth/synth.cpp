@@ -192,10 +192,10 @@ void Synth::handleY(int a, float b) { voiceBus->handleY(a, b, voices); }
 void Synth::handleZ(int a, float b) { voiceBus->handleZ(a, b, voices); }
 void Synth::handleNoteZ(int a, int b, float c) { voiceBus->handleNoteZ(a, b, c, voices); }
 void Synth::handleSustain(float b) { voiceBus->handleSustain(b, voices); }
-void Synth::handleExpression(float a) { globalData->expression(a); }
-void Synth::handleBreath(float a) { globalData->breath(a); }
-void Synth::handleModWheel(float a) { globalData->modwheel(a); }
 
+void Base::handleExpression(float a) { globalData->expression(a); }
+void Base::handleBreath(float a) { globalData->breath(a); }
+void Base::handleModWheel(float a) { globalData->modwheel(a); }
 void Base::handleTimeSignature(int num, int den){ globalData->signature(num, den); }
 void Base::handleBPM(float bpm){ globalData->bpm(bpm); }
 void Base::handlePosition(float ppqPosition){ globalData->position(ppqPosition); }

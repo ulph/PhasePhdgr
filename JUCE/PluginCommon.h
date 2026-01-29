@@ -107,7 +107,8 @@ public:
 
 class GeneratingBufferingProcessor : public BufferingProcessor {
 private:
-    void processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth);
+    // TODO, decouple midi routing so we can get this going for pure effects as well
+    void processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth, Effect* effect);
 public:
     GeneratingBufferingProcessor()
         : BufferingProcessor(Strategy::AHEAD)
@@ -117,6 +118,7 @@ public:
 
 
 class InputBufferingProcessor: public BufferingProcessor{
+    // TODO, handle midi
 public:
     InputBufferingProcessor() 
         : BufferingProcessor(Strategy::BUFFERING)

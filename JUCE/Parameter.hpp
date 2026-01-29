@@ -27,7 +27,7 @@ private:
 public:
     Parameter(int idx)
         : AudioParameterFloat(
-            to_string(idx),
+            ParameterID(to_string(idx), idx+1),
             clearedName(idx),
             0.0f,
             1.0f,

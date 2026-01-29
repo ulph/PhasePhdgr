@@ -29,6 +29,9 @@ namespace PhasePhdgr {
         void handlePosition(float ppqPosition);
         void handleBarPosition(float ppqPosition);
         void handleTime(float time);
+        void handleExpression(float value);
+        void handleBreath(float value);
+        void handleModWheel(float value);
         virtual void applySettings(const PresetSettings& settings) {};
         static int internalBlockSize();
         virtual const Scope& getVoiceScope(int i) const;
@@ -70,9 +73,6 @@ namespace PhasePhdgr {
         void handleZ(int channel, float position);
         void handleNoteZ(int channel, int note, float position);
         void handleSustain(float position);
-        void handleExpression(float value);
-        void handleBreath(float value);
-        void handleModWheel(float value);
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp) override;
         const ParameterHandleMap& setPatch(const PatchDescriptor & chain, const ComponentRegister & cp, const SDKExtensionManager & sdk) override;
         void handleParameter(int handle, float value) override;

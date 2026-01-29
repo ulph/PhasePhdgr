@@ -51,7 +51,7 @@ void handlePlayHead(Base* effect, const AudioPlayHead::CurrentPositionInfo& info
     effect->handleBarPosition(barPosition);
 }
 
-void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth) {
+void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& midiMessageQueue, int blockSize, Synth* synth, Effect* effect) {
     auto it = midiMessageQueue.begin();
     while (it != midiMessageQueue.end()) {
         if (it->ts < blockSize) {
@@ -80,12 +80,15 @@ void GeneratingBufferingProcessor::processAndRouteMidi(vector<PPMidiMessage>& mi
                 break;
             case PPMidiMessage::Type::ModWheel:
                 synth->handleModWheel(it->value);
+                effect->handleModWheel(it->value);
                 break;
             case PPMidiMessage::Type::Breath:
                 synth->handleBreath(it->value);
+                effect->handleBreath(it->value);
                 break;
             case PPMidiMessage::Type::Expression:
                 synth->handleExpression(it->value);
+                effect->handleExpression(it->value);
                 break;
 
             default:
@@ -153,7 +156,7 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
             updatePlayHead(playHead, internalBlockSize, sampleRate, info, barPosition);
             handlePlayHead(synth, info, barPosition);
             handlePlayHead(effect, info, barPosition);
-            processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
+            processAndRouteMidi(midiMessageQueue, internalBlockSize, synth, effect);
             synth->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), internalBlockSize, sampleRate);
             effect->setScopeHz(synth->getScopeHz());
             effect->update(buffer.getWritePointer(0, destinationBufferOffset), buffer.getWritePointer(1, destinationBufferOffset), internalBlockSize, sampleRate);
@@ -168,7 +171,7 @@ void GeneratingBufferingProcessor::process(AudioSampleBuffer& buffer, vector<PPM
         updatePlayHead(playHead, internalBlockSize, sampleRate, info, barPosition);
         handlePlayHead(synth, info, barPosition);
         handlePlayHead(effect, info, barPosition);
-        processAndRouteMidi(midiMessageQueue, internalBlockSize, synth);
+        processAndRouteMidi(midiMessageQueue, internalBlockSize, synth, effect);
         synth->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);
         effect->setScopeHz(synth->getScopeHz());
         effect->update(outputBuffer[0], outputBuffer[1], internalBlockSize, sampleRate);

@@ -56,12 +56,12 @@ void EffectChain::update(float * bufferL, float * bufferR, int numSamples, float
     for (j = 0; (j + ConnectionGraph::k_blockSize) <= numSamples; j += ConnectionGraph::k_blockSize) {
         globalData.update();
 
+        connectionGraph.setInputBlock(inBus, 0, &bufferL[j]);
+        connectionGraph.setInputBlock(inBus, 1, &bufferR[j]);
+
         connectionGraph.setInputBlock(inBus, 2, g.mod);
         connectionGraph.setInputBlock(inBus, 3, g.exp);
         connectionGraph.setInputBlock(inBus, 4, g.brt);
-
-        connectionGraph.setInputBlock(inBus, 0, &bufferL[j]);
-        connectionGraph.setInputBlock(inBus, 1, &bufferR[j]);
 
         connectionGraph.processBlock(outBus, sampleRate);
 

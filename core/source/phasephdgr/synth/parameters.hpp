@@ -40,7 +40,7 @@ namespace PhasePhdgr {
         float modTarget = 0.0f;
         float a = c_slewFactor;
         void update() {
-            const auto last = ConnectionGraph::k_blockSize - 1;
+            constexpr auto last = ConnectionGraph::k_blockSize - 1;
             exp[0] = a * exp[last] + (1.0f - a) * expTarget;
             brt[0] = a * brt[last] + (1.0f - a) * brtTarget;
             mod[0] = a * mod[last] + (1.0f - a) * modTarget;
@@ -57,9 +57,15 @@ namespace PhasePhdgr {
         GlobalTimeDataState timeSt;
         GlobalDataState st;
     public:
-        void modwheel(float v) { st.modTarget = v; }
-        void expression(float v) { st.expTarget = v; }
-        void breath(float v) { st.brtTarget = v; }
+        void modwheel(float v) { 
+            st.modTarget = v; 
+        }
+        void expression(float v) { 
+            st.expTarget = v; 
+        }
+        void breath(float v) { 
+            st.brtTarget = v; 
+        }
         void signature(int num, int den) { 
             timeSt.nominator = num;
             timeSt.denominator = den;

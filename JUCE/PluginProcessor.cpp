@@ -282,7 +282,7 @@ void PhasePhdgrProcessorBase::forceStateBump() {
 // synth
 
 PhasePhdgrProcessor::PhasePhdgrProcessor()
-    : PhasePhdgrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::disabled(), true))
+    : PhasePhdgrProcessorBase(BusesProperties().withOutput("Output", AudioChannelSet::stereo(), true).withInput("Input", AudioChannelSet::stereo(), true))
 {
 
     midiMessageQueue.reserve(128); // some nice large-ish number

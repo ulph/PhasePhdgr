@@ -31,7 +31,7 @@ public: \
     } \
 \
     virtual void process() override { \
-        float s = inputs[1].value; \
+        float s = limitLow(inputs[1].value, 0.000001f); \
         float f = 1.0f / OP(s); \
         outputs[0].value = OP(inputs[0].value * s) * f; \
     } \
@@ -52,7 +52,7 @@ public: \
     } \
 \
     virtual void process() override { \
-        float s = inputs[2].value; \
+        float s = limitLow(inputs[2].value, 0.000001f); \
         float f = 1.0f / OP(s); \
         outputs[0].value = OP(inputs[0].value * s) * f; \
         outputs[1].value = OP(inputs[1].value * s) * f; \

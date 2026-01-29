@@ -6,6 +6,7 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <cmath>
 #include <map>
 #include <random>
 #include <set>
@@ -75,7 +76,9 @@ inline void ensureValidNumbers(const std::map<int, std::vector<double>> &values)
         for(auto n=0u; n<values.at(i).size(); ++n) {
             INFO("sample position " << n);
             const auto sample = values.at(i).at(n);
-            REQUIRE(std::isfinite(sample)); // ie, not NaN nor Inf
+            REQUIRE(std::isnan(sample) == false);
+            REQUIRE(std::isinf(sample) == false);
+            REQUIRE(std::isfinite(sample)); // redundant
         }
     }
 }
@@ -83,7 +86,7 @@ inline void ensureValidNumbers(const std::map<int, std::vector<double>> &values)
 inline void moduleFuzzerTest(Module* (* moduleFactory)()) {
 
   SECTION("process fuzzed") {
-
+    
     // given
     ModuleAccessor ma;
     std::unique_ptr<Module> modulePtr(moduleFactory());

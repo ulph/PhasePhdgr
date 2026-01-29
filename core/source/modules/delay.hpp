@@ -5,7 +5,8 @@
 
 #include "module.hpp"
 #include "sinc.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
+#include "units.hpp"
 #include "rlc.hpp"
 
 const float c_max_delay_t = 5.f;
@@ -35,11 +36,11 @@ public:
         , slewedTime(0.f)
     {
         Module::inputs.push_back(Pad("in"));
-        Module::inputs.push_back(Pad("time", 0.5f, "seconds"));
+        Module::inputs.push_back(Pad("time", 0.5f, UNIT_SECONDS));
         Module::inputs.push_back(Pad("gain", 1.0f));
         Module::inputs.push_back(Pad("clear"));
-        Module::inputs.push_back(Pad("compensation", 0.0f, "samples"));
-        Module::inputs.push_back(Pad("timeSlewWc", 2.0f, "hz"));
+        Module::inputs.push_back(Pad("compensation", 0.0f, UNIT_SAMPLES));
+        Module::inputs.push_back(Pad("timeSlewWc", 2.0f, UNIT_HZ));
         Module::outputs.push_back(Pad("out"));
     };
 
@@ -66,7 +67,7 @@ public:
         clearFlag = Module::inputs[3].value;
 
         float target_t = limit(Module::inputs[1].value, 0, c_max_delay_t);
-        float alphaTime = DesignRcLp(Module::inputs[5].value, Module::fsInv);
+        float alphaTime = DesignRcLp(limit(Module::inputs[5].value, 0, Module::nyquist), Module::fsInv);
         slewedTime = alphaTime*target_t + (1.0f - alphaTime)*slewedTime;
         float t = slewedTime;
         float g = Module::inputs[2].value;

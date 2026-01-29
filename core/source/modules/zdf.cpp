@@ -1,5 +1,6 @@
 #include "zdf.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
+#include "units.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -48,7 +49,7 @@ inline float highShelfCutoff(float wmid, float k) {
 
 Zdf1p::Zdf1p() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "Hz"));
+    inputs.push_back(Pad("fc", 16000.f, UNIT_HZ));
     outputs.push_back(Pad("low"));
     outputs.push_back(Pad("high"));
     outputs.push_back(Pad("all"));
@@ -56,7 +57,7 @@ Zdf1p::Zdf1p() {
 
 void Zdf1p::process() {
     float x = inputs[0].value;
-    float fc = limit(inputs[1].value, 1.0f, fs*0.5f);
+    float fc = limit(inputs[1].value, 1.0f, nyquist);
     float wc = normalizeFrequency(fc, fsInv);
     float g = designZdf1pLpGain(wc);
 
@@ -73,7 +74,7 @@ void Zdf1p::process() {
 
 Zdf1pLowShelf::Zdf1pLowShelf() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "Hz"));
+    inputs.push_back(Pad("fc", 16000.f, UNIT_HZ));
     inputs.push_back(Pad("drop", 0.5f));
     outputs.push_back(Pad("out"));
 }
@@ -99,7 +100,7 @@ void Zdf1pLowShelf::process() {
 
 Zdf1pHighShelf::Zdf1pHighShelf() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "Hz"));
+    inputs.push_back(Pad("fc", 16000.f, UNIT_HZ));
     inputs.push_back(Pad("drop", 0.5f));
     outputs.push_back(Pad("out"));
 }
@@ -128,9 +129,9 @@ void Zdf1pHighShelf::process() {
 
 Zdf4pLadder::Zdf4pLadder() {
     inputs.push_back(Pad("in"));
-    inputs.push_back(Pad("fc", 16000.f, "Hz"));
+    inputs.push_back(Pad("fc", 16000.f, UNIT_HZ));
     inputs.push_back(Pad("res"));
-    inputs.push_back(Pad("fbHpFc", 10.f, "Hz"));
+    inputs.push_back(Pad("fbHpFc", 10.f, UNIT_HZ));
     inputs.push_back(Pad("overdrive", 0.25f));
     outputs.push_back(Pad("out1p"));
     outputs.push_back(Pad("out2p"));

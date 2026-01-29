@@ -1,6 +1,6 @@
 #include "map.hpp"
 #include <assert.h>
-#include "inlines.hpp"
+#include "limits.hpp"
 
 Clamp::Clamp()
 {

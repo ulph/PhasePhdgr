@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <optional>
 
 class ModuleAccessor;
 
@@ -36,6 +37,7 @@ protected:
     std::vector<Pad> outputs;
     float fs = 48000.f;
     float fsInv = 1.f / fs;
+    float nyquist = fs / 2;
     // TODO; std::map<int, float> designValues;
 
 public:
@@ -43,6 +45,12 @@ public:
     virtual Module *clone() const = 0;
     virtual std::string docString() const { return "..."; }
 private:
+    void setFs(float newFs) {
+      fs = newFs;
+      fsInv = 1.f / fs;
+      nyquist = fs / 2.0;
+      init();
+    };
     virtual void init() {};
     std::string name = "";
     virtual void process() = 0;

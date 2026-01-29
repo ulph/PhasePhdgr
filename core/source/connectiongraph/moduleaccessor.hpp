@@ -46,9 +46,7 @@ public:
     }
 
     static void setFs(Module& m, float newFs) {
-        m.fs = newFs;
-        m.fsInv = 1.f / m.fs;
-        m.init();
+        m.setFs(newFs);
     }
 
     static void setInput(Module& m, int inputPad, float value) {

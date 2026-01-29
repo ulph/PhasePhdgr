@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "svf.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
 
 static inline void TrapezoidalTanSVFDesign(float fc, float fsInv, float k, float &a1, float &a2, float &a3) {
     float g = tanf((float)M_PI*fc * fsInv);
@@ -88,6 +88,7 @@ void TrapezoidalTanSVF::process() {
 
 OpenTrapezoidalTanSVF::OpenTrapezoidalTanSVF()
 {
+    TrapezoidalTanSVFInitPads(inputs, outputs);
     inPadOffset = inputs.size();
     inputs.push_back(Pad("low"));
     inputs.push_back(Pad("band"));

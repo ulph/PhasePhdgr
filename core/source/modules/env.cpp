@@ -1,5 +1,6 @@
 #include "env.hpp"
-#include "inlines.hpp"
+#include "limits.hpp"
+#include "units.hpp"
 
 CamelEnvelope::CamelEnvelope()
 {
@@ -8,14 +9,14 @@ CamelEnvelope::CamelEnvelope()
     inputs.push_back(Pad("gate"));
 
     inputs.push_back(Pad("onBumpHeight", 0.5f));
-    inputs.push_back(Pad("onAttackSpeed", 0.025f, "s"));
-    inputs.push_back(Pad("onDecaySpeed", 0.05f, "s"));
+    inputs.push_back(Pad("onAttackSpeed", 0.025f, UNIT_SECONDS));
+    inputs.push_back(Pad("onDecaySpeed", 0.05f, UNIT_SECONDS));
 
     inputs.push_back(Pad("sustainHeight", 0.5f));
 
     inputs.push_back(Pad("offBumpHeight", 0.05f));
-    inputs.push_back(Pad("offAttackSpeed", 0.05f, "s"));
-    inputs.push_back(Pad("offDecaySpeed", 0.25f, "s"));
+    inputs.push_back(Pad("offAttackSpeed", 0.05f, UNIT_SECONDS));
+    inputs.push_back(Pad("offDecaySpeed", 0.25f, UNIT_SECONDS));
 
     inputs.push_back(Pad("onAttackPow", 0.5f));
     inputs.push_back(Pad("onDecayPow", 2.0f));

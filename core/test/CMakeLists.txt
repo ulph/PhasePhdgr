@@ -47,6 +47,7 @@ endif()
 
 add_executable(core_catch2 
     ${TEST_COMMON_SRC}
+    module_all_test.cpp
     blitosc_test.cpp
 )
 set_property(TARGET core_catch2 PROPERTY FOLDER core/test)

@@ -140,6 +140,8 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
     while(samplesLeft > 0) {
         int chunkSize = (samplesLeft < maxChunk) ? samplesLeft : maxChunk;
 
+        assert(chunkSize % ConnectionGraph::k_blockSize == 0);
+
         for (auto & v : voices) v->processingStart(chunkSize, sampleRate, *globalData);
 
         if (concurrency > 1 && settings.multicore && voices.size() > 1) {
@@ -156,6 +158,11 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
         }
 
         for (auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);
+
+        // ensure the global midi stuff 'catches up' -- TODO, refactor so this is done _once_ pre copying to voices
+        for(auto n=0u; n<chunkSize; n+=ConnectionGraph::k_blockSize) {
+            globalData->update();
+        }
 
         samplesLeft -= chunkSize;
         bufL += chunkSize;

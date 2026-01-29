@@ -36,6 +36,8 @@ endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/python)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/submodules/catch2)
+
 set( PHASEPHDGR_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>
     $<TARGET_OBJECTS:dsp_obj>

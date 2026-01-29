@@ -1,4 +1,5 @@
 #include "sympow.hpp"
+#include "limits.hpp"
 #include <math.h>
 
 SymPow::SymPow() {
@@ -19,7 +20,7 @@ SymLog2::SymLog2() {
 }
 
 void SymLog2::process() {
-    float v = fabs(inputs[0].value);
+    float v = limitLow(fabs(inputs[0].value), 1);
     float sign = inputs[0].value >= 0 ? 1.f : -1.f;
     outputs[0].value = sign*logf(v) / logf(2.0f);
 }

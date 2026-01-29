@@ -33,7 +33,9 @@ void RangeMap::process() {
     float inB = inputs[2].value;
     float outA = inputs[3].value;
     float outB = inputs[4].value;
-    float y = outA + ((outB - outA) / (inB - inA)) * (x - inA);
+    auto inRange = limitLowAbsSigned(inB - inA, 0.0001f);
+    auto outRange = outB - outA;
+    float y = outA + (outRange / inRange) * (x - inA);
     outputs[0].value = y;
 }
 

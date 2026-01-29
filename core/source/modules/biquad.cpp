@@ -1,3 +1,6 @@
+#include "limits.hpp"
+#include "units.hpp"
+#include <cmath>
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -45,7 +48,7 @@ void Biquad::process() {
 
 LowPass::LowPass()
 {
-  inputs.push_back(Pad("fc", "Hz"));
+  inputs.push_back(Pad("fc", UNIT_HZ));
   inputs.push_back(Pad("Q", 1.0));
 
   outputs.push_back(Pad("a1"));
@@ -69,13 +72,14 @@ LowPass::LowPass()
  */
 void LowPass::process()
 {
-  float f0 = inputs[0].value * fsInv;
-  f0 = f0>0.49f?0.49f:f0;
-
+  float f0 = limit(inputs[0].value * fsInv, 0, nyquist);
   float w0 = 2.f * (float)M_PI * f0;
-  float alpha = sinf(w0) / (2.0f * inputs[1].value);
+  float alpha = sinf(w0) / (2.0f * limitLow(inputs[1].value, 0.00001));
 
   float a0 = 1.f + alpha;
+
+  assert(std::isfinite(w0));
+  assert(std::isfinite(alpha));
 
   outputs[0].value = -2.f * cosf(w0) / a0;
   outputs[1].value = (1.f - alpha) / a0;
@@ -88,8 +92,8 @@ void LowPass::process()
 
 PeakingEQ::PeakingEQ()
 {
-    inputs.push_back(Pad("fc", "Hz"));
-    inputs.push_back(Pad("A", 0.0, "dB"));
+    inputs.push_back(Pad("fc", UNIT_HZ));
+    inputs.push_back(Pad("A", 0.0, UNIT_DB));
     inputs.push_back(Pad("Q", 1.0));
 
     outputs.push_back(Pad("a1"));
@@ -97,7 +101,6 @@ PeakingEQ::PeakingEQ()
     outputs.push_back(Pad("b0"));
     outputs.push_back(Pad("b1"));
     outputs.push_back(Pad("b2"));
-
 }
 
 /**
@@ -112,9 +115,12 @@ PeakingEQ::PeakingEQ()
  */
 void PeakingEQ::process()
 {
-    float w0 = 2.f * (float)M_PI * inputs[0].value * fsInv;
-    float alpha = sinf(w0) / (2.0f * inputs[2].value);
+    float f0 = limit(inputs[0].value * fsInv, 0, nyquist);
+    float w0 = 2.f * (float)M_PI * f0;
+    float alpha = sinf(w0) / (2.0f * limitLow(inputs[2].value, 0.00001));
     float A = powf(10.f, inputs[1].value/40.f);
+
+    assert(std::isfinite(A));
 
     float a0 = (1.f + alpha)/A;
     outputs[0].value = -2.f * cosf(w0);
@@ -127,6 +133,7 @@ void PeakingEQ::process()
     // Normalization by a0
     for(auto &out: outputs)
     {
+        assert(std::isfinite(out.value));
         out.value /= a0;
     }
 }

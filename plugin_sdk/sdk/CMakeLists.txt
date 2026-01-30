@@ -1,5 +1,5 @@
 project(phasephdgr_plugin_sdk)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 4.2.0)
 set (CMAKE_CXX_STANDARD 23)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

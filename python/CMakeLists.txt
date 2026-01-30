@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.5)
 project(pp_python)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

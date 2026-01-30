@@ -347,7 +347,7 @@ void PhasePhdgrProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mi
     int evtPos = 0;
     MidiMessage msg;
     while (midiIt.getNextEvent(msg, evtPos)) {
-        int ch = msg.getChannel();
+        int ch = msg.getChannel() - 1; // normalize to 0 index
         if (msg.isNoteOnOrOff()) {
             midiMessageQueue.emplace_back(
                 msg.isNoteOn(true) ? PPMidiMessage::Type::On : PPMidiMessage::Type::Off,

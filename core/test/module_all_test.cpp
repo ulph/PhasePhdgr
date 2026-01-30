@@ -11,7 +11,7 @@
 #include "module_fuzzer.hpp"
 #include "moduleregister.hpp"
 
-TEST_CASE("generic module test", "[module]") {
+TEST_CASE("module fuzz test", "[module]") {
     const auto builtinModules = getAllBuiltinModules();
     for(auto [moduleName, moduleFactory]: builtinModules) {
         SECTION(moduleName) {

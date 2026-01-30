@@ -1,5 +1,5 @@
 cmake_policy(SET CMP0048 NEW)
-cmake_minimum_required(VERSION 4.2.0)
+cmake_minimum_required(VERSION 3.31.6)
 project(phasephdgr VERSION 0.1.1)
 
 set (CMAKE_CXX_STANDARD 23)

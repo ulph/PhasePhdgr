@@ -4,8 +4,8 @@ project(phasephdgr VERSION 0.1.1)
 
 set (CMAKE_CXX_STANDARD 23)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/submodules/catch2)
-list(APPEND CMAKE_MODULE_PATH (${CMAKE_CURRENT_SOURCE_DIR}/submodules/catch2/extras))
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/submodules/Catch2)
+list(APPEND CMAKE_MODULE_PATH (${CMAKE_CURRENT_SOURCE_DIR}/submodules/Catch2/extras))
 include(CTest)
 include(Catch)
 enable_testing()

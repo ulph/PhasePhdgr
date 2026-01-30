@@ -21,7 +21,9 @@ struct NoteDataKey {
     NoteDataKey(int channel, int note)
         : channel(channel)
         , note(note)
-    {}
+    {
+        assert(isValid());
+    }
     bool operator<(const NoteDataKey& rhs) const
     {
         return std::tie(channel, note) < std::tie(rhs.channel, rhs.note);

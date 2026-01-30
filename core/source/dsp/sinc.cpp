@@ -1,7 +1,7 @@
 #include "sinc.hpp"
 
 #define MAKE_SINC_TABLE(N) \
-const FractionalSincTable< N > c_fractionalSincTable_##N (true); \
+const FractionalSincTable< N > c_fractionalSincTable_##N; \
 template <> const FractionalSincTable< N > & getFractionalSincTable() { \
     return c_fractionalSincTable_##N; \
 }

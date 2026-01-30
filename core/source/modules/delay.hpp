@@ -20,20 +20,20 @@ template <int N>
 class Delay : public ModuleCRTP<Delay<N>>
 {
 private:
-    float *buffer;
+    double *buffer;
     int bufferSize;
     int readPosition;
-    float coeffs[N];
+//    float coeffs[N];
     const FractionalSincTable<N>& c_table;
     float clearFlag;
-    float slewedTime;
+    double slewedTime;
 public:
     Delay(const FractionalSincTable<N>& table)
         : bufferSize(0)
         , buffer(nullptr)
         , readPosition(0)
         , c_table(table)
-        , slewedTime(0.f)
+        , slewedTime(0.0)
     {
         Module::inputs.push_back(Pad("in"));
         Module::inputs.push_back(Pad("time", 0.5f, UNIT_SECONDS));
@@ -50,7 +50,7 @@ public:
         , buffer(nullptr)
         , readPosition(0)
         , c_table(other.c_table)
-        , slewedTime(0.0f)
+        , slewedTime(0.0)
     {
     }
 
@@ -62,25 +62,25 @@ public:
         // design a FIR from windowed sinc with fractional delay as an approx of ideal allpass
 
         if (clearFlag < 0.f && Module::inputs[3].value >= 0) {
-            memset(buffer, 0, sizeof(float)*bufferSize);
+            memset(buffer, 0, sizeof(double)*bufferSize);
         }
         clearFlag = Module::inputs[3].value;
 
         float target_t = limit(Module::inputs[1].value, 0, c_max_delay_t);
         float alphaTime = DesignRcLp(limit(Module::inputs[5].value, 0, Module::nyquist), Module::fsInv);
         slewedTime = alphaTime*target_t + (1.0f - alphaTime)*slewedTime;
-        float t = slewedTime;
-        float g = Module::inputs[2].value;
-        float s = Module::inputs[4].value;
+        double t = slewedTime;
+        double g = Module::inputs[2].value;
+        double s = Module::inputs[4].value;
 
         // account for filter delay
-        float tapeSamples = (t*Module::fs) - (N-1) * 0.5f + s; // subtract nominal delay of filter and sample compensation
+        double tapeSamples = (t*Module::fs) - (N-1) * 0.5 + s; // subtract nominal delay of filter and sample compensation
         tapeSamples = tapeSamples < 0.0f ? 0.0f : tapeSamples;
-        int numSamplesTotal = (int)(ceilf(t)*Module::fs + N);
+        int numSamplesTotal = (int)(ceil(t)*(double)Module::fs + N);
         if (numSamplesTotal >= bufferSize) {
             // lazily grow the buffer ...
             auto newBufferSize = 2 * numSamplesTotal;
-            auto newBuffer = new float[newBufferSize]();
+            auto newBuffer = new double[newBufferSize]();
             memset(newBuffer, 0, sizeof(float)*newBufferSize);
             memmove(newBuffer, buffer, sizeof(float)*bufferSize);
             delete[] buffer;
@@ -89,16 +89,18 @@ public:
         }
 
         const int writePosition = (readPosition + (int)tapeSamples);
-        const float frac = tapeSamples - (int)(tapeSamples);
+        const double frac = tapeSamples - (int)(tapeSamples);
+        assert(frac >= 0.0);
+        assert(frac < 1.0);
 
-        float *coeffs = nullptr;
+        double *coeffs = nullptr;
         auto ret = c_table.getCoefficientTablePointer(frac, &coeffs, N);
         assert(ret == N);
         assert(coeffs != nullptr);
 
         // apply it on to write buffer (running convolution)
         for (int n = 0; n < N; n++) {
-            buffer[(writePosition + n) % bufferSize] += coeffs[n] * g*Module::inputs[0].value;
+            buffer[(writePosition + n) % bufferSize] += coeffs[n] * g*(double)Module::inputs[0].value;
         }
 
         Module::outputs[0].value = buffer[readPosition];

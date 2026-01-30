@@ -1,0 +1,15 @@
+{
+  "root": {
+    "graph": {
+      "connections": [
+        [ "inBus", "left", "outBus", "left" ],
+        [ "inBus", "right", "outBus", "right" ]
+      ],
+      "layout": {
+        "inBus": [ 411, 156 ],
+        "outBus": [ 508, 609 ]
+      },
+      "modules": []
+    }
+  }
+}

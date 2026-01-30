@@ -3,7 +3,7 @@
 #include "synthvoice.hpp"
 #include "effectchain.hpp"
 
-#if SUPPORT_PLUGIN_LOADING
+#if PHPH_SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
 #endif
 
@@ -144,6 +144,7 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
 
         for (auto & v : voices) v->processingStart(chunkSize, sampleRate, *globalData);
 
+#if PHPH_ENABLE_MULTITHREADING
         if (concurrency > 1 && settings.multicore && voices.size() > 1) {
             std::vector< std::future<void> > results;
             for (auto & v : voices) {
@@ -154,8 +155,11 @@ void Synth::update(float * leftChannelbuffer, float * rightChannelbuffer, int nu
             for (auto && result : results) result.get();
         }
         else {
+#endif
             for (auto & v : voices) v->threadedProcess();
+#if PHPH_ENABLE_MULTITHREADING
         }
+#endif
 
         for (auto & v : voices) v->processingFinish(bufL, bufR, chunkSize);
 
@@ -257,19 +261,19 @@ void Synth::applySettings(const PresetSettings& newSettings) {
 }
 
 SDKExtensionManager::SDKExtensionManager()
-#if SUPPORT_PLUGIN_LOADING
+#if PHPH_SUPPORT_PLUGIN_LOADING
     : sdkPluginRegister(new PluginsRegister())
 #endif
 {}
 
 SDKExtensionManager::~SDKExtensionManager() {
-#if SUPPORT_PLUGIN_LOADING
+#if PHPH_SUPPORT_PLUGIN_LOADING
     delete sdkPluginRegister;
 #endif
 }
 
 void SDKExtensionManager::registerSdkExtensions(const std::set<std::string>& filenames) {
-#if SUPPORT_PLUGIN_LOADING
+#if PHPH_SUPPORT_PLUGIN_LOADING
     for (const auto& fname : filenames) {
         sdkPluginRegister->loadPlugin(fname.c_str());
     }
@@ -277,7 +281,7 @@ void SDKExtensionManager::registerSdkExtensions(const std::set<std::string>& fil
 }
 
 void SDKExtensionManager::updateDoc(Doc* doc) {
-#if SUPPORT_PLUGIN_LOADING
+#if PHPH_SUPPORT_PLUGIN_LOADING
     auto cg = ConnectionGraph();
     sdkPluginRegister->registerModules(&cg);
     std::vector<ModuleDoc> dd;

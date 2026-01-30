@@ -1,3 +1,5 @@
+option(PHPH_ENABLE_MULTITHREADING "Enable multithreaded processing" ON)
+
 include_directories(components design docs synth utilities)
 
 set(SRC
@@ -25,3 +27,7 @@ set(SRC
 add_library(phasephdgr_obj OBJECT ${SRC})
 set_target_properties(phasephdgr_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(phasephdgr_obj PROPERTIES FOLDER core)
+
+if(PHPH_ENABLE_MULTITHREADING) 
+    target_compile_definitions(phasephdgr_obj PUBLIC PHPH_ENABLE_MULTITHREADING=1)
+endif()

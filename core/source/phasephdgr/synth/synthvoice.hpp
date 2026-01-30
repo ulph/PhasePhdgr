@@ -12,7 +12,7 @@
 #include "moduleregister.hpp"
 #include "busmodules.hpp"
 
-#if SUPPORT_PLUGIN_LOADING
+#if PHPH_SUPPORT_PLUGIN_LOADING
 #include "pluginsregister.hpp"
 #else
 namespace PhasePhdgr {

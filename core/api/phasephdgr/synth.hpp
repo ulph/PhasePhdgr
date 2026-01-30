@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+#if PHPH_ENABLE_MULTITHREADING
 #include "ThreadPool.h"
+#endif
 
 #include "design.hpp"
 #include "scope.hpp"
@@ -90,7 +92,9 @@ namespace PhasePhdgr {
         Scope voiceScopeR;
         size_t concurrency;
         PresetSettings settings;
+#if PHPH_ENABLE_MULTITHREADING
         progschj::ThreadPool pool;
+#endif
     };
 
     class PluginsRegister;

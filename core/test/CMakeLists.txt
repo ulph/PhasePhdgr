@@ -53,3 +53,4 @@ add_executable(core_catch2
 set_property(TARGET core_catch2 PROPERTY FOLDER core/test)
 target_link_libraries( core_catch2 PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 target_link_libraries( core_catch2 PRIVATE Catch2::Catch2WithMain)
+catch_discover_tests(core_catch2)

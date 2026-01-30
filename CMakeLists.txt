@@ -4,7 +4,10 @@ project(phasephdgr VERSION 0.1.1)
 
 set (CMAKE_CXX_STANDARD 23)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/submodules/catch2)
+list(APPEND CMAKE_MODULE_PATH (${CMAKE_CURRENT_SOURCE_DIR}/submodules/catch2/extras))
 include(CTest)
+include(Catch)
 enable_testing()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -35,8 +38,6 @@ if(${BUILD_PLUGIN_SDK})
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/python)
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/submodules/catch2)
 
 set( PHASEPHDGR_SRC
     $<TARGET_OBJECTS:connectiongraph_obj>

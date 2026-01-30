@@ -38,7 +38,9 @@ Synth::Synth()
     : voiceBus(new VoiceBus())
     , scopeVoiceIndex(-1)
     , concurrency(std::thread::hardware_concurrency())
+#if PHPH_SUPPORT_PLUGIN_LOADING
     , pool(concurrency)
+#endif
 {
 }
 

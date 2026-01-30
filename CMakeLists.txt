@@ -47,7 +47,7 @@ set( PHASEPHDGR_SRC
     $<TARGET_OBJECTS:threading_obj>
 )
 
-if(${PHPH_PHPH_SUPPORT_PLUGIN_LOADING})
+if(${PHPH_SUPPORT_PLUGIN_LOADING})
     set( PHASEPHDGR_SRC
         ${PHASEPHDGR_SRC}
         $<TARGET_OBJECTS:plugin_obj>

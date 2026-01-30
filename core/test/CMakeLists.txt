@@ -15,7 +15,7 @@ set( TEST_COMMON_SRC
     $<TARGET_OBJECTS:phasephdgr_obj>
 )
 
-if(${SUPPORT_PLUGIN_LOADING})
+if(${PHPH_SUPPORT_PLUGIN_LOADING})
     set( TEST_COMMON_SRC
         ${TEST_COMMON_SRC}
         $<TARGET_OBJECTS:plugin_obj>
@@ -36,8 +36,8 @@ target_link_libraries( run_module ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
 set(ENV{<variable>} <value>...)
 
-if(${BUILD_PLUGIN_SDK})
-    if(${SUPPORT_PLUGIN_LOADING})
+if(${PHPH_BUILD_PLUGIN_SDK})
+    if(${PHPH_SUPPORT_PLUGIN_LOADING})
         add_executable(test_plugin_loader test_plugin_loader.cpp ${TEST_COMMON_SRC})
         set_property(TARGET test_plugin_loader PROPERTY FOLDER core/test)
         target_link_libraries(test_plugin_loader ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})

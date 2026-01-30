@@ -40,9 +40,9 @@ Note, adding support for audio input to the synth, as similairly midi input for 
 ## build targets ##
 
 * core / synth / tools - buildable from from ./core
-* VST / JUCE - option BUILD_JUCE
-* CLI client(s) - option BUILD_CLI
-* Plugin SDK export - option BUILD_PLUGIN_SDK
+* VST / JUCE - option PHPH_BUILD_JUCE
+* CLI client(s) - option PHPH_BUILD_CLI
+* Plugin SDK export - option PHPH_BUILD_PLUGIN_SDK
 
 ## submodules ##
 

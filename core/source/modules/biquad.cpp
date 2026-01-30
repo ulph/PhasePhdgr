@@ -6,6 +6,8 @@
 
 #include "biquad.hpp"
 
+#include <cassert>
+
 // TODO, make open variant
 Biquad::Biquad()
 {
